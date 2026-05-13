@@ -61,7 +61,7 @@ jobs:
 
       - name: Upload OpenClaw artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: openclaw-task-runner-${{ github.run_id }}
           path: |
@@ -72,11 +72,31 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+      - name: Update STATUS.md
+        if: always()
+        run: |
+          TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          STATUS_VAL="$(jq -r '.status // "UNKNOWN"' /tmp/openclaw-latest.json 2>/dev/null || echo UNKNOWN)"
+          TASK_ID_VAL="$(jq -r '.task_id // "unknown"' /tmp/openclaw-latest.json 2>/dev/null || echo unknown)"
+          TASK_TYPE_VAL="$(jq -r '.task_type // "unknown"' /tmp/openclaw-latest.json 2>/dev/null || echo unknown)"
+          REPORT_VAL="$(jq -r '.report_file // "n/a"' /tmp/openclaw-latest.json 2>/dev/null || echo n/a)"
+          {
+            echo ""
+            echo "## Latest OpenClaw Run"
+            echo "- timestamp_utc: ${TS}"
+            echo "- run_id: ${GITHUB_RUN_ID}"
+            echo "- run_url: ${GITHUB_RUN_URL}"
+            echo "- task_id: ${TASK_ID_VAL}"
+            echo "- task_type: ${TASK_TYPE_VAL}"
+            echo "- status: ${STATUS_VAL}"
+            echo "- report_file: ${REPORT_VAL}"
+          } >> ops/agent-control/STATUS.md
+
       - name: Commit evidence
         if: always()
         run: |
           git pull --ff-only origin main || true
-          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports)" ]; then
+          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports ops/agent-control/STATUS.md)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             if [ -d "ops/agent-control/reports/openclaw-heartbeat" ]; then
@@ -88,6 +108,7 @@ jobs:
             if [ -d "ops/openclaw/reports/virtual-browser" ]; then
               git add -A ops/openclaw/reports/virtual-browser
             fi
+            git add ops/agent-control/STATUS.md
             if git diff --cached --quiet; then
               echo "No staged evidence changes after git add."
             else

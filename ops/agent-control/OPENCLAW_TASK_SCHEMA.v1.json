@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencloud-gpt-agent/schemas/openclaw-task-schema-v1.json",
+  "title": "OpenClaw Task Schema v1",
+  "type": "object",
+  "required": ["id", "type", "requested_by", "goal", "safety", "expected_status"],
+  "properties": {
+    "id": { "type": "string", "minLength": 3, "maxLength": 120, "pattern": "^[A-Za-z0-9._:-]+$" },
+    "type": {
+      "type": "string",
+      "enum": ["heartbeat", "virtual_browser_audit", "synthetic_fail", "repo_audit", "repo_patch", "supabase_check", "synthetic_lead_check", "regression_check"]
+    },
+    "requested_by": { "type": "string", "minLength": 2, "maxLength": 80 },
+    "goal": { "type": "string", "minLength": 10, "maxLength": 2000 },
+    "expected_status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "DEGRADED"] },
+    "params": { "type": "object" },
+    "safety": {
+      "type": "object",
+      "required": ["production_code_change", "customer_action", "secrets_required", "public_posting", "paid_ads_change", "destructive_action"],
+      "properties": {
+        "production_code_change": { "type": "boolean" },
+        "customer_action": { "type": "boolean" },
+        "secrets_required": { "type": "boolean" },
+        "public_posting": { "type": "boolean" },
+        "paid_ads_change": { "type": "boolean" },
+        "destructive_action": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

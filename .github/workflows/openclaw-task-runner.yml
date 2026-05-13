@@ -1,0 +1,168 @@
+name: OpenClaw Task Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_file:
+        description: Optional task file path under ops/agent-control/tasks
+        required: false
+        default: ""
+      force_rerun:
+        description: Bypass dedupe window
+        required: false
+        default: "false"
+  push:
+    branches:
+      - main
+    paths:
+      - "ops/agent-control/tasks/*.json"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: openclaw-task-runner-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TASK_FILE: ${{ github.event.inputs.task_file || '' }}
+      FORCE_RERUN: ${{ github.event.inputs.force_rerun || 'false' }}
+      DEDUPE_WINDOW_MINUTES: "15"
+      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install npm dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Run OpenClaw task
+        id: run_task
+        continue-on-error: true
+        env:
+          OPENCLAW_LATEST_FILE: /tmp/openclaw-latest.json
+        run: node scripts/openclaw-task-runner.mjs
+
+      - name: Upload OpenClaw artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-task-runner-${{ github.run_id }}
+          path: |
+            ops/agent-control/reports/openclaw-heartbeat/
+            ops/agent-control/reports/openclaw-browser-audit/
+            ops/openclaw/reports/virtual-browser/
+            /tmp/openclaw-latest.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Commit evidence
+        if: always()
+        run: |
+          git pull --ff-only origin main || true
+          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit
+            if [ -d "ops/openclaw/reports/virtual-browser" ]; then
+              git add -A ops/openclaw/reports/virtual-browser
+            fi
+            if git diff --cached --quiet; then
+              echo "No staged evidence changes after git add."
+            else
+              git commit -m "ops(agent): add OpenClaw task evidence"
+              git push origin HEAD:main || (git pull --rebase origin main && git push origin HEAD:main)
+            fi
+          else
+            echo "No evidence changes to commit."
+          fi
+
+      - name: Open/update alert issue (dedupe 12h)
+        if: always()
+        continue-on-error: true
+        uses: actions/github-script@v8
+        env:
+          OPENCLAW_LATEST_FILE: /tmp/openclaw-latest.json
+        with:
+          script: |
+            const fs = require('fs');
+            const latestPath = process.env.OPENCLAW_LATEST_FILE;
+            if (!fs.existsSync(latestPath)) return;
+            let latest;
+            try {
+              latest = JSON.parse(fs.readFileSync(latestPath, 'utf8'));
+            } catch {
+              return;
+            }
+            const status = latest.status || 'UNKNOWN';
+            if (!['FAIL', 'BLOCKED', 'DEGRADED'].includes(status)) return;
+            const dedupeKey = latest.dedupe_key || `${latest.task_type || 'task'}:${status}`;
+            const title = `[OpenClaw] ${status} ${dedupeKey}`;
+            const search = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open "${title}"`
+            });
+            const body = [
+              `status: ${status}`,
+              `task_id: ${latest.task_id}`,
+              `task_type: ${latest.task_type}`,
+              `dedupe_key: ${dedupeKey}`,
+              `run: ${process.env.GITHUB_RUN_URL}`,
+              `report: ${latest.report_file}`
+            ].join('\n');
+            if (search.data.items.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: search.data.items[0].number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['ops', 'openclaw-alert']
+              });
+            }
+
+      - name: Enforce expected status
+        if: always()
+        run: |
+          if [ ! -f "/tmp/openclaw-latest.json" ]; then
+            echo "Missing /tmp/openclaw-latest.json"
+            exit 1
+          fi
+          export OPENCLAW_LATEST_FILE="/tmp/openclaw-latest.json"
+          STATUS="$(jq -r '.status // "UNKNOWN"' "${OPENCLAW_LATEST_FILE}")"
+          EXPECTED_STATUS="$(jq -r '.expected_status // "PASS"' "${OPENCLAW_LATEST_FILE}")"
+          TASK_TYPE="$(jq -r '.task_type // "unknown"' "${OPENCLAW_LATEST_FILE}")"
+          if [ "${STATUS}" = "${EXPECTED_STATUS}" ]; then
+            echo "Status ${STATUS} matches expected_status ${EXPECTED_STATUS}."
+            exit 0
+          fi
+          if [ "${TASK_TYPE}" = "synthetic_fail" ] && [ "${STATUS}" = "FAIL" ]; then
+            echo "Synthetic fail drill behaved as expected."
+            exit 0
+          fi
+          if [ "${STATUS}" = "PASS" ] || [ "${STATUS}" = "DEGRADED" ]; then
+            exit 0
+          fi
+          echo "Task status is ${STATUS}; expected ${EXPECTED_STATUS}"
+          exit 1

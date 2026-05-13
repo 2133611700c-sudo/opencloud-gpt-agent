@@ -1,0 +1,10 @@
+{
+  "name": "opencloud-gpt-agent",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Independent OpenClaw execution layer for ChatGPT",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

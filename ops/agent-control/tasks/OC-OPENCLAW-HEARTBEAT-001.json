@@ -1,0 +1,17 @@
+{
+  "id": "OC-OPENCLAW-HEARTBEAT-001",
+  "type": "heartbeat",
+  "requested_by": "ChatGPT",
+  "goal": "Prove OpenClaw cloud runner health and evidence commit path in independent opencloud-gpt-agent repo.",
+  "expected_status": "PASS",
+  "params": {},
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  },
+  "handoff_required": true
+}

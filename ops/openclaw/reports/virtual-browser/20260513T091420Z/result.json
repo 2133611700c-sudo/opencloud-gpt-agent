@@ -1,0 +1,508 @@
+{
+  "summary": {
+    "ok": true,
+    "target": "https://handyandfriend.com",
+    "generated_at": "2026-05-13T09:14:47.077Z",
+    "pages_checked": 10,
+    "failed_pages": [],
+    "bad_claims": []
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "url": "https://handyandfriend.com/",
+      "ok": true,
+      "status": 200,
+      "ms": 5432,
+      "title": "Handy & Friend | Los Angeles Handyman",
+      "phone_links": 18,
+      "whatsapp_links": 7,
+      "messenger_links": 3,
+      "buttons": [
+        "×",
+        "🌐\nEN\n→ ES",
+        "🖌️\nPaint 1ct",
+        "🖌️\nPaint 2ct",
+        "🟫\nFlooring",
+        "📐\nTrim",
+        "📺\nTV & Decor",
+        "🪛\nAssembly",
+        "⚡\nPlumb & Elec",
+        "Laminate -- $3.00/sf",
+        "LVP -- $3.00/sf",
+        "ROOM (L×W)",
+        "TOTAL SQ FT",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "Calculate",
+        "Send via WhatsApp",
+        "Copy estimate",
+        "Text me this estimate",
+        "📐 Get Free Instant Quote",
+        "✕",
+        "Get Your Quote in 2 Min",
+        "×",
+        "📷"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663665230&cv=11&fst=1778663665230&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zb9244669510zd9244669510xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/desktop-home.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/book",
+      "url": "https://handyandfriend.com/book",
+      "ok": true,
+      "status": 200,
+      "ms": 1760,
+      "title": "Book a Handyman in Los Angeles | Free Estimate",
+      "phone_links": 7,
+      "whatsapp_links": 3,
+      "messenger_links": 0,
+      "buttons": [
+        "☰",
+        "Get Free Estimate"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663665230&cv=11&fst=1778663665230&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zb9244669510zd9244669510xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663668236&cv=11&fst=1778663668236&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938468~118463262~11",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/desktop-book.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/pricing",
+      "url": "https://handyandfriend.com/pricing",
+      "ok": true,
+      "status": 200,
+      "ms": 2632,
+      "title": "Handyman Pricing in Los Angeles | Handy & Friend",
+      "phone_links": 5,
+      "whatsapp_links": 3,
+      "messenger_links": 0,
+      "buttons": [
+        "ES",
+        "RU",
+        "UA",
+        "How fast do you respond?\n›",
+        "Free estimates?\n›",
+        "What work can you handle?\n›",
+        "Done-right promise?\n›",
+        "Saturday service?\n›",
+        "Payment methods?\n›"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663665230&cv=11&fst=1778663665230&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zb9244669510zd9244669510xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663668236&cv=11&fst=1778663668236&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938468~118463262~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663670868&cv=11&fst=1778663670868&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938465~115938469~118128923~11",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/desktop-pricing.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/services",
+      "url": "https://handyandfriend.com/services",
+      "ok": true,
+      "status": 200,
+      "ms": 1768,
+      "title": "Handyman Services in Los Angeles — Book Online Today | Handy & Friend",
+      "phone_links": 8,
+      "whatsapp_links": 2,
+      "messenger_links": 0,
+      "buttons": [
+        "☰"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663665230&cv=11&fst=1778663665230&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zb9244669510zd9244669510xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663668236&cv=11&fst=1778663668236&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938468~118463262~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663670868&cv=11&fst=1778663670868&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938465~115938469~118128923~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663672453&cv=11&fst=1778663672453&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938469~118463262&u_",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/desktop-services.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/messenger",
+      "url": "https://handyandfriend.com/messenger",
+      "ok": true,
+      "status": 200,
+      "ms": 2686,
+      "title": "Messenger",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "Continue"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_login_2' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_container' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_logo' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_title_2' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_sessionRoot' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_footerLinks' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_verticalBar' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_forgottenPasswordLink' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_form' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked."
+      ],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663665230&cv=11&fst=1778663665230&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zb9244669510zd9244669510xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663668236&cv=11&fst=1778663668236&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938468~118463262~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663670868&cv=11&fst=1778663670868&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938465~115938469~118128923~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663672453&cv=11&fst=1778663672453&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938469~118463262&u_",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_login_2",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_container",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_logo",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_title_2",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_sessionRoot",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_footerLinks",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_verticalBar",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_forgottenPasswordLink",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_form",
+          "failure": "csp"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/desktop-messenger.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "url": "https://handyandfriend.com/",
+      "ok": true,
+      "status": 200,
+      "ms": 2190,
+      "title": "Handy & Friend | Los Angeles Handyman",
+      "phone_links": 18,
+      "whatsapp_links": 7,
+      "messenger_links": 3,
+      "buttons": [
+        "×",
+        "🌐\nEN\n→ ES",
+        "🖌️\nPaint 1ct",
+        "🖌️\nPaint 2ct",
+        "🟫\nFlooring",
+        "📐\nTrim",
+        "📺\nTV & Decor",
+        "🪛\nAssembly",
+        "⚡\nPlumb & Elec",
+        "Laminate -- $3.00/sf",
+        "LVP -- $3.00/sf",
+        "ROOM (L×W)",
+        "TOTAL SQ FT",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "−",
+        "+",
+        "Calculate",
+        "Send via WhatsApp",
+        "Copy estimate",
+        "Text me this estimate",
+        "📐\nGet Free Instant Quote",
+        "✕",
+        "Get Your Quote in 2 Min",
+        "×",
+        "📷"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663677154&cv=11&fst=1778663677154&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938465~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/mobile-home.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/book",
+      "url": "https://handyandfriend.com/book",
+      "ok": true,
+      "status": 200,
+      "ms": 1511,
+      "title": "Book a Handyman in Los Angeles | Free Estimate",
+      "phone_links": 7,
+      "whatsapp_links": 3,
+      "messenger_links": 0,
+      "buttons": [
+        "☰",
+        "Get Free Estimate"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663677154&cv=11&fst=1778663677154&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938465~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663679160&cv=11&fst=1778663679160&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/mobile-book.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/pricing",
+      "url": "https://handyandfriend.com/pricing",
+      "ok": true,
+      "status": 200,
+      "ms": 2222,
+      "title": "Handyman Pricing in Los Angeles | Handy & Friend",
+      "phone_links": 5,
+      "whatsapp_links": 3,
+      "messenger_links": 0,
+      "buttons": [
+        "ES",
+        "RU",
+        "UA",
+        "How fast do you respond?\n›",
+        "Free estimates?\n›",
+        "What work can you handle?\n›",
+        "Done-right promise?\n›",
+        "Saturday service?\n›",
+        "Payment methods?\n›"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663677154&cv=11&fst=1778663677154&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938465~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663679160&cv=11&fst=1778663679160&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663681410&cv=11&fst=1778663681410&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938465~115938469~118463262&u_",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/mobile-pricing.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/services",
+      "url": "https://handyandfriend.com/services",
+      "ok": true,
+      "status": 200,
+      "ms": 1699,
+      "title": "Handyman Services in Los Angeles — Book Online Today | Handy & Friend",
+      "phone_links": 8,
+      "whatsapp_links": 2,
+      "messenger_links": 0,
+      "buttons": [
+        "☰"
+      ],
+      "bad_claims": [],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663677154&cv=11&fst=1778663677154&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938465~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663679160&cv=11&fst=1778663679160&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663681410&cv=11&fst=1778663681410&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938465~115938469~118463262&u_",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663682775&cv=11&fst=1778663682775&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938468~118463262~11",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/mobile-services.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/messenger",
+      "url": "https://handyandfriend.com/messenger",
+      "ok": true,
+      "status": 200,
+      "ms": 2622,
+      "title": "Messenger",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "Continue"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_login_2' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_container' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_logo' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_title_2' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_sessionRoot' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_footerLinks' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_verticalBar' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_forgottenPasswordLink' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked.",
+        "Loading the image 'https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_form' violates the following Content Security Policy directive: \"img-src *.fbcdn.net https://*.facebook.com cdninstagram.com *.cdninstagram.com data: *.fbsbx.com *.messenger.com messenger.com blob: android-webview-video-poster: *.xx.fbcdn.net https://messenger.com *.oculuscdn.com *.tenor.co *.tenor.com *.giphy.com https://*.google-analytics.com\". The action has been blocked."
+      ],
+      "request_failures": [
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663677154&cv=11&fst=1778663677154&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938465~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663679160&cv=11&fst=1778663679160&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115616986~115938466~115938469~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663681410&cv=11&fst=1778663681410&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938465~115938469~118463262&u_",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.google.com/rmkt/collect/17971094967/?random=1778663682775&cv=11&fst=1778663682775&fmt=8&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45je6581v9244373497za200zd9244373497xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=0~115938466~115938468~118463262~11",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_login_2",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_container",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_logo",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_title_2",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_sessionRoot",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_footerLinks",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_verticalBar",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_forgottenPasswordLink",
+          "failure": "csp"
+        },
+        {
+          "url": "https://www.meta.com/vulture_css_pixel/?name=css_www_april2026_test_messengerLogin_form",
+          "failure": "csp"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260513T091420Z/mobile-messenger.png"
+    }
+  ]
+}

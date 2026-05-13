@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Build evidence report
         run: |
@@ -38,7 +40,8 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add ops/agent-control/reports/openclaw-heartbeat
             git commit -m "ops(agent): add OpenClaw cloud heartbeat"
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           else
             echo "No evidence changes."
           fi

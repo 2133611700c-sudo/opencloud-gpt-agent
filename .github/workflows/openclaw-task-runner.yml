@@ -79,7 +79,12 @@ jobs:
           if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -A ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit
+            if [ -d "ops/agent-control/reports/openclaw-heartbeat" ]; then
+              git add -A ops/agent-control/reports/openclaw-heartbeat
+            fi
+            if [ -d "ops/agent-control/reports/openclaw-browser-audit" ]; then
+              git add -A ops/agent-control/reports/openclaw-browser-audit
+            fi
             if [ -d "ops/openclaw/reports/virtual-browser" ]; then
               git add -A ops/openclaw/reports/virtual-browser
             fi

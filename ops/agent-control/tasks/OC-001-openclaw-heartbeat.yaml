@@ -1,0 +1,24 @@
+id: "OC-001"
+title: "OpenClaw cloud heartbeat"
+priority: "P0"
+supervisor: "ChatGPT"
+executor: "OpenClaw Cloud Agent"
+mode: "evidence_only"
+scope:
+  repository: "opencloud-gpt-agent"
+  files:
+    - "ops/agent-control/"
+steps:
+  - "Read repository metadata"
+  - "Generate UTC heartbeat report"
+  - "Write report under openclaw-heartbeat reports path"
+  - "Commit evidence without touching production code"
+evidence_required:
+  - "UTC timestamp"
+  - "git sha"
+  - "runner environment"
+  - "safety confirmation"
+  - "next action"
+output:
+  report_path: "ops/agent-control/reports/openclaw-heartbeat/<UTC_TIMESTAMP>.md"
+  commit_message: "ops(agent): add OpenClaw cloud heartbeat"

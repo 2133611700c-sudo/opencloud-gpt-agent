@@ -1,0 +1,20 @@
+name: OpenClaw Repo Scan
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Policy scan (warn only)
+        run: node scripts/agent-policy-scan.mjs || true
+
+      - name: Pricing scan (warn only)
+        run: node scripts/agent-pricing-scan.mjs || true

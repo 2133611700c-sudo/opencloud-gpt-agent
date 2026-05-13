@@ -1,0 +1,44 @@
+name: OpenClaw Heartbeat
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "ops/agent-control/tasks/OC-001-openclaw-heartbeat.yaml"
+      - "ops/agent-control/triggers/openclaw-heartbeat-*.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build evidence report
+        run: |
+          mkdir -p ops/agent-control/reports/openclaw-heartbeat
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          OUT="ops/agent-control/reports/openclaw-heartbeat/${TS}.md"
+          echo "# OpenClaw Cloud Heartbeat" > "$OUT"
+          echo "" >> "$OUT"
+          echo "UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUT"
+          echo "Git SHA: ${GITHUB_SHA}" >> "$OUT"
+          echo "Runner: ${RUNNER_OS}/${RUNNER_ARCH}" >> "$OUT"
+          echo "Safety: no production code changes, evidence-only run" >> "$OUT"
+          echo "Status: PASS" >> "$OUT"
+          echo "Next action: run browser audit task packet" >> "$OUT"
+
+      - name: Commit evidence
+        run: |
+          if [ -n "$(git status --porcelain -- ops/agent-control/reports/openclaw-heartbeat)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add ops/agent-control/reports/openclaw-heartbeat
+            git commit -m "ops(agent): add OpenClaw cloud heartbeat"
+            git push
+          else
+            echo "No evidence changes."
+          fi

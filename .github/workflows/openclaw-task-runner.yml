@@ -59,6 +59,16 @@ jobs:
           OPENCLAW_LATEST_FILE: /tmp/openclaw-latest.json
         run: node scripts/openclaw-task-runner.mjs
 
+      - name: Normalize artifact filenames
+        if: always()
+        run: |
+          find ops/openclaw/reports/virtual-browser -type f -name '*:*' -print0 2>/dev/null | while IFS= read -r -d '' f; do
+            d="$(dirname "$f")"
+            b="$(basename "$f" | tr ':' '_')"
+            mv "$f" "$d/$b"
+            echo "renamed $f"
+          done
+
       - name: Upload OpenClaw artifacts
         if: always()
         uses: actions/upload-artifact@v5

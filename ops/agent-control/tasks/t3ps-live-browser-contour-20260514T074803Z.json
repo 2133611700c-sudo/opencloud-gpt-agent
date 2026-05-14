@@ -1,0 +1,25 @@
+{
+  "id": "t3ps-live-browser-contour-20260514T074803Z",
+  "type": "virtual_browser_audit",
+  "requested_by": "ChatGPT",
+  "goal": "Run live browser verification for Messenginfo TPS Ukraine: OCR upload, review, packet checker, Part7/legal-risk, attestation, Generate, ZIP download, screenshots, console/network evidence.",
+  "params": {
+    "target_origin": "https://messenginfo.com",
+    "routes": "/ru/services/tps-ukraine/start,/ru/services/tps-ukraine,/ru/services/tps-ukraine/sources,/ru/privacy,/api/tps/health",
+    "viewport": "390x844",
+    "max_attempts": 2,
+    "capture_console": true,
+    "capture_network": true,
+    "capture_screenshots": true,
+    "capture_downloads": true
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  },
+  "expected_status": "PASS"
+}

@@ -1,0 +1,990 @@
+{
+  "summary": {
+    "ok": true,
+    "target": "https://messenginfo.com",
+    "generated_at": "2026-05-14T07:48:58.109Z",
+    "pages_checked": 10,
+    "failed_pages": [],
+    "bad_claims": []
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/ru/services/tps-ukraine/start",
+      "url": "https://messenginfo.com/ru/services/tps-ukraine/start",
+      "ok": true,
+      "status": 200,
+      "ms": 1781,
+      "title": "TPS Украина — подготовка пакета | Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK",
+        "Подаю впервые",
+        "Продлеваю (TPS у меня уже был)",
+        "Не уверен",
+        "📷 У меня есть фото документов — загрузить",
+        "Дальше →"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled."
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/re-parole-u4u?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/privacy?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/terms?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/desktop-ru_services_tps-ukraine_start.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ru/services/tps-ukraine",
+      "url": "https://messenginfo.com/ru/services/tps-ukraine",
+      "ok": true,
+      "status": 200,
+      "ms": 2002,
+      "title": "TPS для Украины — Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/re-parole-u4u?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/privacy?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/terms?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/desktop-ru_services_tps-ukraine.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ru/services/tps-ukraine/sources",
+      "url": "https://messenginfo.com/ru/services/tps-ukraine/sources",
+      "ok": true,
+      "status": 200,
+      "ms": 1931,
+      "title": "TPS Украина — официальные источники | Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/re-parole-u4u?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/privacy?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/terms?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/desktop-ru_services_tps-ukraine_sources.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ru/privacy",
+      "url": "https://messenginfo.com/ru/privacy",
+      "ok": true,
+      "status": 200,
+      "ms": 1671,
+      "title": "Политика конфиденциальности – Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/re-parole-u4u?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/privacy?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/terms?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/desktop-ru_privacy.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/api/tps/health",
+      "url": "https://messenginfo.com/api/tps/health",
+      "ok": true,
+      "status": 200,
+      "ms": 1565,
+      "title": "",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/re-parole-u4u?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/privacy?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/terms?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services/translate-document?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/faq?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/desktop-api_tps_health.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ru/services/tps-ukraine/start",
+      "url": "https://messenginfo.com/ru/services/tps-ukraine/start",
+      "ok": true,
+      "status": 200,
+      "ms": 1696,
+      "title": "TPS Украина — подготовка пакета | Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK",
+        "Подаю впервые",
+        "Продлеваю (TPS у меня уже был)",
+        "Не уверен",
+        "📷 У меня есть фото документов — загрузить",
+        "Дальше →"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled."
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/mobile-ru_services_tps-ukraine_start.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ru/services/tps-ukraine",
+      "url": "https://messenginfo.com/ru/services/tps-ukraine",
+      "ok": true,
+      "status": 200,
+      "ms": 1643,
+      "title": "TPS для Украины — Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled."
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/mobile-ru_services_tps-ukraine.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ru/services/tps-ukraine/sources",
+      "url": "https://messenginfo.com/ru/services/tps-ukraine/sources",
+      "ok": true,
+      "status": 200,
+      "ms": 1706,
+      "title": "TPS Украина — официальные источники | Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled."
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/mobile-ru_services_tps-ukraine_sources.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ru/privacy",
+      "url": "https://messenginfo.com/ru/privacy",
+      "ok": true,
+      "status": 200,
+      "ms": 1690,
+      "title": "Политика конфиденциальности – Messenginfo",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [
+        "RU\n→ UK"
+      ],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled."
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/mobile-ru_privacy.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/api/tps/health",
+      "url": "https://messenginfo.com/api/tps/health",
+      "ok": true,
+      "status": 200,
+      "ms": 1384,
+      "title": "",
+      "phone_links": 0,
+      "whatsapp_links": 0,
+      "messenger_links": 0,
+      "buttons": [],
+      "bad_claims": [],
+      "console_errors": [
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.us.i.posthog.com https://cdn.eu.i.posthog.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocke",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Refused to execute script from 'https://messenginfo.com/ru/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled."
+      ],
+      "request_failures": [
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=6myxf",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=b49b6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=163p6",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516",
+          "failure": "csp"
+        },
+        {
+          "url": "https://messenginfo.com/ru/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/contact?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru/services?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://messenginfo.com/ru?_rsc=1atps",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "ops/openclaw/reports/virtual-browser/20260514T074840Z/mobile-api_tps_health.png"
+    }
+  ]
+}

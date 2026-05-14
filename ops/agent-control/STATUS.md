@@ -46,3 +46,12 @@ Start OC-002 browser audit task packet and publish first UI evidence report.
 - task_type: virtual_browser_audit
 - status: FAIL
 - report_file: ops/agent-control/reports/openclaw-browser-audit/20260514T030352Z.md
+
+## Latest OpenClaw Run
+- timestamp_utc: 2026-05-14T03:50:03Z
+- run_id: 25840528797
+- run_url: https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/25840528797
+- task_id: MESSENGINFO_DOMAIN_WWW_AUDIT_RERUN_2026-05-13_1
+- task_type: virtual_browser_audit
+- status: FAIL
+- report_file: ops/agent-control/reports/openclaw-browser-audit/20260514T034943Z.md

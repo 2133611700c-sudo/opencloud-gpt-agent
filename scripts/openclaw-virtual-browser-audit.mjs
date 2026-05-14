@@ -16,6 +16,16 @@ const viewports = [
   { name: "mobile", width: 390, height: 844 },
 ];
 
+function safeFilenamePart(value) {
+  return (
+    String(value || "route")
+      .replace(/^https?:\/\//i, "")
+      .replace(/[^A-Za-z0-9._-]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 120) || "route"
+  );
+}
+
 await fs.mkdir(outDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const results = [];
@@ -78,7 +88,7 @@ for (const viewport of viewports) {
             .slice(0, 80),
         )
         .catch(() => []);
-      const safeRoute = route === "/" ? "home" : route.replaceAll("/", "_").replace(/^_/, "");
+      const safeRoute = route === "/" ? "home" : safeFilenamePart(route);
       const screenshotName = `${viewport.name}-${safeRoute}.png`;
       const screenshotPath = path.join(outDir, screenshotName);
       await page.screenshot({ path: screenshotPath, fullPage: true });

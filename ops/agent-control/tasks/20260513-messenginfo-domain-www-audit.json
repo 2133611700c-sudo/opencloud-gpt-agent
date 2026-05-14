@@ -1,0 +1,20 @@
+{
+  "id": "MESSENGINFO_DOMAIN_WWW_AUDIT_2026-05-13",
+  "type": "virtual_browser_audit",
+  "requested_by": "Sergii",
+  "goal": "Verify the Messenginfo production domain configuration after Vercel reported misconfigured domains. Use real Chromium to check both apex and www hosts. Confirm whether messenginfo.com and www.messenginfo.com both serve the USCIS Helper / Messenginfo product, not the old LogiCheck / MC-DOT product. Capture screenshots and raw browser evidence. Do not change DNS, Vercel, Cloudflare, production code, paid ads, customer data, or public posts. If www still serves the old product or key USCIS routes fail, report FAIL with exact evidence and next action.",
+  "expected_status": "FAIL",
+  "params": {
+    "target_origin": "https://messenginfo.com",
+    "routes": "/,/ru/services/tps-ukraine/start,https://www.messenginfo.com/,https://www.messenginfo.com/ru/services/tps-ukraine/start",
+    "max_attempts": 1
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

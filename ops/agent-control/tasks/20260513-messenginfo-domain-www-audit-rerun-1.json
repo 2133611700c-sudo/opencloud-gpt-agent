@@ -1,8 +1,8 @@
 {
-  "id": "MESSENGINFO_DOMAIN_WWW_AUDIT_RERUN_2026-05-13_1",
+  "id": "MESSENGINFO_DOMAIN_WWW_AUDIT_RERUN_2026-05-13_2",
   "type": "virtual_browser_audit",
   "requested_by": "Sergii",
-  "goal": "Rerun the Messenginfo browser audit after fixing OpenClaw artifact filename handling. Verify that the OpenClaw workflow no longer fails during artifact upload. Use real Chromium to check apex and www hosts for the Messenginfo USCIS product and capture evidence. Do not change DNS, Vercel, Cloudflare, production code, paid ads, customer data, or public posts.",
+  "goal": "Force-rerun the Messenginfo browser audit after fixing OpenClaw artifact filename handling. Verify that the OpenClaw workflow no longer fails during artifact upload. Use real Chromium to check apex and www hosts for the Messenginfo USCIS product and capture evidence. Do not change DNS, Vercel, Cloudflare, production code, paid ads, customer data, or public posts.",
   "expected_status": "FAIL",
   "params": {
     "target_origin": "https://messenginfo.com",

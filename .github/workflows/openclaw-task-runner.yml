@@ -207,7 +207,7 @@ jobs:
 
   windows-smoke:
     needs: run-task
-    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.run_windows_smoke || 'true') == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_windows_smoke != 'false' }}
     runs-on: windows-latest
     timeout-minutes: 25
     env:
@@ -216,8 +216,8 @@ jobs:
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       REQUESTED_TASK_FILE: ${{ github.event.inputs.task_file || '' }}
       HEARTBEAT_TASK_FILE: ops/agent-control/tasks/OC-OPENCLAW-HEARTBEAT-001.json
-      HEARTBEAT_LATEST_FILE: ${{ runner.temp }}\openclaw-latest-windows-heartbeat.json
-      OPTIONAL_LATEST_FILE: ${{ runner.temp }}\openclaw-latest-windows-optional.json
+      HEARTBEAT_LATEST_FILE: ${{ runner.temp }}/openclaw-latest-windows-heartbeat.json
+      OPTIONAL_LATEST_FILE: ${{ runner.temp }}/openclaw-latest-windows-optional.json
     steps:
       - name: Checkout
         uses: actions/checkout@v5

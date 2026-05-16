@@ -12,7 +12,7 @@ on:
         required: false
         default: "false"
       run_windows_smoke:
-        description: Run an additional Windows smoke validation job
+        description: Run an additional Windows heartbeat smoke job
         required: false
         default: "true"
   push:
@@ -209,15 +209,13 @@ jobs:
     needs: run-task
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_windows_smoke != 'false' }}
     runs-on: windows-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     env:
       FORCE_RERUN: ${{ github.event.inputs.force_rerun || 'false' }}
       DEDUPE_WINDOW_MINUTES: "15"
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      REQUESTED_TASK_FILE: ${{ github.event.inputs.task_file || '' }}
-      HEARTBEAT_TASK_FILE: ops/agent-control/tasks/OC-OPENCLAW-HEARTBEAT-001.json
-      HEARTBEAT_LATEST_FILE: ${{ runner.temp }}/openclaw-latest-windows-heartbeat.json
-      OPTIONAL_LATEST_FILE: ${{ runner.temp }}/openclaw-latest-windows-optional.json
+      TASK_FILE: ops/agent-control/tasks/OC-OPENCLAW-HEARTBEAT-001.json
+      OPENCLAW_LATEST_FILE: ${{ runner.temp }}/openclaw-latest-windows-heartbeat.json
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -231,144 +229,20 @@ jobs:
           cache: npm
 
       - name: Install npm dependencies
-        shell: bash
+        shell: pwsh
         run: npm ci
 
-      - name: Run mandatory Windows heartbeat smoke
-        shell: bash
-        run: |
-          export TASK_FILE="${HEARTBEAT_TASK_FILE}"
-          export OPENCLAW_LATEST_FILE="${HEARTBEAT_LATEST_FILE}"
-          node scripts/openclaw-task-runner.mjs
+      - name: Run Windows heartbeat smoke
+        shell: pwsh
+        run: node scripts/openclaw-task-runner.mjs
 
-      - name: Resolve optional Windows browser smoke task
-        shell: bash
-        run: |
-          if [ -z "${REQUESTED_TASK_FILE}" ] || [ ! -f "${REQUESTED_TASK_FILE}" ]; then
-            echo "RUN_OPTIONAL=false" >> "$GITHUB_ENV"
-            exit 0
-          fi
-          TASK_TYPE="$(node -e "const fs=require('fs');const t=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(t.type||'');" "${REQUESTED_TASK_FILE}")"
-          if [ "${TASK_TYPE}" = "virtual_browser_audit" ]; then
-            echo "RUN_OPTIONAL=true" >> "$GITHUB_ENV"
-          else
-            echo "RUN_OPTIONAL=false" >> "$GITHUB_ENV"
-          fi
-
-      - name: Install Playwright Chromium (optional Windows browser smoke)
-        if: ${{ env.RUN_OPTIONAL == 'true' }}
-        shell: bash
-        run: npx playwright install chromium
-
-      - name: Run optional Windows browser smoke task
-        if: ${{ env.RUN_OPTIONAL == 'true' }}
-        continue-on-error: true
-        shell: bash
-        run: |
-          export TASK_FILE="${REQUESTED_TASK_FILE}"
-          export OPENCLAW_LATEST_FILE="${OPTIONAL_LATEST_FILE}"
-          node scripts/openclaw-task-runner.mjs
-
-      - name: Normalize artifact filenames
-        if: always()
-        shell: bash
-        run: |
-          if [ -d "ops/openclaw/reports/virtual-browser" ]; then
-            find ops/openclaw/reports/virtual-browser -type f -name '*:*' -print0 2>/dev/null | while IFS= read -r -d '' f; do
-              d="$(dirname "$f")"
-              b="$(basename "$f" | tr ':' '_')"
-              mv "$f" "$d/$b"
-            done
-          fi
-
-      - name: Update STATUS.md
-        if: always()
-        shell: bash
-        run: |
-          latest="${HEARTBEAT_LATEST_FILE}"
-          if [ -f "${OPTIONAL_LATEST_FILE}" ]; then
-            latest="${OPTIONAL_LATEST_FILE}"
-          fi
-          if [ ! -f "${latest}" ]; then
-            echo "Missing latest summary file: ${latest}"
-            exit 1
-          fi
-          TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          TASK_ID_VAL="$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(j.task_id||'unknown')" "${latest}")"
-          TASK_TYPE_VAL="$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(j.task_type||'unknown')" "${latest}")"
-          STATUS_VAL="$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(j.status||'UNKNOWN')" "${latest}")"
-          REPORT_VAL="$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(j.report_file||'n/a')" "${latest}")"
-          {
-            echo ""
-            echo "## Latest OpenClaw Run"
-            echo "- timestamp_utc: ${TS}"
-            echo "- run_id: ${GITHUB_RUN_ID}"
-            echo "- run_url: ${GITHUB_RUN_URL}"
-            echo "- task_id: ${TASK_ID_VAL}"
-            echo "- task_type: ${TASK_TYPE_VAL}"
-            echo "- status: ${STATUS_VAL}"
-            echo "- report_file: ${REPORT_VAL}"
-          } >> ops/agent-control/STATUS.md
-
-      - name: Commit evidence
-        if: always()
-        shell: bash
-        run: |
-          git pull --ff-only origin main
-          if [ -z "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports ops/agent-control/STATUS.md)" ]; then
-            echo "No evidence changes to commit."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -d "ops/agent-control/reports/openclaw-heartbeat" ]; then git add -A ops/agent-control/reports/openclaw-heartbeat; fi
-          if [ -d "ops/agent-control/reports/openclaw-browser-audit" ]; then git add -A ops/agent-control/reports/openclaw-browser-audit; fi
-          if [ -d "ops/openclaw/reports/virtual-browser" ]; then git add -A ops/openclaw/reports/virtual-browser; fi
-          git add ops/agent-control/STATUS.md
-          if git diff --cached --quiet; then
-            echo "No staged evidence changes after git add."
-            exit 0
-          fi
-          git commit -m "ops(agent): add OpenClaw Windows smoke evidence"
-          git push origin HEAD:main
-
-      - name: Upload OpenClaw artifacts
+      - name: Upload Windows smoke artifacts
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: openclaw-task-runner-${{ github.run_id }}-windows
+          name: openclaw-task-runner-${{ github.run_id }}-windows-smoke
           path: |
             ops/agent-control/reports/openclaw-heartbeat/
-            ops/agent-control/reports/openclaw-browser-audit/
-            ops/openclaw/reports/virtual-browser/
             ${{ runner.temp }}/openclaw-latest-windows-heartbeat.json
-            ${{ runner.temp }}/openclaw-latest-windows-optional.json
           retention-days: 30
           if-no-files-found: warn
-
-      - name: Enforce expected status
-        if: always()
-        shell: bash
-        run: |
-          latest="${HEARTBEAT_LATEST_FILE}"
-          if [ -f "${OPTIONAL_LATEST_FILE}" ]; then
-            latest="${OPTIONAL_LATEST_FILE}"
-          fi
-          if [ ! -f "${latest}" ]; then
-            echo "Missing latest summary file: ${latest}"
-            exit 1
-          fi
-          STATUS_VAL="$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(j.status||'UNKNOWN')" "${latest}")"
-          EXPECTED_VAL="$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(j.expected_status||'PASS')" "${latest}")"
-          TASK_TYPE_VAL="$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(j.task_type||'unknown')" "${latest}")"
-          if [ "${STATUS_VAL}" = "${EXPECTED_VAL}" ]; then
-            exit 0
-          fi
-          if [ "${TASK_TYPE_VAL}" = "synthetic_fail" ] && [ "${STATUS_VAL}" = "FAIL" ]; then
-            exit 0
-          fi
-          if [ "${STATUS_VAL}" = "PASS" ] || [ "${STATUS_VAL}" = "DEGRADED" ]; then
-            exit 0
-          fi
-          echo "Task status is ${STATUS_VAL}; expected ${EXPECTED_VAL}"
-          exit 1

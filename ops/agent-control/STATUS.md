@@ -100,3 +100,12 @@ Start OC-002 browser audit task packet and publish first UI evidence report.
 - task_type: heartbeat
 - status: PASS
 - report_file: ops/agent-control/reports/openclaw-heartbeat/20260516T221121Z.md
+
+## Latest OpenClaw Run
+- timestamp_utc: 2026-05-16T22:35:32Z
+- run_id: 25974767540
+- run_url: https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/25974767540
+- task_id: OC-OPENCLAW-HEARTBEAT-001
+- task_type: heartbeat
+- status: PASS
+- report_file: /home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/openclaw-heartbeat/20260516T223528Z.md

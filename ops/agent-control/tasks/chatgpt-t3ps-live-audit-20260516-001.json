@@ -1,0 +1,20 @@
+{
+  "id": "chatgpt-t3ps-live-audit-20260516-001",
+  "type": "virtual_browser_audit",
+  "requested_by": "ChatGPT",
+  "goal": "Run live browser audit for Messenginfo T3PS Stage I production flow after/while Codex works: verify TPS Ukraine start page, OCR/generate flow availability, console errors, failed network requests, screenshots, CTA/back/forward usability, and no forbidden legal claims. Do not change production code.",
+  "params": {
+    "target_origin": "https://messenginfo.com",
+    "routes": "/ru/services/tps-ukraine,/ru/services/tps-ukraine/start,/ru/services/tps-ukraine/sources,/en/services/tps-ukraine,/uk/services/tps-ukraine,/es/services/tps-ukraine",
+    "max_attempts": 2
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  },
+  "expected_status": "PASS"
+}

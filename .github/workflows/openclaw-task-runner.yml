@@ -38,7 +38,7 @@ jobs:
       FORCE_RERUN: ${{ github.event.inputs.force_rerun || 'false' }}
       DEDUPE_WINDOW_MINUTES: "15"
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      OPENCLAW_LATEST_FILE: ${{ runner.temp }}/openclaw-latest.json
+      OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -81,7 +81,7 @@ jobs:
             ops/agent-control/reports/openclaw-heartbeat/
             ops/agent-control/reports/openclaw-browser-audit/
             ops/openclaw/reports/virtual-browser/
-            ${{ runner.temp }}/openclaw-latest.json
+            ops/agent-control/reports/openclaw-latest.json
           retention-days: 30
           if-no-files-found: warn
 
@@ -137,7 +137,7 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v8
         env:
-          OPENCLAW_LATEST_FILE: ${{ runner.temp }}/openclaw-latest.json
+          OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
         with:
           script: |
             const fs = require('fs');
@@ -215,7 +215,7 @@ jobs:
       DEDUPE_WINDOW_MINUTES: "15"
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       TASK_FILE: ops/agent-control/tasks/OC-OPENCLAW-HEARTBEAT-001.json
-      OPENCLAW_LATEST_FILE: ${{ runner.temp }}/openclaw-latest-windows-heartbeat.json
+      OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest-windows-heartbeat.json
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -243,6 +243,6 @@ jobs:
           name: openclaw-task-runner-${{ github.run_id }}-windows-smoke
           path: |
             ops/agent-control/reports/openclaw-heartbeat/
-            ${{ runner.temp }}/openclaw-latest-windows-heartbeat.json
+            ops/agent-control/reports/openclaw-latest-windows-heartbeat.json
           retention-days: 30
           if-no-files-found: warn

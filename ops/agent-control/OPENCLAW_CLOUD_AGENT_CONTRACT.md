@@ -45,6 +45,23 @@ Execute directly in ChatGPT when:
 - No destructive actions without explicit task step.
 - No fake completion.
 - Evidence-first closure only.
+- Telegram/source monitoring defaults to read-only mode.
+- Telegram checks must use authorized access only (official API, export, or bot-accessible sources).
+- No spam, no customer actions, no public posting, no paid ads changes.
+
+## Terminology and dependency boundaries
+- OpenClaw = execution/monitoring/evidence control plane.
+- OpenCV/OpenCL are out of scope unless direct runtime imports are added to this repo and approved.
+- Do not install OpenCV/OpenCL proactively.
+
+## Supported task types
+- `heartbeat`
+- `virtual_browser_audit`
+- `synthetic_fail`
+
+## Windows execution requirements
+- Preferred shell for local operations: native `pwsh` on Windows.
+- Required binaries for Windows local execution: `node`, `npm`, `git`, `gh`, `pwsh`.
 
 ## Completion rule
 Task is complete only after ChatGPT verifies evidence and records next decision.

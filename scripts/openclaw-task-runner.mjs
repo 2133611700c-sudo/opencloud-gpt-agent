@@ -3,21 +3,45 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
+const repoRoot = process.cwd();
 const now = new Date();
 const runId = now.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
-const tasksDir = "ops/agent-control/tasks";
-const reportsRoot = "ops/agent-control/reports";
-const schemaPath = "ops/agent-control/OPENCLAW_TASK_SCHEMA.v1.json";
+const tasksDir = resolveRepoPath("ops", "agent-control", "tasks");
+const reportsRoot = resolveRepoPath("ops", "agent-control", "reports");
+const schemaPath = resolveRepoPath("ops", "agent-control", "OPENCLAW_TASK_SCHEMA.v1.json");
 const explicitTaskFile = process.env.TASK_FILE?.trim() || "";
 const forceRerun = (process.env.FORCE_RERUN || "").toLowerCase() === "true";
 const dedupeWindowMinutes = Number(process.env.DEDUPE_WINDOW_MINUTES || "15");
 const actor = process.env.GITHUB_ACTOR || "unknown";
 const sha = process.env.GITHUB_SHA || "unknown";
 const runUrl = process.env.GITHUB_RUN_URL || "unknown";
-const latestFile = process.env.OPENCLAW_LATEST_FILE || "ops/agent-control/reports/openclaw-latest.json";
+const latestFile = process.env.OPENCLAW_LATEST_FILE
+  ? path.resolve(process.env.OPENCLAW_LATEST_FILE)
+  : resolveRepoPath("ops", "agent-control", "reports", "openclaw-latest.json");
 const supportedTaskTypes = new Set(["heartbeat", "virtual_browser_audit", "synthetic_fail"]);
 const prohibitedSafetyFlags = ["customer_action", "public_posting", "paid_ads_change", "destructive_action"];
 
+function resolveRepoPath(...segments) {
+  return path.resolve(repoRoot, ...segments);
+}
+function findCommand(command) {
+  const finder = process.platform === "win32" ? "where" : "which";
+  try {
+    const out = execFileSync(finder, [command], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    return out.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)[0] || null;
+  } catch {
+    return null;
+  }
+}
+function ensureRequiredBinaries() {
+  const required = process.platform === "win32"
+    ? ["node", "npm", "git", "gh", "pwsh"]
+    : ["node", "npm", "git"];
+  const missing = required.filter((bin) => !findCommand(bin));
+  if (missing.length > 0) {
+    throw new Error(`missing required binaries: ${missing.join(", ")}`);
+  }
+}
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
@@ -100,7 +124,8 @@ function runBrowserAudit(task) {
   const target = task.params?.target_origin || "https://handyandfriend.com";
   const routes = task.params?.routes || "/,/book,/pricing,/services,/messenger";
   const attempts = Number(task.params?.max_attempts || 2);
-  const env = { ...process.env, TARGET_ORIGIN: target, ROUTES: routes, OUT_DIR: `ops/openclaw/reports/virtual-browser/${runId}` };
+  const outDir = resolveRepoPath("ops", "openclaw", "reports", "virtual-browser", runId);
+  const env = { ...process.env, TARGET_ORIGIN: target, ROUTES: routes, OUT_DIR: outDir };
   let lastError;
   for (let i = 1; i <= attempts; i += 1) {
     try {
@@ -138,7 +163,8 @@ function nextActionFor(status, failureClass) {
 }
 
 function main() {
-  const taskFile = explicitTaskFile || latestTaskFile();
+  ensureRequiredBinaries();
+  const taskFile = path.resolve(explicitTaskFile || latestTaskFile());
   if (!fs.existsSync(schemaPath)) throw new Error(`missing schema file: ${schemaPath}`);
   readJson(schemaPath);
   const task = readJson(taskFile);

@@ -1,5 +1,10 @@
 # Tasks
 
+## Supported task types
+- `heartbeat`
+- `virtual_browser_audit`
+- `synthetic_fail`
+
 ## OC-001-openclaw-heartbeat
 - Goal: prove independent cloud runner can read repo and write evidence report.
 - No production code changes.

@@ -11,6 +11,10 @@ on:
         description: Bypass dedupe window
         required: false
         default: "false"
+      run_windows_smoke:
+        description: Run an additional Windows smoke validation job
+        required: false
+        default: "true"
   push:
     branches:
       - main
@@ -34,20 +38,21 @@ jobs:
       FORCE_RERUN: ${{ github.event.inputs.force_rerun || 'false' }}
       DEDUPE_WINDOW_MINUTES: "15"
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+      OPENCLAW_LATEST_FILE: ${{ runner.temp }}/openclaw-latest.json
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v5
+      - name: Setup Node 22 LTS
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
+          cache: npm
 
       - name: Install npm dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci
 
       - name: Install Playwright Chromium
         run: npx playwright install chromium
@@ -55,8 +60,6 @@ jobs:
       - name: Run OpenClaw task
         id: run_task
         continue-on-error: true
-        env:
-          OPENCLAW_LATEST_FILE: /tmp/openclaw-latest.json
         run: node scripts/openclaw-task-runner.mjs
 
       - name: Normalize artifact filenames
@@ -71,14 +74,14 @@ jobs:
 
       - name: Upload OpenClaw artifacts
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
-          name: openclaw-task-runner-${{ github.run_id }}
+          name: openclaw-task-runner-${{ github.run_id }}-ubuntu
           path: |
             ops/agent-control/reports/openclaw-heartbeat/
             ops/agent-control/reports/openclaw-browser-audit/
             ops/openclaw/reports/virtual-browser/
-            /tmp/openclaw-latest.json
+            ${{ runner.temp }}/openclaw-latest.json
           retention-days: 30
           if-no-files-found: warn
 
@@ -86,10 +89,10 @@ jobs:
         if: always()
         run: |
           TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          STATUS_VAL="$(jq -r '.status // "UNKNOWN"' /tmp/openclaw-latest.json 2>/dev/null || echo UNKNOWN)"
-          TASK_ID_VAL="$(jq -r '.task_id // "unknown"' /tmp/openclaw-latest.json 2>/dev/null || echo unknown)"
-          TASK_TYPE_VAL="$(jq -r '.task_type // "unknown"' /tmp/openclaw-latest.json 2>/dev/null || echo unknown)"
-          REPORT_VAL="$(jq -r '.report_file // "n/a"' /tmp/openclaw-latest.json 2>/dev/null || echo n/a)"
+          STATUS_VAL="$(jq -r '.status // "UNKNOWN"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo UNKNOWN)"
+          TASK_ID_VAL="$(jq -r '.task_id // "unknown"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo unknown)"
+          TASK_TYPE_VAL="$(jq -r '.task_type // "unknown"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo unknown)"
+          REPORT_VAL="$(jq -r '.report_file // "n/a"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo n/a)"
           {
             echo ""
             echo "## Latest OpenClaw Run"
@@ -134,7 +137,7 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v8
         env:
-          OPENCLAW_LATEST_FILE: /tmp/openclaw-latest.json
+          OPENCLAW_LATEST_FILE: ${{ runner.temp }}/openclaw-latest.json
         with:
           script: |
             const fs = require('fs');
@@ -181,11 +184,10 @@ jobs:
       - name: Enforce expected status
         if: always()
         run: |
-          if [ ! -f "/tmp/openclaw-latest.json" ]; then
-            echo "Missing /tmp/openclaw-latest.json"
+          if [ ! -f "${OPENCLAW_LATEST_FILE}" ]; then
+            echo "Missing ${OPENCLAW_LATEST_FILE}"
             exit 1
           fi
-          export OPENCLAW_LATEST_FILE="/tmp/openclaw-latest.json"
           STATUS="$(jq -r '.status // "UNKNOWN"' "${OPENCLAW_LATEST_FILE}")"
           EXPECTED_STATUS="$(jq -r '.expected_status // "PASS"' "${OPENCLAW_LATEST_FILE}")"
           TASK_TYPE="$(jq -r '.task_type // "unknown"' "${OPENCLAW_LATEST_FILE}")"
@@ -202,3 +204,149 @@ jobs:
           fi
           echo "Task status is ${STATUS}; expected ${EXPECTED_STATUS}"
           exit 1
+
+  windows-smoke:
+    needs: run-task
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.run_windows_smoke || 'true') == 'true' }}
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      FORCE_RERUN: ${{ github.event.inputs.force_rerun || 'false' }}
+      DEDUPE_WINDOW_MINUTES: "15"
+      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      REQUESTED_TASK_FILE: ${{ github.event.inputs.task_file || '' }}
+      HEARTBEAT_TASK_FILE: ops/agent-control/tasks/OC-OPENCLAW-HEARTBEAT-001.json
+      HEARTBEAT_LATEST_FILE: ${{ runner.temp }}\openclaw-latest-windows-heartbeat.json
+      OPTIONAL_LATEST_FILE: ${{ runner.temp }}\openclaw-latest-windows-optional.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node 22 LTS
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install npm dependencies
+        shell: pwsh
+        run: npm ci
+
+      - name: Run mandatory Windows heartbeat smoke
+        shell: pwsh
+        run: |
+          $env:TASK_FILE = $env:HEARTBEAT_TASK_FILE
+          $env:OPENCLAW_LATEST_FILE = $env:HEARTBEAT_LATEST_FILE
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Resolve optional Windows browser smoke task
+        shell: pwsh
+        run: |
+          $requested = $env:REQUESTED_TASK_FILE
+          if ([string]::IsNullOrWhiteSpace($requested) -or -not (Test-Path $requested)) {
+            "RUN_OPTIONAL=false" >> $env:GITHUB_ENV
+            exit 0
+          }
+          $task = Get-Content $requested -Raw | ConvertFrom-Json
+          if ($task.type -eq "virtual_browser_audit") {
+            "RUN_OPTIONAL=true" >> $env:GITHUB_ENV
+          } else {
+            "RUN_OPTIONAL=false" >> $env:GITHUB_ENV
+          }
+
+      - name: Install Playwright Chromium (optional Windows browser smoke)
+        if: ${{ env.RUN_OPTIONAL == 'true' }}
+        shell: pwsh
+        run: npx playwright install chromium
+
+      - name: Run optional Windows browser smoke task
+        if: ${{ env.RUN_OPTIONAL == 'true' }}
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $env:TASK_FILE = $env:REQUESTED_TASK_FILE
+          $env:OPENCLAW_LATEST_FILE = $env:OPTIONAL_LATEST_FILE
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Normalize artifact filenames
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path "ops/openclaw/reports/virtual-browser") {
+            Get-ChildItem "ops/openclaw/reports/virtual-browser" -File -Recurse | Where-Object { $_.Name -match ":" } | ForEach-Object {
+              $newName = $_.Name -replace ":", "_"
+              Rename-Item -LiteralPath $_.FullName -NewName $newName
+            }
+          }
+
+      - name: Update STATUS.md
+        if: always()
+        shell: pwsh
+        run: |
+          $latest = if (Test-Path $env:OPTIONAL_LATEST_FILE) { $env:OPTIONAL_LATEST_FILE } else { $env:HEARTBEAT_LATEST_FILE }
+          if (-not (Test-Path $latest)) { throw "Missing latest summary file: $latest" }
+          $summary = Get-Content $latest -Raw | ConvertFrom-Json
+          $ts = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+          Add-Content -Path "ops/agent-control/STATUS.md" -Value @"
+
+## Latest OpenClaw Run
+- timestamp_utc: $ts
+- run_id: $env:GITHUB_RUN_ID
+- run_url: $env:GITHUB_RUN_URL
+- task_id: $($summary.task_id)
+- task_type: $($summary.task_type)
+- status: $($summary.status)
+- report_file: $($summary.report_file)
+"@
+
+      - name: Commit evidence
+        if: always()
+        shell: pwsh
+        run: |
+          git pull --ff-only origin main
+          $changes = git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports ops/agent-control/STATUS.md
+          if ([string]::IsNullOrWhiteSpace($changes)) {
+            Write-Host "No evidence changes to commit."
+            exit 0
+          }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if (Test-Path "ops/agent-control/reports/openclaw-heartbeat") { git add -A ops/agent-control/reports/openclaw-heartbeat }
+          if (Test-Path "ops/agent-control/reports/openclaw-browser-audit") { git add -A ops/agent-control/reports/openclaw-browser-audit }
+          if (Test-Path "ops/openclaw/reports/virtual-browser") { git add -A ops/openclaw/reports/virtual-browser }
+          git add ops/agent-control/STATUS.md
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "No staged evidence changes after git add."
+            exit 0
+          }
+          git commit -m "ops(agent): add OpenClaw Windows smoke evidence"
+          git push origin HEAD:main
+
+      - name: Upload OpenClaw artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: openclaw-task-runner-${{ github.run_id }}-windows
+          path: |
+            ops/agent-control/reports/openclaw-heartbeat/
+            ops/agent-control/reports/openclaw-browser-audit/
+            ops/openclaw/reports/virtual-browser/
+            ${{ runner.temp }}/openclaw-latest-windows-heartbeat.json
+            ${{ runner.temp }}/openclaw-latest-windows-optional.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Enforce expected status
+        if: always()
+        shell: pwsh
+        run: |
+          $latest = if (Test-Path $env:OPTIONAL_LATEST_FILE) { $env:OPTIONAL_LATEST_FILE } else { $env:HEARTBEAT_LATEST_FILE }
+          if (-not (Test-Path $latest)) { throw "Missing latest summary file: $latest" }
+          $summary = Get-Content $latest -Raw | ConvertFrom-Json
+          if ($summary.status -eq $summary.expected_status) { exit 0 }
+          if ($summary.task_type -eq "synthetic_fail" -and $summary.status -eq "FAIL") { exit 0 }
+          if ($summary.status -in @("PASS", "DEGRADED")) { exit 0 }
+          throw "Task status is $($summary.status); expected $($summary.expected_status)"

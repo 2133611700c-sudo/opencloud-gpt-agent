@@ -11,6 +11,7 @@ const routes = (process.env.ROUTES || "/,/book,/pricing,/services,/messenger")
 const outDir =
   process.env.OUT_DIR ||
   `ops/openclaw/reports/virtual-browser-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+const resolvedOutDir = path.resolve(outDir);
 const viewports = [
   { name: "desktop", width: 1440, height: 1000 },
   { name: "mobile", width: 390, height: 844 },
@@ -26,7 +27,7 @@ function safeFilenamePart(value) {
   );
 }
 
-await fs.mkdir(outDir, { recursive: true });
+await fs.mkdir(resolvedOutDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const results = [];
 
@@ -90,7 +91,7 @@ for (const viewport of viewports) {
         .catch(() => []);
       const safeRoute = route === "/" ? "home" : safeFilenamePart(route);
       const screenshotName = `${viewport.name}-${safeRoute}.png`;
-      const screenshotPath = path.join(outDir, screenshotName);
+      const screenshotPath = path.join(resolvedOutDir, screenshotName);
       await page.screenshot({ path: screenshotPath, fullPage: true });
 
       const lowerText = bodyText.toLowerCase();
@@ -138,7 +139,7 @@ const summary = {
   failed_pages: results.filter((r) => !r.ok).map((r) => ({ viewport: r.viewport, route: r.route, status: r.status, error: r.error })),
   bad_claims: results.filter((r) => (r.bad_claims || []).length).map((r) => ({ viewport: r.viewport, route: r.route, bad_claims: r.bad_claims })),
 };
-await fs.writeFile(path.join(outDir, "result.json"), JSON.stringify({ summary, results }, null, 2));
-await fs.writeFile(path.join(outDir, "report.md"), `# OpenClaw Virtual Browser Audit\n\n\`\`\`json\n${JSON.stringify(summary, null, 2)}\n\`\`\`\n`);
+await fs.writeFile(path.join(resolvedOutDir, "result.json"), JSON.stringify({ summary, results }, null, 2));
+await fs.writeFile(path.join(resolvedOutDir, "report.md"), `# OpenClaw Virtual Browser Audit\n\n\`\`\`json\n${JSON.stringify(summary, null, 2)}\n\`\`\`\n`);
 console.log(JSON.stringify(summary, null, 2));
 if (!summary.ok) process.exitCode = 1;

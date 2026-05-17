@@ -1,0 +1,7 @@
+node_modules/
+npm-debug.log*
+
+# Local and transient audit outputs (tracked evidence remains in dedicated report dirs)
+ops/agent-control/reports/openclaw-latest.json
+ops/agent-control/reports/openclaw-latest-windows-heartbeat.json
+ops/agent-control/reports/windows-openclaw-audit-*.md

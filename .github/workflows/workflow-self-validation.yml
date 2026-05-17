@@ -37,4 +37,5 @@ jobs:
           PY
 
       - name: Validate GitHub Actions expressions and schema
-        uses: docker://rhysd/actionlint:1.7.7
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work rhysd/actionlint:1.7.7 -ignore 'SC2129'

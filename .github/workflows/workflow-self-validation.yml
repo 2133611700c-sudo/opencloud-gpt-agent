@@ -37,4 +37,4 @@ jobs:
           PY
 
       - name: Validate GitHub Actions expressions and schema
-        uses: rhysd/actionlint@v1
+        uses: docker://rhysd/actionlint:1.7.7

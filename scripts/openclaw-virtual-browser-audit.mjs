@@ -27,6 +27,15 @@ function safeFilenamePart(value) {
   );
 }
 
+function compactText(value, max = 24000) {
+  return String(value || "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+    .slice(0, max);
+}
+
 await fs.mkdir(resolvedOutDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const results = [];
@@ -74,10 +83,11 @@ for (const viewport of viewports) {
         .evaluateAll((els) =>
           els
             .map((a) => ({
-              text: (a.innerText || "").trim().slice(0, 80),
+              text: (a.innerText || "").trim().replace(/\s+/g, " ").slice(0, 160),
               href: a.href,
             }))
-            .slice(0, 120),
+            .filter((x) => x.href || x.text)
+            .slice(0, 240),
         )
         .catch(() => []);
       const buttons = await page
@@ -107,6 +117,9 @@ for (const viewport of viewports) {
         status,
         ms: Date.now() - started,
         title,
+        body_text_excerpt: compactText(bodyText),
+        body_text_chars: bodyText.length,
+        links,
         phone_links: phoneLinks.length,
         whatsapp_links: whatsappLinks.length,
         messenger_links: messengerLinks.length,

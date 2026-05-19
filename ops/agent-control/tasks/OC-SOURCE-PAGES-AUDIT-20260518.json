@@ -1,0 +1,20 @@
+{
+  "id": "OC-SOURCE-PAGES-AUDIT-20260518",
+  "type": "virtual_browser_audit",
+  "requested_by": "Sergii",
+  "goal": "Open selected public government source pages in browser and collect screenshots, visible text, links and status evidence only.",
+  "expected_status": "PASS",
+  "params": {
+    "target_origin": "https://www.uscis.gov",
+    "routes": "/humanitarian/temporary-protected-status/temporary-protected-status-designated-country-ukraine,/humanitarian/temporary-protected-status,/i-821,/i-765,/i-912,/forms/filing-guidance/tips-for-filing-forms-by-mail",
+    "max_attempts": 2
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

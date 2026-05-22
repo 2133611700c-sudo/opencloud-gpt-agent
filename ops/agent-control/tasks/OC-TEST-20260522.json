@@ -1,0 +1,1 @@
+{"id":"OC-TEST-20260522","type":"heartbeat","requested_by":"Sergii","goal":"Run a safe heartbeat task to verify OpenClaw runner dispatch from task file push.","expected_status":"PASS","safety":{"production_code_change":false,"customer_action":false,"secrets_required":false,"public_posting":false,"paid_ads_change":false,"destructive_action":false}}

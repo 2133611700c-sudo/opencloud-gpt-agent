@@ -106,7 +106,7 @@ jobs:
           } >> ops/agent-control/STATUS.md
 
       - name: Commit evidence
-        if: always()
+        if: ${{ always() && github.ref == 'refs/heads/main' }}
         run: |
           git pull --ff-only origin main || true
           if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports ops/agent-control/STATUS.md)" ]; then

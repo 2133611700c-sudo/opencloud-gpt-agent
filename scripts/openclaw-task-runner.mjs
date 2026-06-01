@@ -18,7 +18,7 @@ const runUrl = process.env.GITHUB_RUN_URL || "unknown";
 const latestFile = process.env.OPENCLAW_LATEST_FILE
   ? path.resolve(process.env.OPENCLAW_LATEST_FILE)
   : resolveRepoPath("ops", "agent-control", "reports", "openclaw-latest.json");
-const supportedTaskTypes = new Set(["heartbeat", "virtual_browser_audit", "synthetic_fail"]);
+const supportedTaskTypes = new Set(["heartbeat", "virtual_browser_audit", "synthetic_fail", "job_lead_audit"]);
 const prohibitedSafetyFlags = ["customer_action", "public_posting", "paid_ads_change", "destructive_action"];
 
 function resolveRepoPath(...segments) {
@@ -86,7 +86,7 @@ function parseTaskReport(file) {
   return { task_id: get("task_id"), timestamp_utc: get("timestamp_utc") };
 }
 function lastTaskExecution(taskId) {
-  const dirs = ["openclaw-heartbeat", "openclaw-browser-audit"].map((d) => path.join(reportsRoot, d)).filter((d) => fs.existsSync(d));
+  const dirs = ["openclaw-heartbeat", "openclaw-browser-audit", "job-lead-audit"].map((d) => path.join(reportsRoot, d)).filter((d) => fs.existsSync(d));
   const files = [];
   for (const d of dirs) for (const f of fs.readdirSync(d).filter((x) => x.endsWith(".md"))) files.push(path.join(d, f));
   files.sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
@@ -144,6 +144,94 @@ function runHeartbeat() {
 function runSyntheticFail() {
   throw new Error("synthetic_fail drill requested by task");
 }
+function toCleanString(value, fallback = "NOT_SPECIFIED") {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  return fallback;
+}
+function asOptionalString(value) {
+  if (typeof value !== "string") return "";
+  return value.trim();
+}
+function includesAnyTerm(text, terms) {
+  const lowered = text.toLowerCase();
+  return terms.some((term) => lowered.includes(term.toLowerCase()));
+}
+function classifyLeadFit(lead, criteria = {}) {
+  const requiredTerms = Array.isArray(criteria.required_terms) ? criteria.required_terms.filter((x) => typeof x === "string" && x.trim()) : [];
+  const rejectTerms = Array.isArray(criteria.reject_terms) ? criteria.reject_terms.filter((x) => typeof x === "string" && x.trim()) : [];
+  const maybeTerms = Array.isArray(criteria.maybe_terms) ? criteria.maybe_terms.filter((x) => typeof x === "string" && x.trim()) : [];
+  const searchableText = [
+    lead.company,
+    lead.role,
+    lead.location,
+    lead.housing_terms,
+    lead.compensation,
+    lead.experience_requirements,
+    lead.software_requirements,
+    lead.license_requirements,
+    lead.public_contact_channel_if_visible,
+    lead.apply_url,
+  ].join(" ");
+
+  if (rejectTerms.length > 0 && includesAnyTerm(searchableText, rejectTerms)) {
+    return { fit_status: "REJECT", rejection_reason: "Matches rejection criteria from task.params.fit_criteria.reject_terms." };
+  }
+  if (requiredTerms.length > 0 && !includesAnyTerm(searchableText, requiredTerms)) {
+    return { fit_status: "REJECT", rejection_reason: "Does not match required criteria from task.params.fit_criteria.required_terms." };
+  }
+  if (maybeTerms.length > 0 && includesAnyTerm(searchableText, maybeTerms)) {
+    return { fit_status: "MAYBE", rejection_reason: "" };
+  }
+  return { fit_status: "FIT", rejection_reason: "" };
+}
+function runJobLeadAudit(task) {
+  if (task?.safety?.customer_action === true) {
+    throw new Error("unsafe task blocked by safety flag: customer_action=true");
+  }
+  const leads = Array.isArray(task.params?.leads) ? task.params.leads : [];
+  if (leads.length === 0) {
+    throw new Error("job_lead_audit requires task.params.leads with at least one public lead item");
+  }
+  const criteria = task.params?.fit_criteria && typeof task.params.fit_criteria === "object" ? task.params.fit_criteria : {};
+  const results = leads.map((rawLead) => {
+    const lead = {
+      company: toCleanString(rawLead?.company),
+      role: toCleanString(rawLead?.role),
+      location: toCleanString(rawLead?.location),
+      housing_terms: toCleanString(rawLead?.housing_terms),
+      compensation: toCleanString(rawLead?.compensation),
+      experience_requirements: toCleanString(rawLead?.experience_requirements),
+      software_requirements: toCleanString(rawLead?.software_requirements),
+      license_requirements: toCleanString(rawLead?.license_requirements),
+      public_contact_channel_if_visible: toCleanString(rawLead?.public_contact_channel_if_visible),
+      apply_url: toCleanString(rawLead?.apply_url),
+    };
+    const fit = classifyLeadFit(lead, criteria);
+    return {
+      ...lead,
+      fit_status: fit.fit_status,
+      rejection_reason: fit.rejection_reason,
+      next_action: fit.fit_status === "REJECT"
+        ? "Skip and continue to next lead. Read-only audit only."
+        : "Review details and decide whether to manually apply later. Do not apply or contact from this task.",
+    };
+  });
+  return {
+    mode: "READ_ONLY_PUBLIC_LEAD_AUDIT",
+    safety_guards: [
+      "READ ONLY only",
+      "Do not apply",
+      "Do not submit forms",
+      "Do not send emails",
+      "Do not create accounts",
+      "Do not pay fees",
+      "Do not disclose personal data",
+    ],
+    source_notes: asOptionalString(task.params?.source_notes),
+    leads_reviewed: results.length,
+    leads: results,
+  };
+}
 function classifyFailure(taskType, status, errorText) {
   if (status === "BLOCKED") return "blocked_task";
   if (status === "PASS") return "pass";
@@ -200,6 +288,7 @@ function main() {
       if (taskType === "heartbeat") details = runHeartbeat();
       else if (taskType === "virtual_browser_audit") details = runBrowserAudit(task);
       else if (taskType === "synthetic_fail") runSyntheticFail();
+      else if (taskType === "job_lead_audit") details = runJobLeadAudit(task);
     } catch (err) {
       status = "FAIL";
       errorText = err instanceof Error ? err.stack || err.message : String(err);
@@ -207,7 +296,11 @@ function main() {
   }
   const failureClass = classifyFailure(taskType, status, errorText);
   const nextAction = nextActionFor(status, failureClass);
-  const reportDir = taskType === "virtual_browser_audit" ? path.join(reportsRoot, "openclaw-browser-audit") : path.join(reportsRoot, "openclaw-heartbeat");
+  const reportDir = taskType === "virtual_browser_audit"
+    ? path.join(reportsRoot, "openclaw-browser-audit")
+    : taskType === "job_lead_audit"
+      ? path.join(reportsRoot, "job-lead-audit")
+      : path.join(reportsRoot, "openclaw-heartbeat");
   const reportFile = writeReport(reportDir, [
     "# OpenClaw Task Report",
     "",

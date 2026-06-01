@@ -1,0 +1,24 @@
+{
+  "id": "OC-UNSAFE-CUSTOMER-ACTION-BLOCKED-SAMPLE",
+  "type": "outreach_send_approved",
+  "requested_by": "Sergii",
+  "goal": "Verify unsafe customer action is blocked when approval contract is incomplete.",
+  "expected_status": "BLOCKED",
+  "params": {
+    "approved_targets": [
+      {
+        "company": "Sunset Apartments",
+        "email": "hiring@example.com"
+      }
+    ],
+    "explicit_approval": false
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": true,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

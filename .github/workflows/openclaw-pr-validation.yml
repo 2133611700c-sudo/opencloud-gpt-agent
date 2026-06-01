@@ -15,6 +15,8 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+      - run: node --check scripts/openclaw-task-runner.mjs
+      - run: node --check scripts/openclaw-job-lead-collector.mjs
       - run: npx playwright install chromium
 
       - name: Heartbeat sample
@@ -24,6 +26,20 @@ jobs:
           export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-heartbeat.json
           node scripts/openclaw-task-runner.mjs
 
+      - name: Worker heartbeat sample
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-WORKER-HEARTBEAT-SAMPLE.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-worker-heartbeat.json
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Job lead collect sample
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-JOB-LEAD-COLLECT-SAMPLE.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-collect.json
+          node scripts/openclaw-task-runner.mjs
+
       - name: Job lead audit sample
         run: |
           export TASK_FILE=ops/agent-control/tasks/OC-JOB-LEAD-AUDIT-SAMPLE.json
@@ -31,9 +47,30 @@ jobs:
           export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-audit.json
           node scripts/openclaw-task-runner.mjs
 
-      - name: Blocked sample must return exit code 3
+      - name: Outreach draft sample
         run: |
-          export TASK_FILE=ops/agent-control/tasks/OC-JOB-LEAD-BLOCKED-SAMPLE.json
+          export TASK_FILE=ops/agent-control/tasks/OC-OUTREACH-DRAFT-SAMPLE.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-outreach-draft.json
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Codex delegate dry-run sample
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-CODEX-DELEGATE-DRY-RUN-SAMPLE.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-codex-delegate.json
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Virtual browser audit sample (regression)
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-OPENCLAW-BROWSER-AUDIT-001.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-browser-audit.json
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Blocked unsafe customer action sample must return exit code 3
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-UNSAFE-CUSTOMER-ACTION-BLOCKED-SAMPLE.json
           export FORCE_RERUN=true
           export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-blocked.json
           set +e
@@ -51,8 +88,15 @@ jobs:
           name: openclaw-pr-validation-${{ github.run_id }}-ubuntu
           path: |
             ops/agent-control/reports/openclaw-heartbeat/
+            ops/agent-control/reports/worker-heartbeat/
             ops/agent-control/reports/job-lead-audit/
+            ops/agent-control/reports/outreach-draft/
             ops/agent-control/reports/openclaw-latest.pr-heartbeat.json
+            ops/agent-control/reports/openclaw-latest.pr-worker-heartbeat.json
+            ops/agent-control/reports/openclaw-latest.pr-collect.json
             ops/agent-control/reports/openclaw-latest.pr-audit.json
+            ops/agent-control/reports/openclaw-latest.pr-outreach-draft.json
+            ops/agent-control/reports/openclaw-latest.pr-codex-delegate.json
+            ops/agent-control/reports/openclaw-latest.pr-browser-audit.json
             ops/agent-control/reports/openclaw-latest.pr-blocked.json
           if-no-files-found: warn

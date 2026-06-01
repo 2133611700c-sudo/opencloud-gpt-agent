@@ -8,10 +8,13 @@
     "id": { "type": "string", "minLength": 3, "maxLength": 120, "pattern": "^[A-Za-z0-9._:-]+$" },
     "type": {
       "type": "string",
-      "enum": ["heartbeat", "virtual_browser_audit", "synthetic_fail", "job_lead_collect", "job_lead_audit", "repo_audit", "repo_patch", "supabase_check", "synthetic_lead_check", "regression_check"]
+      "enum": ["heartbeat", "virtual_browser_audit", "synthetic_fail", "worker_heartbeat", "job_lead_collect", "job_lead_audit", "outreach_draft", "outreach_send_approved", "codex_delegate", "repo_audit", "repo_patch", "supabase_check", "synthetic_lead_check", "regression_check"]
     },
     "requested_by": { "type": "string", "minLength": 2, "maxLength": 80 },
     "goal": { "type": "string", "minLength": 10, "maxLength": 2000 },
+    "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+    "created_at": { "type": "string" },
+    "status": { "type": "string", "enum": ["pending", "locked", "running", "completed", "failed", "blocked", "degraded"] },
     "expected_status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "DEGRADED"] },
     "params": { "type": "object" },
     "safety": {

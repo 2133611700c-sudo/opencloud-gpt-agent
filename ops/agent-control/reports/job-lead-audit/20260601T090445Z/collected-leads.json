@@ -1,0 +1,59 @@
+{
+  "collected_at": "2026-06-01T09:04:48.875Z",
+  "leads": [
+    {
+      "company": "Blocked - Indeed.com",
+      "role": "UNKNOWN",
+      "location": "UNKNOWN",
+      "listing_url": "https://www.indeed.com/",
+      "source_site": "www.indeed.com",
+      "housing_terms": "NOT_SPECIFIED",
+      "housing_evidence_quote": "NOT_SPECIFIED",
+      "compensation": "NOT_SPECIFIED",
+      "compensation_evidence_quote": "NOT_SPECIFIED",
+      "experience_requirements": "NOT_SPECIFIED",
+      "software_requirements": "NOT_SPECIFIED",
+      "license_requirements": "NOT_SPECIFIED",
+      "public_contact_channel_if_visible": "NOT_SPECIFIED",
+      "apply_url": "https://www.indeed.com/",
+      "screenshot_path_if_available": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/job-lead-audit/20260601T090445Z/lead-01.png",
+      "excerpt": "Find jobs Company Reviews Find salaries Upload your resume Sign in Employers / Post Job Request Blocked You have been blocked. If you believe this in error, please go to support.indeed.com and reference the following information: Your Ray ID for this request is a04d0d86cdd58199 Your current IP for t"
+    },
+    {
+      "company": "Attention Required! | Cloudflare",
+      "role": "UNKNOWN",
+      "location": "UNKNOWN",
+      "listing_url": "https://www.simplyhired.com/",
+      "source_site": "www.simplyhired.com",
+      "housing_terms": "NOT_SPECIFIED",
+      "housing_evidence_quote": "NOT_SPECIFIED",
+      "compensation": "NOT_SPECIFIED",
+      "compensation_evidence_quote": "NOT_SPECIFIED",
+      "experience_requirements": "NOT_SPECIFIED",
+      "software_requirements": "NOT_SPECIFIED",
+      "license_requirements": "NOT_SPECIFIED",
+      "public_contact_channel_if_visible": "NOT_SPECIFIED",
+      "apply_url": "https://www.simplyhired.com/",
+      "screenshot_path_if_available": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/job-lead-audit/20260601T090445Z/lead-02.png",
+      "excerpt": "Sorry, you have been blocked You are unable to access simplyhired.com Why have I been blocked? This website is using a security service to protect itself from online attacks. The action you just performed triggered the security solution. There are several actions that could trigger this block includ"
+    },
+    {
+      "company": "Los Angeles onsite apartment manager free apartment - Search",
+      "role": "UNKNOWN",
+      "location": "UNKNOWN",
+      "listing_url": "https://www.bing.com/search?q=Los%20Angeles%20onsite%20apartment%20manager%20free%20apartment",
+      "source_site": "www.bing.com",
+      "housing_terms": "NOT_SPECIFIED",
+      "housing_evidence_quote": "NOT_SPECIFIED",
+      "compensation": "NOT_SPECIFIED",
+      "compensation_evidence_quote": "NOT_SPECIFIED",
+      "experience_requirements": "NOT_SPECIFIED",
+      "software_requirements": "NOT_SPECIFIED",
+      "license_requirements": "NOT_SPECIFIED",
+      "public_contact_channel_if_visible": "NOT_SPECIFIED",
+      "apply_url": "https://www.bing.com/search?q=Los%20Angeles%20onsite%20apartment%20manager%20free%20apartment",
+      "screenshot_path_if_available": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/job-lead-audit/20260601T090445Z/lead-03.png",
+      "excerpt": "Skip to content Accessibility Feedback ALLSEARCHIMAGESVIDEOSMAPSNEWS MORE Privacy Terms"
+    }
+  ]
+}

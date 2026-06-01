@@ -108,9 +108,9 @@ jobs:
 
       - name: Commit evidence
         if: ${{ always() && github.ref == 'refs/heads/main' }}
+        continue-on-error: true
         run: |
-          git pull --ff-only origin main || true
-          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/agent-control/reports/job-lead-audit ops/openclaw/reports ops/agent-control/STATUS.md)" ]; then
+          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/agent-control/reports/job-lead-audit ops/openclaw/reports)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             if [ -d "ops/agent-control/reports/openclaw-heartbeat" ]; then
@@ -125,12 +125,20 @@ jobs:
             if [ -d "ops/openclaw/reports/virtual-browser" ]; then
               git add -A ops/openclaw/reports/virtual-browser
             fi
-            git add ops/agent-control/STATUS.md
             if git diff --cached --quiet; then
               echo "No staged evidence changes after git add."
             else
               git commit -m "ops(agent): add OpenClaw task evidence"
-              git push origin HEAD:main || (git pull --rebase origin main && git push origin HEAD:main)
+              for attempt in 1 2 3; do
+                if git pull --rebase origin main && git push origin HEAD:main; then
+                  echo "Evidence push succeeded on attempt ${attempt}."
+                  break
+                fi
+                git rebase --abort || true
+                if [ "${attempt}" = "3" ]; then
+                  echo "Evidence push skipped after retries due concurrent main updates."
+                fi
+              done
             fi
           else
             echo "No evidence changes to commit."

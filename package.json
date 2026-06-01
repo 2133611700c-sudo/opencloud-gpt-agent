@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "Independent OpenClaw execution layer for ChatGPT",
   "license": "UNLICENSED",
+  "scripts": {
+    "verify:openclaw": "node scripts/openclaw-acceptance-verify.mjs"
+  },
   "devDependencies": {
     "playwright": "^1.60.0"
   }

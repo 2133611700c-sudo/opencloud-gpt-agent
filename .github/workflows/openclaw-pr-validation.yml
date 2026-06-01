@@ -1,0 +1,58 @@
+name: OpenClaw PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install chromium
+
+      - name: Heartbeat sample
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-OPENCLAW-HEARTBEAT-001.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-heartbeat.json
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Job lead audit sample
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-JOB-LEAD-AUDIT-SAMPLE.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-audit.json
+          node scripts/openclaw-task-runner.mjs
+
+      - name: Blocked sample must return exit code 3
+        run: |
+          export TASK_FILE=ops/agent-control/tasks/OC-JOB-LEAD-BLOCKED-SAMPLE.json
+          export FORCE_RERUN=true
+          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-blocked.json
+          set +e
+          node scripts/openclaw-task-runner.mjs
+          code=$?
+          set -e
+          if [ "$code" -ne 3 ]; then
+            echo "Expected exit code 3 for BLOCKED sample, got $code"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: openclaw-pr-validation-${{ github.run_id }}-ubuntu
+          path: |
+            ops/agent-control/reports/openclaw-heartbeat/
+            ops/agent-control/reports/job-lead-audit/
+            ops/agent-control/reports/openclaw-latest.pr-heartbeat.json
+            ops/agent-control/reports/openclaw-latest.pr-audit.json
+            ops/agent-control/reports/openclaw-latest.pr-blocked.json
+          if-no-files-found: warn

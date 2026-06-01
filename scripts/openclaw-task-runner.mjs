@@ -18,18 +18,27 @@ const runUrl = process.env.GITHUB_RUN_URL || "unknown";
 const latestFile = process.env.OPENCLAW_LATEST_FILE
   ? path.resolve(process.env.OPENCLAW_LATEST_FILE)
   : resolveRepoPath("ops", "agent-control", "reports", "openclaw-latest.json");
-const supportedTaskTypes = new Set(["heartbeat", "virtual_browser_audit", "synthetic_fail", "job_lead_audit"]);
+const supportedTaskTypes = new Set(["heartbeat", "virtual_browser_audit", "synthetic_fail", "job_lead_collect", "job_lead_audit"]);
 const prohibitedSafetyFlags = ["customer_action", "public_posting", "paid_ads_change", "destructive_action"];
 
 function resolveRepoPath(...segments) {
   return path.resolve(repoRoot, ...segments);
 }
 function findCommand(command) {
-  const finder = process.platform === "win32" ? "where" : "which";
+  const finder = process.platform === "win32" ? "where.exe" : "which";
   try {
     const out = execFileSync(finder, [command], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
     return out.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)[0] || null;
   } catch {
+    if (process.platform === "win32") {
+      try {
+        const out = execFileSync("pwsh", ["-NoProfile", "-Command", `(Get-Command ${command} -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source)`], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+        const resolved = out.trim();
+        return resolved || null;
+      } catch {
+        return null;
+      }
+    }
     return null;
   }
 }
@@ -39,7 +48,10 @@ function ensureRequiredBinaries() {
     : ["node", "npm", "git"];
   const missing = required.filter((bin) => !findCommand(bin));
   if (missing.length > 0) {
-    throw new Error(`missing required binaries: ${missing.join(", ")}`);
+    if (process.env.CI) {
+      throw new Error(`missing required binaries: ${missing.join(", ")}`);
+    }
+    console.warn(`warning: missing binaries not enforced outside CI: ${missing.join(", ")}`);
   }
 }
 function readJson(file) {
@@ -144,6 +156,43 @@ function runHeartbeat() {
 function runSyntheticFail() {
   throw new Error("synthetic_fail drill requested by task");
 }
+function runJobLeadCollect(task) {
+  if (task?.safety?.customer_action === true) {
+    throw new Error("unsafe task blocked by safety flag: customer_action=true");
+  }
+  const queries = Array.isArray(task.params?.search_queries) ? task.params.search_queries.filter((x) => typeof x === "string" && x.trim()) : [];
+  const seedUrls = Array.isArray(task.params?.seed_urls) ? task.params.seed_urls.filter((x) => typeof x === "string" && x.trim()) : [];
+  if (queries.length === 0 && seedUrls.length === 0) {
+    throw new Error("job_lead_collect requires task.params.search_queries and/or task.params.seed_urls");
+  }
+  const outDir = resolveRepoPath("ops", "agent-control", "reports", "job-lead-audit", runId);
+  const outJson = path.join(outDir, "collected-leads.json");
+  const env = {
+    ...process.env,
+    OPENCLAW_COLLECT_QUERIES: JSON.stringify(queries),
+    OPENCLAW_COLLECT_SEED_URLS: JSON.stringify(seedUrls),
+    OPENCLAW_COLLECT_MAX_LEADS: String(Number(task.params?.max_leads || 25)),
+    OPENCLAW_COLLECT_OUT_DIR: outDir,
+    OPENCLAW_COLLECT_OUT_FILE: outJson,
+  };
+  execFileSync("node", ["scripts/openclaw-job-lead-collector.mjs"], { stdio: "inherit", env });
+  const collected = readJson(outJson);
+  return {
+    mode: "READ_ONLY_PUBLIC_LEAD_COLLECTION",
+    safety_guards: [
+      "READ ONLY only",
+      "Do not apply",
+      "Do not submit forms",
+      "Do not send emails",
+      "Do not create accounts",
+      "Do not pay fees",
+      "Do not disclose personal data",
+    ],
+    total_collected: Array.isArray(collected.leads) ? collected.leads.length : 0,
+    collection_output_file: outJson,
+    leads: Array.isArray(collected.leads) ? collected.leads : [],
+  };
+}
 function toCleanString(value, fallback = "NOT_SPECIFIED") {
   if (typeof value === "string" && value.trim()) return value.trim();
   return fallback;
@@ -156,31 +205,44 @@ function includesAnyTerm(text, terms) {
   const lowered = text.toLowerCase();
   return terms.some((term) => lowered.includes(term.toLowerCase()));
 }
-function classifyLeadFit(lead, criteria = {}) {
-  const requiredTerms = Array.isArray(criteria.required_terms) ? criteria.required_terms.filter((x) => typeof x === "string" && x.trim()) : [];
-  const rejectTerms = Array.isArray(criteria.reject_terms) ? criteria.reject_terms.filter((x) => typeof x === "string" && x.trim()) : [];
-  const maybeTerms = Array.isArray(criteria.maybe_terms) ? criteria.maybe_terms.filter((x) => typeof x === "string" && x.trim()) : [];
-  const searchableText = [
-    lead.company,
+function classifyLeadFit(lead) {
+  const text = [
     lead.role,
-    lead.location,
     lead.housing_terms,
+    lead.housing_evidence_quote,
     lead.compensation,
+    lead.compensation_evidence_quote,
     lead.experience_requirements,
     lead.software_requirements,
     lead.license_requirements,
-    lead.public_contact_channel_if_visible,
-    lead.apply_url,
-  ].join(" ");
+  ].join(" ").toLowerCase();
+  const hasHousingExplicit = includesAnyTerm(text, [
+    "free apartment",
+    "free unit",
+    "unit included",
+    "housing provided",
+    "live-in unit",
+    "lodging credit",
+    "rent credit",
+    "onsite apartment included",
+  ]);
+  const hasHardExperience = includesAnyTerm(text, ["3+ years", "3 years required", "minimum 3 years"]);
+  const hasMandatorySoftware = includesAnyTerm(text, ["yardi required", "appfolio required", "must know yardi", "must know appfolio"]);
+  const hasLicenseRequired = includesAnyTerm(text, ["license required", "licensed required"]);
+  const hasFeeOrScam = includesAnyTerm(text, ["fee required", "deposit before", "wire payment", "upfront fee"]);
+  const unrelatedRole = !includesAnyTerm(text, ["manager", "property", "resident", "caretaker", "onsite"]);
+  const hasContact = (lead.apply_url && lead.apply_url !== "NOT_SPECIFIED") || (lead.public_contact_channel_if_visible && lead.public_contact_channel_if_visible !== "NOT_SPECIFIED");
 
-  if (rejectTerms.length > 0 && includesAnyTerm(searchableText, rejectTerms)) {
-    return { fit_status: "REJECT", rejection_reason: "Matches rejection criteria from task.params.fit_criteria.reject_terms." };
-  }
-  if (requiredTerms.length > 0 && !includesAnyTerm(searchableText, requiredTerms)) {
-    return { fit_status: "REJECT", rejection_reason: "Does not match required criteria from task.params.fit_criteria.required_terms." };
-  }
-  if (maybeTerms.length > 0 && includesAnyTerm(searchableText, maybeTerms)) {
-    return { fit_status: "MAYBE", rejection_reason: "" };
+  if (!hasHousingExplicit || hasHardExperience || hasMandatorySoftware || hasLicenseRequired || hasFeeOrScam || unrelatedRole || !hasContact) {
+    const reasons = [];
+    if (!hasHousingExplicit) reasons.push("no explicit housing terms");
+    if (hasHardExperience) reasons.push("3+ years required");
+    if (hasMandatorySoftware) reasons.push("Yardi/AppFolio required");
+    if (hasLicenseRequired) reasons.push("license required");
+    if (hasFeeOrScam) reasons.push("fee/deposit or scam indicators");
+    if (unrelatedRole) reasons.push("role appears unrelated");
+    if (!hasContact) reasons.push("no public apply/contact channel");
+    return { fit_status: "REJECT", rejection_reason: reasons.join("; ") };
   }
   return { fit_status: "FIT", rejection_reason: "" };
 }
@@ -188,25 +250,33 @@ function runJobLeadAudit(task) {
   if (task?.safety?.customer_action === true) {
     throw new Error("unsafe task blocked by safety flag: customer_action=true");
   }
-  const leads = Array.isArray(task.params?.leads) ? task.params.leads : [];
-  if (leads.length === 0) {
-    throw new Error("job_lead_audit requires task.params.leads with at least one public lead item");
+  let leads = Array.isArray(task.params?.leads) ? task.params.leads : [];
+  if (leads.length === 0 && typeof task.params?.collected_file === "string" && task.params.collected_file.trim()) {
+    const collectedPath = path.resolve(task.params.collected_file.trim());
+    if (!fs.existsSync(collectedPath)) throw new Error(`collected_file not found: ${collectedPath}`);
+    const collected = readJson(collectedPath);
+    leads = Array.isArray(collected.leads) ? collected.leads : [];
   }
-  const criteria = task.params?.fit_criteria && typeof task.params.fit_criteria === "object" ? task.params.fit_criteria : {};
+  if (leads.length === 0) throw new Error("job_lead_audit requires task.params.leads or task.params.collected_file with at least one public lead item");
   const results = leads.map((rawLead) => {
     const lead = {
       company: toCleanString(rawLead?.company),
       role: toCleanString(rawLead?.role),
       location: toCleanString(rawLead?.location),
+      listing_url: toCleanString(rawLead?.listing_url || rawLead?.apply_url),
+      source_site: toCleanString(rawLead?.source_site || rawLead?.source),
       housing_terms: toCleanString(rawLead?.housing_terms),
+      housing_evidence_quote: toCleanString(rawLead?.housing_evidence_quote || rawLead?.excerpt),
       compensation: toCleanString(rawLead?.compensation),
+      compensation_evidence_quote: toCleanString(rawLead?.compensation_evidence_quote || rawLead?.excerpt),
       experience_requirements: toCleanString(rawLead?.experience_requirements),
       software_requirements: toCleanString(rawLead?.software_requirements),
       license_requirements: toCleanString(rawLead?.license_requirements),
       public_contact_channel_if_visible: toCleanString(rawLead?.public_contact_channel_if_visible),
       apply_url: toCleanString(rawLead?.apply_url),
+      screenshot_path_if_available: toCleanString(rawLead?.screenshot_path_if_available || rawLead?.screenshot_path),
     };
-    const fit = classifyLeadFit(lead, criteria);
+    const fit = classifyLeadFit(lead);
     return {
       ...lead,
       fit_status: fit.fit_status,
@@ -229,6 +299,11 @@ function runJobLeadAudit(task) {
     ],
     source_notes: asOptionalString(task.params?.source_notes),
     leads_reviewed: results.length,
+    counts: {
+      fit: results.filter((x) => x.fit_status === "FIT").length,
+      maybe: results.filter((x) => x.fit_status === "MAYBE").length,
+      reject: results.filter((x) => x.fit_status === "REJECT").length,
+    },
     leads: results,
   };
 }
@@ -288,6 +363,7 @@ function main() {
       if (taskType === "heartbeat") details = runHeartbeat();
       else if (taskType === "virtual_browser_audit") details = runBrowserAudit(task);
       else if (taskType === "synthetic_fail") runSyntheticFail();
+      else if (taskType === "job_lead_collect") details = runJobLeadCollect(task);
       else if (taskType === "job_lead_audit") details = runJobLeadAudit(task);
     } catch (err) {
       status = "FAIL";
@@ -299,6 +375,8 @@ function main() {
   const reportDir = taskType === "virtual_browser_audit"
     ? path.join(reportsRoot, "openclaw-browser-audit")
     : taskType === "job_lead_audit"
+      ? path.join(reportsRoot, "job-lead-audit")
+      : taskType === "job_lead_collect"
       ? path.join(reportsRoot, "job-lead-audit")
       : path.join(reportsRoot, "openclaw-heartbeat");
   const reportFile = writeReport(reportDir, [

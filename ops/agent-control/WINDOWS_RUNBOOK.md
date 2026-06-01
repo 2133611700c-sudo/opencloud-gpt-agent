@@ -26,6 +26,12 @@ $env:OPENCLAW_LATEST_FILE="$pwd\\ops\\agent-control\\reports\\openclaw-latest.js
 node scripts/openclaw-task-runner.mjs
 ```
 
+## One-command acceptance check
+```powershell
+npm run verify:openclaw
+```
+- Runs acceptance checks sequentially and prints JSON summary with report file paths.
+
 ## Safety defaults
 - Monitoring is read-only by default.
 - Telegram checks must stay within authorized channels/APIs/exports.

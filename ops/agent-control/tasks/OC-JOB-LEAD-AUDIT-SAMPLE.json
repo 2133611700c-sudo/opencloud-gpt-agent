@@ -1,0 +1,37 @@
+{
+  "id": "OC-JOB-LEAD-AUDIT-SAMPLE",
+  "type": "job_lead_audit",
+  "requested_by": "ChatGPT",
+  "goal": "Audit public housing-included property/job leads in strict read-only mode for FIT/MAYBE/REJECT triage.",
+  "expected_status": "PASS",
+  "params": {
+    "source_notes": "Public listing snapshot for housing-included role triage only.",
+    "leads": [
+      {
+        "company": "Sunset Courtyard Apartments",
+        "role": "Onsite Resident Manager",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://example.com/jobs/resident-manager-sunset-courtyard",
+        "source_site": "example.com",
+        "housing_terms": "1-bedroom unit included for onsite manager",
+        "housing_evidence_quote": "Compensation includes free onsite 1-bedroom apartment.",
+        "compensation": "$3,500/month + free apartment",
+        "compensation_evidence_quote": "Monthly stipend plus unit included.",
+        "experience_requirements": "Property management experience preferred, not required.",
+        "software_requirements": "Yardi preferred",
+        "license_requirements": "No license required",
+        "public_contact_channel_if_visible": "careers@example.com",
+        "apply_url": "https://example.com/apply/resident-manager",
+        "screenshot_path_if_available": "ops/agent-control/reports/job-lead-audit/sample/lead-01.png"
+      }
+    ]
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

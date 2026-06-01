@@ -80,6 +80,7 @@ jobs:
           path: |
             ops/agent-control/reports/openclaw-heartbeat/
             ops/agent-control/reports/openclaw-browser-audit/
+            ops/agent-control/reports/job-lead-audit/
             ops/openclaw/reports/virtual-browser/
             ops/agent-control/reports/openclaw-latest.json
           retention-days: 30
@@ -106,10 +107,10 @@ jobs:
           } >> ops/agent-control/STATUS.md
 
       - name: Commit evidence
-        if: always()
+        if: ${{ always() && github.ref == 'refs/heads/main' }}
         run: |
           git pull --ff-only origin main || true
-          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/openclaw/reports ops/agent-control/STATUS.md)" ]; then
+          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/agent-control/reports/job-lead-audit ops/openclaw/reports ops/agent-control/STATUS.md)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             if [ -d "ops/agent-control/reports/openclaw-heartbeat" ]; then
@@ -117,6 +118,9 @@ jobs:
             fi
             if [ -d "ops/agent-control/reports/openclaw-browser-audit" ]; then
               git add -A ops/agent-control/reports/openclaw-browser-audit
+            fi
+            if [ -d "ops/agent-control/reports/job-lead-audit" ]; then
+              git add -A ops/agent-control/reports/job-lead-audit
             fi
             if [ -d "ops/openclaw/reports/virtual-browser" ]; then
               git add -A ops/openclaw/reports/virtual-browser

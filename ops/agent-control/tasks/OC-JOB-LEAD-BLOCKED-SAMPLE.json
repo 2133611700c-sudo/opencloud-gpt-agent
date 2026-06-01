@@ -1,0 +1,26 @@
+{
+  "id": "OC-JOB-LEAD-BLOCKED-SAMPLE",
+  "type": "job_lead_audit",
+  "requested_by": "ChatGPT",
+  "goal": "Prove safety guard blocks customer actions.",
+  "expected_status": "BLOCKED",
+  "params": {
+    "leads": [
+      {
+        "company": "Example Property Group",
+        "role": "Resident Manager",
+        "location": "Los Angeles, CA",
+        "housing_terms": "Free unit included",
+        "apply_url": "https://example.com/apply"
+      }
+    ]
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": true,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

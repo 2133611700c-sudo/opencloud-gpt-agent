@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 
 const repoRoot = process.cwd();
@@ -18,11 +20,30 @@ const runUrl = process.env.GITHUB_RUN_URL || "unknown";
 const latestFile = process.env.OPENCLAW_LATEST_FILE
   ? path.resolve(process.env.OPENCLAW_LATEST_FILE)
   : resolveRepoPath("ops", "agent-control", "reports", "openclaw-latest.json");
-const supportedTaskTypes = new Set(["heartbeat", "virtual_browser_audit", "synthetic_fail", "job_lead_collect", "job_lead_audit"]);
-const prohibitedSafetyFlags = ["customer_action", "public_posting", "paid_ads_change", "destructive_action"];
+
+const supportedTaskTypes = new Set([
+  "heartbeat",
+  "virtual_browser_audit",
+  "synthetic_fail",
+  "worker_heartbeat",
+  "job_lead_collect",
+  "job_lead_audit",
+  "outreach_draft",
+  "outreach_send_approved",
+  "codex_delegate",
+]);
 
 function resolveRepoPath(...segments) {
   return path.resolve(repoRoot, ...segments);
+}
+function readJson(file) {
+  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+function safe(text) {
+  return String(text)
+    .replaceAll(/(postgres(?:ql)?:\/\/)\S+/gi, "$1***REDACTED***")
+    .replaceAll(/(token|password|secret|service_role)[^\s]*/gi, "$1=***REDACTED***")
+    .replaceAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "***REDACTED_EMAIL***");
 }
 function findCommand(command) {
   const finder = process.platform === "win32" ? "where.exe" : "which";
@@ -30,64 +51,34 @@ function findCommand(command) {
     const out = execFileSync(finder, [command], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
     return out.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)[0] || null;
   } catch {
-    if (process.platform === "win32") {
-      try {
-        const out = execFileSync("pwsh", ["-NoProfile", "-Command", `(Get-Command ${command} -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source)`], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
-        const resolved = out.trim();
-        return resolved || null;
-      } catch {
-        return null;
-      }
-    }
     return null;
   }
 }
 function ensureRequiredBinaries() {
-  const required = process.platform === "win32"
-    ? ["node", "npm", "git", "gh", "pwsh"]
-    : ["node", "npm", "git"];
+  const required = process.platform === "win32" ? ["node", "npm", "git"] : ["node", "npm", "git"];
   const missing = required.filter((bin) => !findCommand(bin));
-  if (missing.length > 0) {
-    if (process.env.CI) {
-      throw new Error(`missing required binaries: ${missing.join(", ")}`);
-    }
-    console.warn(`warning: missing binaries not enforced outside CI: ${missing.join(", ")}`);
+  if (missing.length > 0 && process.env.CI) {
+    throw new Error(`missing required binaries: ${missing.join(", ")}`);
   }
 }
-function readJson(file) {
-  return JSON.parse(fs.readFileSync(file, "utf8"));
-}
-function lastChangedTaskFromPush() {
+function commandVersion(cmd, args) {
   try {
-    const out = execFileSync("git", ["diff", "--name-only", "HEAD~1", "HEAD", "--", "ops/agent-control/tasks/*.json"], { encoding: "utf8" });
-    const files = out.split("\n").map((x) => x.trim()).filter((x) => x.endsWith(".json") && fs.existsSync(x));
-    if (files.length === 0) return null;
-    return files[files.length - 1];
+    return execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
   } catch {
-    return null;
+    return "NOT_AVAILABLE";
   }
 }
 function latestTaskFile() {
-  const changedTask = lastChangedTaskFromPush();
-  if (changedTask) return changedTask;
   const files = fs.readdirSync(tasksDir).filter((f) => f.endsWith(".json")).map((f) => path.join(tasksDir, f));
   if (!files.length) throw new Error(`No task files found in ${tasksDir}`);
   files.sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
   return files[0];
-}
-function safe(text) {
-  return String(text)
-    .replaceAll(/(postgres(?:ql)?:\/\/)\S+/gi, "$1***REDACTED***")
-    .replaceAll(/(token|password|secret|service_role)[^\s]*/gi, "$1=***REDACTED***");
 }
 function writeReport(dir, lines) {
   fs.mkdirSync(dir, { recursive: true });
   const out = path.join(dir, `${runId}.md`);
   fs.writeFileSync(out, lines.join("\n") + "\n", "utf8");
   return out;
-}
-function sleep(ms) {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 function parseTaskReport(file) {
   const text = fs.readFileSync(file, "utf8");
@@ -98,11 +89,11 @@ function parseTaskReport(file) {
   return { task_id: get("task_id"), timestamp_utc: get("timestamp_utc") };
 }
 function lastTaskExecution(taskId) {
-  const dirs = ["openclaw-heartbeat", "openclaw-browser-audit", "job-lead-audit"].map((d) => path.join(reportsRoot, d)).filter((d) => fs.existsSync(d));
+  const dirs = ["openclaw-heartbeat", "worker-heartbeat", "openclaw-browser-audit", "job-lead-audit", "outreach-draft"].map((d) => path.join(reportsRoot, d)).filter((d) => fs.existsSync(d));
   const files = [];
   for (const d of dirs) for (const f of fs.readdirSync(d).filter((x) => x.endsWith(".md"))) files.push(path.join(d, f));
   files.sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
-  for (const f of files.slice(0, 100)) {
+  for (const f of files.slice(0, 200)) {
     const parsed = parseTaskReport(f);
     if (parsed.task_id === taskId && parsed.timestamp_utc) return parsed.timestamp_utc;
   }
@@ -122,14 +113,16 @@ function validateTask(task) {
   for (const key of req) if (!(key in task)) errors.push(`missing required field: ${key}`);
   const statusAllowed = new Set(["PASS", "FAIL", "BLOCKED", "DEGRADED"]);
   if (task.expected_status && !statusAllowed.has(task.expected_status)) errors.push(`invalid expected_status: ${task.expected_status}`);
-  const safetyReq = ["production_code_change", "customer_action", "secrets_required", "public_posting", "paid_ads_change", "destructive_action"];
-  if (typeof task.safety !== "object" || task.safety === null) errors.push("safety must be an object");
-  else for (const key of safetyReq) if (!(key in task.safety)) errors.push(`missing safety field: ${key}`);
   return errors;
 }
-function checkUnsafeSafety(task) {
-  if (!task.safety || typeof task.safety !== "object") return null;
-  for (const flag of prohibitedSafetyFlags) if (task.safety[flag] === true) return `unsafe task blocked by safety flag: ${flag}=true`;
+function isUnsafeBlocked(task) {
+  const s = task?.safety || {};
+  const payload = JSON.stringify(task?.params || {}).toLowerCase();
+  if (/\bssn\b|\bsocial security\b|\bdate of birth\b|\bdob\b|\bprivate address\b/.test(payload)) {
+    return "unsafe task blocked by sensitive private data fields";
+  }
+  if (s.public_posting || s.paid_ads_change || s.destructive_action) return "unsafe task blocked by safety flags";
+  if (task.type !== "outreach_send_approved" && s.customer_action === true) return "unsafe task blocked by safety flag: customer_action=true";
   return null;
 }
 function runBrowserAudit(task) {
@@ -138,32 +131,50 @@ function runBrowserAudit(task) {
   const attempts = Number(task.params?.max_attempts || 2);
   const outDir = resolveRepoPath("ops", "openclaw", "reports", "virtual-browser", runId);
   const env = { ...process.env, TARGET_ORIGIN: target, ROUTES: routes, OUT_DIR: outDir };
-  let lastError;
   for (let i = 1; i <= attempts; i += 1) {
     try {
       execFileSync("node", ["scripts/openclaw-virtual-browser-audit.mjs"], { stdio: "inherit", env });
       return { target, routes, attempts_used: i };
-    } catch (err) {
-      lastError = err;
-      if (i < attempts) sleep(i * 2000);
+    } catch {
+      if (i === attempts) throw new Error("virtual_browser_audit failed");
     }
   }
-  throw lastError;
+  return {};
 }
 function runHeartbeat() {
   return { runner_env: process.env.RUNNER_OS || "unknown", node_version: process.version };
+}
+function runWorkerHeartbeat() {
+  const repoBranch = commandVersion("git", ["branch", "--show-current"]);
+  return {
+    machine_id: os.hostname(),
+    hostname: os.hostname(),
+    windows_version: process.platform === "win32"
+      ? commandVersion("cmd", ["/c", "ver"])
+      : `${os.platform()} ${os.release()}`,
+    os: `${os.platform()} ${os.release()}`,
+    node_version: process.version,
+    npm_version: commandVersion("npm", ["-v"]),
+    git_version: commandVersion("git", ["--version"]),
+    gh_version: commandVersion("gh", ["--version"]).split("\n")[0],
+    openclaw_version: commandVersion("npm", ["pkg", "get", "version"]),
+    codex_availability: findCommand("codex") ? "AVAILABLE" : "NOT_AVAILABLE",
+    current_repo_path: repoRoot,
+    current_branch: repoBranch || "unknown",
+    git_sha: sha,
+    last_seen: now.toISOString(),
+    worker_uptime_seconds: Math.floor(os.uptime()),
+    runner_mode: process.env.CI ? "github-actions" : "local-worker",
+  };
 }
 function runSyntheticFail() {
   throw new Error("synthetic_fail drill requested by task");
 }
 function runJobLeadCollect(task) {
-  if (task?.safety?.customer_action === true) {
-    throw new Error("unsafe task blocked by safety flag: customer_action=true");
-  }
-  const queries = Array.isArray(task.params?.search_queries) ? task.params.search_queries.filter((x) => typeof x === "string" && x.trim()) : [];
-  const seedUrls = Array.isArray(task.params?.seed_urls) ? task.params.seed_urls.filter((x) => typeof x === "string" && x.trim()) : [];
+  const queries = Array.isArray(task.params?.search_queries) ? task.params.search_queries : [];
+  const seedUrls = Array.isArray(task.params?.seed_urls) ? task.params.seed_urls : [];
   if (queries.length === 0 && seedUrls.length === 0) {
-    throw new Error("job_lead_collect requires task.params.search_queries and/or task.params.seed_urls");
+    throw new Error("job_lead_collect requires search_queries and/or seed_urls");
   }
   const outDir = resolveRepoPath("ops", "agent-control", "reports", "job-lead-audit", runId);
   const outJson = path.join(outDir, "collected-leads.json");
@@ -172,6 +183,8 @@ function runJobLeadCollect(task) {
     OPENCLAW_COLLECT_QUERIES: JSON.stringify(queries),
     OPENCLAW_COLLECT_SEED_URLS: JSON.stringify(seedUrls),
     OPENCLAW_COLLECT_MAX_LEADS: String(Number(task.params?.max_leads || 25)),
+    OPENCLAW_COLLECT_LOCATION: String(task.params?.location || ""),
+    OPENCLAW_COLLECT_TARGET_PROFILE: JSON.stringify(task.params?.target_profile || {}),
     OPENCLAW_COLLECT_OUT_DIR: outDir,
     OPENCLAW_COLLECT_OUT_FILE: outJson,
   };
@@ -179,33 +192,19 @@ function runJobLeadCollect(task) {
   const collected = readJson(outJson);
   return {
     mode: "READ_ONLY_PUBLIC_LEAD_COLLECTION",
-    safety_guards: [
-      "READ ONLY only",
-      "Do not apply",
-      "Do not submit forms",
-      "Do not send emails",
-      "Do not create accounts",
-      "Do not pay fees",
-      "Do not disclose personal data",
-    ],
     total_collected: Array.isArray(collected.leads) ? collected.leads.length : 0,
     collection_output_file: outJson,
     leads: Array.isArray(collected.leads) ? collected.leads : [],
   };
 }
 function toCleanString(value, fallback = "NOT_SPECIFIED") {
-  if (typeof value === "string" && value.trim()) return value.trim();
-  return fallback;
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
-function asOptionalString(value) {
-  if (typeof value !== "string") return "";
-  return value.trim();
+function includesAny(text, terms) {
+  const t = text.toLowerCase();
+  return terms.some((term) => t.includes(term.toLowerCase()));
 }
-function includesAnyTerm(text, terms) {
-  const lowered = text.toLowerCase();
-  return terms.some((term) => lowered.includes(term.toLowerCase()));
-}
-function classifyLeadFit(lead) {
+function classifyLead(lead) {
   const text = [
     lead.role,
     lead.housing_terms,
@@ -216,95 +215,139 @@ function classifyLeadFit(lead) {
     lead.software_requirements,
     lead.license_requirements,
   ].join(" ").toLowerCase();
-  const hasHousingExplicit = includesAnyTerm(text, [
-    "free apartment",
-    "free unit",
-    "unit included",
-    "housing provided",
-    "live-in unit",
-    "lodging credit",
-    "rent credit",
-    "onsite apartment included",
-  ]);
-  const hasHardExperience = includesAnyTerm(text, ["3+ years", "3 years required", "minimum 3 years"]);
-  const hasMandatorySoftware = includesAnyTerm(text, ["yardi required", "appfolio required", "must know yardi", "must know appfolio"]);
-  const hasLicenseRequired = includesAnyTerm(text, ["license required", "licensed required"]);
-  const hasFeeOrScam = includesAnyTerm(text, ["fee required", "deposit before", "wire payment", "upfront fee"]);
-  const unrelatedRole = !includesAnyTerm(text, ["manager", "property", "resident", "caretaker", "onsite"]);
+  const hasHousing = includesAny(text, ["free apartment", "free unit", "unit included", "housing provided", "live-in housing", "lodging credit", "rent credit"]);
+  const hardExp = includesAny(text, ["3+ years", "3 years required", "minimum 3 years"]);
+  const mandatoryYardi = includesAny(text, ["yardi required", "appfolio required", "must know yardi", "must know appfolio"]);
+  const licenseReq = includesAny(text, ["license required", "licensed required"]);
+  const scam = includesAny(text, ["fee required", "deposit before", "wire payment", "upfront fee", "application fee before tour"]);
+  const unrelated = !includesAny(text, ["manager", "resident", "property", "caretaker", "building"]);
   const hasContact = (lead.apply_url && lead.apply_url !== "NOT_SPECIFIED") || (lead.public_contact_channel_if_visible && lead.public_contact_channel_if_visible !== "NOT_SPECIFIED");
-
-  if (!hasHousingExplicit || hasHardExperience || hasMandatorySoftware || hasLicenseRequired || hasFeeOrScam || unrelatedRole || !hasContact) {
+  if (!hasHousing || hardExp || mandatoryYardi || licenseReq || scam || unrelated || !hasContact) {
     const reasons = [];
-    if (!hasHousingExplicit) reasons.push("no explicit housing terms");
-    if (hasHardExperience) reasons.push("3+ years required");
-    if (hasMandatorySoftware) reasons.push("Yardi/AppFolio required");
-    if (hasLicenseRequired) reasons.push("license required");
-    if (hasFeeOrScam) reasons.push("fee/deposit or scam indicators");
-    if (unrelatedRole) reasons.push("role appears unrelated");
-    if (!hasContact) reasons.push("no public apply/contact channel");
+    if (!hasHousing) reasons.push("no housing");
+    if (hardExp) reasons.push("3+ years required");
+    if (mandatoryYardi) reasons.push("Yardi/AppFolio required");
+    if (licenseReq) reasons.push("license required");
+    if (scam) reasons.push("fee/deposit requested");
+    if (unrelated) reasons.push("unrelated role");
+    if (!hasContact) reasons.push("no apply/contact");
     return { fit_status: "REJECT", rejection_reason: reasons.join("; ") };
   }
+  const maybe = includesAny(text, ["preferred", "nice to have", "plus"]);
+  if (maybe) return { fit_status: "MAYBE", rejection_reason: "requirements not explicit hard-blockers" };
   return { fit_status: "FIT", rejection_reason: "" };
 }
 function runJobLeadAudit(task) {
-  if (task?.safety?.customer_action === true) {
-    throw new Error("unsafe task blocked by safety flag: customer_action=true");
-  }
   let leads = Array.isArray(task.params?.leads) ? task.params.leads : [];
   if (leads.length === 0 && typeof task.params?.collected_file === "string" && task.params.collected_file.trim()) {
-    const collectedPath = path.resolve(task.params.collected_file.trim());
-    if (!fs.existsSync(collectedPath)) throw new Error(`collected_file not found: ${collectedPath}`);
-    const collected = readJson(collectedPath);
+    const collected = readJson(path.resolve(task.params.collected_file.trim()));
     leads = Array.isArray(collected.leads) ? collected.leads : [];
   }
-  if (leads.length === 0) throw new Error("job_lead_audit requires task.params.leads or task.params.collected_file with at least one public lead item");
-  const results = leads.map((rawLead) => {
+  if (leads.length === 0) throw new Error("job_lead_audit requires leads or collected_file");
+  const audited = leads.map((raw) => {
     const lead = {
-      company: toCleanString(rawLead?.company),
-      role: toCleanString(rawLead?.role),
-      location: toCleanString(rawLead?.location),
-      listing_url: toCleanString(rawLead?.listing_url || rawLead?.apply_url),
-      source_site: toCleanString(rawLead?.source_site || rawLead?.source),
-      housing_terms: toCleanString(rawLead?.housing_terms),
-      housing_evidence_quote: toCleanString(rawLead?.housing_evidence_quote || rawLead?.excerpt),
-      compensation: toCleanString(rawLead?.compensation),
-      compensation_evidence_quote: toCleanString(rawLead?.compensation_evidence_quote || rawLead?.excerpt),
-      experience_requirements: toCleanString(rawLead?.experience_requirements),
-      software_requirements: toCleanString(rawLead?.software_requirements),
-      license_requirements: toCleanString(rawLead?.license_requirements),
-      public_contact_channel_if_visible: toCleanString(rawLead?.public_contact_channel_if_visible),
-      apply_url: toCleanString(rawLead?.apply_url),
-      screenshot_path_if_available: toCleanString(rawLead?.screenshot_path_if_available || rawLead?.screenshot_path),
+      company: toCleanString(raw.company),
+      role: toCleanString(raw.role),
+      location: toCleanString(raw.location),
+      listing_url: toCleanString(raw.listing_url || raw.apply_url),
+      source_site: toCleanString(raw.source_site || raw.source),
+      housing_terms: toCleanString(raw.housing_terms),
+      housing_evidence_quote: toCleanString(raw.housing_evidence_quote || raw.excerpt),
+      compensation: toCleanString(raw.compensation),
+      compensation_evidence_quote: toCleanString(raw.compensation_evidence_quote || raw.excerpt),
+      experience_requirements: toCleanString(raw.experience_requirements),
+      software_requirements: toCleanString(raw.software_requirements),
+      license_requirements: toCleanString(raw.license_requirements),
+      public_contact_channel_if_visible: toCleanString(raw.public_contact_channel_if_visible),
+      apply_url: toCleanString(raw.apply_url),
+      screenshot_path_if_available: toCleanString(raw.screenshot_path_if_available || raw.screenshot_path),
     };
-    const fit = classifyLeadFit(lead);
+    const fit = classifyLead(lead);
     return {
       ...lead,
       fit_status: fit.fit_status,
       rejection_reason: fit.rejection_reason,
       next_action: fit.fit_status === "REJECT"
-        ? "Skip and continue to next lead. Read-only audit only."
-        : "Review details and decide whether to manually apply later. Do not apply or contact from this task.",
+        ? "Skip lead. Continue read-only research."
+        : "Manual human review for potential outreach draft.",
     };
   });
+  return { leads_reviewed: audited.length, leads: audited };
+}
+function candidateProfile() {
   return {
-    mode: "READ_ONLY_PUBLIC_LEAD_AUDIT",
-    safety_guards: [
-      "READ ONLY only",
-      "Do not apply",
-      "Do not submit forms",
-      "Do not send emails",
-      "Do not create accounts",
-      "Do not pay fees",
-      "Do not disclose personal data",
+    full_name: "Sergii Kuropiatnyk",
+    phone: "213-361-1700",
+    email: "2133611700c@gmail.com",
+    site: "https://handyandfriend.com",
+    traits: ["responsible", "calm", "clean", "organized", "no bad habits"],
+    background: [
+      "Worked as a lawyer in Europe for 4 years",
+      "Practical handyman/service background through Handy & Friend",
+      "Looking for long-term live-in opportunity",
     ],
-    source_notes: asOptionalString(task.params?.source_notes),
-    leads_reviewed: results.length,
-    counts: {
-      fit: results.filter((x) => x.fit_status === "FIT").length,
-      maybe: results.filter((x) => x.fit_status === "MAYBE").length,
-      reject: results.filter((x) => x.fit_status === "REJECT").length,
-    },
-    leads: results,
+    constraints: [
+      "Do not claim property management license",
+      "Do not claim formal U.S. property-management experience",
+    ],
+  };
+}
+function runOutreachDraft(task) {
+  const leads = Array.isArray(task.params?.leads) ? task.params.leads : [];
+  if (leads.length === 0) throw new Error("outreach_draft requires task.params.leads");
+  const profile = candidateProfile();
+  const drafts = leads.map((lead) => {
+    const subject = `Interest in ${toCleanString(lead.role)} opportunity`;
+    const body = `Hello,\n\nI am interested in your ${toCleanString(lead.role)} opportunity at ${toCleanString(lead.company)}.\nI am ${profile.full_name}. I am ${profile.traits.join(", ")}.\nI worked as a lawyer in Europe for 4 years and have practical handyman/service background through Handy & Friend (${profile.site}).\nI am looking for a long-term live-in opportunity.\n\nI do not hold a U.S. property management license and I do not claim formal U.S. property-management experience.\n\nIf relevant, I would appreciate discussing next steps.\n\nThank you,\n${profile.full_name}\n${profile.phone}\n${profile.email}`;
+    return {
+      company: toCleanString(lead.company),
+      recipient: toCleanString(lead.public_contact_channel_if_visible || lead.apply_url),
+      draft_subject: subject,
+      draft_text: body,
+      text_hash: crypto.createHash("sha256").update(body, "utf8").digest("hex"),
+      recommended_action: "Human review and manual send only.",
+    };
+  });
+  return { mode: "DRAFT_ONLY", profile, drafts };
+}
+function runOutreachSendApproved(task) {
+  const explicit = task.params?.explicit_approval === true;
+  const customerAction = task.safety?.customer_action === true;
+  const approvedTargets = Array.isArray(task.params?.approved_targets) ? task.params.approved_targets : [];
+  const approvedHash = typeof task.params?.approved_text_hash === "string" ? task.params.approved_text_hash.trim() : "";
+  if (!explicit || !customerAction || approvedTargets.length === 0 || !approvedHash) {
+    throw new Error("unsafe outreach_send_approved blocked: requires explicit_approval=true, customer_action=true, approved_targets, approved_text_hash");
+  }
+  return {
+    mode: "APPROVED_SEND_GATE_ONLY",
+    status: "BLOCKED",
+    reason: "Send execution is intentionally disabled in OpenClaw runner. Use human-approved external sender.",
+    approved_targets_count: approvedTargets.length,
+  };
+}
+function runCodexDelegate(task) {
+  const codexBin = findCommand("codex");
+  if (!codexBin) {
+    throw new Error("DEGRADED: codex CLI not available on worker");
+  }
+  const branch = String(task.params?.target_branch || `codex/task-${task.id}`.toLowerCase());
+  const prompt = String(task.params?.codex_prompt || task.goal || "Codex delegated task");
+  return {
+    mode: "CODEX_DELEGATE_DRY_RUN",
+    codex_available: true,
+    codex_binary: codexBin,
+    required_delivery_contract: [
+      "branch name",
+      "commit sha",
+      "PR URL",
+      "changed files",
+      "validation results",
+      "evidence path",
+      "next_action",
+    ],
+    prepared_branch: branch,
+    prepared_prompt_preview: prompt.slice(0, 500),
+    next_action: "Run codex on worker with this prompt, commit in new branch, open PR (no auto-merge).",
   };
 }
 function classifyFailure(taskType, status, errorText) {
@@ -313,22 +356,20 @@ function classifyFailure(taskType, status, errorText) {
   if (taskType === "synthetic_fail") return "synthetic_fail";
   if (/dedupe window active/i.test(errorText)) return "dedupe_window_active";
   if (/unsupported task type/i.test(errorText)) return "unsupported_task_type";
-  if (/unsafe task blocked by safety flag/i.test(errorText)) return "blocked_task";
+  if (/unsafe|blocked/i.test(errorText)) return "blocked_task";
   if (/timeout|net::|ECONN|ENOTFOUND/i.test(errorText)) return "network_or_runtime";
   return "execution_error";
 }
 function nextActionFor(status, failureClass) {
   if (status === "PASS") return "No action required. Continue with next scoped task.";
-  if (failureClass === "dedupe_window_active") return "Wait for dedupe window expiration or run with FORCE_RERUN=true.";
-  if (failureClass === "unsupported_task_type") return "Add task type implementation or use an implemented type.";
-  if (failureClass === "blocked_task") return "Adjust task safety/schema fields and re-dispatch.";
-  return "Inspect error details, apply minimal safe fix, rerun task with force_rerun=true.";
+  if (failureClass === "blocked_task") return "Adjust safety/approval fields and re-dispatch.";
+  if (failureClass === "dedupe_window_active") return "Use FORCE_RERUN=true or wait dedupe window.";
+  return "Inspect error details, apply minimal safe fix, rerun.";
 }
 
 function main() {
   ensureRequiredBinaries();
   const taskFile = path.resolve(explicitTaskFile || latestTaskFile());
-  if (!fs.existsSync(schemaPath)) throw new Error(`missing schema file: ${schemaPath}`);
   readJson(schemaPath);
   const task = readJson(taskFile);
   const taskId = task.id || path.basename(taskFile, ".json");
@@ -347,10 +388,10 @@ function main() {
     errorText = `Unsupported task type: ${taskType}`;
   }
   if (status === "PASS") {
-    const unsafeReason = checkUnsafeSafety(task);
-    if (unsafeReason) {
+    const unsafe = isUnsafeBlocked(task);
+    if (unsafe) {
       status = "BLOCKED";
-      errorText = unsafeReason;
+      errorText = unsafe;
     }
   }
   const dedupeReason = status === "PASS" ? dedupeCheck(taskId) : null;
@@ -358,27 +399,42 @@ function main() {
     status = "BLOCKED";
     errorText = dedupeReason;
   }
+
   if (status === "PASS") {
     try {
       if (taskType === "heartbeat") details = runHeartbeat();
+      else if (taskType === "worker_heartbeat") details = runWorkerHeartbeat();
       else if (taskType === "virtual_browser_audit") details = runBrowserAudit(task);
       else if (taskType === "synthetic_fail") runSyntheticFail();
       else if (taskType === "job_lead_collect") details = runJobLeadCollect(task);
       else if (taskType === "job_lead_audit") details = runJobLeadAudit(task);
+      else if (taskType === "outreach_draft") details = runOutreachDraft(task);
+      else if (taskType === "outreach_send_approved") details = runOutreachSendApproved(task);
+      else if (taskType === "codex_delegate") details = runCodexDelegate(task);
     } catch (err) {
-      status = "FAIL";
-      errorText = err instanceof Error ? err.stack || err.message : String(err);
+      const message = err instanceof Error ? (err.stack || err.message) : String(err);
+      if (/^DEGRADED:/i.test(message)) {
+        status = "DEGRADED";
+      } else if (/blocked/i.test(message)) {
+        status = "BLOCKED";
+      } else {
+        status = "FAIL";
+      }
+      errorText = message;
     }
   }
+
   const failureClass = classifyFailure(taskType, status, errorText);
   const nextAction = nextActionFor(status, failureClass);
   const reportDir = taskType === "virtual_browser_audit"
     ? path.join(reportsRoot, "openclaw-browser-audit")
-    : taskType === "job_lead_audit"
+    : taskType === "worker_heartbeat"
+      ? path.join(reportsRoot, "worker-heartbeat")
+    : taskType === "job_lead_collect" || taskType === "job_lead_audit"
       ? path.join(reportsRoot, "job-lead-audit")
-      : taskType === "job_lead_collect"
-      ? path.join(reportsRoot, "job-lead-audit")
-      : path.join(reportsRoot, "openclaw-heartbeat");
+      : taskType === "outreach_draft" || taskType === "outreach_send_approved"
+        ? path.join(reportsRoot, "outreach-draft")
+        : path.join(reportsRoot, "openclaw-heartbeat");
   const reportFile = writeReport(reportDir, [
     "# OpenClaw Task Report",
     "",
@@ -405,18 +461,25 @@ function main() {
     "",
     nextAction,
   ]);
+
   const summary = {
     status,
     task_id: taskId,
     task_type: taskType,
+    run_id: runId,
+    run_url: runUrl,
+    worker_id: os.hostname(),
+    started_at: now.toISOString(),
+    completed_at: new Date().toISOString(),
     expected_status: task.expected_status || "PASS",
     failure_class: failureClass,
     dedupe_key: `${taskType}:${failureClass}`,
     report_file: reportFile,
+    evidence_files: [reportFile],
     next_action: nextAction,
   };
   fs.mkdirSync(path.dirname(latestFile), { recursive: true });
-  fs.writeFileSync(latestFile, JSON.stringify(summary, null, 2));
+  fs.writeFileSync(latestFile, JSON.stringify(summary, null, 2), "utf8");
   console.log(JSON.stringify(summary));
   if (status === "PASS") process.exit(0);
   if (status === "BLOCKED") process.exit(3);

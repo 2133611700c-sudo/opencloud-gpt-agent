@@ -14,6 +14,8 @@ function parseJsonEnv(name, fallback) {
 const queries = parseJsonEnv("OPENCLAW_COLLECT_QUERIES", []);
 const seedUrls = parseJsonEnv("OPENCLAW_COLLECT_SEED_URLS", []);
 const maxLeads = Number(process.env.OPENCLAW_COLLECT_MAX_LEADS || "25");
+const locationHint = process.env.OPENCLAW_COLLECT_LOCATION || "";
+const targetProfile = parseJsonEnv("OPENCLAW_COLLECT_TARGET_PROFILE", {});
 const outDir = process.env.OPENCLAW_COLLECT_OUT_DIR || path.resolve("ops", "agent-control", "reports", "job-lead-audit", new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z"));
 const outFile = process.env.OPENCLAW_COLLECT_OUT_FILE || path.join(outDir, "collected-leads.json");
 
@@ -43,25 +45,31 @@ for (const url of urls) {
     const emailMatch = bodyText.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi);
     const housingQuoteMatch = bodyText.match(/[^.]{0,80}(free apartment|free unit|unit included|housing provided|live-in|rent credit)[^.]{0,80}/i);
     const compensationQuoteMatch = bodyText.match(/[^.]{0,80}(\$ ?\d[\d,]*(?:\.\d+)?(?:\s*-\s*\$ ?\d[\d,]*(?:\.\d+)?)?|per hour|per month|salary)[^.]{0,80}/i);
+    const experienceQuoteMatch = bodyText.match(/[^.]{0,80}(3\+ years|minimum 3 years|experience required|experience preferred)[^.]{0,80}/i);
+    const softwareQuoteMatch = bodyText.match(/[^.]{0,80}(yardi|appfolio|required software|crm)[^.]{0,80}/i);
+    const licenseQuoteMatch = bodyText.match(/[^.]{0,80}(license required|licensed)[^.]{0,80}/i);
+    const roleQuoteMatch = bodyText.match(/[^.]{0,80}(resident manager|onsite manager|property manager|building manager|caretaker)[^.]{0,80}/i);
     const screenshotPath = path.join(outDir, `lead-${String(leads.length + 1).padStart(2, "0")}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: true });
 
     leads.push({
       company: title || "UNKNOWN",
       role: "UNKNOWN",
-      location: "UNKNOWN",
+      location: locationHint || "UNKNOWN",
       listing_url: url,
       source_site: new URL(url).hostname,
       housing_terms: housingQuoteMatch ? housingQuoteMatch[0] : "NOT_SPECIFIED",
       housing_evidence_quote: housingQuoteMatch ? housingQuoteMatch[0] : "NOT_SPECIFIED",
-      compensation: "NOT_SPECIFIED",
+      compensation: compensationQuoteMatch ? compensationQuoteMatch[0] : "NOT_SPECIFIED",
       compensation_evidence_quote: compensationQuoteMatch ? compensationQuoteMatch[0] : "NOT_SPECIFIED",
-      experience_requirements: "NOT_SPECIFIED",
-      software_requirements: "NOT_SPECIFIED",
-      license_requirements: "NOT_SPECIFIED",
+      experience_requirements: experienceQuoteMatch ? experienceQuoteMatch[0] : "NOT_SPECIFIED",
+      software_requirements: softwareQuoteMatch ? softwareQuoteMatch[0] : "NOT_SPECIFIED",
+      license_requirements: licenseQuoteMatch ? licenseQuoteMatch[0] : "NOT_SPECIFIED",
       public_contact_channel_if_visible: emailMatch?.[0] || "NOT_SPECIFIED",
       apply_url: url,
       screenshot_path_if_available: screenshotPath,
+      role: roleQuoteMatch ? roleQuoteMatch[0] : "UNKNOWN",
+      target_profile: targetProfile,
       excerpt: bodyText.slice(0, 300),
     });
   } catch {

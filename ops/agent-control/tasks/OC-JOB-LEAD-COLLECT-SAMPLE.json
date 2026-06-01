@@ -1,19 +1,39 @@
 {
   "id": "OC-JOB-LEAD-COLLECT-SAMPLE",
   "type": "job_lead_collect",
-  "requested_by": "ChatGPT",
-  "goal": "Collect public housing-included lead candidates from public web pages in read-only mode.",
+  "requested_by": "Sergii",
+  "goal": "Collect housing-included onsite manager leads in Los Angeles in read-only mode.",
   "expected_status": "PASS",
   "params": {
     "search_queries": [
-      "Los Angeles onsite apartment manager free apartment",
-      "Los Angeles resident manager unit included"
+      "onsite apartment manager free apartment Los Angeles",
+      "resident manager unit included Los Angeles",
+      "apartment manager free 1 bedroom unit Los Angeles",
+      "onsite property manager live-in housing Los Angeles",
+      "live-in property caretaker housing provided Los Angeles",
+      "building manager free apartment Los Angeles",
+      "apartment manager lodging credit Los Angeles",
+      "resident manager utilities included Los Angeles",
+      "onsite manager free unit Koreatown",
+      "onsite manager free apartment North Hollywood",
+      "onsite manager free apartment Van Nuys",
+      "onsite manager free apartment Santa Monica",
+      "onsite manager free apartment Inglewood",
+      "onsite manager free apartment Long Beach"
     ],
     "seed_urls": [
       "https://www.indeed.com/",
-      "https://www.simplyhired.com/"
+      "https://www.simplyhired.com/",
+      "https://www.ziprecruiter.com/"
     ],
-    "max_leads": 3
+    "max_leads": 10,
+    "location": "Los Angeles, CA",
+    "target_profile": {
+      "no_formal_us_property_management_experience": true,
+      "no_property_management_license": true,
+      "it_background": true,
+      "handyman_background": true
+    }
   },
   "safety": {
     "production_code_change": false,

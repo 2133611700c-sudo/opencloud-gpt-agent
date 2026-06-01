@@ -1,0 +1,18 @@
+{
+  "id": "OC-WORKER-HEARTBEAT-SAMPLE",
+  "type": "worker_heartbeat",
+  "requested_by": "ChatGPT",
+  "goal": "Verify Dell worker liveness and runtime footprint.",
+  "expected_status": "PASS",
+  "params": {
+    "runner_mode": "windows_dell_24_7"
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

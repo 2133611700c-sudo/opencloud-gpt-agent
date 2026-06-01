@@ -54,13 +54,6 @@ jobs:
           export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-outreach-draft.json
           node scripts/openclaw-task-runner.mjs
 
-      - name: Codex delegate dry-run sample
-        run: |
-          export TASK_FILE=ops/agent-control/tasks/OC-CODEX-DELEGATE-DRY-RUN-SAMPLE.json
-          export FORCE_RERUN=true
-          export OPENCLAW_LATEST_FILE=ops/agent-control/reports/openclaw-latest.pr-codex-delegate.json
-          node scripts/openclaw-task-runner.mjs
-
       - name: Virtual browser audit sample (regression)
         run: |
           export TASK_FILE=ops/agent-control/tasks/OC-OPENCLAW-BROWSER-AUDIT-001.json
@@ -96,7 +89,6 @@ jobs:
             ops/agent-control/reports/openclaw-latest.pr-collect.json
             ops/agent-control/reports/openclaw-latest.pr-audit.json
             ops/agent-control/reports/openclaw-latest.pr-outreach-draft.json
-            ops/agent-control/reports/openclaw-latest.pr-codex-delegate.json
             ops/agent-control/reports/openclaw-latest.pr-browser-audit.json
             ops/agent-control/reports/openclaw-latest.pr-blocked.json
           if-no-files-found: warn

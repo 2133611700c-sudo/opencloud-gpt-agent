@@ -28,6 +28,15 @@ $env:OPENCLAW_TASK_INBOX_MODE="files+issues"
 node scripts/openclaw-worker.mjs
 ```
 
+Worker behavior:
+- Reads JSON tasks from `ops/agent-control/tasks/`
+- Reads GitHub issues labeled `openclaw-task`
+- Locks tasks while running
+- Writes inbox state to `ops/agent-control/reports/worker-inbox-status.json`
+- Writes retry/status memory to `ops/agent-control/reports/worker-state.json`
+- Posts issue comments back to GitHub for issue-sourced tasks
+- Leaves task JSON files unchanged by default; set `OPENCLAW_MUTATE_FILE_TASK_STATUS=true` only if you intentionally want file status mutation
+
 ## 5) Scheduled Task (24/7)
 Create `C:\OpenClaw\run-openclaw-worker.ps1`:
 ```powershell
@@ -45,10 +54,12 @@ schtasks /Run /TN "OpenClawWorker"
 
 ## 6) Report and evidence locations
 - Task reports: `ops/agent-control/reports/`
-- Worker heartbeat: `ops/agent-control/reports/openclaw-heartbeat/`
+- Worker heartbeat: `ops/agent-control/reports/worker-heartbeat/`
 - Lead collect/audit: `ops/agent-control/reports/job-lead-audit/`
 - Outreach draft: `ops/agent-control/reports/outreach-draft/`
 - Latest summary: `ops/agent-control/reports/openclaw-latest.json`
+- Worker inbox status: `ops/agent-control/reports/worker-inbox-status.json`
+- Worker run memory: `ops/agent-control/reports/worker-state.json`
 - Status log: `ops/agent-control/STATUS.md`
 
 ## 7) ChatGPT verification flow
@@ -61,7 +72,14 @@ schtasks /Run /TN "OpenClawWorker"
 - `report_file` and evidence files
 - `next_action`
 
-## 8) Safe stop
+## 8) Operating standard
+- Use `P0..P3` priority in tasks whenever urgency matters.
+- Default task status should be `pending`.
+- Worker tracks status in sidecar state by default and only mutates file task status when `OPENCLAW_MUTATE_FILE_TASK_STATUS=true`.
+- Retry is automatic only for non-customer tasks and only within the worker's safe retry budget.
+- `outreach_send_approved` still requires explicit human approval contract.
+
+## 9) Safe stop
 ```powershell
 schtasks /End /TN "OpenClawWorker"
 schtasks /Change /TN "OpenClawWorker" /DISABLE

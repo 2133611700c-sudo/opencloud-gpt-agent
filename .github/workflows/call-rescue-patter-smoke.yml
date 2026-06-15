@@ -1,0 +1,44 @@
+name: Call Rescue Patter Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - "products/call-rescue-kit/REFERENCE_STACK_DECISION_2026-06.md"
+      - ".github/workflows/call-rescue-patter-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned SDK
+        run: |
+          mkdir -p /tmp/patter-smoke
+          cd /tmp/patter-smoke
+          npm init -y
+          npm install --no-audit --no-fund --save-exact getpatter@0.6.8
+      - name: Verify package imports
+        run: |
+          cd /tmp/patter-smoke
+          node --input-type=module -e "import * as sdk from 'getpatter'; for (const name of ['Patter','Twilio','OpenAIRealtime']) { if (typeof sdk[name] === 'undefined') throw new Error('Missing '+name); } console.log('PASS getpatter 0.6.8 core exports');"
+      - name: Save package metadata
+        run: |
+          cd /tmp/patter-smoke
+          npm view getpatter@0.6.8 name version license --json > "$GITHUB_WORKSPACE/patter-package-metadata.json"
+          npm ls --all --json > "$GITHUB_WORKSPACE/patter-dependency-tree.json" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: call-rescue-patter-smoke
+          path: |
+            patter-package-metadata.json
+            patter-dependency-tree.json
+          if-no-files-found: error
+          retention-days: 30

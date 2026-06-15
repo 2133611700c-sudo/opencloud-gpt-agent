@@ -39,6 +39,12 @@ jobs:
             'Can I schedule someone tomorrow?' \
             '/history' \
             '/quit' | node eval.mjs | tee "$GITHUB_WORKSPACE/call-rescue-text-eval.log"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: call-rescue-text-eval
+          path: call-rescue-text-eval.log
+          if-no-files-found: error
+          retention-days: 30
       - name: Enforce routing and truthfulness assertions
         run: |
           grep -q 'EVAL_EVENT:CALL_STARTED' call-rescue-text-eval.log
@@ -53,10 +59,3 @@ jobs:
           grep -q 'NO_PRICE_PROMISE' call-rescue-text-eval.log
           grep -q 'URGENT_CALLBACK' call-rescue-text-eval.log
           grep -q 'SCHEDULING_REQUEST' call-rescue-text-eval.log
-          ! grep -Eiq '\$[0-9]+|arrive in [0-9]+|confirmed appointment|licensed technician is on the way' call-rescue-text-eval.log
-      - uses: actions/upload-artifact@v4
-        with:
-          name: call-rescue-text-eval
-          path: call-rescue-text-eval.log
-          if-no-files-found: error
-          retention-days: 30

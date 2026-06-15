@@ -30,6 +30,13 @@ jobs:
         run: |
           cd /tmp/patter-smoke
           node --input-type=module -e "import * as sdk from 'getpatter'; for (const name of ['Patter','Twilio','OpenAIRealtime']) { if (typeof sdk[name] === 'undefined') throw new Error('Missing '+name); } console.log('PASS getpatter 0.6.8 core exports');"
+      - name: Verify telemetry-disabled construction without credentials
+        env:
+          PATTER_TELEMETRY_DISABLED: "1"
+          DO_NOT_TRACK: "1"
+        run: |
+          cd /tmp/patter-smoke
+          node --input-type=module -e "import { Patter, Twilio } from 'getpatter'; const phone = new Patter({ carrier: new Twilio(), phoneNumber: '+15555550199', telemetry: false }); if (!phone) throw new Error('Patter construction failed'); console.log('PASS telemetry-disabled construction');"
       - name: Save package and supply-chain evidence
         run: |
           cd /tmp/patter-smoke

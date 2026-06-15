@@ -25,18 +25,18 @@ const directoryHosts = new Set([
   "mapquest.com", "www.mapquest.com", "nextdoor.com", "www.nextdoor.com"
 ]);
 
-const serviceTerms = [
-  "plumb", "hvac", "heating", "air conditioning", "roof", "electric", "garage door",
-  "appliance repair", "locksmith", "water damage", "restoration", "pest control", "tree service"
-];
+const searchHosts = new Set([
+  "bing.com", "www.bing.com", "google.com", "www.google.com", "duckduckgo.com", "html.duckduckgo.com"
+]);
 
-function unique(values) {
-  return Array.from(new Set(values.filter((value) => typeof value === "string" && value.trim()).map((value) => value.trim())));
-}
+const serviceTerms = [
+  "plumb", "hvac", "heating", "air conditioning", "air conditioner", "furnace", "heat pump"
+];
 
 function normalizeUrl(raw) {
   try {
     const url = new URL(raw);
+    if (!/^https?:$/.test(url.protocol)) return null;
     url.hash = "";
     return url.toString();
   } catch {
@@ -50,6 +50,26 @@ function hostname(raw) {
   } catch {
     return "";
   }
+}
+
+function decodeXml(value = "") {
+  return value
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(Number.parseInt(code, 16)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractXmlTag(block, tag) {
+  const match = block.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "i"));
+  return decodeXml(match?.[1] || "");
 }
 
 function firstMatch(text, regex, fallback = "NOT_SPECIFIED") {
@@ -67,7 +87,9 @@ function nearbyQuote(text, regex, radius = 100) {
 
 function serviceVertical(text) {
   const lower = text.toLowerCase();
-  return serviceTerms.find((term) => lower.includes(term)) || "home service";
+  if (lower.includes("plumb")) return "plumbing";
+  if (["hvac", "heating", "air conditioning", "air conditioner", "furnace", "heat pump"].some((term) => lower.includes(term))) return "HVAC";
+  return "home service";
 }
 
 function scoreProspect(data) {
@@ -85,15 +107,74 @@ function scoreProspect(data) {
   return { score, fit_status: fitStatus, fit_reasons: reasons };
 }
 
-async function collectSearchResults(page, query) {
+async function collectRssSearchResults(query) {
+  const searchUrl = `https://www.bing.com/search?format=rss&count=20&q=${encodeURIComponent(query)}`;
+  const response = await fetch(searchUrl, {
+    headers: {
+      "user-agent": "Mozilla/5.0 (compatible; CallRescueResearch/1.0)",
+      accept: "application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8"
+    },
+    signal: AbortSignal.timeout(20000)
+  });
+  if (!response.ok) throw new Error(`Bing RSS returned HTTP ${response.status}`);
+  const xml = await response.text();
+  const items = Array.from(xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)).slice(0, 15);
+  return items
+    .map((match) => ({
+      url: extractXmlTag(match[1], "link"),
+      title: extractXmlTag(match[1], "title"),
+      source_query: query,
+      search_url: searchUrl,
+      search_method: "bing_rss"
+    }))
+    .filter((item) => normalizeUrl(item.url));
+}
+
+async function collectHtmlSearchResults(page, query) {
   const searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
   await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
   await page.waitForTimeout(800);
-  const results = await page.locator("li.b_algo h2 a").evaluateAll((anchors) => anchors.slice(0, 12).map((anchor) => ({
+  const primary = await page.locator("li.b_algo h2 a, #b_results h2 a, a[data-testid='result-title-a']").evaluateAll((anchors) => anchors.slice(0, 20).map((anchor) => ({
     url: anchor.href,
     title: (anchor.textContent || "").trim()
   })));
-  return results.map((result) => ({ ...result, source_query: query, search_url: searchUrl }));
+  const broad = primary.length > 0 ? [] : await page.locator("a[href^='http']").evaluateAll((anchors) => anchors.slice(0, 300).map((anchor) => ({
+    url: anchor.href,
+    title: (anchor.textContent || "").trim()
+  })));
+  return [...primary, ...broad]
+    .filter((item) => item.title.length >= 3)
+    .filter((item) => {
+      const host = hostname(item.url);
+      return host && !searchHosts.has(host);
+    })
+    .slice(0, 15)
+    .map((item) => ({ ...item, source_query: query, search_url: searchUrl, search_method: "bing_html" }));
+}
+
+async function collectSearchResults(page, query) {
+  const errors = [];
+  try {
+    const rssResults = await collectRssSearchResults(query);
+    if (rssResults.length > 0) {
+      return { results: rssResults, diagnostic: { query, method: "bing_rss", result_count: rssResults.length, errors } };
+    }
+    errors.push("Bing RSS returned zero parsed items");
+  } catch (error) {
+    errors.push(error instanceof Error ? error.message : String(error));
+  }
+
+  try {
+    const htmlResults = await collectHtmlSearchResults(page, query);
+    if (htmlResults.length > 0) {
+      return { results: htmlResults, diagnostic: { query, method: "bing_html", result_count: htmlResults.length, errors } };
+    }
+    errors.push("Bing HTML returned zero external results");
+  } catch (error) {
+    errors.push(error instanceof Error ? error.message : String(error));
+  }
+
+  return { results: [], diagnostic: { query, method: "none", result_count: 0, errors } };
 }
 
 async function inspectBusinessPage(context, candidate, index) {
@@ -103,7 +184,7 @@ async function inspectBusinessPage(context, candidate, index) {
     await page.waitForTimeout(500);
     const finalUrl = page.url();
     const siteHost = hostname(finalUrl);
-    if (!siteHost || directoryHosts.has(siteHost)) return null;
+    if (!siteHost || directoryHosts.has(siteHost) || searchHosts.has(siteHost)) return null;
 
     const title = (await page.title()).replace(/\s+/g, " ").trim();
     const bodyText = ((await page.locator("body").innerText({ timeout: 10000 })) || "").replace(/\s+/g, " ").trim();
@@ -139,6 +220,7 @@ async function inspectBusinessPage(context, candidate, index) {
       hostname: siteHost,
       source_query: candidate.source_query || "seed URL",
       source_search_url: candidate.search_url || "NOT_SPECIFIED",
+      search_method: candidate.search_method || "seed_url",
       vertical,
       phone,
       public_email: email,
@@ -160,8 +242,9 @@ async function inspectBusinessPage(context, candidate, index) {
       website: candidate.url,
       hostname: hostname(candidate.url),
       source_query: candidate.source_query || "seed URL",
+      search_method: candidate.search_method || "seed_url",
       fit_status: "REJECT",
-      fit_score: 0,
+      score: 0,
       fit_reasons: ["page inspection failed"],
       error: error instanceof Error ? error.message : String(error),
       inspected_at: new Date().toISOString()
@@ -184,22 +267,21 @@ const context = await browser.newContext({
 
 const searchPage = await context.newPage();
 const candidates = [];
+const searchDiagnostics = [];
 for (const query of queries) {
-  try {
-    candidates.push(...await collectSearchResults(searchPage, query));
-  } catch {
-    // Continue with other public queries.
-  }
+  const collected = await collectSearchResults(searchPage, query);
+  candidates.push(...collected.results);
+  searchDiagnostics.push(collected.diagnostic);
 }
 await searchPage.close();
-candidates.push(...seedUrls.map((url) => ({ url, title: hostname(url), source_query: "seed URL", search_url: "NOT_SPECIFIED" })));
+candidates.push(...seedUrls.map((url) => ({ url, title: hostname(url), source_query: "seed URL", search_url: "NOT_SPECIFIED", search_method: "seed_url" })));
 
 const deduped = [];
 const seenHosts = new Set();
 for (const candidate of candidates) {
   const normalized = normalizeUrl(candidate.url);
   const host = hostname(normalized || "");
-  if (!normalized || !host || directoryHosts.has(host) || seenHosts.has(host)) continue;
+  if (!normalized || !host || directoryHosts.has(host) || searchHosts.has(host) || seenHosts.has(host)) continue;
   seenHosts.add(host);
   deduped.push({ ...candidate, url: normalized });
 }
@@ -213,15 +295,20 @@ for (const candidate of deduped) {
 
 await browser.close();
 const ranked = prospects.sort((a, b) => (b.score || 0) - (a.score || 0));
+const fitCount = ranked.filter((item) => item.fit_status === "FIT").length;
+const maybeCount = ranked.filter((item) => item.fit_status === "MAYBE").length;
+const collectionStatus = deduped.length === 0 ? "FAIL" : prospects.length === 0 || fitCount === 0 ? "DEGRADED" : "PASS";
 const output = {
   mode: "READ_ONLY_PUBLIC_BUSINESS_RESEARCH",
+  collection_status: collectionStatus,
   collected_at: new Date().toISOString(),
   queries,
+  search_diagnostics: searchDiagnostics,
   total_candidates: deduped.length,
   total_inspected: prospects.length,
-  fit_count: ranked.filter((item) => item.fit_status === "FIT").length,
-  maybe_count: ranked.filter((item) => item.fit_status === "MAYBE").length,
+  fit_count: fitCount,
+  maybe_count: maybeCount,
   prospects: ranked
 };
 fs.writeFileSync(outFile, JSON.stringify(output, null, 2), "utf8");
-console.log(JSON.stringify({ status: "PASS", outFile, total_inspected: output.total_inspected, fit_count: output.fit_count }));
+console.log(JSON.stringify({ status: collectionStatus, outFile, total_candidates: output.total_candidates, total_inspected: output.total_inspected, fit_count: output.fit_count }));

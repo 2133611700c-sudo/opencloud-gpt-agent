@@ -5,14 +5,13 @@ on:
     paths:
       - "products/call-rescue-kit/**"
       - "scripts/openclaw-business-*.mjs"
-      - "ops/agent-control/tasks/OC-CALL-RESCUE-*.json"
       - ".github/workflows/call-rescue-prospecting.yml"
   workflow_dispatch:
     inputs:
       task_file:
         description: "Prospecting task JSON"
         required: true
-        default: "ops/agent-control/tasks/OC-CALL-RESCUE-PROSPECTING-001.json"
+        default: "products/call-rescue-kit/tasks/OC-CALL-RESCUE-PROSPECTING-001.json"
       max_prospects:
         description: "Override maximum qualified prospects (blank uses task value)"
         required: false
@@ -40,14 +39,14 @@ jobs:
           test -f products/call-rescue-kit/index.html
           test -f products/call-rescue-kit/vercel.json
           grep -q "Stop losing jobs" products/call-rescue-kit/index.html
-          grep -q '"type": "business_lead_collect"' ops/agent-control/tasks/OC-CALL-RESCUE-PROSPECTING-001.json
+          grep -q '"type": "business_lead_collect"' products/call-rescue-kit/tasks/OC-CALL-RESCUE-PROSPECTING-001.json
 
   prospect:
     if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
     env:
-      DEFAULT_TASK_FILE: ops/agent-control/tasks/OC-CALL-RESCUE-PROSPECTING-001.json
+      DEFAULT_TASK_FILE: products/call-rescue-kit/tasks/OC-CALL-RESCUE-PROSPECTING-001.json
       REPORT_DIR: ops/agent-control/reports/business-lead-audit/run-${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4

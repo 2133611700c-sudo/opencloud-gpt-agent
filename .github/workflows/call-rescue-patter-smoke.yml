@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "products/call-rescue-kit/REFERENCE_STACK_DECISION_2026-06.md"
+      - "products/call-rescue-kit/PATTER_SMOKE_RESULT_2026-06.md"
       - ".github/workflows/call-rescue-patter-smoke.yml"
   workflow_dispatch:
 
@@ -29,16 +30,24 @@ jobs:
         run: |
           cd /tmp/patter-smoke
           node --input-type=module -e "import * as sdk from 'getpatter'; for (const name of ['Patter','Twilio','OpenAIRealtime']) { if (typeof sdk[name] === 'undefined') throw new Error('Missing '+name); } console.log('PASS getpatter 0.6.8 core exports');"
-      - name: Save package metadata
+      - name: Save package and supply-chain evidence
         run: |
           cd /tmp/patter-smoke
           npm view getpatter@0.6.8 name version license --json > "$GITHUB_WORKSPACE/patter-package-metadata.json"
           npm ls --all --json > "$GITHUB_WORKSPACE/patter-dependency-tree.json" || true
+          npm audit --omit=dev --json > "$GITHUB_WORKSPACE/patter-npm-audit.json" || true
+          du -sk node_modules node_modules/getpatter > "$GITHUB_WORKSPACE/patter-install-size-kb.txt"
+          find node_modules -type f | wc -l > "$GITHUB_WORKSPACE/patter-installed-file-count.txt"
+          grep -Rni "telemetry" node_modules/getpatter 2>/dev/null | head -100 > "$GITHUB_WORKSPACE/patter-telemetry-evidence.txt" || true
       - uses: actions/upload-artifact@v4
         with:
           name: call-rescue-patter-smoke
           path: |
             patter-package-metadata.json
             patter-dependency-tree.json
+            patter-npm-audit.json
+            patter-install-size-kb.txt
+            patter-installed-file-count.txt
+            patter-telemetry-evidence.txt
           if-no-files-found: error
           retention-days: 30

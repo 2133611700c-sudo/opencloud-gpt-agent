@@ -1,0 +1,41 @@
+name: Call Rescue Batch Evaluation
+
+on:
+  pull_request:
+    paths:
+      - "scripts/call-rescue-patter-batch-eval.mjs"
+      - ".github/workflows/call-rescue-batch-eval.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PATTER_TELEMETRY_DISABLED: "1"
+      DO_NOT_TRACK: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned SDK
+        run: |
+          mkdir -p /tmp/call-rescue-batch-eval
+          cd /tmp/call-rescue-batch-eval
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund --save-exact getpatter@0.6.8
+          cp "$GITHUB_WORKSPACE/scripts/call-rescue-patter-batch-eval.mjs" ./eval.mjs
+      - name: Run evaluation
+        run: |
+          cd /tmp/call-rescue-batch-eval
+          node eval.mjs | tee "$GITHUB_WORKSPACE/call-rescue-batch-eval.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: call-rescue-batch-eval
+          path: call-rescue-batch-eval.json
+          if-no-files-found: error
+          retention-days: 30

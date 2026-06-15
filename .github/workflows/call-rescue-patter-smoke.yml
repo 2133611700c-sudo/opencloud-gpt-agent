@@ -1,0 +1,65 @@
+name: Call Rescue Patter Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - "products/call-rescue-kit/REFERENCE_STACK_DECISION_2026-06.md"
+      - "products/call-rescue-kit/PATTER_SMOKE_RESULT_2026-06.md"
+      - ".github/workflows/call-rescue-patter-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned SDK
+        run: |
+          mkdir -p /tmp/patter-smoke
+          cd /tmp/patter-smoke
+          npm init -y
+          npm install --no-audit --no-fund --save-exact getpatter@0.6.8
+      - name: Verify package imports
+        run: |
+          cd /tmp/patter-smoke
+          node --input-type=module -e "import * as sdk from 'getpatter'; for (const name of ['Patter','Twilio','OpenAIRealtime']) { if (typeof sdk[name] === 'undefined') throw new Error('Missing '+name); } console.log('PASS getpatter 0.6.8 core exports');"
+      - name: Capture telemetry-disabled construction result
+        env:
+          PATTER_TELEMETRY_DISABLED: "1"
+          DO_NOT_TRACK: "1"
+        run: |
+          cd /tmp/patter-smoke
+          set +e
+          node --input-type=module -e "import { Patter, Twilio } from 'getpatter'; const carrier = new Twilio({ accountSid: 'AC00000000000000000000000000000000', authToken: 'placeholder' }); const phone = new Patter({ carrier, phoneNumber: '+15555550199', telemetry: false }); if (!phone) throw new Error('Patter construction failed'); console.log('PASS telemetry-disabled construction');" > "$GITHUB_WORKSPACE/patter-construction-result.txt" 2>&1
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_WORKSPACE/patter-construction-result.txt"
+          exit 0
+      - name: Save package and supply-chain evidence
+        run: |
+          cd /tmp/patter-smoke
+          npm view getpatter@0.6.8 name version license --json > "$GITHUB_WORKSPACE/patter-package-metadata.json"
+          npm ls --all --json > "$GITHUB_WORKSPACE/patter-dependency-tree.json" || true
+          npm audit --omit=dev --json > "$GITHUB_WORKSPACE/patter-npm-audit.json" || true
+          du -sk node_modules node_modules/getpatter > "$GITHUB_WORKSPACE/patter-install-size-kb.txt"
+          find node_modules -type f | wc -l > "$GITHUB_WORKSPACE/patter-installed-file-count.txt"
+          grep -Rni "telemetry" node_modules/getpatter 2>/dev/null | head -100 > "$GITHUB_WORKSPACE/patter-telemetry-evidence.txt" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: call-rescue-patter-smoke
+          path: |
+            patter-package-metadata.json
+            patter-dependency-tree.json
+            patter-npm-audit.json
+            patter-install-size-kb.txt
+            patter-installed-file-count.txt
+            patter-telemetry-evidence.txt
+            patter-construction-result.txt
+          if-no-files-found: error
+          retention-days: 30

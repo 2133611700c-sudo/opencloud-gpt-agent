@@ -1,0 +1,219 @@
+{
+  "mode": "EVIDENCE_BASED_DRAFT_ONLY",
+  "generated_at": "2026-06-15T21:25:09.100Z",
+  "input_file": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/business-lead-audit/run-27577390627/prospects.json",
+  "total_fit_prospects": 14,
+  "total_drafts": 14,
+  "drafts": [
+    {
+      "company": "Phoenix HVAC Services",
+      "website": "https://www.hometown-ac.com/",
+      "recipient": "https://www.hometown-ac.com/contact",
+      "evidence": {
+        "observation": "I could not find a clear online booking path, and I did not detect a live-chat option",
+        "hours_evidence": "friendly refrigerant options Haul-away and proper disposal of old equipm",
+        "phone_or_contact_evidence": "rvices | Hometown HVAC – AC, Furnaces & IAQ Experts Financing Available Maintenance Plans Contact Us 602"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Phoenix HVAC Services",
+      "draft_text": "Hello,\n\nI reviewed Phoenix HVAC Services's public website while researching HVAC businesses. I could not find a clear online booking path, and I did not detect a live-chat option.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Phoenix HVAC Services. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "05a68c937c760b2fd28cadcbd21128f1ceb0b0834abb75150259d13b46b85591",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Phoenix HVAC",
+      "website": "https://mkmechanicalinc.com/",
+      "recipient": "https://mkmechanicalinc.com/contact-us.php",
+      "evidence": {
+        "observation": "I could not find a clear online booking path, and I did not detect a live-chat option",
+        "hours_evidence": "NOT_SPECIFIED",
+        "phone_or_contact_evidence": "(623) 696-8910 Home About Us HVAC Service & Maintenance Commercial HVAC Job Opportunities Contact Us Servicing Phoenix, Scottsdale, Glendale and surrounding area Contact a Heating Ventilatio"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Phoenix HVAC",
+      "draft_text": "Hello,\n\nI reviewed Phoenix HVAC's public website while researching HVAC businesses. I could not find a clear online booking path, and I did not detect a live-chat option.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Phoenix HVAC. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "5e476c58c739ad7246a9db0b5c67ce0313e1c6d00ca9f2faeffe235c5dd8dde4",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "GENTLE AIR",
+      "website": "https://gentleair1.com/",
+      "recipient": "filler@godaddy.com",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "FRIGERANT leak Account Bookings My Account Sign out Sign In Bookings My Account 713-900-6060 Houston’s Trusted Choice for Sam",
+        "phone_or_contact_evidence": "ivering Professional Air Conditioning Services Since 2018 713-900-6060 Schedule a Service Call Us 713-900-6060 Houston’s Trusted Choice for Same-Day AC Repair and Precision HVAC Solution"
+      },
+      "draft_subject": "Quick missed-call recovery idea for GENTLE AIR",
+      "draft_text": "Hello,\n\nI reviewed GENTLE AIR's public website while researching plumbing businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for GENTLE AIR. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "40ce7e97e37131e46c42824b503627683f447b9afa66e7223a83bb2e85f5484e",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Your Local Plumber in LA",
+      "website": "https://www.bossplumbing.com/",
+      "recipient": "https://www.bossplumbing.com/contact",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "monialsold Products Specials Contact Us Working Hours:&nbsp;Mon-Sun: 8am - 5pm Call us:&nbsp;(800) 401-5325&nbsp;or&nbsp;(323) 464-4700 SAME DAY SERVICE FAM",
+        "phone_or_contact_evidence": "Los Angeles top of page Homeold About Plumbing Services Testimonialsold Products Specials Contact Us Working Hours:&nbsp;Mon-Sun: 8am - 5pm Call us:&nbsp;(800) 401-5325&nbsp;or&nbsp;(323) 46"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Your Local Plumber in LA",
+      "draft_text": "Hello,\n\nI reviewed Your Local Plumber in LA's public website while researching plumbing businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Your Local Plumber in LA. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "438f283c4bfca758ddea182e860860e7bcdc41055f75901b6fe9a8ca719a2123",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "AACANN",
+      "website": "https://www.aacann.com/",
+      "recipient": "https://www.aacann.com/",
+      "evidence": {
+        "observation": "I could not find a clear online booking path, and I did not detect a live-chat option",
+        "hours_evidence": "satisfy this need through preventative maintenance plans, including IAQ assessments and regular equipm",
+        "phone_or_contact_evidence": "All HVAC equipment requires periodic maintenance, which is why we’re only a phone call away"
+      },
+      "draft_subject": "Quick missed-call recovery idea for AACANN",
+      "draft_text": "Hello,\n\nI reviewed AACANN's public website while researching HVAC businesses. I could not find a clear online booking path, and I did not detect a live-chat option.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for AACANN. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "28fb3c679a262c7ba985be7e3b23d6c1e63316cab3acd0aa6e3780af3f1a7dea",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Plumber in Los Angeles, CA",
+      "website": "https://www.gr-plumbing.com/",
+      "recipient": "https://www.gr-plumbing.com/contact-us",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "money, improve water efficiency and quality, and give you peace of mind 30+ Years Experience Small, Local Company Free Estimates Fam",
+        "phone_or_contact_evidence": "g Epoxy Coating Pipe Lining Sewer Lateral Replacement Trenchless Excavation Service Areas Contact Us 1233 Hyperion Ave, Los Angeles, CA 90029 Call: 323-899-4216 Providing Plumbing Services i"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Plumber in Los Angeles, CA",
+      "draft_text": "Hello,\n\nI reviewed Plumber in Los Angeles, CA's public website while researching plumbing businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Plumber in Los Angeles, CA. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "941c0e5f59ce7b33bb6169cc9409cd49bf305927e310d5837e152e5d657fa095",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Highland Plumbing",
+      "website": "https://www.highlandplumbing.us/",
+      "recipient": "info@highlandplumbing.us",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "Mon&ndash;Sat: 8AM&ndash;5PM",
+        "phone_or_contact_evidence": "in Los Angeles, CA top of page (818) 636 9334 Home About Services Financing Service Areas Contact Us Blog Menu Close Emergency Service Get a Quote Terms of Use Privacy Policy ​ ​ Commercial"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Highland Plumbing",
+      "draft_text": "Hello,\n\nI reviewed Highland Plumbing's public website while researching plumbing businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Highland Plumbing. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "bd3269318553bd160207b58016004df2da349c29f0831f8618cabf3636c15576",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "TV Plumbing",
+      "website": "https://www.tvplumbing.com/",
+      "recipient": "https://www.tvplumbing.com/contact/",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and I did not see a clear 24/7 response claim",
+        "hours_evidence": "NOT_SPECIFIED",
+        "phone_or_contact_evidence": "No Obligation Name: Phone: Work Phone Email: How Can We Help You"
+      },
+      "draft_subject": "Quick missed-call recovery idea for TV Plumbing",
+      "draft_text": "Hello,\n\nI reviewed TV Plumbing's public website while researching plumbing businesses. I did not detect a live-chat option, and I did not see a clear 24/7 response claim.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for TV Plumbing. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "60a05266b7e1ce0e9466bf6dd1cbab169217ce8ad1bf0a8165a7dc3f99c80768",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Maricopa Air",
+      "website": "https://www.maricopaair.com/",
+      "recipient": "https://www.maricopaair.com/#contact",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "frigeration RESIDENTIAL HVAC COMMERCIAL HVAC COMMERCIAL REFRIGERATION AC Repair Air Conditioning Repair in Phoenix, AZ Sam",
+        "phone_or_contact_evidence": "Contact Us Get in Touch with Maricopa Air Whether it&#x27;s an emergency repair or a question about"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Maricopa Air",
+      "draft_text": "Hello,\n\nI reviewed Maricopa Air's public website while researching HVAC businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Maricopa Air. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "2c1bf174e6498607deeedc37f673a1170ad1fefe4ba223cfb5acb4b637951581",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Plumber Dallas",
+      "website": "https://www.hooperplumbing.com/",
+      "recipient": "https://www.hooperplumbing.com/contact-us/",
+      "evidence": {
+        "observation": "the site appears to publish limited office hours, and I did not see a clear 24/7 response claim",
+        "hours_evidence": "mon signs of a main drain blockage in Dallas are multiple fixtures draining slowly at the sam",
+        "phone_or_contact_evidence": "y Asked AC &#038; Heating Questions Financing About Us Specials Reviews Service Area Blog Contact Us Your Trusted Plumber in Dallas for 100 Years Hooper Plumbing & Air Conditioning &#8211; Y"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Plumber Dallas",
+      "draft_text": "Hello,\n\nI reviewed Plumber Dallas's public website while researching plumbing businesses. the site appears to publish limited office hours, and I did not see a clear 24/7 response claim.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Plumber Dallas. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "1193489a89361731e7ff147231f2008f04b07795ace68be1b46463280554a549",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Viking HVAC",
+      "website": "https://viking-hvac.com/",
+      "recipient": "https://viking-hvac.com/contact-us/",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "satisfaction guarantee isn't just marketing speak; it's our fam",
+        "phone_or_contact_evidence": "Contact Us Schedule Service Residential HVAC Services Your home deserves perfect comfort year-round"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Viking HVAC",
+      "draft_text": "Hello,\n\nI reviewed Viking HVAC's public website while researching HVAC businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Viking HVAC. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "3b6b699d067d9d4a16e2087f51a4cf881fcaef5c242333f9e6e2c84f1e6a9379",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "HVAC",
+      "website": "https://www.tennysonac.com/",
+      "recipient": "https://www.tennysonac.com/contact-us",
+      "evidence": {
+        "observation": "the site appears to publish limited office hours, and I did not see a clear 24/7 response claim",
+        "hours_evidence": "frigeration services in Houston for Tennyson A/C & Refrigeration Fam",
+        "phone_or_contact_evidence": "NOT_SPECIFIED"
+      },
+      "draft_subject": "Quick missed-call recovery idea for HVAC",
+      "draft_text": "Hello,\n\nI reviewed HVAC's public website while researching HVAC businesses. the site appears to publish limited office hours, and I did not see a clear 24/7 response claim.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for HVAC. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "29a649d669fd030b67bb69a4d67e43459e0b18a42c72b37d01e6ec523c797d77",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "NexAir Solutions",
+      "website": "https://www.nexairsolutions.com/",
+      "recipient": "Info@nexairsolutions.com",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and I did not see a clear 24/7 response claim",
+        "hours_evidence": "NOT_SPECIFIED",
+        "phone_or_contact_evidence": "com Home Services About Us Resources Contact Us Get A Free Estimate WELCOME NEXAIR SOLUTIONS Houston&#x27;s Trusted HVAC Experts Installa"
+      },
+      "draft_subject": "Quick missed-call recovery idea for NexAir Solutions",
+      "draft_text": "Hello,\n\nI reviewed NexAir Solutions's public website while researching HVAC businesses. I did not detect a live-chat option, and I did not see a clear 24/7 response claim.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for NexAir Solutions. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "abd4ce6f67fb3eb70ad5d3301d371cab83f276374912b7db92495c6b027d3dcc",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "HVAC Contractor in Houston, TX",
+      "website": "https://www.ptsmechanical.com/",
+      "recipient": "https://www.ptsmechanical.com/contact-us",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "frigerant issues, and more—so your fam",
+        "phone_or_contact_evidence": "Contractor in Houston, TX | Residential & Commercial | PTS Mechanical Home About Services Contact Us Link in Bio Home Services Residential AC Installation AC Maintenance AC Repair Furnace In"
+      },
+      "draft_subject": "Quick missed-call recovery idea for HVAC Contractor in Houston, TX",
+      "draft_text": "Hello,\n\nI reviewed HVAC Contractor in Houston, TX's public website while researching HVAC businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for HVAC Contractor in Houston, TX. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "3037d5044b86ca66c48d91e173a9c43a928a238acaaf3b87bdb4b310042ad4ce",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    }
+  ]
+}

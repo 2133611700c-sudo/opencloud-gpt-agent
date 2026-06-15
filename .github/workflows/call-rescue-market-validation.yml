@@ -1,0 +1,49 @@
+name: Call Rescue Market Validation
+
+on:
+  pull_request:
+    paths:
+      - "products/call-rescue-kit/MARKET_VALIDATION_2026-06.md"
+      - "products/call-rescue-kit/tasks/OC-CALL-RESCUE-MARKET-VALIDATION-001.json"
+      - "scripts/openclaw-market-validation-collector.mjs"
+      - ".github/workflows/call-rescue-market-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --check scripts/openclaw-market-validation-collector.mjs
+      - run: test -f products/call-rescue-kit/MARKET_VALIDATION_2026-06.md
+      - run: test -f products/call-rescue-kit/tasks/OC-CALL-RESCUE-MARKET-VALIDATION-001.json
+
+  collect:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run market validation collector
+        run: |
+          mkdir -p market-validation-output
+          export OPENCLAW_MARKET_QUERIES='["Los Angeles CA plumbing company official website","Los Angeles CA HVAC contractor official website","Phoenix AZ plumbing company official website","Phoenix AZ HVAC contractor official website","Dallas TX plumbing company official website","Dallas TX HVAC contractor official website","Houston TX plumbing company official website","Houston TX HVAC contractor official website","Charlotte NC plumbing company official website","Charlotte NC HVAC contractor official website"]'
+          export OPENCLAW_MARKET_SEED_URLS='[]'
+          export OPENCLAW_MARKET_MAX_INSPECTED='150'
+          export OPENCLAW_MARKET_OUT_FILE='market-validation-output/market-validation.json'
+          node scripts/openclaw-market-validation-collector.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: call-rescue-market-validation
+          path: market-validation-output
+          if-no-files-found: error
+          retention-days: 30

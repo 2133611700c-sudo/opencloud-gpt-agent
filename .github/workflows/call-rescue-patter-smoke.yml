@@ -37,7 +37,7 @@ jobs:
         run: |
           cd /tmp/patter-smoke
           set +e
-          node --input-type=module -e "import { Patter, Twilio } from 'getpatter'; const phone = new Patter({ carrier: new Twilio(), phoneNumber: '+15555550199', telemetry: false }); if (!phone) throw new Error('Patter construction failed'); console.log('PASS telemetry-disabled construction');" > "$GITHUB_WORKSPACE/patter-construction-result.txt" 2>&1
+          node --input-type=module -e "import { Patter, Twilio } from 'getpatter'; const carrier = new Twilio({ accountSid: 'AC00000000000000000000000000000000', authToken: 'placeholder' }); const phone = new Patter({ carrier, phoneNumber: '+15555550199', telemetry: false }); if (!phone) throw new Error('Patter construction failed'); console.log('PASS telemetry-disabled construction');" > "$GITHUB_WORKSPACE/patter-construction-result.txt" 2>&1
           code=$?
           echo "exit_code=$code" >> "$GITHUB_WORKSPACE/patter-construction-result.txt"
           exit 0

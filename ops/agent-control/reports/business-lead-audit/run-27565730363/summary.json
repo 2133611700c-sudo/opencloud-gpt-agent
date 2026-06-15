@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "task_id": "OC-CALL-RESCUE-PROSPECTING-001",
+  "task_type": "business_lead_collect",
+  "run_id": "27565730363",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27565730363",
+  "task_file": "products/call-rescue-kit/tasks/OC-CALL-RESCUE-PROSPECTING-001.json",
+  "report_file": "ops/agent-control/reports/business-lead-audit/run-27565730363/summary.json",
+  "evidence_files": [
+    "ops/agent-control/reports/business-lead-audit/run-27565730363/prospects.json",
+    "ops/agent-control/reports/business-lead-audit/run-27565730363/outreach-drafts.json"
+  ],
+  "total_candidates": 20,
+  "total_inspected": 20,
+  "fit_count": 14,
+  "maybe_count": 5,
+  "draft_count": 14,
+  "next_action": "Review evidence and drafts. No outreach has been sent."
+}

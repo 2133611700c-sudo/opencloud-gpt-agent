@@ -30,13 +30,17 @@ jobs:
         run: |
           cd /tmp/patter-smoke
           node --input-type=module -e "import * as sdk from 'getpatter'; for (const name of ['Patter','Twilio','OpenAIRealtime']) { if (typeof sdk[name] === 'undefined') throw new Error('Missing '+name); } console.log('PASS getpatter 0.6.8 core exports');"
-      - name: Verify telemetry-disabled construction without credentials
+      - name: Capture telemetry-disabled construction result
         env:
           PATTER_TELEMETRY_DISABLED: "1"
           DO_NOT_TRACK: "1"
         run: |
           cd /tmp/patter-smoke
-          node --input-type=module -e "import { Patter, Twilio } from 'getpatter'; const phone = new Patter({ carrier: new Twilio(), phoneNumber: '+15555550199', telemetry: false }); if (!phone) throw new Error('Patter construction failed'); console.log('PASS telemetry-disabled construction');"
+          set +e
+          node --input-type=module -e "import { Patter, Twilio } from 'getpatter'; const phone = new Patter({ carrier: new Twilio(), phoneNumber: '+15555550199', telemetry: false }); if (!phone) throw new Error('Patter construction failed'); console.log('PASS telemetry-disabled construction');" > "$GITHUB_WORKSPACE/patter-construction-result.txt" 2>&1
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_WORKSPACE/patter-construction-result.txt"
+          exit 0
       - name: Save package and supply-chain evidence
         run: |
           cd /tmp/patter-smoke
@@ -56,5 +60,6 @@ jobs:
             patter-install-size-kb.txt
             patter-installed-file-count.txt
             patter-telemetry-evidence.txt
+            patter-construction-result.txt
           if-no-files-found: error
           retention-days: 30

@@ -1,0 +1,35 @@
+{
+  "id": "OC-CALL-RESCUE-MARKET-VALIDATION-001",
+  "type": "market_validation_collect",
+  "requested_by": "ChatGPT",
+  "goal": "Collect public website evidence for the Call Rescue Kit market hypothesis across five U.S. metros.",
+  "priority": "P0",
+  "created_at": "2026-06-15T20:55:00Z",
+  "status": "pending",
+  "params": {
+    "search_queries": [
+      "Los Angeles CA plumbing company official website",
+      "Los Angeles CA HVAC contractor official website",
+      "Phoenix AZ plumbing company official website",
+      "Phoenix AZ HVAC contractor official website",
+      "Dallas TX plumbing company official website",
+      "Dallas TX HVAC contractor official website",
+      "Houston TX plumbing company official website",
+      "Houston TX HVAC contractor official website",
+      "Charlotte NC plumbing company official website",
+      "Charlotte NC HVAC contractor official website"
+    ],
+    "seed_urls": [],
+    "metros": ["Los Angeles, CA", "Phoenix, AZ", "Dallas, TX", "Houston, TX", "Charlotte, NC"],
+    "verticals": ["plumbing", "HVAC"],
+    "max_inspected": 150,
+    "minimum_dataset_size": 100
+  },
+  "safety": {
+    "research_only": true,
+    "customer_action": false,
+    "public_posting": false,
+    "paid_action": false,
+    "destructive_action": false
+  }
+}

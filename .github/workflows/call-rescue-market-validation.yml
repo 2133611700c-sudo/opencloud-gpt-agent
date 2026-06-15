@@ -4,9 +4,13 @@ on:
   pull_request:
     paths:
       - "products/call-rescue-kit/MARKET_VALIDATION_2026-06.md"
+      - "products/call-rescue-kit/PRIMARY_SOURCE_PROTOCOL.md"
       - "products/call-rescue-kit/tasks/OC-CALL-RESCUE-MARKET-VALIDATION-001.json"
       - "scripts/openclaw-market-validation-collector.mjs"
       - ".github/workflows/call-rescue-market-validation.yml"
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -22,10 +26,11 @@ jobs:
           node-version: "22"
       - run: node --check scripts/openclaw-market-validation-collector.mjs
       - run: test -f products/call-rescue-kit/MARKET_VALIDATION_2026-06.md
+      - run: test -f products/call-rescue-kit/PRIMARY_SOURCE_PROTOCOL.md
       - run: test -f products/call-rescue-kit/tasks/OC-CALL-RESCUE-MARKET-VALIDATION-001.json
 
   collect:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
     steps:

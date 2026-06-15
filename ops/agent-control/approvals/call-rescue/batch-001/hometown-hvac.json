@@ -1,0 +1,23 @@
+{
+  "company": "Hometown HVAC",
+  "vertical": "HVAC",
+  "website": "https://www.hometown-ac.com/",
+  "recipient": "https://www.hometown-ac.com/contact",
+  "public_phone": "602-223-1800",
+  "verification": {
+    "current_public_path": "The official contact page directs customers to a form and phone line.",
+    "gap_hypothesis": "Some callers may still abandon when a live answer is unavailable; this requires validation with the owner.",
+    "verified_at": "2026-06-15"
+  },
+  "proposed_flow": [
+    "Immediate text acknowledgment after a missed call",
+    "Collect name, address, HVAC category, urgency, and callback window",
+    "Escalate exceptions to a human",
+    "Create callback task and daily lead summary"
+  ],
+  "draft_subject": "Missed-call follow-up idea for Hometown HVAC",
+  "draft_text": "Hello,\n\nI reviewed Hometown HVAC's public contact flow. Your site directs customers to a contact form and phone line.\n\nI prepared a short workflow audit for handling callers when the team cannot answer immediately: instant text acknowledgment, basic HVAC intake, callback routing, and a daily lead summary. It works alongside the existing phone process.\n\nMay I send the audit?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+  "text_hash": "782cb4d842a3f01989902a8a9b98271d3f90e578b112e1f1237a7c8c93cfe18a",
+  "review_status": "READY_FOR_HUMAN_REVIEW",
+  "send_status": "BLOCKED"
+}

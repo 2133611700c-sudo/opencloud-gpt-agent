@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Call Rescue Kit | Recover Missed Home-Service Leads</title>
-  <meta name="description" content="Recover missed and after-hours calls with instant text-back, AI qualification, booking, and daily lead summaries." />
+  <title>Call Rescue Kit | Recover Missed Plumbing and HVAC Leads</title>
+  <meta name="description" content="Implementation and optimization of missed-call recovery for small plumbing and HVAC businesses." />
   <style>
     :root{--bg:#07111f;--panel:#0d1b2d;--muted:#9fb0c5;--text:#f7fbff;--accent:#5ce1b9;--accent2:#6ea8ff;--line:#20334b;--danger:#ff8b8b}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top right,#102746 0,#07111f 38%,#050b14 100%);color:var(--text);line-height:1.55}
@@ -17,30 +17,31 @@
   <main>
     <section class="wrap hero">
       <div>
-        <span class="eyebrow">Built for home-service businesses</span>
+        <span class="eyebrow">For small plumbing and HVAC teams</span>
         <h1>Stop losing jobs when nobody answers.</h1>
-        <p>We install a missed-call recovery system that replies instantly, qualifies the customer, books the next step, and gives you a clean daily lead summary.</p>
+        <p>We design, install, test, and tune a missed-call recovery flow that replies quickly, qualifies the customer, routes the next step, and gives your team a clean daily lead summary.</p>
         <div class="actions"><a class="btn primary" href="mailto:hello@callrescuekit.com?subject=Call%20Rescue%20Kit%20demo">Request a 15-minute demo</a><a class="btn secondary" href="#calculator">Calculate lost revenue</a></div>
       </div>
       <aside class="card" aria-label="System outcomes">
-        <div class="metric"><span class="muted">Missed-call response</span><strong>&lt; 60 sec</strong></div>
-        <div class="metric"><span class="muted">Launch target</span><strong>7 days</strong></div>
+        <div class="metric"><span class="muted">Missed-call response target</span><strong>&lt; 60 sec</strong></div>
+        <div class="metric"><span class="muted">Implementation target</span><strong>7 days</strong></div>
         <div class="metric"><span class="muted">Human takeover</span><strong>Any time</strong></div>
-        <div class="metric"><span class="muted">Founding package</span><strong>$1,250</strong></div>
+        <div class="metric"><span class="muted">Founding package</span><strong>$1,500</strong></div>
       </aside>
     </section>
 
     <section class="wrap">
-      <h2>One system. Four jobs.</h2>
+      <h2>Not another login. A working intake flow.</h2>
+      <p class="muted">Low-cost receptionist software already exists. The value here is the implementation: your service area, job types, emergency rules, escalation path, booking logic, testing, and ongoing tuning.</p>
       <div class="grid3">
         <article class="card feature"><span class="num">1</span><h3>Respond</h3><p class="muted">Send an immediate text after a missed or after-hours call so the lead does not move to the next company.</p></article>
-        <article class="card feature"><span class="num">2</span><h3>Qualify</h3><p class="muted">Collect service type, location, urgency, photos, and the best appointment window.</p></article>
-        <article class="card feature"><span class="num">3</span><h3>Book</h3><p class="muted">Offer an approved next step: callback, estimate window, or calendar slot.</p></article>
+        <article class="card feature"><span class="num">2</span><h3>Qualify</h3><p class="muted">Collect service type, address, urgency, photos, and the best callback window without attempting diagnosis.</p></article>
+        <article class="card feature"><span class="num">3</span><h3>Route</h3><p class="muted">Offer only approved next steps: urgent callback, estimate window, calendar slot, or human follow-up.</p></article>
       </div>
       <div class="grid3" style="margin-top:18px">
-        <article class="card feature"><span class="num">4</span><h3>Report</h3><p class="muted">Deliver a daily summary with lead status, unanswered questions, and required human follow-up.</p></article>
+        <article class="card feature"><span class="num">4</span><h3>Report</h3><p class="muted">Deliver a daily summary with lead status, unanswered questions, and required human action.</p></article>
         <article class="card feature"><span class="num">+</span><h3>Guardrails</h3><p class="muted">No invented prices, no unsupported promises, and immediate escalation for emergencies or sensitive cases.</p></article>
-        <article class="card feature"><span class="num">↗</span><h3>Optimize</h3><p class="muted">Two weeks of tuning based on real conversations, conversion points, and owner feedback.</p></article>
+        <article class="card feature"><span class="num">↗</span><h3>Optimize</h3><p class="muted">Two weeks of tuning based on real conversations, failure points, and owner feedback.</p></article>
       </div>
     </section>
 
@@ -50,28 +51,28 @@
         <p class="muted">Use conservative inputs. This is a planning estimate, not a revenue guarantee.</p>
         <div class="fields">
           <div class="field"><label for="calls">Missed calls per week</label><input id="calls" type="number" min="0" value="15" /></div>
-          <div class="field"><label for="close">Likely close rate (%)</label><input id="close" type="number" min="0" max="100" value="25" /></div>
+          <div class="field"><label for="close">Likely close rate if recovered (%)</label><input id="close" type="number" min="0" max="100" value="25" /></div>
           <div class="field"><label for="ticket">Average completed job value ($)</label><input id="ticket" type="number" min="0" value="350" /></div>
         </div>
       </div>
-      <aside class="card"><div class="muted">Estimated recoverable monthly revenue</div><div id="result" class="result">$5,684</div><p id="formula" class="muted">15 calls × 25% × $350 × 4.33 weeks</p><p class="note">Actual results depend on call quality, response speed, capacity, pricing, seasonality, and sales execution.</p></aside>
+      <aside class="card"><div class="muted">Estimated recoverable monthly revenue</div><div id="result" class="result">$5,684</div><p id="formula" class="muted">15 calls × 25% × $350 × 4.33 weeks</p><p class="note">Actual results depend on lead quality, response speed, capacity, pricing, seasonality, customer behavior, and sales execution.</p></aside>
     </section>
 
     <section id="offer" class="wrap">
       <div class="card">
         <span class="eyebrow">Founding-client package</span>
-        <div class="price"><strong>$1,250</strong><span class="muted">first month</span></div>
+        <div class="price"><strong>$1,500</strong><span class="muted">implementation + first 30 days</span></div>
         <div class="grid3">
-          <ul class="checks"><li>Workflow and call-flow design</li><li>Missed-call text-back setup</li><li>Qualification script</li></ul>
-          <ul class="checks"><li>Booking or callback routing</li><li>Daily lead reporting</li><li>14 days of tuning</li></ul>
-          <ul class="checks"><li>$249/month after month one</li><li>Usage billed separately</li><li>Cancel ongoing service any time</li></ul>
+          <ul class="checks"><li>Intake and escalation design</li><li>Missed-call text-back setup</li><li>Qualification script</li></ul>
+          <ul class="checks"><li>Callback or booking routing</li><li>Daily lead reporting</li><li>14 days of tuning</li></ul>
+          <ul class="checks"><li>$299/month after month one</li><li>Usage billed separately</li><li>Cancel ongoing service any time</li></ul>
         </div>
         <div class="actions"><a class="btn primary" href="mailto:hello@callrescuekit.com?subject=Founding%20client%20application&body=Business%20name%3A%0AWebsite%3A%0AService%20area%3A%0AApproximate%20missed%20calls%20per%20week%3A">Apply for a founding-client slot</a></div>
-        <p class="note">The implementation scope is confirmed in writing before payment. No guaranteed revenue claims.</p>
+        <p class="note">The implementation scope is confirmed in writing before payment. Third-party usage is separate. No guaranteed revenue claims.</p>
       </div>
     </section>
 
-    <section class="wrap"><div class="card cta"><h2>See the exact recovery flow for your business.</h2><p class="muted">We will review your current phone and website path, then show a narrow implementation plan.</p><a class="btn primary" href="mailto:hello@callrescuekit.com?subject=Request%20a%20Call%20Rescue%20Kit%20audit">Request an audit</a></div></section>
+    <section class="wrap"><div class="card cta"><h2>See the exact recovery flow for your business.</h2><p class="muted">We review your public phone and website path, then show a narrow implementation plan tied to your actual workflow.</p><a class="btn primary" href="mailto:hello@callrescuekit.com?subject=Request%20a%20Call%20Rescue%20Kit%20audit">Request an audit</a></div></section>
   </main>
   <footer class="wrap footer">Call Rescue Kit is an implementation and optimization service. Third-party telephony, messaging, calendar, and AI services may have separate charges and terms.</footer>
   <script>

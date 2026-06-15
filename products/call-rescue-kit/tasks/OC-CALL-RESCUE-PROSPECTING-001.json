@@ -1,0 +1,50 @@
+{
+  "id": "OC-CALL-RESCUE-PROSPECTING-001",
+  "type": "business_lead_collect",
+  "requested_by": "ChatGPT",
+  "goal": "Collect and rank public plumbing and HVAC business prospects for Call Rescue Kit, then generate evidence-based outreach drafts without sending messages.",
+  "priority": "P0",
+  "created_at": "2026-06-15T15:00:00Z",
+  "status": "pending",
+  "expected_status": "PASS",
+  "params": {
+    "search_queries": [
+      "Los Angeles plumbing company emergency service contact",
+      "Los Angeles HVAC repair company contact",
+      "Phoenix plumbing company emergency service contact",
+      "Phoenix HVAC repair company contact",
+      "Dallas plumbing company emergency service contact",
+      "Dallas HVAC repair company contact",
+      "Houston plumbing company emergency service contact",
+      "Houston HVAC repair company contact",
+      "Las Vegas plumbing company emergency service contact",
+      "Las Vegas HVAC repair company contact",
+      "San Diego plumbing company emergency service contact",
+      "San Diego HVAC repair company contact",
+      "Orange County plumbing company emergency service contact",
+      "Orange County HVAC repair company contact",
+      "Sacramento plumbing company emergency service contact",
+      "Sacramento HVAC repair company contact"
+    ],
+    "seed_urls": [],
+    "max_prospects": 30,
+    "max_drafts": 20,
+    "screenshots": false,
+    "target_profile": {
+      "country": "United States",
+      "verticals": [
+        "plumbing",
+        "HVAC"
+      ],
+      "problem": "missed or after-hours inbound leads"
+    }
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

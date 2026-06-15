@@ -1,0 +1,48 @@
+{
+  "status": "DEGRADED",
+  "task_id": "OC-CALL-RESCUE-CURATE-001",
+  "task_type": "outreach_batch_curation",
+  "source_run_id": "27559842426",
+  "source_run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27559842426",
+  "source_report": "ops/agent-control/reports/business-lead-audit/run-27559842426/summary.json",
+  "machine_reported_status": "PASS",
+  "reviewed_status": "DEGRADED",
+  "reviewed_at": "2026-06-15",
+  "counts": {
+    "source_candidates": 20,
+    "source_drafts": 14,
+    "ready_for_human_review": 6,
+    "deferred_or_rejected": 8,
+    "messages_sent": 0,
+    "money_spent_usd": 0
+  },
+  "ready_files": [
+    "hometown-hvac.json",
+    "mk-mechanical.json",
+    "gentle-air.json",
+    "boss-plumbing.json",
+    "tv-plumbing.json",
+    "nexair-solutions.json"
+  ],
+  "deferred": [
+    {"company":"AACANN Mechanical Inc.","reason":"24/7 support and after-hours services; original recipient was only the homepage."},
+    {"company":"GR Plumbing","reason":"24/7 availability and appointment booking already advertised."},
+    {"company":"Highland Plumbing","reason":"24/7 emergency calls, phone, email, and contact form already available."},
+    {"company":"Maricopa Air","reason":"Schedule Service and detailed contact form already available."},
+    {"company":"Hooper Plumbing & Air Conditioning","reason":"Live chat detected and same-day emergency service advertised."},
+    {"company":"Viking HVAC","reason":"Scheduling, call/text, and 24/7 emergency service already advertised."},
+    {"company":"Tennyson A/C & Refrigeration","reason":"Live chat detected; original evidence was unreliable."},
+    {"company":"PTS Mechanical","reason":"Online booking and 24/7 availability; rejected for batch 001."}
+  ],
+  "send_gate": {
+    "status": "BLOCKED",
+    "reasons": [
+      "product domain not purchased and connected",
+      "verified sending mailbox not configured",
+      "landing page not deployed on product domain",
+      "demonstration intake flow not live",
+      "individual human approval absent"
+    ]
+  },
+  "next_action": "Complete product prerequisites and review each of the six company files individually."
+}

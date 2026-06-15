@@ -39,7 +39,7 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: node --check scripts/openclaw-business-lead-collector.mjs
+      - run: node --check scripts/openclaw-business-lead-collector-v2.mjs
       - run: node --check scripts/openclaw-business-outreach-draft.mjs
       - name: Validate product files
         run: |
@@ -62,7 +62,6 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
 
       - name: Resolve task configuration
         id: task
@@ -79,14 +78,11 @@ jobs:
           if (task.type !== 'business_lead_collect') throw new Error(`Unsupported task type: ${task.type}`);
           const params = task.params || {};
           const override = Number(process.argv[3] || 0);
-          const maxProspects = override > 0 ? override : Number(params.max_prospects || 30);
-          const maxDrafts = Number(params.max_drafts || 20);
           console.log(`task_id=${task.id}`);
           console.log(`queries=${JSON.stringify(params.search_queries || [])}`);
           console.log(`seed_urls=${JSON.stringify(params.seed_urls || [])}`);
-          console.log(`max_prospects=${maxProspects}`);
-          console.log(`max_drafts=${maxDrafts}`);
-          console.log(`screenshots=${Boolean(params.screenshots)}`);
+          console.log(`max_prospects=${override > 0 ? override : Number(params.max_prospects || 30)}`);
+          console.log(`max_drafts=${Number(params.max_drafts || 20)}`);
           NODE
 
       - name: Collect and rank public prospects
@@ -94,10 +90,8 @@ jobs:
           OPENCLAW_BUSINESS_QUERIES: ${{ steps.task.outputs.queries }}
           OPENCLAW_BUSINESS_SEED_URLS: ${{ steps.task.outputs.seed_urls }}
           OPENCLAW_BUSINESS_MAX_PROSPECTS: ${{ steps.task.outputs.max_prospects }}
-          OPENCLAW_BUSINESS_SCREENSHOTS: ${{ steps.task.outputs.screenshots }}
-          OPENCLAW_BUSINESS_OUT_DIR: ${{ env.REPORT_DIR }}
           OPENCLAW_BUSINESS_OUT_FILE: ${{ env.REPORT_DIR }}/prospects.json
-        run: node scripts/openclaw-business-lead-collector.mjs
+        run: node scripts/openclaw-business-lead-collector-v2.mjs
 
       - name: Generate evidence-based drafts
         env:
@@ -108,7 +102,7 @@ jobs:
           CALL_RESCUE_SENDER_NAME: Call Rescue Kit
         run: node scripts/openclaw-business-outreach-draft.mjs
 
-      - name: Write evidence summary
+      - name: Write truthful evidence summary
         env:
           TASK_ID: ${{ steps.task.outputs.task_id }}
           TASK_FILE: ${{ steps.task.outputs.task_file }}
@@ -120,8 +114,15 @@ jobs:
           const dir = process.env.REPORT_DIR;
           const prospects = JSON.parse(fs.readFileSync(path.join(dir, 'prospects.json'), 'utf8'));
           const drafts = JSON.parse(fs.readFileSync(path.join(dir, 'outreach-drafts.json'), 'utf8'));
+          let status = prospects.status || 'FAIL';
+          if (status === 'PASS' && drafts.total_drafts === 0) status = 'DEGRADED';
+          const nextAction = status === 'PASS'
+            ? 'Review evidence and drafts. No outreach has been sent.'
+            : status === 'DEGRADED'
+              ? 'Inspect qualification thresholds and prospect evidence before another run.'
+              : 'Repair search acquisition or source access before another run.';
           const summary = {
-            status: 'PASS',
+            status,
             task_id: process.env.TASK_ID,
             task_type: 'business_lead_collect',
             run_id: process.env.GITHUB_RUN_ID,
@@ -129,10 +130,12 @@ jobs:
             task_file: process.env.TASK_FILE,
             report_file: path.join(dir, 'summary.json'),
             evidence_files: [path.join(dir, 'prospects.json'), path.join(dir, 'outreach-drafts.json')],
+            total_candidates: prospects.total_candidates,
             total_inspected: prospects.total_inspected,
             fit_count: prospects.fit_count,
+            maybe_count: prospects.maybe_count,
             draft_count: drafts.total_drafts,
-            next_action: 'Human review of evidence and drafts. No outreach has been sent.'
+            next_action: nextAction
           };
           fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(summary, null, 2));
           console.log(JSON.stringify(summary));
@@ -155,3 +158,15 @@ jobs:
             git commit -m "chore(call-rescue): add prospecting evidence run ${{ github.run_id }}"
             git push
           fi
+
+      - name: Enforce evidence status
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const summary = JSON.parse(fs.readFileSync(path.join(process.env.REPORT_DIR, 'summary.json'), 'utf8'));
+          if (summary.status !== 'PASS') {
+            console.error(`Prospecting status is ${summary.status}; refusing false PASS.`);
+            process.exit(1);
+          }
+          NODE

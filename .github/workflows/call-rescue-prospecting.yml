@@ -1,0 +1,151 @@
+name: Call Rescue Prospecting
+
+on:
+  pull_request:
+    paths:
+      - "products/call-rescue-kit/**"
+      - "scripts/openclaw-business-*.mjs"
+      - "ops/agent-control/tasks/OC-CALL-RESCUE-*.json"
+      - ".github/workflows/call-rescue-prospecting.yml"
+  workflow_dispatch:
+    inputs:
+      task_file:
+        description: "Prospecting task JSON"
+        required: true
+        default: "ops/agent-control/tasks/OC-CALL-RESCUE-PROSPECTING-001.json"
+      max_prospects:
+        description: "Override maximum qualified prospects (blank uses task value)"
+        required: false
+        default: ""
+  schedule:
+    - cron: "17 16 * * 1-5"
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: node --check scripts/openclaw-business-lead-collector.mjs
+      - run: node --check scripts/openclaw-business-outreach-draft.mjs
+      - name: Validate product files
+        run: |
+          test -f products/call-rescue-kit/index.html
+          test -f products/call-rescue-kit/vercel.json
+          grep -q "Stop losing jobs" products/call-rescue-kit/index.html
+          grep -q '"type": "business_lead_collect"' ops/agent-control/tasks/OC-CALL-RESCUE-PROSPECTING-001.json
+
+  prospect:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_TASK_FILE: ops/agent-control/tasks/OC-CALL-RESCUE-PROSPECTING-001.json
+      REPORT_DIR: ops/agent-control/reports/business-lead-audit/run-${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Resolve task configuration
+        id: task
+        env:
+          INPUT_TASK_FILE: ${{ github.event.inputs.task_file }}
+          INPUT_MAX_PROSPECTS: ${{ github.event.inputs.max_prospects }}
+        run: |
+          TASK_FILE="${INPUT_TASK_FILE:-$DEFAULT_TASK_FILE}"
+          test -f "$TASK_FILE"
+          echo "task_file=$TASK_FILE" >> "$GITHUB_OUTPUT"
+          node - "$TASK_FILE" "$INPUT_MAX_PROSPECTS" >> "$GITHUB_OUTPUT" <<'NODE'
+          const fs = require('fs');
+          const task = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          if (task.type !== 'business_lead_collect') throw new Error(`Unsupported task type: ${task.type}`);
+          const params = task.params || {};
+          const override = Number(process.argv[3] || 0);
+          const maxProspects = override > 0 ? override : Number(params.max_prospects || 30);
+          const maxDrafts = Number(params.max_drafts || 20);
+          console.log(`task_id=${task.id}`);
+          console.log(`queries=${JSON.stringify(params.search_queries || [])}`);
+          console.log(`seed_urls=${JSON.stringify(params.seed_urls || [])}`);
+          console.log(`max_prospects=${maxProspects}`);
+          console.log(`max_drafts=${maxDrafts}`);
+          console.log(`screenshots=${Boolean(params.screenshots)}`);
+          NODE
+
+      - name: Collect and rank public prospects
+        env:
+          OPENCLAW_BUSINESS_QUERIES: ${{ steps.task.outputs.queries }}
+          OPENCLAW_BUSINESS_SEED_URLS: ${{ steps.task.outputs.seed_urls }}
+          OPENCLAW_BUSINESS_MAX_PROSPECTS: ${{ steps.task.outputs.max_prospects }}
+          OPENCLAW_BUSINESS_SCREENSHOTS: ${{ steps.task.outputs.screenshots }}
+          OPENCLAW_BUSINESS_OUT_DIR: ${{ env.REPORT_DIR }}
+          OPENCLAW_BUSINESS_OUT_FILE: ${{ env.REPORT_DIR }}/prospects.json
+        run: node scripts/openclaw-business-lead-collector.mjs
+
+      - name: Generate evidence-based drafts
+        env:
+          OPENCLAW_BUSINESS_INPUT_FILE: ${{ env.REPORT_DIR }}/prospects.json
+          OPENCLAW_BUSINESS_DRAFT_FILE: ${{ env.REPORT_DIR }}/outreach-drafts.json
+          OPENCLAW_BUSINESS_MAX_DRAFTS: ${{ steps.task.outputs.max_drafts }}
+          CALL_RESCUE_PRODUCT_URL: https://callrescuekit.com
+          CALL_RESCUE_SENDER_NAME: Call Rescue Kit
+        run: node scripts/openclaw-business-outreach-draft.mjs
+
+      - name: Write evidence summary
+        env:
+          TASK_ID: ${{ steps.task.outputs.task_id }}
+          TASK_FILE: ${{ steps.task.outputs.task_file }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const dir = process.env.REPORT_DIR;
+          const prospects = JSON.parse(fs.readFileSync(path.join(dir, 'prospects.json'), 'utf8'));
+          const drafts = JSON.parse(fs.readFileSync(path.join(dir, 'outreach-drafts.json'), 'utf8'));
+          const summary = {
+            status: 'PASS',
+            task_id: process.env.TASK_ID,
+            task_type: 'business_lead_collect',
+            run_id: process.env.GITHUB_RUN_ID,
+            run_url: process.env.RUN_URL,
+            task_file: process.env.TASK_FILE,
+            report_file: path.join(dir, 'summary.json'),
+            evidence_files: [path.join(dir, 'prospects.json'), path.join(dir, 'outreach-drafts.json')],
+            total_inspected: prospects.total_inspected,
+            fit_count: prospects.fit_count,
+            draft_count: drafts.total_drafts,
+            next_action: 'Human review of evidence and drafts. No outreach has been sent.'
+          };
+          fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(summary, null, 2));
+          console.log(JSON.stringify(summary));
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: call-rescue-prospecting-${{ github.run_id }}
+          path: ${{ env.REPORT_DIR }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Commit evidence reports
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ -n "$(git status --short -- "$REPORT_DIR")" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A "$REPORT_DIR"
+            git commit -m "chore(call-rescue): add prospecting evidence run ${{ github.run_id }}"
+            git push
+          fi

@@ -1,0 +1,48 @@
+{
+  "id": "OC-CALL-RESCUE-PROSPECTING-001",
+  "type": "business_lead_collect",
+  "requested_by": "ChatGPT",
+  "goal": "Collect and rank public home-service business prospects for Call Rescue Kit, then generate evidence-based outreach drafts without sending messages.",
+  "priority": "P0",
+  "created_at": "2026-06-15T15:00:00Z",
+  "status": "pending",
+  "expected_status": "PASS",
+  "params": {
+    "search_queries": [
+      "Los Angeles plumber emergency service contact",
+      "Phoenix HVAC repair contact",
+      "Dallas roofing contractor contact",
+      "Houston appliance repair service contact",
+      "Las Vegas garage door repair contact",
+      "San Diego electrician service contact",
+      "Orange County water damage restoration contact",
+      "Sacramento pest control service contact"
+    ],
+    "seed_urls": [],
+    "max_prospects": 30,
+    "max_drafts": 20,
+    "screenshots": false,
+    "target_profile": {
+      "country": "United States",
+      "verticals": [
+        "plumbing",
+        "HVAC",
+        "roofing",
+        "electrical",
+        "garage door",
+        "appliance repair",
+        "restoration",
+        "pest control"
+      ],
+      "problem": "missed or after-hours inbound leads"
+    }
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

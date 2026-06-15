@@ -6,6 +6,13 @@ on:
       - "products/call-rescue-kit/**"
       - "scripts/openclaw-business-*.mjs"
       - ".github/workflows/call-rescue-prospecting.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "products/call-rescue-kit/**"
+      - "scripts/openclaw-business-*.mjs"
+      - ".github/workflows/call-rescue-prospecting.yml"
   workflow_dispatch:
     inputs:
       task_file:

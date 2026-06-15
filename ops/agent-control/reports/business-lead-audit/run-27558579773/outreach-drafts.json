@@ -1,0 +1,39 @@
+{
+  "mode": "EVIDENCE_BASED_DRAFT_ONLY",
+  "generated_at": "2026-06-15T15:52:23.523Z",
+  "input_file": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/business-lead-audit/run-27558579773/prospects.json",
+  "total_fit_prospects": 2,
+  "total_drafts": 2,
+  "drafts": [
+    {
+      "company": "Phoenix, Arizona",
+      "website": "https://en.wikipedia.org/wiki/Phoenix,_Arizona",
+      "recipient": "https://en.wikipedia.org/wiki/Wikipedia:Contact_us",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and the site appears to publish limited office hours",
+        "hours_evidence": "frikaans አማርኛ Aragonés Ænglisc العربية الدارجة مصرى Asturianu Azərbaycanca تۆرکجه Башҡортса Basa Bali Boarisch Žemaitėška Беларуская (тарашкевіца) Беларуская Български Bislama Bam",
+        "phone_or_contact_evidence": "sidebar hide Navigation Main page Contents Current events Random article About Wikipedia Contact us Contribute Help Learn to edit Community portal Recent changes Upload file Special pages S"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Phoenix, Arizona",
+      "draft_text": "Hello,\n\nI reviewed Phoenix, Arizona's public website while researching HVAC businesses. I did not detect a live-chat option, and the site appears to publish limited office hours.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Phoenix, Arizona. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "0bbb9f00122940686ee17cf3cce520e16c129c099e76995bdda73173bb205f94",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    },
+    {
+      "company": "Orange & Rockland",
+      "website": "https://www.oru.com/en/",
+      "recipient": "https://www.oru.com/en/contact-us",
+      "evidence": {
+        "observation": "I did not detect a live-chat option, and I did not see a clear 24/7 response claim",
+        "hours_evidence": "NOT_SPECIFIED",
+        "phone_or_contact_evidence": "Contact Us Language Account & Billing My Account Pay Bill Bill History & Assistance Energy Use Manag"
+      },
+      "draft_subject": "Quick missed-call recovery idea for Orange & Rockland",
+      "draft_text": "Hello,\n\nI reviewed Orange & Rockland's public website while researching HVAC businesses. I did not detect a live-chat option, and I did not see a clear 24/7 response claim.\n\nWe install a narrow missed-call recovery system for home-service companies: an immediate text response, basic job qualification, callback or booking routing, and a daily lead summary. It is designed to support the existing team rather than replace its phone process.\n\nI can prepare a short, no-cost audit showing the exact flow I would recommend for Orange & Rockland. Would it be useful if I sent that over?\n\nRegards,\nCall Rescue Kit\nhttps://callrescuekit.com",
+      "text_hash": "e86237fcc35677ab767fbc4a63ffbdaa410689bb25a4bd338e5aa1f8460c5ae8",
+      "status": "AWAITING_HUMAN_APPROVAL",
+      "recommended_action": "Review evidence and recipient, then approve or reject. Do not send automatically."
+    }
+  ]
+}

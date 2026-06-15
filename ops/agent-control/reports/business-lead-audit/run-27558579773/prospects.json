@@ -1,0 +1,323 @@
+{
+  "status": "PASS",
+  "mode": "READ_ONLY_PUBLIC_BUSINESS_RESEARCH",
+  "collected_at": "2026-06-15T15:52:23.452Z",
+  "queries": [
+    "Los Angeles plumbing company emergency service contact",
+    "Los Angeles HVAC repair company contact",
+    "Phoenix plumbing company emergency service contact",
+    "Phoenix HVAC repair company contact",
+    "Dallas plumbing company emergency service contact",
+    "Dallas HVAC repair company contact",
+    "Houston plumbing company emergency service contact",
+    "Houston HVAC repair company contact",
+    "Las Vegas plumbing company emergency service contact",
+    "Las Vegas HVAC repair company contact",
+    "San Diego plumbing company emergency service contact",
+    "San Diego HVAC repair company contact",
+    "Orange County plumbing company emergency service contact",
+    "Orange County HVAC repair company contact",
+    "Sacramento plumbing company emergency service contact",
+    "Sacramento HVAC repair company contact"
+  ],
+  "search_diagnostics": [
+    {
+      "query": "Los Angeles plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Los Angeles HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Phoenix plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Phoenix HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Dallas plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 7
+    },
+    {
+      "query": "Dallas HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 7
+    },
+    {
+      "query": "Houston plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Houston HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Las Vegas plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Las Vegas HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "San Diego plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "San Diego HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Orange County plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Orange County HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Sacramento plumbing company emergency service contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    },
+    {
+      "query": "Sacramento HVAC repair company contact",
+      "source": "bing_rss",
+      "status": "PASS",
+      "result_count": 10
+    }
+  ],
+  "total_raw_results": 154,
+  "total_candidates": 58,
+  "total_inspected": 11,
+  "fit_count": 2,
+  "maybe_count": 1,
+  "failure_reason": null,
+  "prospects": [
+    {
+      "company": "Phoenix, Arizona - Wikipedia",
+      "website": "https://en.wikipedia.org/wiki/Phoenix,_Arizona",
+      "hostname": "en.wikipedia.org",
+      "source_query": "Phoenix plumbing company emergency service contact",
+      "source_search_url": "https://www.bing.com/search?format=rss&q=Phoenix%20plumbing%20company%20emergency%20service%20contact",
+      "search_source": "bing_rss",
+      "vertical": "HVAC",
+      "phone": "431672.2019",
+      "public_email": "NOT_SPECIFIED",
+      "contact_url": "https://en.wikipedia.org/wiki/Wikipedia:Contact_us",
+      "booking_url": "https://en.wikipedia.org/wiki/File:Reserve_A-10_Warthogs_Flyover_2023_World_Series_(8099146).jpg",
+      "has_online_booking": true,
+      "has_contact_form": true,
+      "has_live_chat": false,
+      "claims_24_7": false,
+      "hours_evidence": "frikaans አማርኛ Aragonés Ænglisc العربية الدارجة مصرى Asturianu Azərbaycanca تۆرکجه Башҡортса Basa Bali Boarisch Žemaitėška Беларуская (тарашкевіца) Беларуская Български Bislama Bam",
+      "phone_or_contact_evidence": " sidebar hide Navigation Main page Contents Current events Random article About Wikipedia Contact us Contribute Help Learn to edit Community portal Recent changes Upload file Special pages S",
+      "inspected_at": "2026-06-15T15:52:14.894Z",
+      "score": 80,
+      "fit_status": "FIT",
+      "fit_reasons": [
+        "public phone found",
+        "public contact path found",
+        "no live-chat widget detected",
+        "no clear 24/7 response claim detected",
+        "business hours displayed",
+        "target vertical: HVAC",
+        "contact form detected"
+      ]
+    },
+    {
+      "company": "Orange & Rockland - Utility Company Serving Greater New York",
+      "website": "https://www.oru.com/en/",
+      "hostname": "www.oru.com",
+      "source_query": "Orange County plumbing company emergency service contact",
+      "source_search_url": "https://www.bing.com/search?format=rss&q=Orange%20County%20plumbing%20company%20emergency%20service%20contact",
+      "search_source": "bing_rss",
+      "vertical": "HVAC",
+      "phone": "1-877-434-4100",
+      "public_email": "NOT_SPECIFIED",
+      "contact_url": "https://www.oru.com/en/contact-us",
+      "booking_url": "https://www.facebook.com/ORUConnect",
+      "has_online_booking": true,
+      "has_contact_form": true,
+      "has_live_chat": false,
+      "claims_24_7": false,
+      "hours_evidence": "NOT_SPECIFIED",
+      "phone_or_contact_evidence": " Contact Us Language Account & Billing My Account Pay Bill Bill History & Assistance Energy Use Manag",
+      "inspected_at": "2026-06-15T15:52:20.809Z",
+      "score": 70,
+      "fit_status": "FIT",
+      "fit_reasons": [
+        "public phone found",
+        "public contact path found",
+        "no live-chat widget detected",
+        "no clear 24/7 response claim detected",
+        "target vertical: HVAC",
+        "contact form detected"
+      ]
+    },
+    {
+      "company": "22 Best Things to Do in Phoenix, Arizona | U.S. News Travel",
+      "website": "https://travel.usnews.com/Phoenix_AZ/Things_To_Do/",
+      "hostname": "travel.usnews.com",
+      "source_query": "Phoenix plumbing company emergency service contact",
+      "source_search_url": "https://www.bing.com/search?format=rss&q=Phoenix%20plumbing%20company%20emergency%20service%20contact",
+      "search_source": "bing_rss",
+      "vertical": "HVAC",
+      "phone": "NOT_SPECIFIED",
+      "public_email": "NOT_SPECIFIED",
+      "contact_url": "https://www.usnews.com/info/features/contact",
+      "booking_url": "https://www.facebook.com/thelittlewoody/",
+      "has_online_booking": true,
+      "has_contact_form": false,
+      "has_live_chat": false,
+      "claims_24_7": false,
+      "hours_evidence": "friendly trails that circle Cam",
+      "phone_or_contact_evidence": " If you're short on time, go self-guided (bring your headphones to enjoy audio narratives) and start with \"HOME: Native People in the Southwest",
+      "inspected_at": "2026-06-15T15:52:15.042Z",
+      "score": 55,
+      "fit_status": "MAYBE",
+      "fit_reasons": [
+        "public contact path found",
+        "no live-chat widget detected",
+        "no clear 24/7 response claim detected",
+        "business hours displayed",
+        "target vertical: HVAC"
+      ]
+    },
+    {
+      "company": "LOS Definition & Meaning - Merriam-Webster",
+      "website": "https://www.merriam-webster.com/dictionary/LOS",
+      "hostname": "www.merriam-webster.com",
+      "source_query": "Los Angeles plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:12.855Z"
+    },
+    {
+      "company": "Things to Do in LA 2026 - Complete Guide | LA.com",
+      "website": "https://losangeles.com/guides/things-to-do-la/",
+      "hostname": "losangeles.com",
+      "source_query": "Los Angeles plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:12.961Z"
+    },
+    {
+      "company": "Los Angeles | History, Map, Population, Climate, & Facts ...",
+      "website": "https://www.britannica.com/place/Los-Angeles-California",
+      "hostname": "www.britannica.com",
+      "source_query": "Los Angeles plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:13.360Z"
+    },
+    {
+      "company": "KTLA | Los Angeles and Southern California News",
+      "website": "https://ktla.com/",
+      "hostname": "ktla.com",
+      "source_query": "Los Angeles plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:13.423Z"
+    },
+    {
+      "company": "Los Angeles: Iconic Sights & California Culture - Visit The USA",
+      "website": "https://www.visittheusa.com/destinations/california/los-angeles/",
+      "hostname": "www.visittheusa.com",
+      "source_query": "Los Angeles plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:13.526Z"
+    },
+    {
+      "company": "THE 15 BEST Things to Do in Houston (2026) - Tripadvisor",
+      "website": "https://www.tripadvisor.com/Attractions-g56003-Activities-zfr7917577-Houston_Texas.html",
+      "hostname": "www.tripadvisor.com",
+      "source_query": "Houston plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:17.189Z"
+    },
+    {
+      "company": "Different Types of Oranges Explained - Yuzu Bakes",
+      "website": "https://www.yuzubakes.com/food-blog/a-guide-to-types-of-oranges",
+      "hostname": "www.yuzubakes.com",
+      "source_query": "Orange County plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:21.372Z"
+    },
+    {
+      "company": "51 Types of Oranges: How to Choose the Right Orange Variety",
+      "website": "https://harvestsavvy.com/types-of-oranges/",
+      "hostname": "harvestsavvy.com",
+      "source_query": "Orange County plumbing company emergency service contact",
+      "score": 0,
+      "fit_status": "REJECT",
+      "fit_reasons": [
+        "page inspection failed"
+      ],
+      "error": "HTTP 403",
+      "inspected_at": "2026-06-15T15:52:22.628Z"
+    }
+  ]
+}

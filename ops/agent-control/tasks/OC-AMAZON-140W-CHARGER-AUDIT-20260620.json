@@ -1,0 +1,20 @@
+{
+  "id": "OC-AMAZON-140W-CHARGER-AUDIT-20260620",
+  "type": "virtual_browser_audit",
+  "requested_by": "Sergii",
+  "goal": "Audit public Amazon search result pages for 140W USB-C GaN chargers suitable for simultaneously fast-charging a MacBook Air M4 and iPhone 17 Pro Max. Capture screenshots, visible product titles, prices, seller/fulfillment text when visible, ratings, port counts, and any visible power-distribution claims. Do not buy, add to cart, sign in, post, or perform customer actions. Report only browser-visible evidence and clearly mark blocked or unavailable pages.",
+  "expected_status": "PASS",
+  "params": {
+    "target_origin": "https://www.amazon.com",
+    "routes": "/s?k=140w+gan+charger+100w+40w,/s?k=140w+usb+c+charger+70w+70w,/s?k=140w+usb+c+charger+pd+3.1+4+port,/s?k=140w+charger+anker+baseus+ugreen+aohi",
+    "max_attempts": 2
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

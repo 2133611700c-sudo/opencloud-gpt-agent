@@ -41,12 +41,12 @@ jobs:
       OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           fetch-depth: 0
 
       - name: Setup Node 22 LTS
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: "22"
           cache: npm
@@ -74,7 +74,7 @@ jobs:
 
       - name: Upload OpenClaw artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: openclaw-task-runner-${{ github.run_id }}-ubuntu
           path: |
@@ -155,7 +155,7 @@ jobs:
       - name: Open/update alert issue (dedupe 12h)
         if: always()
         continue-on-error: true
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
           OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
         with:
@@ -238,12 +238,12 @@ jobs:
       OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest-windows-heartbeat.json
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           fetch-depth: 0
 
       - name: Setup Node 22 LTS
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: "22"
           cache: npm
@@ -258,7 +258,7 @@ jobs:
 
       - name: Upload Windows smoke artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: openclaw-task-runner-${{ github.run_id }}-windows-smoke
           path: |

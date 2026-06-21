@@ -1,0 +1,18 @@
+{
+  "id": "OC-CALL-RESCUE-BLS-OFFICIAL-AUDIT-20260621",
+  "type": "virtual_browser_audit",
+  "requested_by": "ChatGPT supervisor for Sergii",
+  "goal": "Read-only evidence audit of official U.S. Bureau of Labor Statistics pages relevant to selecting five-year Call Rescue Kit verticals. Capture visible facts for 2024-2034 growth, openings, and occupation/industry signals. Do not infer market size from marketing claims. Record page failures and only visible verifiable evidence.",
+  "params": {
+    "target_origin": "https://www.bls.gov",
+    "routes": "/emp/tables/fastest-growing-occupations.htm,/ooh/healthcare/home-health-aides-and-personal-care-aides.htm,/ooh/installation-maintenance-and-repair/home.htm,/ooh/construction-and-extraction/home.htm",
+    "max_attempts": 2
+  },
+  "safety": {
+    "customer_action": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  },
+  "expected_status": "PASS"
+}

@@ -199,9 +199,20 @@ function runRepoPatch(task) {
   if (!appendLine) throw new Error("repo_patch append_line is required");
   const absolutePath = path.resolve(repoRoot, targetFile);
   fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
-  const existing = fs.existsSync(absolutePath) ? fs.readFileSync(absolutePath, "utf8") : "";
-  const next = existing ? `${existing.replace(/\s*$/, "")}\n${appendLine}\n` : `${appendLine}\n`;
-  fs.writeFileSync(absolutePath, next, "utf8");
+  const fileHandle = fs.openSync(absolutePath, "a+");
+  try {
+    const { size } = fs.fstatSync(fileHandle);
+    if (size > 0) {
+      const lastByte = Buffer.alloc(1);
+      fs.readSync(fileHandle, lastByte, 0, 1, size - 1);
+      if (lastByte.toString("utf8") !== "\n") {
+        fs.writeSync(fileHandle, "\n");
+      }
+    }
+    fs.writeSync(fileHandle, `${appendLine}\n`);
+  } finally {
+    fs.closeSync(fileHandle);
+  }
   return {
     mode: "REPO_PATCH_APPEND_LINE",
     branch: refName || commandVersion("git", ["branch", "--show-current"]) || "unknown",

@@ -23,6 +23,16 @@ function unique(values) {
   return Array.from(new Set(values.filter((x) => typeof x === "string" && x.trim()).map((x) => x.trim())));
 }
 
+function decodeXml(value) {
+  return String(value || "")
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
 function safeHostname(value) {
   try {
     return new URL(value).hostname.toLowerCase();
@@ -59,7 +69,7 @@ function isGenericOrSearchUrl(value) {
 }
 
 function looksLikeJobTitle(value) {
-  const title = String(value || "").trim();
+  const title = String(value || "").replace(/\s+/g, " ").trim();
   if (!title || title.length < 4) return false;
   if (/^(unknown|search|jobs?|careers?|home)$/i.test(title)) return false;
   return /(driver|truck|delivery|courier|operator|manager|technician|associate|specialist|worker|helper|installer|mechanic)/i.test(title);
@@ -72,10 +82,12 @@ function extractCompany(title) {
 }
 
 function normalizeCandidate({ title, href, snippet = "", source = "" }) {
-  if (!href || isGenericOrSearchUrl(href) || !looksLikeJobTitle(title)) return null;
+  const cleanTitle = String(title || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const cleanSnippet = String(snippet || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (!href || isGenericOrSearchUrl(href) || !looksLikeJobTitle(cleanTitle)) return null;
   return {
-    company: extractCompany(title),
-    role: title.trim(),
+    company: extractCompany(cleanTitle),
+    role: cleanTitle,
     location: locationHint || "NOT_SPECIFIED",
     listing_url: href,
     source_site: source || safeHostname(href),
@@ -90,7 +102,7 @@ function normalizeCandidate({ title, href, snippet = "", source = "" }) {
     apply_url: href,
     screenshot_path_if_available: "NOT_SPECIFIED",
     target_profile: targetProfile,
-    excerpt: String(snippet || "").slice(0, 500),
+    excerpt: cleanSnippet.slice(0, 500),
     validation: {
       concrete_listing_url: true,
       concrete_role: true,
@@ -99,51 +111,62 @@ function normalizeCandidate({ title, href, snippet = "", source = "" }) {
   };
 }
 
-const queryUrls = queries.map((q) => `https://www.bing.com/search?q=${encodeURIComponent(q)}`);
-const urls = unique([...queryUrls, ...seedUrls]);
-if (urls.length === 0) throw new Error("No seed URLs or query URLs to collect.");
+async function collectFromBingRss(query) {
+  const rssUrl = `https://www.bing.com/search?format=rss&q=${encodeURIComponent(query)}`;
+  const response = await fetch(rssUrl, {
+    headers: { "user-agent": "Mozilla/5.0 OpenClaw/1.0" },
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!response.ok) throw new Error(`RSS HTTP ${response.status}`);
+  const xml = await response.text();
+  const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)];
+  return items.map((match) => {
+    const block = match[1];
+    const title = decodeXml(block.match(/<title>([\s\S]*?)<\/title>/i)?.[1]);
+    const href = decodeXml(block.match(/<link>([\s\S]*?)<\/link>/i)?.[1]).trim();
+    const snippet = decodeXml(block.match(/<description>([\s\S]*?)<\/description>/i)?.[1]);
+    return { title, href, snippet };
+  });
+}
 
 fs.mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ headless: true });
-const context = await browser.newContext({ userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36" });
 const leads = [];
 const rejected = [];
 
-for (const url of urls) {
+for (const query of queries) {
+  if (leads.length >= maxLeads) break;
+  try {
+    const results = await collectFromBingRss(query);
+    for (const result of results) {
+      if (leads.length >= maxLeads) break;
+      const candidate = normalizeCandidate({ ...result, source: safeHostname(result.href) });
+      if (candidate && !leads.some((lead) => lead.listing_url === candidate.listing_url)) leads.push(candidate);
+    }
+    if (results.length === 0) rejected.push({ query, reason: "rss_no_results" });
+  } catch (error) {
+    rejected.push({ query, reason: "rss_error", error: String(error?.message || error).slice(0, 300) });
+  }
+}
+
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext({ userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36" });
+
+for (const url of unique(seedUrls)) {
   if (leads.length >= maxLeads) break;
   const page = await context.newPage();
   try {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
     const title = (await page.title()).trim();
     const bodyText = ((await page.locator("body").innerText({ timeout: 10000 })) || "").replace(/\s+/g, " ").trim();
-
     if (isBlockedPage(title, bodyText)) {
       rejected.push({ url, reason: "blocked_or_challenge_page", title });
       continue;
     }
-
-    const hostname = safeHostname(url);
-    if (hostname.includes("bing.com")) {
-      const results = await page.locator("li.b_algo").evaluateAll((nodes) => nodes.map((node) => {
-        const anchor = node.querySelector("h2 a");
-        const snippet = node.querySelector(".b_caption p")?.textContent || "";
-        return { title: anchor?.textContent || "", href: anchor?.href || "", snippet };
-      }));
-      for (const result of results) {
-        if (leads.length >= maxLeads) break;
-        const candidate = normalizeCandidate({ ...result, source: safeHostname(result.href) });
-        if (candidate && !leads.some((lead) => lead.listing_url === candidate.listing_url)) leads.push(candidate);
-      }
-      if (results.length === 0) rejected.push({ url, reason: "no_search_results", title });
-      continue;
-    }
-
-    const candidate = normalizeCandidate({ title, href: page.url(), snippet: bodyText, source: hostname });
+    const candidate = normalizeCandidate({ title, href: page.url(), snippet: bodyText, source: safeHostname(page.url()) });
     if (!candidate) {
       rejected.push({ url, reason: "generic_or_non_listing_page", title });
       continue;
     }
-
     const emailMatch = bodyText.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi);
     const compensationQuoteMatch = bodyText.match(/[^.]{0,100}(\$ ?\d[\d,]*(?:\.\d+)?(?:\s*-\s*\$ ?\d[\d,]*(?:\.\d+)?)?|per hour|per month|salary)[^.]{0,100}/i);
     candidate.public_contact_channel_if_visible = emailMatch?.[0] || "NOT_SPECIFIED";
@@ -152,7 +175,7 @@ for (const url of urls) {
     const screenshotPath = path.join(outDir, `lead-${String(leads.length + 1).padStart(2, "0")}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: true });
     candidate.screenshot_path_if_available = screenshotPath;
-    leads.push(candidate);
+    if (!leads.some((lead) => lead.listing_url === candidate.listing_url)) leads.push(candidate);
   } catch (error) {
     rejected.push({ url, reason: "navigation_error", error: String(error?.message || error).slice(0, 300) });
   } finally {

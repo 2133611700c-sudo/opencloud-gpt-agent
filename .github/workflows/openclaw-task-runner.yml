@@ -286,21 +286,29 @@ jobs:
               base,
             });
             if (prs.data.length > 0) return;
-            await github.rest.pulls.create({
-              owner,
-              repo,
-              title: `[OpenClaw] ${task.id}`,
-              head: context.ref.replace('refs/heads/', ''),
-              base,
-              body: [
-                `task_id: ${task.id}`,
-                `task_file: ${process.env.TASK_FILE}`,
-                `run_url: ${process.env.GITHUB_RUN_URL}`,
-                `requires_pr: true`,
-                `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
-              ].join('\n'),
-              maintainer_can_modify: false
-            });
+            try {
+              await github.rest.pulls.create({
+                owner,
+                repo,
+                title: `[OpenClaw] ${task.id}`,
+                head: context.ref.replace('refs/heads/', ''),
+                base,
+                body: [
+                  `task_id: ${task.id}`,
+                  `task_file: ${process.env.TASK_FILE}`,
+                  `run_url: ${process.env.GITHUB_RUN_URL}`,
+                  `requires_pr: true`,
+                  `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
+                ].join('\n'),
+                maintainer_can_modify: false
+              });
+            } catch (error) {
+              if (error?.status === 403 && /not permitted to create or approve pull requests/i.test(String(error.message || ''))) {
+                core.warning('GitHub Actions cannot create PRs in this repository; create the PR outside Actions.');
+                return;
+              }
+              throw error;
+            }
 
       - name: Enforce expected status
         if: always()
@@ -494,21 +502,29 @@ jobs:
               base,
             });
             if (prs.data.length > 0) return;
-            await github.rest.pulls.create({
-              owner,
-              repo,
-              title: `[OpenClaw] ${task.id}`,
-              head: context.ref.replace('refs/heads/', ''),
-              base,
-              body: [
-                `task_id: ${task.id}`,
-                `task_file: ${process.env.TASK_FILE}`,
-                `run_url: ${process.env.GITHUB_RUN_URL}`,
-                `requires_pr: true`,
-                `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
-              ].join('\n'),
-              maintainer_can_modify: false
-            });
+            try {
+              await github.rest.pulls.create({
+                owner,
+                repo,
+                title: `[OpenClaw] ${task.id}`,
+                head: context.ref.replace('refs/heads/', ''),
+                base,
+                body: [
+                  `task_id: ${task.id}`,
+                  `task_file: ${process.env.TASK_FILE}`,
+                  `run_url: ${process.env.GITHUB_RUN_URL}`,
+                  `requires_pr: true`,
+                  `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
+                ].join('\n'),
+                maintainer_can_modify: false
+              });
+            } catch (error) {
+              if (error?.status === 403 && /not permitted to create or approve pull requests/i.test(String(error.message || ''))) {
+                core.warning('GitHub Actions cannot create PRs in this repository; create the PR outside Actions.');
+                return;
+              }
+              throw error;
+            }
 
       - name: Enforce expected status
         if: always()

@@ -14,7 +14,7 @@
   "artifact_name": "openclaw-27975557911",
   "dedupe_key": "repo_patch:blocked",
   "error": "Error: blocked: repo_patch cannot run on main\n    at runRepoPatch (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:191:11)\n    at main (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:630:21)\n    at file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:719:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)",
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "968e69d6fc0ae511dab2b91eee6b5013555dee32",
   "dispatch_file": "ops/agent-control/dispatch/OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01.request.json",
   "dispatch_report_file": "ops/agent-control/reports/dispatch/20260622T183931Z.md"
 }

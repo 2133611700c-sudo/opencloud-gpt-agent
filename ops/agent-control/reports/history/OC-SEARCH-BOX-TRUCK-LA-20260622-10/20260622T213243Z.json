@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-SEARCH-BOX-TRUCK-LA-20260622-10",
+  "task_type": "job_lead_collect",
+  "task_file": "ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-06.json",
+  "created_by": "ChatGPT",
+  "objective": "Collect only concrete individual public box-truck driver job listings in the Los Angeles area using the strict DuckDuckGo collector.",
+  "run_id": "27985453751",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27985453751",
+  "status": "success",
+  "expected_status": "PASS",
+  "started_at": "2026-06-22T21:32:43.966Z",
+  "finished_at": "2026-06-22T21:32:46.741Z",
+  "summary": "job_lead_collect completed successfully",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-06.json",
+    "executed task type job_lead_collect",
+    "wrote markdown report ops/agent-control/reports/job_lead_collect/20260622T213243Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-27985453751-0",
+      "report_file": "ops/agent-control/reports/job_lead_collect/20260622T213243Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "next_step": "No action required.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "d80b492e0509c6668c491992563b6bd18b25e21f",
+  "dispatch_file": "",
+  "details": {
+    "mode": "READ_ONLY_PUBLIC_LEAD_COLLECTION",
+    "quality_status": "PASS",
+    "total_collected": 4,
+    "rejected_count": 25,
+    "collection_output_file": "ops/agent-control/reports/job_lead_collect/27985453751/collected-leads.json",
+    "leads": [
+      {
+        "company": "NOT_SPECIFIED",
+        "role": "Non-CDL On-Demand Box Truck Driver (Flexible Hours)",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.ziprecruiter.com/c/Centerline-Drivers/Job/Non-CDL-On-Demand-Box-Truck-Driver(Flexible-Hours)/-in-Los-Angeles,CA?jid=612d94519080794e",
+        "source_site": "www.ziprecruiter.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.ziprecruiter.com/c/Centerline-Drivers/Job/Non-CDL-On-Demand-Box-Truck-Driver(Flexible-Hours)/-in-Los-Angeles,CA?jid=612d94519080794e",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      },
+      {
+        "company": "ZipRecruiter",
+        "role": "26' Box Truck Driver - Class C License - ZipRecruiter",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.ziprecruiter.com/c/M-&-F-Laundry/Job/26-Box-Truck-Driver-Class-C-License/-in-Los-Angeles,CA?jid=ed8f5ec34efb679a",
+        "source_site": "www.ziprecruiter.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.ziprecruiter.com/c/M-&-F-Laundry/Job/26-Box-Truck-Driver-Class-C-License/-in-Los-Angeles,CA?jid=ed8f5ec34efb679a",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      },
+      {
+        "company": "ZipRecruiter",
+        "role": "CDL‑B Bobtail Delivery Driver - 26' Box Truck - ZipRecruiter",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.ziprecruiter.com/c/Express-Employment-Professionals-North-Hollywood/Job/CDL‑B-Bobtail-Delivery-Driver-26-Box-Truck/-in-Los-Angeles,CA?jid=badb1efd047df9a7",
+        "source_site": "www.ziprecruiter.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.ziprecruiter.com/c/Express-Employment-Professionals-North-Hollywood/Job/CDL‑B-Bobtail-Delivery-Driver-26-Box-Truck/-in-Los-Angeles,CA?jid=badb1efd047df9a7",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      },
+      {
+        "company": "Los Angeles, CA",
+        "role": "Western Region CDL Truck Driver | Los Angeles, CA",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.ziprecruiter.com/c/Knight-Transportation/Job/Western-Region-CDL-Truck-Driver-|-Los-Angeles,-CA/-in-Los-Angeles,CA?jid=16b0f1b8f29fb40f",
+        "source_site": "www.ziprecruiter.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.ziprecruiter.com/c/Knight-Transportation/Job/Western-Region-CDL-Truck-Driver-|-Los-Angeles,-CA/-in-Los-Angeles,CA?jid=16b0f1b8f29fb40f",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      }
+    ]
+  }
+}

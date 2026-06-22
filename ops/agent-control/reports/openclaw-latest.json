@@ -14,7 +14,7 @@
   "artifact_name": "openclaw-27975692359",
   "dedupe_key": "repo_patch:pass",
   "error": null,
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "8d76ea5d2936cc81e3311e6a4aaa2615aeb4160e",
   "dispatch_file": "ops/agent-control/dispatch/OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01-BRANCH.request.json",
   "dispatch_report_file": "ops/agent-control/reports/dispatch/20260622T184156Z.md"
 }

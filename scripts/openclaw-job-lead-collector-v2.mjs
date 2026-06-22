@@ -40,9 +40,21 @@ function relevantTitle(value) {
   return title.length >= 4 && /(driver|truck|delivery|courier|operator)/i.test(title);
 }
 
+function queryVariants(query) {
+  const cleaned = text(query).replace(/"/g, "");
+  const quoted = `"${cleaned}"`;
+  return [
+    `${quoted} jobs`,
+    `site:indeed.com/viewjob ${quoted}`,
+    `site:ziprecruiter.com/jobs ${quoted}`,
+    `site:linkedin.com/jobs/view ${quoted}`,
+    `site:glassdoor.com/job-listing ${quoted}`,
+  ];
+}
+
 async function rss(query) {
   const url = `https://www.bing.com/search?format=rss&q=${encodeURIComponent(query)}`;
-  const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 OpenClaw/2.0" }, signal: AbortSignal.timeout(20000) });
+  const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 OpenClaw/2.1" }, signal: AbortSignal.timeout(20000) });
   if (!response.ok) throw new Error(`RSS HTTP ${response.status}`);
   const xml = await response.text();
   return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].map((match) => {
@@ -58,36 +70,40 @@ async function rss(query) {
 fs.mkdirSync(outDir, { recursive: true });
 const leads = [];
 const rejected = [];
-for (const query of queries) {
+for (const baseQuery of queries) {
   if (leads.length >= maxLeads) break;
-  try {
-    for (const item of await rss(query)) {
-      if (leads.length >= maxLeads) break;
-      if (!concreteUrl(item.href)) { rejected.push({ query, url: item.href, reason: "generic_url" }); continue; }
-      if (!relevantTitle(item.title)) { rejected.push({ query, url: item.href, reason: "irrelevant_title" }); continue; }
-      if (leads.some((x) => x.listing_url === item.href)) continue;
-      const parts = item.title.split(/\s+[|\-–—]\s+/).filter(Boolean);
-      leads.push({
-        company: parts.length > 1 ? parts.at(-1) : "NOT_SPECIFIED",
-        role: item.title,
-        location,
-        listing_url: item.href,
-        source_site: hostname(item.href),
-        compensation: "NOT_SPECIFIED",
-        experience_requirements: "NOT_SPECIFIED",
-        license_requirements: "NOT_SPECIFIED",
-        public_contact_channel_if_visible: "NOT_SPECIFIED",
-        apply_url: item.href,
-        target_profile: profile,
-        excerpt: item.snippet.slice(0, 500),
-        validation: { concrete_listing_url: true, concrete_role: true }
-      });
+  for (const query of queryVariants(baseQuery)) {
+    if (leads.length >= maxLeads) break;
+    try {
+      for (const item of await rss(query)) {
+        if (leads.length >= maxLeads) break;
+        if (!concreteUrl(item.href)) { rejected.push({ query, url: item.href, reason: "generic_url" }); continue; }
+        if (!relevantTitle(item.title)) { rejected.push({ query, url: item.href, reason: "irrelevant_title" }); continue; }
+        if (leads.some((x) => x.listing_url === item.href)) continue;
+        const parts = item.title.split(/\s+[|\-–—]\s+/).filter(Boolean);
+        leads.push({
+          company: parts.length > 1 ? parts.at(-1) : "NOT_SPECIFIED",
+          role: item.title,
+          location,
+          listing_url: item.href,
+          source_site: hostname(item.href),
+          compensation: "NOT_SPECIFIED",
+          experience_requirements: "NOT_SPECIFIED",
+          license_requirements: "NOT_SPECIFIED",
+          public_contact_channel_if_visible: "NOT_SPECIFIED",
+          apply_url: item.href,
+          target_profile: profile,
+          excerpt: item.snippet.slice(0, 500),
+          validation: { concrete_listing_url: true, concrete_role: true }
+        });
+      }
+    } catch (error) {
+      rejected.push({ query, reason: "rss_error", error: String(error?.message || error).slice(0, 300) });
     }
-  } catch (error) {
-    rejected.push({ query, reason: "rss_error", error: String(error?.message || error).slice(0, 300) });
   }
 }
-const output = { collected_at: new Date().toISOString(), valid_leads_count: leads.length, rejected_count: rejected.length, leads, rejected };
+const qualityStatus = leads.length > 0 ? "PASS" : "DEGRADED";
+const output = { collected_at: new Date().toISOString(), quality_status: qualityStatus, valid_leads_count: leads.length, rejected_count: rejected.length, leads, rejected };
 fs.writeFileSync(outFile, JSON.stringify(output, null, 2), "utf8");
-console.log(JSON.stringify({ valid_leads: leads.length, rejected: rejected.length, outFile }));
-if (leads.length === 0) throw new Error("DEGRADED: no valid concrete job listings collected");
+console.log(JSON.stringify({ quality_status: qualityStatus, valid_leads: leads.length, rejected: rejected.length, outFile }));
+if (leads.length === 0) throw "DEGRADED: no valid concrete job listings collected";

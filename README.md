@@ -2,6 +2,9 @@
 
 This repository is the OpenClaw execution layer for ChatGPT-driven, read-only task dispatch with evidence-first closure.
 
+Primary architecture reference:
+- `ops/agent-control/CHATGPT_GITHUB_OPENCLAW_ARCHITECTURE.md`
+
 ## Supported flow
 
 `ChatGPT supervisor -> GitHub task JSON -> GitHub Actions -> OpenClaw runner -> evidence report -> STATUS.md`

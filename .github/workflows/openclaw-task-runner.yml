@@ -44,6 +44,7 @@ permissions:
   contents: write
   actions: read
   issues: write
+  pull-requests: write
 
 concurrency:
   group: openclaw-task-runner-${{ github.ref }}
@@ -265,6 +266,42 @@ jobs:
               labels: ['ops', 'openclaw-alert'],
             });
 
+      - name: Open or update PR
+        if: always() && steps.commit_evidence.outputs.evidence_commit_sha != '' && github.ref_name != 'main'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const task = JSON.parse(fs.readFileSync(process.env.TASK_FILE, 'utf8'));
+            if (task.requires_pr !== true) return;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = `${owner}:${context.ref.replace('refs/heads/', '')}`;
+            const base = String(task.base_branch || 'main');
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head,
+              base,
+            });
+            if (prs.data.length > 0) return;
+            await github.rest.pulls.create({
+              owner,
+              repo,
+              title: `[OpenClaw] ${task.id}`,
+              head: context.ref.replace('refs/heads/', ''),
+              base,
+              body: [
+                `task_id: ${task.id}`,
+                `task_file: ${process.env.TASK_FILE}`,
+                `run_url: ${process.env.GITHUB_RUN_URL}`,
+                `requires_pr: true`,
+                `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
+              ].join('\n'),
+              maintainer_can_modify: false
+            });
+
       - name: Enforce expected status
         if: always()
         shell: bash
@@ -435,6 +472,42 @@ jobs:
               title,
               body,
               labels: ['ops', 'openclaw-alert'],
+            });
+
+      - name: Open or update PR
+        if: always() && steps.commit_evidence.outputs.evidence_commit_sha != '' && github.ref_name != 'main'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const task = JSON.parse(fs.readFileSync(process.env.TASK_FILE, 'utf8'));
+            if (task.requires_pr !== true) return;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = `${owner}:${context.ref.replace('refs/heads/', '')}`;
+            const base = String(task.base_branch || 'main');
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head,
+              base,
+            });
+            if (prs.data.length > 0) return;
+            await github.rest.pulls.create({
+              owner,
+              repo,
+              title: `[OpenClaw] ${task.id}`,
+              head: context.ref.replace('refs/heads/', ''),
+              base,
+              body: [
+                `task_id: ${task.id}`,
+                `task_file: ${process.env.TASK_FILE}`,
+                `run_url: ${process.env.GITHUB_RUN_URL}`,
+                `requires_pr: true`,
+                `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
+              ].join('\n'),
+              maintainer_can_modify: false
             });
 
       - name: Enforce expected status

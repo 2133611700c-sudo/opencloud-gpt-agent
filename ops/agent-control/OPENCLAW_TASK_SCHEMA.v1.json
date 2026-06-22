@@ -6,6 +6,10 @@
   "additionalProperties": false,
   "required": ["id", "type", "requested_by", "goal", "params", "safety", "expected_status"],
   "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
     "id": {
       "type": "string",
       "minLength": 3,
@@ -36,10 +40,34 @@
       "minLength": 2,
       "maxLength": 80
     },
+    "created_by": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80
+    },
     "goal": {
       "type": "string",
       "minLength": 10,
       "maxLength": 2000
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 2000
+    },
+    "instructions": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20000
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "base_branch": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
     },
     "priority": {
       "type": "string",
@@ -53,6 +81,71 @@
       "enum": ["pending", "locked", "running", "completed", "failed", "blocked", "degraded"]
     },
     "params": {
+      "type": "object"
+    },
+    "allowed_paths": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      }
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      }
+    },
+    "allowed_actions": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "forbidden_actions": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "requires_pr": {
+      "type": "boolean"
+    },
+    "allow_direct_push": {
+      "type": "boolean"
+    },
+    "allow_merge": {
+      "type": "boolean"
+    },
+    "timeout_minutes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 60
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "context": {
+      "type": "object"
+    },
+    "metadata": {
       "type": "object"
     },
     "safety": {
@@ -90,6 +183,43 @@
     }
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "repo_patch"
+          }
+        }
+      },
+      "then": {
+        "required": ["allowed_paths", "allowed_actions", "requires_pr", "allow_direct_push", "allow_merge", "acceptance_criteria"],
+        "properties": {
+          "allow_direct_push": {
+            "const": false
+          },
+          "allow_merge": {
+            "const": false
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["target_file", "append_line"],
+            "properties": {
+              "target_file": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "append_line": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          }
+        }
+      }
+    },
     {
       "if": {
         "properties": {

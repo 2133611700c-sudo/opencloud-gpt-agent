@@ -7,6 +7,7 @@ import { execFileSync } from "node:child_process";
 import {
   allowedStatuses,
   buildTimestamp,
+  createResultSummary,
   createLatestSummary,
   detectSensitiveStrings,
   ensureReportDirectories,
@@ -16,6 +17,8 @@ import {
   normalizeRoutes,
   readJson,
   reportsRoot,
+  resultHistoryFile,
+  resultSchemaPath,
   repoRoot,
   sanitizeForReport,
   supportedTaskTypes,
@@ -29,6 +32,7 @@ import {
 } from "./lib/openclaw-task-lib.mjs";
 
 const now = new Date();
+const startedAt = now.toISOString();
 const timestamp = buildTimestamp(now);
 const requestedTaskFile = (process.env.TASK_FILE || "").trim();
 const forceRerun = (process.env.FORCE_RERUN || "false").toLowerCase() === "true";
@@ -41,6 +45,7 @@ const dispatchFile = (process.env.DISPATCH_FILE || "").trim();
 const latestOutputFile = process.env.OPENCLAW_LATEST_FILE || latestReportFile;
 const dedupeWindowMinutes = Number(process.env.DEDUPE_WINDOW_MINUTES || "15");
 const outputDirectory = process.env.OPENCLAW_OUTPUT_DIR || path.join(reportsRoot, "_runtime");
+const refName = String(process.env.GITHUB_REF_NAME || "").trim();
 
 function localGitSha() {
   try {
@@ -52,6 +57,10 @@ function localGitSha() {
 
 function writeLatest(summary) {
   writeJson(latestOutputFile, summary);
+}
+
+function writeResultHistory(taskId, result) {
+  writeJson(resultHistoryFile(taskId, timestamp), result);
 }
 
 function sleep(milliseconds) {
@@ -145,6 +154,60 @@ function runWorkerHeartbeat() {
 
 function runSyntheticFail() {
   throw new Error("synthetic_fail drill requested by task");
+}
+
+function normalizeRepoFilePath(value) {
+  const file = String(value || "").replace(/\\/g, "/").trim();
+  if (!file || path.isAbsolute(file) || file.includes("\0")) throw new Error(`unsafe file path: ${value}`);
+  const normalized = path.posix.normalize(file);
+  if (normalized.startsWith("../") || normalized.includes("/../") || normalized === "..") {
+    throw new Error(`path traversal blocked: ${value}`);
+  }
+  return normalized;
+}
+
+function ensurePathAllowed(targetFile, allowedPaths = [], forbiddenPaths = []) {
+  const normalizedTarget = normalizeRepoFilePath(targetFile);
+  if (forbiddenPaths.some((entry) => normalizedTarget === normalizeRepoFilePath(entry) || normalizedTarget.startsWith(`${normalizeRepoFilePath(entry)}/`))) {
+    throw new Error(`target file blocked by forbidden_paths: ${normalizedTarget}`);
+  }
+  if (allowedPaths.length === 0) throw new Error("repo_patch requires allowed_paths");
+  const allowed = allowedPaths.some((entry) => {
+    const normalizedEntry = normalizeRepoFilePath(entry);
+    return normalizedTarget === normalizedEntry || normalizedTarget.startsWith(`${normalizedEntry}/`);
+  });
+  if (!allowed) throw new Error(`target file outside allowed_paths: ${normalizedTarget}`);
+  return normalizedTarget;
+}
+
+function runRepoPatch(task) {
+  if (task.allow_direct_push !== false) {
+    throw new Error("repo_patch requires allow_direct_push=false");
+  }
+  if (task.allow_merge !== false) {
+    throw new Error("repo_patch requires allow_merge=false");
+  }
+  if (refName === "main") {
+    throw new Error("blocked: repo_patch cannot run on main");
+  }
+  const allowedActions = Array.isArray(task.allowed_actions) ? task.allowed_actions : [];
+  if (!allowedActions.includes("append_line")) {
+    throw new Error("blocked: repo_patch requires allowed_actions to include append_line");
+  }
+  const targetFile = ensurePathAllowed(task.params?.target_file, task.allowed_paths, task.forbidden_paths);
+  const appendLine = String(task.params?.append_line || "").trim();
+  if (!appendLine) throw new Error("repo_patch append_line is required");
+  const absolutePath = path.resolve(repoRoot, targetFile);
+  fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+  const existing = fs.existsSync(absolutePath) ? fs.readFileSync(absolutePath, "utf8") : "";
+  const next = existing ? `${existing.replace(/\s*$/, "")}\n${appendLine}\n` : `${appendLine}\n`;
+  fs.writeFileSync(absolutePath, next, "utf8");
+  return {
+    mode: "REPO_PATCH_APPEND_LINE",
+    branch: refName || commandVersion("git", ["branch", "--show-current"]) || "unknown",
+    target_file: targetFile,
+    appended_line: appendLine,
+  };
 }
 
 function runBrowserAudit(task) {
@@ -552,6 +615,9 @@ function main() {
         case "codex_delegate":
           details = runCodexDelegate(task);
           break;
+        case "repo_patch":
+          details = runRepoPatch(task);
+          break;
         default:
           throw new Error(`unsupported task type: ${task.type}`);
       }
@@ -594,11 +660,48 @@ function main() {
     dispatchFile,
   });
 
+  const result = createResultSummary({
+    actionsTaken: [`validated task file ${taskFile}`, `executed task type ${task.type}`, `wrote markdown report ${reportFile}`],
+    actor,
+    artifactName,
+    details,
+    dispatchFile,
+    errors: errorText ? [sanitizeForReport(errorText).slice(-12000)] : [],
+    expectedStatus: task.expected_status,
+    filesChanged: task.type === "repo_patch" && details.target_file ? [details.target_file] : [],
+    finishedAt: new Date().toISOString(),
+    gitSha,
+    nextStep: nextAction(status, failureClass),
+    reportFile,
+    runId,
+    runUrl,
+    startedAt,
+    status,
+    task,
+    taskFile,
+    tests: [
+      {
+        name: "schema validation",
+        status: validateSchema(taskSchemaPath, task).valid ? "pass" : "fail",
+      },
+      {
+        name: "result schema",
+        status: "pending",
+      },
+    ],
+    warnings: status === "DEGRADED" ? ["task completed in degraded mode"] : [],
+  });
+  const resultValidation = validateSchema(resultSchemaPath, result);
+  if (!resultValidation.valid) {
+    throw new Error(`result schema validation failed: ${resultValidation.errors.join("; ")}`);
+  }
+  result.tests = result.tests.map((entry) => (entry.name === "result schema" ? { ...entry, status: "pass" } : entry));
+  writeResultHistory(task.id, result);
   writeLatest(latest);
   const dispatchReport = writeDispatchReport(taskFile, status);
   if (dispatchReport) latest.dispatch_report_file = dispatchReport;
   writeLatest(latest);
-  process.stdout.write(`${JSON.stringify(latest)}\n`);
+  process.stdout.write(`${JSON.stringify({ latest, result })}\n`);
   enforceExpectedStatus(latest);
 }
 

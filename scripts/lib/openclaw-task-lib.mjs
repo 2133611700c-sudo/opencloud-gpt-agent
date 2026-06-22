@@ -11,6 +11,7 @@ export const latestReportFile = path.join(reportsRoot, "openclaw-latest.json");
 export const statusFile = "ops/agent-control/STATUS.md";
 export const taskSchemaPath = "ops/agent-control/OPENCLAW_TASK_SCHEMA.v1.json";
 export const dispatchSchemaPath = "ops/agent-control/OPENCLAW_DISPATCH_SCHEMA.v1.json";
+export const resultSchemaPath = "ops/agent-control/OPENCLAW_RESULT_SCHEMA.v1.json";
 export const supportedTaskTypes = new Set([
   "heartbeat",
   "virtual_browser_audit",
@@ -21,8 +22,10 @@ export const supportedTaskTypes = new Set([
   "outreach_draft",
   "outreach_send_approved",
   "codex_delegate",
+  "repo_patch",
 ]);
 export const allowedStatuses = new Set(["PASS", "FAIL", "BLOCKED", "DEGRADED"]);
+export const resultStatuses = new Set(["success", "failed", "blocked", "partial"]);
 
 const blockedSafetyFlags = [
   "production_code_change",
@@ -188,6 +191,14 @@ export function taskReportDirectory(taskType) {
   return path.join(reportsRoot, taskType);
 }
 
+export function resultHistoryDirectory(taskId) {
+  return path.join(reportsRoot, "history", String(taskId || "unknown"));
+}
+
+export function resultHistoryFile(taskId, timestamp) {
+  return path.join(resultHistoryDirectory(taskId), `${timestamp}.json`);
+}
+
 export function createLatestSummary({
   artifactName,
   error = null,
@@ -207,6 +218,7 @@ export function createLatestSummary({
   dispatchFile = "",
 }) {
   return {
+    schema_version: 1,
     task_id: taskId,
     task_type: taskType,
     task_file: taskFile,
@@ -223,6 +235,79 @@ export function createLatestSummary({
     error,
     evidence_commit_sha: evidenceCommitSha,
     dispatch_file: dispatchFile,
+  };
+}
+
+export function statusToResultStatus(status) {
+  if (status === "PASS") return "success";
+  if (status === "DEGRADED") return "partial";
+  if (status === "BLOCKED") return "blocked";
+  return "failed";
+}
+
+export function createResultSummary({
+  actionsTaken = [],
+  actor,
+  artifactName,
+  details = {},
+  dispatchFile = "",
+  errors = [],
+  expectedStatus,
+  filesChanged = [],
+  finishedAt,
+  gitSha,
+  nextStep = null,
+  reportFile,
+  runId,
+  runUrl,
+  startedAt,
+  status,
+  task,
+  taskFile,
+  tests = [],
+  warnings = [],
+}) {
+  const resultStatus = statusToResultStatus(status);
+  const summary =
+    resultStatus === "success"
+      ? `${task.type} completed successfully`
+      : resultStatus === "partial"
+        ? `${task.type} completed with degraded evidence`
+        : resultStatus === "blocked"
+          ? `${task.type} was blocked before safe completion`
+          : `${task.type} failed during execution`;
+  return {
+    schema_version: 1,
+    task_id: task.id,
+    task_type: task.type,
+    task_file: taskFile,
+    created_by: task.requested_by || actor,
+    objective: task.goal,
+    run_id: runId,
+    run_url: runUrl,
+    status: resultStatus,
+    expected_status: expectedStatus,
+    started_at: startedAt,
+    finished_at: finishedAt,
+    summary,
+    actions_taken: actionsTaken,
+    files_changed: filesChanged,
+    commits: [],
+    pull_request: null,
+    tests,
+    artifacts: [
+      {
+        name: artifactName,
+        report_file: reportFile,
+      },
+    ],
+    warnings,
+    errors,
+    next_step: nextStep,
+    actor,
+    git_sha: gitSha,
+    dispatch_file: dispatchFile,
+    details,
   };
 }
 
@@ -273,6 +358,7 @@ export function ensureReportDirectories() {
   for (const taskType of [...supportedTaskTypes, "dispatch"]) {
     fs.mkdirSync(path.resolve(repoRoot, taskReportDirectory(taskType)), { recursive: true });
   }
+  fs.mkdirSync(path.resolve(repoRoot, reportsRoot, "history"), { recursive: true });
 }
 
 export function loadTask(taskFile) {

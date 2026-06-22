@@ -2,17 +2,18 @@
 
 <!-- OPENCLAW_CURRENT_STATUS:BEGIN -->
 ## OpenClaw Current
-- latest_run_id: 27973535347
+- latest_run_id: 27974251932
 - latest_task_id: OC-CHATGPT-GITHUB-OPENCLAW-E2E-001
-- latest_status: PASS
-- latest_timestamp: 2026-06-22T18:04:47.021Z
-- latest_report: ops/agent-control/reports/repo_patch/20260622T180447Z.md
-- latest_artifact: openclaw-27973535347
-- latest_evidence_commit: 8c304e9b5c3b40656fc609979f439b1a005a2c49
+- latest_status: BLOCKED
+- latest_timestamp: 2026-06-22T18:17:02.157Z
+- latest_report: ops/agent-control/reports/repo_patch/20260622T181702Z.md
+- latest_artifact: openclaw-27974251932
+- latest_evidence_commit: 
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |
 | --- | --- | --- | --- | --- | --- |
+| 2026-06-22T18:17:02.157Z | 27974251932 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-001 | repo_patch | BLOCKED | ops/agent-control/reports/repo_patch/20260622T181702Z.md |
 | 2026-06-22T18:04:47.021Z | 27973535347 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-001 | repo_patch | PASS | ops/agent-control/reports/repo_patch/20260622T180447Z.md |
 | 2026-06-22T18:00:34.228Z | 27973287749 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-001 | repo_patch | PASS | ops/agent-control/reports/repo_patch/20260622T180034Z.md |
 | 2026-06-22T06:42:29.999Z | 27934530183 | OC-EXAMPLE-COM-AUDIT-20260621-01 | virtual_browser_audit | PASS | ops/agent-control/reports/virtual_browser_audit/20260622T064229Z.md |
@@ -32,7 +33,6 @@
 | 2026-05-13T09:12:41.751Z | 20260513T091241Z | OC-OPENCLAW-UNSAFE-BLOCKED-001 | heartbeat | BLOCKED | ops/agent-control/reports/openclaw-heartbeat/20260513T091241Z.md |
 | 2026-05-13T09:10:51.961Z | 20260513T091051Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091051Z.md |
 | 2026-05-19T05:35:48.325Z | 20260519T053548Z | OC-SOURCE-PAGES-TEXT-AUDIT-20260518 | virtual_browser_audit | PASS | ops/agent-control/reports/openclaw-browser-audit/20260519T053548Z.md |
-| 2026-05-19T05:25:52.384Z | 20260519T052552Z | OC-SOURCE-PAGES-AUDIT-20260518 | virtual_browser_audit | PASS | ops/agent-control/reports/openclaw-browser-audit/20260519T052552Z.md |
 <!-- OPENCLAW_CURRENT_STATUS:END -->
 
 ## Goal

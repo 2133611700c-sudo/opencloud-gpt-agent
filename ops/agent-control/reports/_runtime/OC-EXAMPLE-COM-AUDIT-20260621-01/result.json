@@ -1,0 +1,57 @@
+{
+  "summary": {
+    "ok": true,
+    "target": "https://example.com",
+    "generated_at": "2026-06-22T06:42:34.551Z",
+    "pages_checked": 2,
+    "failed_pages": []
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "url": "https://example.com/",
+      "ok": true,
+      "status": 200,
+      "ms": 1343,
+      "title": "Example Domain",
+      "body_text_excerpt": "Example Domain\n\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\n\nLearn more",
+      "body_text_chars": 129,
+      "links": [
+        {
+          "text": "Learn more",
+          "href": "https://iana.org/domains/example"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 1,
+      "buttons": [],
+      "console_errors": [],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-EXAMPLE-COM-AUDIT-20260621-01/desktop-home.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "url": "https://example.com/",
+      "ok": true,
+      "status": 200,
+      "ms": 1307,
+      "title": "Example Domain",
+      "body_text_excerpt": "Example Domain\n\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\n\nLearn more",
+      "body_text_chars": 129,
+      "links": [
+        {
+          "text": "Learn more",
+          "href": "https://iana.org/domains/example"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 1,
+      "buttons": [],
+      "console_errors": [],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-EXAMPLE-COM-AUDIT-20260621-01/mobile-home.png"
+    }
+  ]
+}

@@ -44,6 +44,7 @@ permissions:
   contents: write
   actions: read
   issues: write
+  pull-requests: write
 
 concurrency:
   group: openclaw-task-runner-${{ github.ref }}
@@ -173,15 +174,15 @@ jobs:
           node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ops/agent-control/reports ops/agent-control/STATUS.md
+          git add -A
           if git diff --cached --quiet; then
             echo "evidence_commit_sha=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "ops(agent): add OpenClaw evidence for $(basename "$TASK_FILE" .json)"
-          EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
           for ATTEMPT in 1 2 3; do
             if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
               echo "evidence_commit_sha=${EVIDENCE_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -264,6 +265,50 @@ jobs:
               body,
               labels: ['ops', 'openclaw-alert'],
             });
+
+      - name: Open or update PR
+        if: always() && steps.commit_evidence.outputs.evidence_commit_sha != '' && github.ref_name != 'main'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const task = JSON.parse(fs.readFileSync(process.env.TASK_FILE, 'utf8'));
+            if (task.requires_pr !== true) return;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = `${owner}:${context.ref.replace('refs/heads/', '')}`;
+            const base = String(task.base_branch || 'main');
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head,
+              base,
+            });
+            if (prs.data.length > 0) return;
+            try {
+              await github.rest.pulls.create({
+                owner,
+                repo,
+                title: `[OpenClaw] ${task.id}`,
+                head: context.ref.replace('refs/heads/', ''),
+                base,
+                body: [
+                  `task_id: ${task.id}`,
+                  `task_file: ${process.env.TASK_FILE}`,
+                  `run_url: ${process.env.GITHUB_RUN_URL}`,
+                  `requires_pr: true`,
+                  `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
+                ].join('\n'),
+                maintainer_can_modify: false
+              });
+            } catch (error) {
+              if (error?.status === 403 && /not permitted to create or approve pull requests/i.test(String(error.message || ''))) {
+                core.warning('GitHub Actions cannot create PRs in this repository; create the PR outside Actions.');
+                return;
+              }
+              throw error;
+            }
 
       - name: Enforce expected status
         if: always()
@@ -345,15 +390,15 @@ jobs:
           node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ops/agent-control/reports ops/agent-control/STATUS.md
+          git add -A
           if git diff --cached --quiet; then
             echo "evidence_commit_sha=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "ops(agent): add OpenClaw evidence for $(basename "$TASK_FILE" .json)"
-          EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
           for ATTEMPT in 1 2 3; do
             if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
               echo "evidence_commit_sha=${EVIDENCE_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -436,6 +481,50 @@ jobs:
               body,
               labels: ['ops', 'openclaw-alert'],
             });
+
+      - name: Open or update PR
+        if: always() && steps.commit_evidence.outputs.evidence_commit_sha != '' && github.ref_name != 'main'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const task = JSON.parse(fs.readFileSync(process.env.TASK_FILE, 'utf8'));
+            if (task.requires_pr !== true) return;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = `${owner}:${context.ref.replace('refs/heads/', '')}`;
+            const base = String(task.base_branch || 'main');
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head,
+              base,
+            });
+            if (prs.data.length > 0) return;
+            try {
+              await github.rest.pulls.create({
+                owner,
+                repo,
+                title: `[OpenClaw] ${task.id}`,
+                head: context.ref.replace('refs/heads/', ''),
+                base,
+                body: [
+                  `task_id: ${task.id}`,
+                  `task_file: ${process.env.TASK_FILE}`,
+                  `run_url: ${process.env.GITHUB_RUN_URL}`,
+                  `requires_pr: true`,
+                  `allow_merge: ${task.allow_merge === true ? 'true' : 'false'}`
+                ].join('\n'),
+                maintainer_can_modify: false
+              });
+            } catch (error) {
+              if (error?.status === 403 && /not permitted to create or approve pull requests/i.test(String(error.message || ''))) {
+                core.warning('GitHub Actions cannot create PRs in this repository; create the PR outside Actions.');
+                return;
+              }
+              throw error;
+            }
 
       - name: Enforce expected status
         if: always()

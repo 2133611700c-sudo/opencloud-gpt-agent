@@ -34,25 +34,51 @@ function hostname(value) {
 function concreteUrl(value) {
   try {
     const url = new URL(value);
-    const p = url.pathname.replace(/\/+$/, "").toLowerCase();
-    if (!p || p === "/") return false;
-    if (new Set(["/search", "/job", "/jobs", "/career", "/careers", "/browse", "/results"]).has(p)) return false;
-    return true;
+    const host = url.hostname.toLowerCase();
+    const path = url.pathname.replace(/\/+$/, "");
+    const lower = path.toLowerCase();
+    if (!lower || lower === "/") return false;
+
+    if (host.endsWith("indeed.com")) {
+      return lower === "/viewjob" && Boolean(url.searchParams.get("jk"));
+    }
+    if (host.endsWith("linkedin.com")) {
+      return lower.includes("/jobs/view/");
+    }
+    if (host.endsWith("ziprecruiter.com")) {
+      return lower.includes("/c/") || Boolean(url.searchParams.get("jid"));
+    }
+    if (host.endsWith("glassdoor.com")) {
+      return lower.includes("/job-listing/");
+    }
+    if (host.includes("craigslist.org")) {
+      return /\/\d+\.html$/i.test(lower);
+    }
+
+    const genericRoots = new Set(["/search", "/job", "/jobs", "/career", "/careers", "/browse", "/results"]);
+    if (genericRoots.has(lower)) return false;
+    if (/jobs?[-_/](in|near|los|greater|box|driver)/i.test(lower)) return false;
+    return /\d{5,}/.test(lower) || Boolean(url.searchParams.get("jobid")) || Boolean(url.searchParams.get("id"));
   } catch { return false; }
 }
 
 function relevantTitle(value) {
-  return /(driver|truck|delivery|courier|operator)/i.test(text(value));
+  const title = text(value);
+  if (!/(driver|truck|delivery|courier|operator)/i.test(title)) return false;
+  if (/\bjobs?\b.*\b(in|near)\b/i.test(title)) return false;
+  if (/^\d+[,+]?\s+.*jobs?/i.test(title)) return false;
+  return true;
 }
 
 function variants(query) {
   const q = text(query).replace(/"/g, "");
   return [
-    `${q} jobs Los Angeles`,
     `site:indeed.com/viewjob ${q}`,
-    `site:ziprecruiter.com/jobs ${q}`,
     `site:linkedin.com/jobs/view ${q}`,
+    `site:ziprecruiter.com/c ${q}`,
     `site:glassdoor.com/job-listing ${q}`,
+    `site:losangeles.craigslist.org ${q}`,
+    `${q} hiring Los Angeles`
   ];
 }
 
@@ -89,8 +115,8 @@ for (const baseQuery of queries) {
       if (results.length === 0) rejected.push({ query, reason: "no_results" });
       for (const item of results) {
         if (leads.length >= maxLeads) break;
-        if (!concreteUrl(item.href)) { rejected.push({ query, url: item.href, reason: "generic_url" }); continue; }
-        if (!relevantTitle(item.title)) { rejected.push({ query, url: item.href, reason: "irrelevant_title" }); continue; }
+        if (!concreteUrl(item.href)) { rejected.push({ query, url: item.href, reason: "non_listing_url" }); continue; }
+        if (!relevantTitle(item.title)) { rejected.push({ query, url: item.href, reason: "non_listing_title" }); continue; }
         if (leads.some((x) => x.listing_url === item.href)) continue;
         const parts = item.title.split(/\s+[|\-–—]\s+/).filter(Boolean);
         leads.push({
@@ -114,7 +140,7 @@ for (const baseQuery of queries) {
   }
 }
 const qualityStatus = leads.length > 0 ? "PASS" : "DEGRADED";
-const output = { collected_at: new Date().toISOString(), provider: "duckduckgo_html", quality_status: qualityStatus, valid_leads_count: leads.length, rejected_count: rejected.length, leads, rejected };
+const output = { collected_at: new Date().toISOString(), provider: "duckduckgo_html_strict", quality_status: qualityStatus, valid_leads_count: leads.length, rejected_count: rejected.length, leads, rejected };
 fs.writeFileSync(outFile, JSON.stringify(output, null, 2), "utf8");
-console.log(JSON.stringify({ provider: "duckduckgo_html", quality_status: qualityStatus, valid_leads: leads.length, rejected: rejected.length, outFile }));
+console.log(JSON.stringify({ provider: "duckduckgo_html_strict", quality_status: qualityStatus, valid_leads: leads.length, rejected: rejected.length, outFile }));
 if (leads.length === 0) throw "DEGRADED: no valid concrete job listings collected";

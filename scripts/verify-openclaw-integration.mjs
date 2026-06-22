@@ -23,6 +23,7 @@ const requiredFiles = [
   "scripts/openclaw-task-runner.mjs",
   "scripts/openclaw-virtual-browser-audit.mjs",
   "scripts/create-openclaw-task.mjs",
+  "scripts/read-openclaw-dispatch-request.mjs",
   "scripts/update-openclaw-status.mjs",
 ];
 
@@ -45,6 +46,7 @@ for (const script of [
   "scripts/openclaw-task-runner.mjs",
   "scripts/openclaw-virtual-browser-audit.mjs",
   "scripts/create-openclaw-task.mjs",
+  "scripts/read-openclaw-dispatch-request.mjs",
   "scripts/update-openclaw-status.mjs",
 ]) {
   execFileSync("node", ["--check", script], { cwd: repoRoot, stdio: "inherit" });

@@ -4,7 +4,7 @@
   "requested_by": "ChatGPT",
   "goal": "Verify that OpenClaw returns only concrete public box-truck job listings and rejects blocked or generic pages.",
   "expected_status": "PASS",
-  "status": "locked",
+  "status": "pending",
   "params": {
     "search_queries": [
       "box truck driver jobs Los Angeles",

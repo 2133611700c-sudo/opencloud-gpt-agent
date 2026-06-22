@@ -14,6 +14,6 @@
   "artifact_name": "openclaw-27983040282-0",
   "dedupe_key": "job_lead_collect:dedupe",
   "error": "task dedupe window active (3.9m < 15m)",
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "f84c9ef5ce93012a131f3ae5ffa011a8e31035ec",
   "dispatch_file": ""
 }

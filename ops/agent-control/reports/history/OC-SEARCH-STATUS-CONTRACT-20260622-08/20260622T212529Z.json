@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-SEARCH-STATUS-CONTRACT-20260622-08",
+  "task_type": "job_lead_collect",
+  "task_file": "ops/agent-control/tasks/OC-SEARCH-STATUS-CONTRACT-20260622-05.json",
+  "created_by": "ChatGPT",
+  "objective": "Verify the corrected runner returns DEGRADED rather than FAIL when no valid listings exist.",
+  "run_id": "27985060938",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27985060938",
+  "status": "partial",
+  "expected_status": "DEGRADED",
+  "started_at": "2026-06-22T21:25:29.630Z",
+  "finished_at": "2026-06-22T21:25:30.815Z",
+  "summary": "job_lead_collect completed with degraded evidence",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-SEARCH-STATUS-CONTRACT-20260622-05.json",
+    "executed task type job_lead_collect",
+    "wrote markdown report ops/agent-control/reports/job_lead_collect/20260622T212529Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-27985060938-0",
+      "report_file": "ops/agent-control/reports/job_lead_collect/20260622T212529Z.md"
+    }
+  ],
+  "warnings": [
+    "task completed in degraded mode"
+  ],
+  "errors": [
+    "DEGRADED: no valid concrete job listings collected"
+  ],
+  "next_step": "Inspect the report and rerun only after the root cause is understood.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "c0c9fd0fc44d5ac7c5cdea55997e7ed8a84be506",
+  "dispatch_file": "",
+  "details": {}
+}

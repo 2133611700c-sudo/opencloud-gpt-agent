@@ -1,0 +1,260 @@
+{
+  "collected_at": "2026-06-22T21:25:30.808Z",
+  "quality_status": "DEGRADED",
+  "runner_patched": false,
+  "valid_leads_count": 0,
+  "rejected_count": 50,
+  "leads": [],
+  "rejected": [
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://zenless.hoyoverse.com/en-us/news/124540",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://game8.co/games/Zenless-Zone-Zero",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://www.prydwen.gg/zenless/banners",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-driver-role-123456789 Los Angeles\" jobs",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/news/124540",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.prydwen.gg/zenless/banners",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/news/124540",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.prydwen.gg/zenless/banners",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/news/124540",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.prydwen.gg/zenless/banners",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://zenless.hoyoverse.com/en-us/news/124540",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.prydwen.gg/zenless/banners",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-driver-role-123456789 Los Angeles\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    }
+  ]
+}

@@ -5,9 +5,12 @@
   "description": "Independent OpenClaw execution layer for ChatGPT",
   "license": "UNLICENSED",
   "scripts": {
-    "verify:openclaw": "node scripts/openclaw-acceptance-verify.mjs"
+    "test": "node --test",
+    "verify:openclaw": "node scripts/verify-openclaw-integration.mjs",
+    "verify:openclaw:acceptance": "node scripts/openclaw-acceptance-verify.mjs"
   },
   "devDependencies": {
+    "ajv": "^8.17.1",
     "playwright": "^1.60.0"
   }
 }

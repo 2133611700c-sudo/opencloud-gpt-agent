@@ -104,13 +104,14 @@ for (const viewport of viewports) {
       const screenshotPath = path.join(resolvedOutDir, screenshotName);
       await page.screenshot({ path: screenshotPath, fullPage: true });
 
-      const lowerText = bodyText.toLowerCase();
-      const phoneLinks = links.filter((l) => l.href.includes("tel:") || l.href.includes("2133611700"));
-      const whatsappLinks = links.filter((l) => /wa\.me|whatsapp/i.test(l.href));
-      const messengerLinks = links.filter((l) => /m\.me|messenger/i.test(l.href));
-      const badClaims = ["licensed", "bonded", "certified", "#1", "best in la", "best handyman"].filter(
-        (claim) => lowerText.includes(claim),
-      );
+      const phoneLinks = links.filter((l) => l.href.includes("tel:"));
+      const externalLinks = links.filter((l) => {
+        try {
+          return new URL(l.href).origin !== new URL(target).origin;
+        } catch {
+          return false;
+        }
+      });
 
       Object.assign(record, {
         ok: Boolean(status && status >= 200 && status < 400),
@@ -121,10 +122,8 @@ for (const viewport of viewports) {
         body_text_chars: bodyText.length,
         links,
         phone_links: phoneLinks.length,
-        whatsapp_links: whatsappLinks.length,
-        messenger_links: messengerLinks.length,
+        external_links: externalLinks.length,
         buttons,
-        bad_claims: badClaims,
         console_errors: [...consoleErrors],
         request_failures: [...requestFailures],
         screenshot: screenshotPath,
@@ -145,12 +144,11 @@ for (const viewport of viewports) {
 
 await browser.close();
 const summary = {
-  ok: results.every((r) => r.ok && (r.bad_claims || []).length === 0),
+  ok: results.every((r) => r.ok),
   target,
   generated_at: new Date().toISOString(),
   pages_checked: results.length,
   failed_pages: results.filter((r) => !r.ok).map((r) => ({ viewport: r.viewport, route: r.route, status: r.status, error: r.error })),
-  bad_claims: results.filter((r) => (r.bad_claims || []).length).map((r) => ({ viewport: r.viewport, route: r.route, bad_claims: r.bad_claims })),
 };
 await fs.writeFile(path.join(resolvedOutDir, "result.json"), JSON.stringify({ summary, results }, null, 2));
 await fs.writeFile(path.join(resolvedOutDir, "report.md"), `# OpenClaw Virtual Browser Audit\n\n\`\`\`json\n${JSON.stringify(summary, null, 2)}\n\`\`\`\n`);

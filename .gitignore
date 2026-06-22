@@ -1,5 +1,6 @@
 node_modules/
 npm-debug.log*
+.tmp/
 
 # Local and transient audit outputs (tracked evidence remains in dedicated report dirs)
 ops/agent-control/reports/openclaw-latest.json

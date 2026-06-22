@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencloud-gpt-agent/schemas/openclaw-dispatch-schema-v1.json",
+  "title": "OpenClaw Dispatch Schema v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task_file"],
+  "properties": {
+    "task_file": {
+      "type": "string",
+      "pattern": "^ops/agent-control/tasks/(?!TEMPLATE\\.)[A-Z0-9][A-Z0-9._-]{2,63}\\.json$"
+    },
+    "force_rerun": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

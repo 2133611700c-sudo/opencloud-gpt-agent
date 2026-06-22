@@ -44,6 +44,11 @@ body {
 }
 h1, h2, h3, p { margin-top: 0; }
 .lede { color: var(--muted); max-width: 52ch; }
+.hint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
 .secret-row, .button-row, .panel-head, .run, .run-actions { display: flex; gap: 10px; }
 .secret-row, .button-row, .panel-head, .run { align-items: center; }
 .secret-row input, .task-form input, .task-form textarea, .task-form select {
@@ -62,6 +67,10 @@ button, a {
   color: #fff;
   text-decoration: none;
   cursor: pointer;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 button:hover, a:hover { filter: brightness(0.96); }
 .panel {

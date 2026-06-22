@@ -12,6 +12,7 @@ Phone-first control surface for the OpenCloud supervisor loop.
   - dispatch file commit, or
   - `workflow_dispatch`
 - Reruns or cancels a workflow run
+- Supports both guided form entry and raw task JSON override for advanced task types
 
 ## Required environment variables
 
@@ -30,5 +31,6 @@ Phone-first control surface for the OpenCloud supervisor loop.
 - No token is exposed to client JavaScript.
 - The browser only sends the shared secret to the same-origin API route.
 - The client does not persist the shared secret in `localStorage`, `sessionStorage`, or cookies.
+- The page keeps the shared secret only in current-tab memory and disables launch controls until it is loaded.
 - The GitHub token stays server-side in Vercel environment variables.
 - Prefer a GitHub App installation token in the future; the current implementation is the documented PAT fallback.

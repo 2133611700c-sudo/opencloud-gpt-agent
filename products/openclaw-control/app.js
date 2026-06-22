@@ -8,6 +8,7 @@ const statusGrid = document.querySelector("#status-grid");
 const runsNode = document.querySelector("#runs");
 const logNode = document.querySelector("#log");
 const repoLabel = document.querySelector("#repo-label");
+const interactiveButtons = document.querySelectorAll("button[data-mode], #preview, #refresh");
 let controlSecret = "";
 
 function log(message, data) {
@@ -21,10 +22,23 @@ function readSecret() {
 
 function saveSecret() {
   controlSecret = secretInput.value.trim();
+  updateControls();
+  if (!controlSecret) {
+    log("Control secret cleared from current session.");
+    return;
+  }
   log("Loaded control secret into current session.");
 }
 
+function updateControls() {
+  const hasSecret = Boolean(controlSecret);
+  interactiveButtons.forEach((button) => {
+    button.disabled = !hasSecret;
+  });
+}
+
 async function api(method = "GET", body) {
+  if (!readSecret()) throw new Error("Load the control secret first.");
   const response = await fetch("./api/control", {
     method,
     headers: {
@@ -85,6 +99,14 @@ function renderState(payload) {
 
 function buildTaskPayload(form) {
   const data = new FormData(form);
+  const rawTaskJson = String(data.get("task_json") || "").trim();
+  if (rawTaskJson) {
+    const payload = JSON.parse(rawTaskJson);
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      throw new Error("Raw Task JSON must be a JSON object.");
+    }
+    return payload;
+  }
   return {
     project: data.get("project"),
     type: data.get("type"),
@@ -149,4 +171,4 @@ runsNode.addEventListener("click", async (event) => {
   }
 });
 
-refresh().catch((error) => log("Initial refresh failed.", { error: String(error) }));
+updateControls();

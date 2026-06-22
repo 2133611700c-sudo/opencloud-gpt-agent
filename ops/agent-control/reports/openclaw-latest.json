@@ -14,6 +14,6 @@
   "artifact_name": "openclaw-27983433443-0",
   "dedupe_key": "job_lead_collect:execution_error",
   "error": "Error: Command failed: node scripts/openclaw-job-lead-collector.mjs\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at checkExecSyncError (node:child_process:916:11)\n    at execFileSync (node:child_process:952:15)\n    at runJobLeadCollect (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:274:3)\n    at main (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:615:21)\n    at file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:719:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)",
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "f2ffcc765186ab8954f3588c72d1e42c749c2584",
   "dispatch_file": ""
 }

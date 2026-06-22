@@ -27,5 +27,6 @@ Phone-first control surface for the OpenCloud supervisor loop.
 
 - No token is exposed to client JavaScript.
 - The browser only sends the shared secret to the same-origin API route.
+- The client does not persist the shared secret in `localStorage`, `sessionStorage`, or cookies.
 - The GitHub token stays server-side in Vercel environment variables.
 - Prefer a GitHub App installation token in the future; the current implementation is the documented PAT fallback.

@@ -8,8 +8,7 @@ const statusGrid = document.querySelector("#status-grid");
 const runsNode = document.querySelector("#runs");
 const logNode = document.querySelector("#log");
 const repoLabel = document.querySelector("#repo-label");
-
-const SECRET_KEY = "openclaw-control-secret";
+let controlSecret = "";
 
 function log(message, data) {
   const line = `${new Date().toISOString()} ${message}${data ? `\n${JSON.stringify(data, null, 2)}` : ""}`;
@@ -17,12 +16,12 @@ function log(message, data) {
 }
 
 function readSecret() {
-  return localStorage.getItem(SECRET_KEY) || "";
+  return controlSecret;
 }
 
 function saveSecret() {
-  localStorage.setItem(SECRET_KEY, secretInput.value.trim());
-  log("Saved control secret locally.");
+  controlSecret = secretInput.value.trim();
+  log("Loaded control secret into current session.");
 }
 
 async function api(method = "GET", body) {
@@ -150,5 +149,4 @@ runsNode.addEventListener("click", async (event) => {
   }
 });
 
-secretInput.value = readSecret();
 refresh().catch((error) => log("Initial refresh failed.", { error: String(error) }));

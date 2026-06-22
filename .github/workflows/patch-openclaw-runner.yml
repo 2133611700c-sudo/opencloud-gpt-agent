@@ -1,0 +1,63 @@
+name: Patch OpenClaw Runner Status Contract
+
+on:
+  push:
+    branches:
+      - codex/chatgpt-openclaw-search-fix
+    paths:
+      - .github/workflows/patch-openclaw-runner.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Patch runJobLeadCollect
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('scripts/openclaw-task-runner.mjs')
+          s = p.read_text()
+          old = '''  execFileSync("node", ["scripts/openclaw-job-lead-collector.mjs"], { cwd: repoRoot, stdio: "inherit", env });
+  const collected = readJson(path.relative(repoRoot, outJson));
+  return {
+    mode: "READ_ONLY_PUBLIC_LEAD_COLLECTION",
+    total_collected: Array.isArray(collected.leads) ? collected.leads.length : 0,
+    collection_output_file: path.relative(repoRoot, outJson).replace(/\\\\/g, "/"),
+    leads: Array.isArray(collected.leads) ? collected.leads : [],
+  };'''
+          new = '''  let collectorError = null;
+  try {
+    execFileSync("node", ["scripts/openclaw-job-lead-collector.mjs"], { cwd: repoRoot, stdio: "inherit", env });
+  } catch (error) {
+    collectorError = error;
+  }
+  const collected = readJson(path.relative(repoRoot, outJson));
+  const leads = Array.isArray(collected.leads) ? collected.leads : [];
+  if (leads.length === 0 || collected.quality_status === "DEGRADED") {
+    throw "DEGRADED: no valid concrete job listings collected";
+  }
+  if (collectorError) throw collectorError;
+  return {
+    mode: "READ_ONLY_PUBLIC_LEAD_COLLECTION",
+    quality_status: collected.quality_status || "PASS",
+    total_collected: leads.length,
+    rejected_count: Number(collected.rejected_count || 0),
+    collection_output_file: path.relative(repoRoot, outJson).replace(/\\\\/g, "/"),
+    leads,
+  };'''
+          if old not in s:
+              raise SystemExit('target block not found')
+          p.write_text(s.replace(old, new))
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/openclaw-task-runner.mjs
+          git commit -m "fix(openclaw): preserve collector quality status"
+          git push origin HEAD:codex/chatgpt-openclaw-search-fix

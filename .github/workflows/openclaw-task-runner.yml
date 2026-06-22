@@ -174,15 +174,15 @@ jobs:
           node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ops/agent-control/reports ops/agent-control/STATUS.md
+          git add -A
           if git diff --cached --quiet; then
             echo "evidence_commit_sha=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "ops(agent): add OpenClaw evidence for $(basename "$TASK_FILE" .json)"
-          EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
           for ATTEMPT in 1 2 3; do
             if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
               echo "evidence_commit_sha=${EVIDENCE_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -382,15 +382,15 @@ jobs:
           node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ops/agent-control/reports ops/agent-control/STATUS.md
+          git add -A
           if git diff --cached --quiet; then
             echo "evidence_commit_sha=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "ops(agent): add OpenClaw evidence for $(basename "$TASK_FILE" .json)"
-          EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
           for ATTEMPT in 1 2 3; do
             if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
               echo "evidence_commit_sha=${EVIDENCE_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
               exit 0
             fi

@@ -13,7 +13,7 @@
   "artifact_name": "openclaw-27934057338",
   "dedupe_key": "heartbeat:pass",
   "error": null,
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "e9cd0e6ad154d32c77ea1ffbee99575292647cd6",
   "dispatch_file": "ops/agent-control/dispatch/OC-CHATGPT-INTEGRATION-HEARTBEAT-20260621-01.request.json",
   "dispatch_report_file": "ops/agent-control/reports/dispatch/20260622T063100Z.md"
 }

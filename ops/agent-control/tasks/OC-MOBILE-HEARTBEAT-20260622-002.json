@@ -1,0 +1,19 @@
+{
+  "id": "OC-MOBILE-HEARTBEAT-20260622-002",
+  "type": "heartbeat",
+  "requested_by": "ChatGPT Mobile",
+  "status": "locked",
+  "goal": "Live production control verification after dispatch stabilization",
+  "expected_status": "PASS",
+  "priority": "P2",
+  "created_at": "2026-06-22T06:11:48.868Z",
+  "params": {},
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "OC-SEARCH-STATUS-CONTRACT-20260622-05",
+  "type": "job_lead_collect",
+  "requested_by": "ChatGPT",
+  "goal": "Verify that a search with no valid listings returns DEGRADED rather than FAIL.",
+  "expected_status": "DEGRADED",
+  "status": "pending",
+  "params": {
+    "search_queries": [
+      "zzzz-no-such-box-truck-role-987654321 Los Angeles"
+    ],
+    "seed_urls": [],
+    "max_leads": 3,
+    "location": "Los Angeles, CA",
+    "target_profile": {
+      "read_only_research": true,
+      "contract_test": true
+    }
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

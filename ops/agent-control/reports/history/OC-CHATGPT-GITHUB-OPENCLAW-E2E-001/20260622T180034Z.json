@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-CHATGPT-GITHUB-OPENCLAW-E2E-001",
+  "task_type": "repo_patch",
+  "task_file": "ops/agent-control/tasks/OC-CHATGPT-GITHUB-OPENCLAW-E2E-001.json",
+  "created_by": "ChatGPT supervisor",
+  "objective": "Run a safe branch-only end-to-end ChatGPT -> GitHub -> OpenClaw test.",
+  "run_id": "27973287749",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27973287749",
+  "status": "success",
+  "expected_status": "PASS",
+  "started_at": "2026-06-22T18:00:34.228Z",
+  "finished_at": "2026-06-22T18:00:34.297Z",
+  "summary": "repo_patch completed successfully",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-CHATGPT-GITHUB-OPENCLAW-E2E-001.json",
+    "executed task type repo_patch",
+    "wrote markdown report ops/agent-control/reports/repo_patch/20260622T180034Z.md"
+  ],
+  "files_changed": [
+    "ops/agent-control/e2e-sandbox/chatgpt-github-openclaw.txt"
+  ],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-27973287749",
+      "report_file": "ops/agent-control/reports/repo_patch/20260622T180034Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "next_step": "No action required.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "47d1c692c794462b9f3d8303bd8eaacb7ed31501",
+  "dispatch_file": "ops/agent-control/dispatch/OC-CHATGPT-GITHUB-OPENCLAW-E2E-001-RERUN-2.request.json",
+  "details": {
+    "mode": "REPO_PATCH_APPEND_LINE",
+    "branch": "codex/chatgpt-github-openclaw-e2e",
+    "target_file": "ops/agent-control/e2e-sandbox/chatgpt-github-openclaw.txt",
+    "appended_line": "OC-CHATGPT-GITHUB-OPENCLAW-E2E-001"
+  }
+}

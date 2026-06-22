@@ -1,0 +1,31 @@
+{
+  "id": "OC-SEARCH-BOX-TRUCK-LA-20260622-06",
+  "type": "job_lead_collect",
+  "requested_by": "ChatGPT",
+  "goal": "Collect up to five concrete public box-truck driver job listings in the Los Angeles area using the corrected search collector.",
+  "expected_status": "PASS",
+  "status": "pending",
+  "params": {
+    "search_queries": [
+      "box truck driver Los Angeles CA",
+      "non CDL delivery driver Los Angeles CA",
+      "26 foot truck driver Los Angeles CA"
+    ],
+    "seed_urls": [],
+    "max_leads": 5,
+    "location": "Los Angeles, CA",
+    "target_profile": {
+      "commercial_driving_background": true,
+      "box_truck_interest": true,
+      "read_only_research": true
+    }
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

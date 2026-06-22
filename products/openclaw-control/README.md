@@ -4,7 +4,9 @@ Phone-first control surface for the OpenCloud supervisor loop.
 
 ## What it does
 
-- Reads `ops/agent-control/reports/openclaw-latest.json` from `main`
+- Reads the current OpenClaw status from `main`
+- Uses `ops/agent-control/reports/openclaw-latest.json` when present
+- Falls back to the managed OpenClaw block in `ops/agent-control/STATUS.md`
 - Lists active and recent OpenClaw workflow runs
 - Launches a new task via:
   - dispatch file commit, or

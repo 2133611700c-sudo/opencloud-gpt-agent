@@ -3,6 +3,9 @@ const DEFAULT_REPO = "opencloud-gpt-agent";
 const TASKS_PREFIX = "ops/agent-control/tasks/";
 const DISPATCH_PREFIX = "ops/agent-control/dispatch/";
 const LATEST_FILE = "ops/agent-control/reports/openclaw-latest.json";
+const STATUS_FILE = "ops/agent-control/STATUS.md";
+const STATUS_BLOCK_BEGIN = "<!-- OPENCLAW_CURRENT_STATUS:BEGIN -->";
+const STATUS_BLOCK_END = "<!-- OPENCLAW_CURRENT_STATUS:END -->";
 
 function requireEnv(name, fallback = "") {
   const value = process.env[name] || fallback;
@@ -127,6 +130,15 @@ async function getContent(path) {
   return { sha: data.sha, content };
 }
 
+async function tryGetContent(path) {
+  try {
+    return await getContent(path);
+  } catch (error) {
+    if (String(error.message || "").includes("404")) return null;
+    throw error;
+  }
+}
+
 async function putContent(path, content, message) {
   let sha = undefined;
   try {
@@ -170,15 +182,116 @@ function authorize(req) {
   return provided && provided === expected;
 }
 
+function parseStatusMarkdown(content) {
+  const beginIndex = content.indexOf(STATUS_BLOCK_BEGIN);
+  const endIndex = content.indexOf(STATUS_BLOCK_END);
+  if (beginIndex === -1 || endIndex === -1 || endIndex <= beginIndex) {
+    throw new Error(`Managed OpenClaw status block not found in ${STATUS_FILE}`);
+  }
+
+  const block = content
+    .slice(beginIndex + STATUS_BLOCK_BEGIN.length, endIndex)
+    .trim();
+  const lines = block.split(/\r?\n/);
+  const latest = {};
+  const recentRuns = [];
+  let inRecentRunsTable = false;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    const latestMatch = line.match(/^- ([a-z_]+):\s*(.*)$/i);
+    if (latestMatch) {
+      latest[latestMatch[1]] = latestMatch[2];
+      continue;
+    }
+
+    if (line === "## Recent OpenClaw Runs") {
+      inRecentRunsTable = true;
+      continue;
+    }
+
+    if (!inRecentRunsTable || !line.startsWith("|")) continue;
+    if (line.includes("---")) continue;
+
+    const columns = line
+      .split("|")
+      .slice(1, -1)
+      .map((value) => value.trim());
+    if (columns[0] === "Timestamp") continue;
+    if (columns.length < 6) continue;
+
+    const [timestamp, runId, taskId, type, status, reportFile] = columns;
+    const numericRunId = /^\d+$/.test(runId) ? Number(runId) : runId;
+    recentRuns.push({
+      id: numericRunId,
+      name: taskId,
+      title: taskId,
+      status: status === "PASS" || status === "FAIL" || status === "BLOCKED" ? "completed" : status.toLowerCase(),
+      conclusion: status === "PASS" ? "success" : status === "FAIL" ? "failure" : status === "BLOCKED" ? "cancelled" : null,
+      created_at: timestamp,
+      updated_at: timestamp,
+      url: /^\d+$/.test(runId)
+        ? `https://github.com/${process.env.OPENCLAW_REPO_OWNER || DEFAULT_OWNER}/${process.env.OPENCLAW_REPO_NAME || DEFAULT_REPO}/actions/runs/${runId}`
+        : null,
+      artifacts_url: /^\d+$/.test(runId)
+        ? `https://github.com/${process.env.OPENCLAW_REPO_OWNER || DEFAULT_OWNER}/${process.env.OPENCLAW_REPO_NAME || DEFAULT_REPO}/actions/runs/${runId}#artifacts`
+        : null,
+      task_id: taskId,
+      task_type: type,
+      report_file: reportFile,
+      source: "status_md",
+    });
+  }
+
+  const latestRunId = latest.latest_run_id || "";
+  return {
+    latest: {
+      run_id: /^\d+$/.test(latestRunId) ? Number(latestRunId) : latestRunId || null,
+      task_id: latest.latest_task_id || "",
+      status: latest.latest_status || "UNKNOWN",
+      timestamp_utc: latest.latest_timestamp || "",
+      report_file: latest.latest_report || "",
+      artifact_name: latest.latest_artifact || "",
+      evidence_commit_sha: latest.latest_evidence_commit || "",
+      run_url: /^\d+$/.test(latestRunId)
+        ? `https://github.com/${process.env.OPENCLAW_REPO_OWNER || DEFAULT_OWNER}/${process.env.OPENCLAW_REPO_NAME || DEFAULT_REPO}/actions/runs/${latestRunId}`
+        : "",
+      source: "status_md",
+    },
+    recent_runs_from_status: recentRuns,
+  };
+}
+
+async function getLatestState() {
+  const latestJson = await tryGetContent(LATEST_FILE);
+  if (latestJson) {
+    return {
+      latest: {
+        ...JSON.parse(latestJson.content),
+        source: "openclaw_latest_json",
+      },
+      recent_runs_from_status: [],
+    };
+  }
+  const statusDoc = await getContent(STATUS_FILE);
+  return parseStatusMarkdown(statusDoc.content);
+}
+
 async function getState() {
-  const latest = JSON.parse((await getContent(LATEST_FILE)).content);
+  const state = await getLatestState();
   const runs = await listRuns();
+  const actionRuns = runs.slice(0, 10);
+  const activeRuns = runs.filter((run) => run.status !== "completed");
+  const recentRuns = actionRuns.length ? actionRuns : state.recent_runs_from_status.slice(0, 10);
   return {
     repo: `${process.env.OPENCLAW_REPO_OWNER || DEFAULT_OWNER}/${process.env.OPENCLAW_REPO_NAME || DEFAULT_REPO}`,
     generated_at: new Date().toISOString(),
-    latest,
-    active_runs: runs.filter((run) => run.status !== "completed"),
-    recent_runs: runs.slice(0, 10),
+    latest: state.latest,
+    active_runs: activeRuns,
+    recent_runs: recentRuns,
+    status_source: state.latest.source || "status_md",
   };
 }
 

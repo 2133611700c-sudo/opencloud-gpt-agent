@@ -54,8 +54,8 @@ This is the minimum safe JSON that ChatGPT can create through the GitHub Content
 2. Create the dispatch JSON under `ops/agent-control/dispatch/`.
 3. Push the branch.
 4. Wait for `openclaw-chatgpt-dispatch.yml`.
-5. Check `ops/agent-control/reports/openclaw-latest.json`.
-6. Check `ops/agent-control/STATUS.md`.
+5. Check `ops/agent-control/STATUS.md`.
+6. If present in the repo, also check `ops/agent-control/reports/openclaw-latest.json`.
 
 Notes:
 - If the same push includes both the task JSON and a dispatch JSON for that task, only the dispatch workflow should execute it.

@@ -1,16 +1,16 @@
 {
-  "id": "OC-SEARCH-STATUS-CONTRACT-20260622-05",
+  "id": "OC-SEARCH-STATUS-CONTRACT-20260622-08",
   "type": "job_lead_collect",
   "requested_by": "ChatGPT",
-  "goal": "Verify that a search with no valid listings returns DEGRADED rather than FAIL.",
+  "goal": "Verify the corrected runner returns DEGRADED rather than FAIL when no valid listings exist.",
   "expected_status": "DEGRADED",
   "status": "pending",
   "params": {
     "search_queries": [
-      "zzzz-no-such-box-truck-role-987654321 Los Angeles"
+      "zzzz-no-such-driver-role-123456789 Los Angeles"
     ],
     "seed_urls": [],
-    "max_leads": 3,
+    "max_leads": 1,
     "location": "Los Angeles, CA",
     "target_profile": {
       "read_only_research": true,

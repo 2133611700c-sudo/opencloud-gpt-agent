@@ -461,7 +461,11 @@ function enforceExpectedStatus(latest) {
     process.exitCode = 1;
     return;
   }
-  if (latest.status === latest.expected_status || latest.status === "PASS" || latest.status === "DEGRADED") {
+  if (latest.status === "BLOCKED") {
+    process.exitCode = 3;
+    return;
+  }
+  if (latest.status === "PASS" || latest.status === "DEGRADED") {
     process.exitCode = 0;
     return;
   }

@@ -14,6 +14,6 @@
   "artifact_name": "openclaw-27976797433-0",
   "dedupe_key": "codex_delegate:execution_error",
   "error": "Error: DEGRADED: codex CLI not available on worker\n    at runCodexDelegate (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:420:11)\n    at main (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:627:21)\n    at file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:719:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)",
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "6cc7d0a6ca39f14b5461dbff8c4e61c920f734ec",
   "dispatch_file": ""
 }

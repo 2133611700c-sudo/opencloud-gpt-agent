@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-SEARCH-BOX-TRUCK-LA-20260622-09",
+  "task_type": "job_lead_collect",
+  "task_file": "ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-06.json",
+  "created_by": "ChatGPT",
+  "objective": "Collect up to five concrete public box-truck driver job listings in the Los Angeles area using DuckDuckGo collector v3.",
+  "run_id": "27985308653",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27985308653",
+  "status": "success",
+  "expected_status": "PASS",
+  "started_at": "2026-06-22T21:30:05.151Z",
+  "finished_at": "2026-06-22T21:30:06.195Z",
+  "summary": "job_lead_collect completed successfully",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-06.json",
+    "executed task type job_lead_collect",
+    "wrote markdown report ops/agent-control/reports/job_lead_collect/20260622T213005Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-27985308653-0",
+      "report_file": "ops/agent-control/reports/job_lead_collect/20260622T213005Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "next_step": "No action required.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "702c41acade145fe850ac2c704a2fbd94a5ecfd1",
+  "dispatch_file": "",
+  "details": {
+    "mode": "READ_ONLY_PUBLIC_LEAD_COLLECTION",
+    "quality_status": "PASS",
+    "total_collected": 5,
+    "rejected_count": 1,
+    "collection_output_file": "ops/agent-control/reports/job_lead_collect/27985308653/collected-leads.json",
+    "leads": [
+      {
+        "company": "Indeed",
+        "role": "Box Truck Driver Jobs, Employment in Los Angeles, CA | Indeed",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.indeed.com/q-Box-Truck-Driver-l-Los-Angeles,-CA-jobs.html",
+        "source_site": "www.indeed.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.indeed.com/q-Box-Truck-Driver-l-Los-Angeles,-CA-jobs.html",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      },
+      {
+        "company": "Indeed",
+        "role": "Box Truck Jobs, Employment in Los Angeles, CA | Indeed",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.indeed.com/q-Box-Truck-l-Los-Angeles,-CA-jobs.html",
+        "source_site": "www.indeed.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.indeed.com/q-Box-Truck-l-Los-Angeles,-CA-jobs.html",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      },
+      {
+        "company": "LinkedIn",
+        "role": "128 Box Truck jobs in Los Angeles Metropolitan Area - LinkedIn",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.linkedin.com/jobs/box-truck-jobs-los-angeles-metropolitan-area",
+        "source_site": "www.linkedin.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.linkedin.com/jobs/box-truck-jobs-los-angeles-metropolitan-area",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      },
+      {
+        "company": "ZipRecruiter",
+        "role": "$18-$60/hr Box Truck Driver Jobs in Los Angeles, CA - ZipRecruiter",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.ziprecruiter.com/Jobs/Box-Truck-Driver/-in-Los-Angeles,CA?lk=RpvnmDuhakowCjXzNXWevg",
+        "source_site": "www.ziprecruiter.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.ziprecruiter.com/Jobs/Box-Truck-Driver/-in-Los-Angeles,CA?lk=RpvnmDuhakowCjXzNXWevg",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      },
+      {
+        "company": "LinkedIn",
+        "role": "1,000+ Box Truck jobs in Greater Los Angeles - LinkedIn",
+        "location": "Los Angeles, CA",
+        "listing_url": "https://www.linkedin.com/jobs/box-truck-jobs-greater-los-angeles-ca",
+        "source_site": "www.linkedin.com",
+        "compensation": "NOT_SPECIFIED",
+        "experience_requirements": "NOT_SPECIFIED",
+        "license_requirements": "NOT_SPECIFIED",
+        "public_contact_channel_if_visible": "NOT_SPECIFIED",
+        "apply_url": "https://www.linkedin.com/jobs/box-truck-jobs-greater-los-angeles-ca",
+        "target_profile": {
+          "commercial_driving_background": true,
+          "box_truck_interest": true,
+          "read_only_research": true
+        },
+        "validation": {
+          "concrete_listing_url": true,
+          "concrete_role": true
+        }
+      }
+    ]
+  }
+}

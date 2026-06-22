@@ -6,7 +6,8 @@
   "params": {
     "target_origin": "https://www.bls.gov",
     "routes": "/emp/tables/fastest-growing-occupations.htm,/ooh/healthcare/home-health-aides-and-personal-care-aides.htm,/ooh/installation-maintenance-and-repair/home.htm,/ooh/construction-and-extraction/home.htm",
-    "max_attempts": 2
+    "max_attempts": 2,
+    "execution_nonce": "2026-06-21T17:15:00-07:00"
   },
   "safety": {
     "customer_action": false,

@@ -207,7 +207,7 @@ jobs:
           fi
           node -e "import('./scripts/lib/openclaw-task-lib.mjs').then((m) => { const latest = m.updateLatestEvidenceCommit(process.argv[1]); m.writeJson(m.latestReportFile, latest); });" "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
           node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE" --evidence-commit-sha "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
-          git add ops/agent-control/reports/openclaw-latest.json ops/agent-control/STATUS.md
+          git add -f ops/agent-control/reports/openclaw-latest.json ops/agent-control/STATUS.md
           if git diff --cached --quiet; then
             exit 0
           fi
@@ -379,7 +379,7 @@ jobs:
           fi
           node -e "import('./scripts/lib/openclaw-task-lib.mjs').then((m) => { const latest = m.updateLatestEvidenceCommit(process.argv[1]); m.writeJson(m.latestReportFile, latest); });" "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
           node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE" --evidence-commit-sha "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
-          git add ops/agent-control/reports/openclaw-latest.json ops/agent-control/STATUS.md
+          git add -f ops/agent-control/reports/openclaw-latest.json ops/agent-control/STATUS.md
           if git diff --cached --quiet; then
             exit 0
           fi

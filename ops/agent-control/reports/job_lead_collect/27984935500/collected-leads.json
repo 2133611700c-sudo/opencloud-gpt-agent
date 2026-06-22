@@ -1,0 +1,260 @@
+{
+  "collected_at": "2026-06-22T21:23:20.395Z",
+  "quality_status": "DEGRADED",
+  "runner_patched": true,
+  "valid_leads_count": 0,
+  "rejected_count": 50,
+  "leads": [],
+  "rejected": [
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435684",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435683",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-bootstrap-no-such-driver-role-987654321\" jobs",
+      "url": "https://www.merriam-webster.com/wordplay/why-is-the-letter-z-associated-with-sleeping",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435684",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435683",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.merriam-webster.com/wordplay/why-is-the-letter-z-associated-with-sleeping",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435684",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435683",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.merriam-webster.com/wordplay/why-is-the-letter-z-associated-with-sleeping",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435684",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435683",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.merriam-webster.com/wordplay/why-is-the-letter-z-associated-with-sleeping",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=ATsLeb7cb7A",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://zenless.hoyoverse.com/en-us/main",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.youtube.com/watch?v=pJW_mMCWgeM",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.cyberdefinitions.com/definitions/ZZZ",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://en.wikipedia.org/wiki/Zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435684",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://game8.co/games/Zenless-Zone-Zero/archives/435683",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.facebook.com/ZZZ.Official.EN/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://emojipedia.org/zzz",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-bootstrap-no-such-driver-role-987654321\"",
+      "url": "https://www.merriam-webster.com/wordplay/why-is-the-letter-z-associated-with-sleeping",
+      "reason": "irrelevant_title"
+    }
+  ]
+}

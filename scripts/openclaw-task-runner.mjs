@@ -271,13 +271,25 @@ function runJobLeadCollect(task) {
     OPENCLAW_COLLECT_OUT_DIR: outDir,
     OPENCLAW_COLLECT_OUT_FILE: outJson,
   };
-  execFileSync("node", ["scripts/openclaw-job-lead-collector.mjs"], { cwd: repoRoot, stdio: "inherit", env });
+  let collectorError = null;
+  try {
+    execFileSync("node", ["scripts/openclaw-job-lead-collector.mjs"], { cwd: repoRoot, stdio: "inherit", env });
+  } catch (error) {
+    collectorError = error;
+  }
   const collected = readJson(path.relative(repoRoot, outJson));
+  const leads = Array.isArray(collected.leads) ? collected.leads : [];
+  if (leads.length === 0 || collected.quality_status === "DEGRADED") {
+    throw "DEGRADED: no valid concrete job listings collected";
+  }
+  if (collectorError) throw collectorError;
   return {
     mode: "READ_ONLY_PUBLIC_LEAD_COLLECTION",
-    total_collected: Array.isArray(collected.leads) ? collected.leads.length : 0,
+    quality_status: collected.quality_status || "PASS",
+    total_collected: leads.length,
+    rejected_count: Number(collected.rejected_count || 0),
     collection_output_file: path.relative(repoRoot, outJson).replace(/\\/g, "/"),
-    leads: Array.isArray(collected.leads) ? collected.leads : [],
+    leads,
   };
 }
 

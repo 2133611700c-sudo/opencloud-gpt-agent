@@ -1,0 +1,150 @@
+{
+  "summary": {
+    "ok": false,
+    "target": "https://www.bls.gov",
+    "generated_at": "2026-06-22T05:14:46.901Z",
+    "pages_checked": 4,
+    "failed_pages": [
+      {
+        "viewport": "desktop",
+        "route": "/emp/tables/fastest-growing-occupations.htm",
+        "status": 403
+      },
+      {
+        "viewport": "desktop",
+        "route": "/ooh/installation-maintenance-and-repair/home.htm",
+        "status": 403
+      },
+      {
+        "viewport": "mobile",
+        "route": "/emp/tables/fastest-growing-occupations.htm",
+        "status": 403
+      },
+      {
+        "viewport": "mobile",
+        "route": "/ooh/installation-maintenance-and-repair/home.htm",
+        "status": 403
+      }
+    ]
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/emp/tables/fastest-growing-occupations.htm",
+      "url": "https://www.bls.gov/emp/tables/fastest-growing-occupations.htm",
+      "ok": false,
+      "status": 403,
+      "ms": 1331,
+      "title": "Access Denied",
+      "body_text_excerpt": "Bureau of Labor Statistics\nAccess Denied\n\nThe BLS is committed to providing data promptly and according to established schedules. Automated retrieval programs (commonly called \"robots\" or \"bots\") can cause delays and interfere with other customers' timely access to information. Therefore, bot activity that doesn't conform to BLS usage policy is prohibited.\n\nWe apologize for any inconvenience. If you believe we have made an error, please contact us.\n\nPlease contact your administrator with the error code: 0.b0643017.1782105281.29826264",
+      "body_text_chars": 539,
+      "links": [
+        {
+          "text": "",
+          "href": "https://www.bls.gov/"
+        },
+        {
+          "text": "contact us",
+          "href": "https://data.bls.gov/forms/opb.htm?akamai-0.b0643017.1782105281.29826264"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 1,
+      "buttons": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-BLS-VIRTUAL-BROWSER-AUDIT-001/desktop-emp_tables_fastest-growing-occupations.htm.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ooh/installation-maintenance-and-repair/home.htm",
+      "url": "https://www.bls.gov/ooh/installation-maintenance-and-repair/home.htm",
+      "ok": false,
+      "status": 403,
+      "ms": 1284,
+      "title": "Access Denied",
+      "body_text_excerpt": "Bureau of Labor Statistics\nAccess Denied\n\nThe BLS is committed to providing data promptly and according to established schedules. Automated retrieval programs (commonly called \"robots\" or \"bots\") can cause delays and interfere with other customers' timely access to information. Therefore, bot activity that doesn't conform to BLS usage policy is prohibited.\n\nWe apologize for any inconvenience. If you believe we have made an error, please contact us.\n\nPlease contact your administrator with the error code: 0.b0643017.1782105282.298266d6",
+      "body_text_chars": 539,
+      "links": [
+        {
+          "text": "",
+          "href": "https://www.bls.gov/"
+        },
+        {
+          "text": "contact us",
+          "href": "https://data.bls.gov/forms/opb.htm?akamai-0.b0643017.1782105282.298266d6"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 1,
+      "buttons": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-BLS-VIRTUAL-BROWSER-AUDIT-001/desktop-ooh_installation-maintenance-and-repair_home.htm.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/emp/tables/fastest-growing-occupations.htm",
+      "url": "https://www.bls.gov/emp/tables/fastest-growing-occupations.htm",
+      "ok": false,
+      "status": 403,
+      "ms": 1294,
+      "title": "Access Denied",
+      "body_text_excerpt": "Bureau of Labor Statistics\nAccess Denied\n\nThe BLS is committed to providing data promptly and according to established schedules. Automated retrieval programs (commonly called \"robots\" or \"bots\") can cause delays and interfere with other customers' timely access to information. Therefore, bot activity that doesn't conform to BLS usage policy is prohibited.\n\nWe apologize for any inconvenience. If you believe we have made an error, please contact us.\n\nPlease contact your administrator with the error code: 0.b0643017.1782105284.29826c89",
+      "body_text_chars": 539,
+      "links": [
+        {
+          "text": "",
+          "href": "https://www.bls.gov/"
+        },
+        {
+          "text": "contact us",
+          "href": "https://data.bls.gov/forms/opb.htm?akamai-0.b0643017.1782105284.29826c89"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 1,
+      "buttons": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-BLS-VIRTUAL-BROWSER-AUDIT-001/mobile-emp_tables_fastest-growing-occupations.htm.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ooh/installation-maintenance-and-repair/home.htm",
+      "url": "https://www.bls.gov/ooh/installation-maintenance-and-repair/home.htm",
+      "ok": false,
+      "status": 403,
+      "ms": 1288,
+      "title": "Access Denied",
+      "body_text_excerpt": "Bureau of Labor Statistics\nAccess Denied\n\nThe BLS is committed to providing data promptly and according to established schedules. Automated retrieval programs (commonly called \"robots\" or \"bots\") can cause delays and interfere with other customers' timely access to information. Therefore, bot activity that doesn't conform to BLS usage policy is prohibited.\n\nWe apologize for any inconvenience. If you believe we have made an error, please contact us.\n\nPlease contact your administrator with the error code: 0.b0643017.1782105285.29827180",
+      "body_text_chars": 539,
+      "links": [
+        {
+          "text": "",
+          "href": "https://www.bls.gov/"
+        },
+        {
+          "text": "contact us",
+          "href": "https://data.bls.gov/forms/opb.htm?akamai-0.b0643017.1782105285.29827180"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 1,
+      "buttons": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-BLS-VIRTUAL-BROWSER-AUDIT-001/mobile-ooh_installation-maintenance-and-repair_home.htm.png"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "OC-BLS-VIRTUAL-BROWSER-AUDIT-001",
+  "type": "virtual_browser_audit",
+  "requested_by": "ChatGPT",
+  "goal": "Read-only official source audit for BLS routes",
+  "expected_status": "PASS",
+  "params": {
+    "target_origin": "https://www.bls.gov",
+    "routes": [
+      "/emp/tables/fastest-growing-occupations.htm",
+      "/ooh/installation-maintenance-and-repair/home.htm"
+    ],
+    "max_attempts": 2
+  },
+  "safety": {
+    "customer_action": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

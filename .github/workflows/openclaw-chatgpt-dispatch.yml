@@ -1,0 +1,71 @@
+name: OpenClaw ChatGPT Dispatch
+
+on:
+  push:
+    paths:
+      - "ops/agent-control/dispatch/*.json"
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+
+concurrency:
+  group: openclaw-chatgpt-dispatch-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      requests: ${{ steps.collect.outputs.requests }}
+      has_requests: ${{ steps.collect.outputs.has_requests }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Collect dispatch requests
+        id: collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t REQUEST_FILES < <(git diff-tree --no-commit-id --name-only --diff-filter=AM -r "$GITHUB_SHA" -- 'ops/agent-control/dispatch/*.json' | sort -u)
+          if [ "${#REQUEST_FILES[@]}" -eq 0 ] && [ -n "${{ github.event.before }}" ]; then
+            mapfile -t REQUEST_FILES < <(git diff --name-only --diff-filter=AM "${{ github.event.before }}" "$GITHUB_SHA" -- 'ops/agent-control/dispatch/*.json' | sort -u)
+          fi
+          if [ "${#REQUEST_FILES[@]}" -eq 0 ]; then
+            echo 'requests=[]' >> "$GITHUB_OUTPUT"
+            echo 'has_requests=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          REQUESTS_JSON='[]'
+          for REQUEST_FILE in "${REQUEST_FILES[@]}"; do
+            ENTRY="$(node scripts/read-openclaw-dispatch-request.mjs "$REQUEST_FILE")"
+            REQUESTS_JSON="$(jq -c --argjson entry "$ENTRY" '. + [$entry]' <<<"$REQUESTS_JSON")"
+          done
+          echo "requests=$REQUESTS_JSON" >> "$GITHUB_OUTPUT"
+          echo 'has_requests=true' >> "$GITHUB_OUTPUT"
+
+  run-dispatch:
+    if: needs.prepare.outputs.has_requests == 'true'
+    needs: prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        request: ${{ fromJson(needs.prepare.outputs.requests) }}
+    uses: ./.github/workflows/openclaw-task-runner.yml
+    with:
+      task_file: ${{ matrix.request.task_file }}
+      force_rerun: ${{ matrix.request.force_rerun }}
+      dispatch_file: ${{ matrix.request.dispatch_file }}

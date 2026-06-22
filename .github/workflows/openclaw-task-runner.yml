@@ -1,28 +1,48 @@
 name: OpenClaw Task Runner
 
 on:
+  workflow_call:
+    inputs:
+      task_file:
+        required: true
+        type: string
+      force_rerun:
+        required: false
+        type: boolean
+        default: false
+      run_windows_smoke:
+        required: false
+        type: boolean
+        default: false
+      dispatch_file:
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       task_file:
-        description: Optional task file path under ops/agent-control/tasks
-        required: false
-        default: ""
+        description: Task file path under ops/agent-control/tasks
+        required: true
+        type: string
       force_rerun:
-        description: Bypass dedupe window
+        description: Bypass task dedupe
         required: false
         default: "false"
+        type: choice
+        options: ["false", "true"]
       run_windows_smoke:
-        description: Run an additional Windows heartbeat smoke job
+        description: Run optional Windows smoke verification
         required: false
-        default: "true"
+        default: "false"
+        type: choice
+        options: ["false", "true"]
   push:
-    branches:
-      - main
     paths:
       - "ops/agent-control/tasks/*.json"
 
 permissions:
   contents: write
+  actions: read
   issues: write
 
 concurrency:
@@ -30,28 +50,72 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  run-task:
+  prepare-push:
+    if: github.event_name == 'push' && inputs.task_file == ''
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      TASK_FILE: ${{ github.event.inputs.task_file || '' }}
-      FORCE_RERUN: ${{ github.event.inputs.force_rerun || 'false' }}
-      DEDUPE_WINDOW_MINUTES: "15"
-      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
+    outputs:
+      task_files: ${{ steps.collect.outputs.task_files }}
+      has_tasks: ${{ steps.collect.outputs.has_tasks }}
     steps:
       - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Collect changed task files
+        id: collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t TASK_FILES < <(git diff-tree --no-commit-id --name-only --diff-filter=AM -r "$GITHUB_SHA" -- 'ops/agent-control/tasks/*.json' | sort -u)
+          if [ "${#TASK_FILES[@]}" -eq 0 ] && [ -n "${{ github.event.before }}" ]; then
+            mapfile -t TASK_FILES < <(git diff --name-only --diff-filter=AM "${{ github.event.before }}" "$GITHUB_SHA" -- 'ops/agent-control/tasks/*.json' | sort -u)
+          fi
+          FILTERED=()
+          for FILE in "${TASK_FILES[@]}"; do
+            BASENAME="$(basename "$FILE")"
+            if [[ "$BASENAME" == TEMPLATE.* ]]; then
+              continue
+            fi
+            FILTERED+=("$FILE")
+          done
+          if [ "${#FILTERED[@]}" -eq 0 ]; then
+            echo 'task_files=[]' >> "$GITHUB_OUTPUT"
+            echo 'has_tasks=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s\n' "${FILTERED[@]}" | jq -R . | jq -s -c . | sed 's/^/task_files=/' >> "$GITHUB_OUTPUT"
+          echo 'has_tasks=true' >> "$GITHUB_OUTPUT"
+
+  run-push-tasks:
+    if: github.event_name == 'push' && inputs.task_file == '' && needs.prepare-push.outputs.has_tasks == 'true'
+    needs: prepare-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        task_file: ${{ fromJson(needs.prepare-push.outputs.task_files) }}
+    env:
+      TASK_FILE: ${{ matrix.task_file }}
+      FORCE_RERUN: "false"
+      OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
+      OPENCLAW_ARTIFACT_NAME: openclaw-${{ github.run_id }}-${{ strategy.job-index }}
+      DEDUPE_WINDOW_MINUTES: "15"
+      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup Node 22 LTS
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - name: Setup Node
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
-          cache: npm
 
-      - name: Install npm dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright Chromium
@@ -62,207 +126,331 @@ jobs:
         continue-on-error: true
         run: node scripts/openclaw-task-runner.mjs
 
-      - name: Normalize artifact filenames
+      - name: Upload artifacts
         if: always()
-        run: |
-          find ops/openclaw/reports/virtual-browser -type f -name '*:*' -print0 2>/dev/null | while IFS= read -r -d '' f; do
-            d="$(dirname "$f")"
-            b="$(basename "$f" | tr ':' '_')"
-            mv "$f" "$d/$b"
-            echo "renamed $f"
-          done
-
-      - name: Upload OpenClaw artifacts
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v5
         with:
-          name: openclaw-task-runner-${{ github.run_id }}-ubuntu
+          name: ${{ env.OPENCLAW_ARTIFACT_NAME }}
           path: |
-            ops/agent-control/reports/openclaw-heartbeat/
-            ops/agent-control/reports/worker-heartbeat/
-            ops/agent-control/reports/openclaw-browser-audit/
-            ops/agent-control/reports/job-lead-audit/
-            ops/agent-control/reports/outreach-draft/
-            ops/openclaw/reports/virtual-browser/
-            ops/agent-control/reports/openclaw-latest.json
-          retention-days: 30
+            ops/agent-control/reports/
+            ops/openclaw/reports/
           if-no-files-found: warn
-
-      - name: Update STATUS.md
-        if: always()
-        run: |
-          TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          STATUS_VAL="$(jq -r '.status // "UNKNOWN"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo UNKNOWN)"
-          TASK_ID_VAL="$(jq -r '.task_id // "unknown"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo unknown)"
-          TASK_TYPE_VAL="$(jq -r '.task_type // "unknown"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo unknown)"
-          REPORT_VAL="$(jq -r '.report_file // "n/a"' "${OPENCLAW_LATEST_FILE}" 2>/dev/null || echo n/a)"
-          {
-            echo ""
-            echo "## Latest OpenClaw Run"
-            echo "- timestamp_utc: ${TS}"
-            echo "- run_id: ${GITHUB_RUN_ID}"
-            echo "- run_url: ${GITHUB_RUN_URL}"
-            echo "- task_id: ${TASK_ID_VAL}"
-            echo "- task_type: ${TASK_TYPE_VAL}"
-            echo "- status: ${STATUS_VAL}"
-            echo "- report_file: ${REPORT_VAL}"
-          } >> ops/agent-control/STATUS.md
+          retention-days: 30
 
       - name: Commit evidence
-        if: ${{ always() && github.ref == 'refs/heads/main' }}
-        continue-on-error: true
+        if: always()
+        id: commit_evidence
+        shell: bash
         run: |
-          if [ -n "$(git status --short -- ops/agent-control/reports/openclaw-heartbeat ops/agent-control/reports/worker-heartbeat ops/agent-control/reports/openclaw-browser-audit ops/agent-control/reports/job-lead-audit ops/agent-control/reports/outreach-draft ops/openclaw/reports)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            if [ -d "ops/agent-control/reports/openclaw-heartbeat" ]; then
-              git add -A ops/agent-control/reports/openclaw-heartbeat
-            fi
-            if [ -d "ops/agent-control/reports/openclaw-browser-audit" ]; then
-              git add -A ops/agent-control/reports/openclaw-browser-audit
-            fi
-            if [ -d "ops/agent-control/reports/worker-heartbeat" ]; then
-              git add -A ops/agent-control/reports/worker-heartbeat
-            fi
-            if [ -d "ops/agent-control/reports/job-lead-audit" ]; then
-              git add -A ops/agent-control/reports/job-lead-audit
-            fi
-            if [ -d "ops/agent-control/reports/outreach-draft" ]; then
-              git add -A ops/agent-control/reports/outreach-draft
-            fi
-            if [ -d "ops/openclaw/reports/virtual-browser" ]; then
-              git add -A ops/openclaw/reports/virtual-browser
-            fi
-            if git diff --cached --quiet; then
-              echo "No staged evidence changes after git add."
-            else
-              git commit -m "ops(agent): add OpenClaw task evidence"
-              for attempt in 1 2 3; do
-                if git pull --rebase origin main && git push origin HEAD:main; then
-                  echo "Evidence push succeeded on attempt ${attempt}."
-                  break
-                fi
-                git rebase --abort || true
-                if [ "${attempt}" = "3" ]; then
-                  echo "Evidence push skipped after retries due concurrent main updates."
-                fi
-              done
-            fi
-          else
-            echo "No evidence changes to commit."
+          set -euo pipefail
+          cp "$OPENCLAW_LATEST_FILE" /tmp/openclaw-latest-current.json
+          git fetch origin "${GITHUB_REF_NAME}"
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/STATUS.md" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/STATUS.md
           fi
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/reports/openclaw-latest.json" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/reports/openclaw-latest.json
+          fi
+          cp /tmp/openclaw-latest-current.json "$OPENCLAW_LATEST_FILE"
+          node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/agent-control/reports ops/agent-control/STATUS.md
+          if git diff --cached --quiet; then
+            echo "evidence_commit_sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "ops(agent): add OpenClaw evidence for $(basename "$TASK_FILE" .json)"
+          EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
+          for ATTEMPT in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "evidence_commit_sha=${EVIDENCE_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git rebase --abort || true
+            if [ "$ATTEMPT" -eq 3 ]; then
+              echo "Evidence push failed after 3 attempts."
+              exit 1
+            fi
+            sleep "$ATTEMPT"
+          done
 
-      - name: Open/update alert issue (dedupe 12h)
+      - name: Finalize latest and STATUS with evidence commit
+        if: always() && steps.commit_evidence.outputs.evidence_commit_sha != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "${GITHUB_REF_NAME}"
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/STATUS.md" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/STATUS.md
+          fi
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/reports/openclaw-latest.json" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/reports/openclaw-latest.json
+          fi
+          node -e "import('./scripts/lib/openclaw-task-lib.mjs').then((m) => { const latest = m.updateLatestEvidenceCommit(process.argv[1]); m.writeJson(m.latestReportFile, latest); });" "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
+          node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE" --evidence-commit-sha "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
+          git add ops/agent-control/reports/openclaw-latest.json ops/agent-control/STATUS.md
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "ops(agent): finalize OpenClaw evidence metadata"
+          for ATTEMPT in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            git rebase --abort || true
+            if [ "$ATTEMPT" -eq 3 ]; then
+              echo "Final metadata push failed after 3 attempts."
+              exit 1
+            fi
+            sleep "$ATTEMPT"
+          done
+
+      - name: Open or update alert issue
         if: always()
         continue-on-error: true
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
-        env:
-          OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
-            const latestPath = process.env.OPENCLAW_LATEST_FILE;
+            const latestPath = 'ops/agent-control/reports/openclaw-latest.json';
             if (!fs.existsSync(latestPath)) return;
-            let latest;
-            try {
-              latest = JSON.parse(fs.readFileSync(latestPath, 'utf8'));
-            } catch {
-              return;
-            }
-            const status = latest.status || 'UNKNOWN';
-            if (!['FAIL', 'BLOCKED', 'DEGRADED'].includes(status)) return;
-            const dedupeKey = latest.dedupe_key || `${latest.task_type || 'task'}:${status}`;
-            const title = `[OpenClaw] ${status} ${dedupeKey}`;
+            const latest = JSON.parse(fs.readFileSync(latestPath, 'utf8'));
+            if (!['FAIL', 'BLOCKED', 'DEGRADED'].includes(latest.status)) return;
+            const title = `[OpenClaw] ${latest.status} ${latest.dedupe_key}`;
             const search = await github.rest.search.issuesAndPullRequests({
               q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open "${title}"`
             });
             const body = [
-              `status: ${status}`,
+              `status: ${latest.status}`,
               `task_id: ${latest.task_id}`,
               `task_type: ${latest.task_type}`,
-              `dedupe_key: ${dedupeKey}`,
-              `run: ${process.env.GITHUB_RUN_URL}`,
-              `report: ${latest.report_file}`
+              `task_file: ${latest.task_file}`,
+              `run: ${latest.run_url}`,
+              `report: ${latest.report_file}`,
+              `error: ${latest.error || 'none'}`
             ].join('\n');
             if (search.data.items.length > 0) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: search.data.items[0].number,
-                body
-              });
-            } else {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title,
                 body,
-                labels: ['ops', 'openclaw-alert']
               });
+              return;
             }
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['ops', 'openclaw-alert'],
+            });
 
       - name: Enforce expected status
         if: always()
+        shell: bash
         run: |
-          if [ ! -f "${OPENCLAW_LATEST_FILE}" ]; then
-            echo "Missing ${OPENCLAW_LATEST_FILE}"
+          set -euo pipefail
+          if [ ! -f "$OPENCLAW_LATEST_FILE" ]; then
+            echo "Missing $OPENCLAW_LATEST_FILE"
             exit 1
           fi
-          STATUS="$(jq -r '.status // "UNKNOWN"' "${OPENCLAW_LATEST_FILE}")"
-          EXPECTED_STATUS="$(jq -r '.expected_status // "PASS"' "${OPENCLAW_LATEST_FILE}")"
-          TASK_TYPE="$(jq -r '.task_type // "unknown"' "${OPENCLAW_LATEST_FILE}")"
-          if [ "${STATUS}" = "${EXPECTED_STATUS}" ]; then
-            echo "Status ${STATUS} matches expected_status ${EXPECTED_STATUS}."
+          STATUS="$(jq -r '.status' "$OPENCLAW_LATEST_FILE")"
+          EXPECTED="$(jq -r '.expected_status' "$OPENCLAW_LATEST_FILE")"
+          if [ "$STATUS" = "$EXPECTED" ] || [ "$STATUS" = "PASS" ] || [ "$STATUS" = "DEGRADED" ]; then
             exit 0
           fi
-          if [ "${TASK_TYPE}" = "synthetic_fail" ] && [ "${STATUS}" = "FAIL" ]; then
-            echo "Synthetic fail drill behaved as expected."
-            exit 0
-          fi
-          if [ "${STATUS}" = "PASS" ] || [ "${STATUS}" = "DEGRADED" ]; then
-            exit 0
-          fi
-          echo "Task status is ${STATUS}; expected ${EXPECTED_STATUS}"
+          echo "Task ended with $STATUS; expected $EXPECTED"
           exit 1
 
-  windows-smoke:
-    needs: run-task
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_windows_smoke != 'false' }}
-    runs-on: windows-latest
-    timeout-minutes: 15
+  run-direct-task:
+    if: inputs.task_file != '' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     env:
-      FORCE_RERUN: ${{ github.event.inputs.force_rerun || 'false' }}
+      TASK_FILE: ${{ inputs.task_file || github.event.inputs.task_file }}
+      FORCE_RERUN: ${{ (inputs.force_rerun || false) && 'true' || github.event.inputs.force_rerun || 'false' }}
+      DISPATCH_FILE: ${{ inputs.dispatch_file || '' }}
+      OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest.json
+      OPENCLAW_ARTIFACT_NAME: openclaw-${{ github.run_id }}
       DEDUPE_WINDOW_MINUTES: "15"
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      TASK_FILE: ops/agent-control/tasks/OC-OPENCLAW-HEARTBEAT-001.json
-      OPENCLAW_LATEST_FILE: ops/agent-control/reports/openclaw-latest-windows-heartbeat.json
     steps:
       - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup Node 22 LTS
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - name: Setup Node
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
-          cache: npm
 
-      - name: Install npm dependencies
-        shell: pwsh
+      - name: Install dependencies
         run: npm ci
 
-      - name: Run Windows heartbeat smoke
-        shell: pwsh
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Run OpenClaw task
+        id: run_task
+        continue-on-error: true
         run: node scripts/openclaw-task-runner.mjs
 
-      - name: Upload Windows smoke artifacts
+      - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v5
         with:
-          name: openclaw-task-runner-${{ github.run_id }}-windows-smoke
+          name: ${{ env.OPENCLAW_ARTIFACT_NAME }}
           path: |
-            ops/agent-control/reports/openclaw-heartbeat/
-            ops/agent-control/reports/openclaw-latest-windows-heartbeat.json
-          retention-days: 30
+            ops/agent-control/reports/
+            ops/openclaw/reports/
           if-no-files-found: warn
+          retention-days: 30
+
+      - name: Commit evidence
+        if: always()
+        id: commit_evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "$OPENCLAW_LATEST_FILE" /tmp/openclaw-latest-current.json
+          git fetch origin "${GITHUB_REF_NAME}"
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/STATUS.md" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/STATUS.md
+          fi
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/reports/openclaw-latest.json" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/reports/openclaw-latest.json
+          fi
+          cp /tmp/openclaw-latest-current.json "$OPENCLAW_LATEST_FILE"
+          node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/agent-control/reports ops/agent-control/STATUS.md
+          if git diff --cached --quiet; then
+            echo "evidence_commit_sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "ops(agent): add OpenClaw evidence for $(basename "$TASK_FILE" .json)"
+          EVIDENCE_COMMIT_SHA="$(git rev-parse HEAD)"
+          for ATTEMPT in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "evidence_commit_sha=${EVIDENCE_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git rebase --abort || true
+            if [ "$ATTEMPT" -eq 3 ]; then
+              echo "Evidence push failed after 3 attempts."
+              exit 1
+            fi
+            sleep "$ATTEMPT"
+          done
+
+      - name: Finalize latest and STATUS with evidence commit
+        if: always() && steps.commit_evidence.outputs.evidence_commit_sha != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "${GITHUB_REF_NAME}"
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/STATUS.md" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/STATUS.md
+          fi
+          if git show "origin/${GITHUB_REF_NAME}:ops/agent-control/reports/openclaw-latest.json" >/dev/null 2>&1; then
+            git checkout "origin/${GITHUB_REF_NAME}" -- ops/agent-control/reports/openclaw-latest.json
+          fi
+          node -e "import('./scripts/lib/openclaw-task-lib.mjs').then((m) => { const latest = m.updateLatestEvidenceCommit(process.argv[1]); m.writeJson(m.latestReportFile, latest); });" "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
+          node scripts/update-openclaw-status.mjs --latest "$OPENCLAW_LATEST_FILE" --evidence-commit-sha "${{ steps.commit_evidence.outputs.evidence_commit_sha }}"
+          git add ops/agent-control/reports/openclaw-latest.json ops/agent-control/STATUS.md
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "ops(agent): finalize OpenClaw evidence metadata"
+          for ATTEMPT in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            git rebase --abort || true
+            if [ "$ATTEMPT" -eq 3 ]; then
+              echo "Final metadata push failed after 3 attempts."
+              exit 1
+            fi
+            sleep "$ATTEMPT"
+          done
+
+      - name: Open or update alert issue
+        if: always()
+        continue-on-error: true
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const latestPath = 'ops/agent-control/reports/openclaw-latest.json';
+            if (!fs.existsSync(latestPath)) return;
+            const latest = JSON.parse(fs.readFileSync(latestPath, 'utf8'));
+            if (!['FAIL', 'BLOCKED', 'DEGRADED'].includes(latest.status)) return;
+            const title = `[OpenClaw] ${latest.status} ${latest.dedupe_key}`;
+            const search = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open "${title}"`
+            });
+            const body = [
+              `status: ${latest.status}`,
+              `task_id: ${latest.task_id}`,
+              `task_type: ${latest.task_type}`,
+              `task_file: ${latest.task_file}`,
+              `run: ${latest.run_url}`,
+              `report: ${latest.report_file}`,
+              `error: ${latest.error || 'none'}`
+            ].join('\n');
+            if (search.data.items.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: search.data.items[0].number,
+                body,
+              });
+              return;
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['ops', 'openclaw-alert'],
+            });
+
+      - name: Enforce expected status
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f "$OPENCLAW_LATEST_FILE" ]; then
+            echo "Missing $OPENCLAW_LATEST_FILE"
+            exit 1
+          fi
+          STATUS="$(jq -r '.status' "$OPENCLAW_LATEST_FILE")"
+          EXPECTED="$(jq -r '.expected_status' "$OPENCLAW_LATEST_FILE")"
+          if [ "$STATUS" = "$EXPECTED" ] || [ "$STATUS" = "PASS" ] || [ "$STATUS" = "DEGRADED" ]; then
+            exit 0
+          fi
+          echo "Task ended with $STATUS; expected $EXPECTED"
+          exit 1
+
+  windows-smoke:
+    if: (inputs.task_file != '' || github.event_name == 'workflow_dispatch') && (inputs.run_windows_smoke == true || github.event.inputs.run_windows_smoke == 'true')
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify integration
+        run: node scripts/verify-openclaw-integration.mjs

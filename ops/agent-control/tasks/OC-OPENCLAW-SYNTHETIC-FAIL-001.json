@@ -6,9 +6,7 @@
   "expected_status": "FAIL",
   "params": {},
   "safety": {
-    "production_code_change": false,
     "customer_action": false,
-    "secrets_required": false,
     "public_posting": false,
     "paid_ads_change": false,
     "destructive_action": false

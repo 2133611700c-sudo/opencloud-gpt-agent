@@ -1,4 +1,39 @@
-# Status
+# OpenClaw Status
+
+<!-- OPENCLAW_CURRENT_STATUS:BEGIN -->
+## OpenClaw Current
+- latest_run_id: 27923773505
+- latest_task_id: OC-BLS-VIRTUAL-BROWSER-AUDIT-001
+- latest_status: FAIL
+- latest_timestamp: 2026-06-22T01:18:42.614Z
+- latest_report: ops/agent-control/reports/virtual_browser_audit/20260622T011842Z.md
+- latest_artifact: openclaw-27923773505-0
+- latest_evidence_commit: 615e4415948b3e31a8eb8230ca986c16ca76f20c
+
+## Recent OpenClaw Runs
+| Timestamp | Run ID | Task ID | Type | Status | Report |
+| --- | --- | --- | --- | --- | --- |
+| 2026-06-22T01:18:42.614Z | 27923773505 | OC-BLS-VIRTUAL-BROWSER-AUDIT-001 | virtual_browser_audit | FAIL | ops/agent-control/reports/virtual_browser_audit/20260622T011842Z.md |
+| 2026-05-22T18:23:21.584Z | 20260522T182321Z | OC-TEST-20260522 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260522T182321Z.md |
+| 2026-05-19T05:25:00.662Z | 20260519T052500Z | OC-OPENCLAW-AUTOTEST-20260518 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260519T052500Z.md |
+| 2026-05-16T22:35:28.073Z | 20260516T223528Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260516T223528Z.md |
+| 2026-05-16T22:11:21.989Z | 20260516T221121Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260516T221121Z.md |
+| 2026-05-13T09:19:37.837Z | 20260513T091937Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091937Z.md |
+| 2026-05-13T09:19:04.742Z | 20260513T091904Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091904Z.md |
+| 2026-05-13T09:16:17.839Z | 20260513T091617Z | OC-OPENCLAW-UNSAFE-BLOCKED-001 | heartbeat | BLOCKED | ops/agent-control/reports/openclaw-heartbeat/20260513T091617Z.md |
+| 2026-05-13T09:15:39.936Z | 20260513T091539Z | OC-OPENCLAW-SYNTHETIC-FAIL-001 | synthetic_fail | FAIL | ops/agent-control/reports/openclaw-heartbeat/20260513T091539Z.md |
+| 2026-05-13T09:13:25.954Z | 20260513T091325Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091325Z.md |
+| 2026-05-13T09:12:41.751Z | 20260513T091241Z | OC-OPENCLAW-UNSAFE-BLOCKED-001 | heartbeat | BLOCKED | ops/agent-control/reports/openclaw-heartbeat/20260513T091241Z.md |
+| 2026-05-13T09:10:51.961Z | 20260513T091051Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091051Z.md |
+| 2026-05-19T05:35:48.325Z | 20260519T053548Z | OC-SOURCE-PAGES-TEXT-AUDIT-20260518 | virtual_browser_audit | PASS | ops/agent-control/reports/openclaw-browser-audit/20260519T053548Z.md |
+| 2026-05-19T05:25:52.384Z | 20260519T052552Z | OC-SOURCE-PAGES-AUDIT-20260518 | virtual_browser_audit | PASS | ops/agent-control/reports/openclaw-browser-audit/20260519T052552Z.md |
+| 2026-05-16T21:50:20.122Z | 20260516T215020Z | chatgpt-t3ps-live-audit-20260516-001 | virtual_browser_audit | PASS | ops/agent-control/reports/openclaw-browser-audit/20260516T215020Z.md |
+| 2026-05-14T07:48:40.165Z | 20260514T074840Z | t3ps-live-browser-contour-20260514T074803Z | virtual_browser_audit | PASS | ops/agent-control/reports/openclaw-browser-audit/20260514T074840Z.md |
+| 2026-05-14T07:41:01.915Z | 20260514T074101Z | MESSENGINFO_DOMAIN_WWW_AUDIT_2026-05-13 | virtual_browser_audit | FAIL | ops/agent-control/reports/openclaw-browser-audit/20260514T074101Z.md |
+| 2026-05-14T03:53:04.740Z | 20260514T035304Z | MESSENGINFO_DOMAIN_WWW_AUDIT_RERUN_2026-05-13_2 | virtual_browser_audit | FAIL | ops/agent-control/reports/openclaw-browser-audit/20260514T035304Z.md |
+| 2026-05-14T03:49:43.606Z | 20260514T034943Z | MESSENGINFO_DOMAIN_WWW_AUDIT_RERUN_2026-05-13_1 | virtual_browser_audit | FAIL | ops/agent-control/reports/openclaw-browser-audit/20260514T034943Z.md |
+| 2026-05-14T03:03:52.840Z | 20260514T030352Z | MESSENGINFO_DOMAIN_WWW_AUDIT_2026-05-13 | virtual_browser_audit | FAIL | ops/agent-control/reports/openclaw-browser-audit/20260514T030352Z.md |
+<!-- OPENCLAW_CURRENT_STATUS:END -->
 
 ## Goal
 Prepare OpenClaw Cloud Agent as external execution hands for ChatGPT with evidence-based closure.

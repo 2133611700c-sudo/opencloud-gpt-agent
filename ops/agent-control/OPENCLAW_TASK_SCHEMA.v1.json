@@ -3,33 +3,169 @@
   "$id": "https://opencloud-gpt-agent/schemas/openclaw-task-schema-v1.json",
   "title": "OpenClaw Task Schema v1",
   "type": "object",
-  "required": ["id", "type", "requested_by", "goal", "safety", "expected_status"],
+  "additionalProperties": false,
+  "required": ["id", "type", "requested_by", "goal", "params", "safety", "expected_status"],
   "properties": {
-    "id": { "type": "string", "minLength": 3, "maxLength": 120, "pattern": "^[A-Za-z0-9._:-]+$" },
+    "id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
     "type": {
       "type": "string",
-      "enum": ["heartbeat", "virtual_browser_audit", "synthetic_fail", "worker_heartbeat", "job_lead_collect", "job_lead_audit", "outreach_draft", "outreach_send_approved", "codex_delegate", "repo_audit", "repo_patch", "supabase_check", "synthetic_lead_check", "regression_check"]
+      "enum": [
+        "heartbeat",
+        "virtual_browser_audit",
+        "synthetic_fail",
+        "worker_heartbeat",
+        "job_lead_collect",
+        "job_lead_audit",
+        "outreach_draft",
+        "outreach_send_approved",
+        "codex_delegate",
+        "repo_audit",
+        "repo_patch",
+        "supabase_check",
+        "synthetic_lead_check",
+        "regression_check"
+      ]
     },
-    "requested_by": { "type": "string", "minLength": 2, "maxLength": 80 },
-    "goal": { "type": "string", "minLength": 10, "maxLength": 2000 },
-    "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
-    "created_at": { "type": "string" },
-    "status": { "type": "string", "enum": ["pending", "locked", "running", "completed", "failed", "blocked", "degraded"] },
-    "expected_status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "DEGRADED"] },
-    "params": { "type": "object" },
+    "requested_by": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80
+    },
+    "goal": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 2000
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["P0", "P1", "P2", "P3"]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "locked", "running", "completed", "failed", "blocked", "degraded"]
+    },
+    "params": {
+      "type": "object"
+    },
     "safety": {
       "type": "object",
-      "required": ["production_code_change", "customer_action", "secrets_required", "public_posting", "paid_ads_change", "destructive_action"],
+      "additionalProperties": false,
+      "required": ["customer_action", "public_posting", "paid_ads_change", "destructive_action"],
       "properties": {
-        "production_code_change": { "type": "boolean" },
-        "customer_action": { "type": "boolean" },
-        "secrets_required": { "type": "boolean" },
-        "public_posting": { "type": "boolean" },
-        "paid_ads_change": { "type": "boolean" },
-        "destructive_action": { "type": "boolean" }
-      },
-      "additionalProperties": true
+        "production_code_change": {
+          "type": "boolean"
+        },
+        "customer_action": {
+          "type": "boolean",
+          "const": false
+        },
+        "secrets_required": {
+          "type": "boolean"
+        },
+        "public_posting": {
+          "type": "boolean",
+          "const": false
+        },
+        "paid_ads_change": {
+          "type": "boolean",
+          "const": false
+        },
+        "destructive_action": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "expected_status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "BLOCKED", "DEGRADED"]
     }
   },
-  "additionalProperties": true
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "heartbeat"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "params": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "synthetic_fail"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "params": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "virtual_browser_audit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "params": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["target_origin", "routes", "max_attempts"],
+            "properties": {
+              "target_origin": {
+                "type": "string",
+                "pattern": "^https://[^/?#]+$"
+              },
+              "routes": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 20,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "pattern": "^/(?!/)(?!.*\\.\\.)[^\\s]*$"
+                }
+              },
+              "max_attempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

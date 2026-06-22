@@ -1,12 +1,12 @@
 {
-  "id": "OC-OPENCLAW-BROWSER-AUDIT-001",
+  "id": "OC-TEMPLATE-VIRTUAL-BROWSER-AUDIT",
   "type": "virtual_browser_audit",
   "requested_by": "ChatGPT",
-  "goal": "Run browser audit for core handyandfriend.com routes with screenshot and console/network evidence.",
+  "goal": "Read-only official source audit",
   "expected_status": "PASS",
   "params": {
-    "target_origin": "https://handyandfriend.com",
-    "routes": ["/", "/book", "/pricing", "/services", "/messenger"],
+    "target_origin": "https://www.example.gov",
+    "routes": ["/"],
     "max_attempts": 2
   },
   "safety": {

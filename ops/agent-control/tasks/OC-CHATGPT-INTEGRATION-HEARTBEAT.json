@@ -1,8 +1,8 @@
 {
-  "id": "OC-OPENCLAW-HEARTBEAT-001",
+  "id": "OC-CHATGPT-INTEGRATION-HEARTBEAT",
   "type": "heartbeat",
   "requested_by": "ChatGPT",
-  "goal": "Prove OpenClaw cloud runner health and evidence commit path in independent opencloud-gpt-agent repo.",
+  "goal": "Verify task ingestion, push dispatch, runner execution, evidence report, artifact, status update, and evidence commit.",
   "expected_status": "PASS",
   "params": {},
   "safety": {

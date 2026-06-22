@@ -33,6 +33,11 @@ gh workflow run openclaw-task-runner.yml \
 4. Review `ops/agent-control/reports/openclaw-latest.json`.
 5. Review `ops/agent-control/STATUS.md`.
 
+## Verified runs
+
+- Heartbeat via dispatch succeeded on run `27923731780` with artifact `openclaw-27923731780`, report `ops/agent-control/reports/heartbeat/20260622T011707Z.md`, and evidence commit `9fcedf995939cd41cc87fffa0af72cdc9e7d2267`.
+- BLS virtual browser audit executed on run `27923773505`, produced artifact `openclaw-27923773505-0` and report `ops/agent-control/reports/virtual_browser_audit/20260622T011842Z.md`, and truthfully failed because all audited BLS routes returned `403`.
+
 ## Current blockers to watch
 
 - Evidence metadata still requires a second bot commit because the evidence commit SHA is only known after the first evidence push.

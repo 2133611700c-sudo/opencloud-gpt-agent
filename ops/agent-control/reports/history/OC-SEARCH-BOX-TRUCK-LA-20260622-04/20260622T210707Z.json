@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-SEARCH-BOX-TRUCK-LA-20260622-04",
+  "task_type": "job_lead_collect",
+  "task_file": "ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-04.json",
+  "created_by": "ChatGPT",
+  "objective": "Run a clean end-to-end verification of OpenClaw job search v2 and return only concrete public box-truck driver listings in Los Angeles.",
+  "run_id": "27984038731",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27984038731",
+  "status": "failed",
+  "expected_status": "PASS",
+  "started_at": "2026-06-22T21:07:07.685Z",
+  "finished_at": "2026-06-22T21:07:08.381Z",
+  "summary": "job_lead_collect failed during execution",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-04.json",
+    "executed task type job_lead_collect",
+    "wrote markdown report ops/agent-control/reports/job_lead_collect/20260622T210707Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-27984038731-0",
+      "report_file": "ops/agent-control/reports/job_lead_collect/20260622T210707Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [
+    "Error: Command failed: node scripts/openclaw-job-lead-collector.mjs\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at checkExecSyncError (node:child_process:916:11)\n    at execFileSync (node:child_process:952:15)\n    at runJobLeadCollect (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:274:3)\n    at main (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:615:21)\n    at file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:719:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+  ],
+  "next_step": "Inspect the report and rerun only after the root cause is understood.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "6eb302a0afe1d28f0454b43afc6a68a296211b29",
+  "dispatch_file": "",
+  "details": {}
+}

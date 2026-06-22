@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OpenClaw Control</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230a7a66'/%3E%3Cpath d='M18 34c0-9.94 8.06-18 18-18h10v8H36c-5.52 0-10 4.48-10 10s4.48 10 10 10h10v8H36c-9.94 0-18-8.06-18-18Z' fill='%23fff'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
@@ -12,11 +13,11 @@
         <p class="eyebrow">Phone-first supervisor console</p>
         <h1>OpenClaw Control</h1>
         <p class="lede">Launch tasks, watch runs, review evidence, and rerun failures without a local terminal.</p>
-        <div class="secret-row">
+        <form id="secret-form" class="secret-row">
           <input id="secret" type="password" placeholder="Control secret">
-          <button id="save-secret" type="button">Load Key</button>
+          <button id="save-secret" type="submit">Load Key</button>
           <button id="refresh" type="button">Refresh</button>
-        </div>
+        </form>
         <p id="secret-hint" class="hint">Load the shared key first. The page keeps it only in this tab session.</p>
       </header>
 

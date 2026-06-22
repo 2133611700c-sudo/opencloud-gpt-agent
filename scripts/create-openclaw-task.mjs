@@ -37,6 +37,7 @@ const task = {
   id,
   type: "virtual_browser_audit",
   requested_by: "ChatGPT",
+  status: "pending",
   goal,
   expected_status: "PASS",
   params: {

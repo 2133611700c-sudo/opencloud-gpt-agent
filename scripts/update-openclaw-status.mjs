@@ -3,7 +3,6 @@ import {
   latestReportFile,
   readJson,
   readText,
-  recentRunEntries,
   statusFile,
   writeText,
 } from "./lib/openclaw-task-lib.mjs";
@@ -32,12 +31,68 @@ function mergeStatus(existing, block) {
   return `${block}\n\n${existing}`;
 }
 
+function parseExistingRows(existing) {
+  const beginIndex = existing.indexOf(BEGIN);
+  const endIndex = existing.indexOf(END);
+  if (beginIndex === -1 || endIndex === -1 || endIndex <= beginIndex) return [];
+  const block = existing.slice(beginIndex, endIndex);
+  const lines = block.split("\n");
+  const rows = [];
+  for (const line of lines) {
+    if (!line.startsWith("|")) continue;
+    if (line.includes("Timestamp") || line.includes("---")) continue;
+    const cells = line.split("|").slice(1, -1).map((cell) => cell.trim());
+    if (cells.length !== 6) continue;
+    rows.push({
+      timestamp_utc: cells[0],
+      run_id: cells[1],
+      task_id: cells[2],
+      task_type: cells[3],
+      status: cells[4],
+      report_file: cells[5],
+    });
+  }
+  return rows;
+}
+
+function mergeRecentRows(latest, existingRows, limit = 20) {
+  const merged = [
+    {
+      timestamp_utc: latest.timestamp_utc || "",
+      run_id: String(latest.run_id || ""),
+      task_id: latest.task_id || "",
+      task_type: latest.task_type || "",
+      status: latest.status || "",
+      report_file: latest.report_file || "",
+    },
+    ...existingRows,
+  ];
+  const deduped = [];
+  const seen = new Set();
+  for (const entry of merged) {
+    const key = [entry.timestamp_utc, entry.run_id, entry.task_id, entry.report_file].join("|");
+    if (!entry.task_id || seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(entry);
+    if (deduped.length >= limit) break;
+  }
+  return deduped;
+}
+
 const latestPath = readFlag("--latest") || latestReportFile;
 const evidenceCommitSha = readFlag("--evidence-commit-sha") || "";
 const latest = readJson(latestPath);
 if (evidenceCommitSha) latest.evidence_commit_sha = evidenceCommitSha;
 
-const rows = recentRunEntries(20);
+const existing = (() => {
+  try {
+    return readText(statusFile);
+  } catch {
+    return "";
+  }
+})();
+
+const rows = mergeRecentRows(latest, parseExistingRows(existing), 20);
 const block = [
   BEGIN,
   "## OpenClaw Current",
@@ -55,13 +110,5 @@ const block = [
   ...rows.map((entry) => `| ${entry.timestamp_utc} | ${entry.run_id} | ${entry.task_id} | ${entry.task_type} | ${entry.status} | ${entry.report_file} |`),
   END,
 ].join("\n");
-
-const existing = (() => {
-  try {
-    return readText(statusFile);
-  } catch {
-    return "";
-  }
-})();
 
 writeText(statusFile, `${mergeStatus(existing, block).replace(/\n{3,}/g, "\n\n").trimEnd()}\n`);

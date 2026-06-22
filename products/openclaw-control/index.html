@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenClaw Control</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">Phone-first supervisor console</p>
+        <h1>OpenClaw Control</h1>
+        <p class="lede">Launch tasks, watch runs, review evidence, and rerun failures without a local terminal.</p>
+        <div class="secret-row">
+          <input id="secret" type="password" placeholder="Control secret">
+          <button id="save-secret" type="button">Save Key</button>
+          <button id="refresh" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <section class="panel status-panel">
+        <div class="panel-head">
+          <h2>System</h2>
+          <span id="repo-label" class="pill">repo</span>
+        </div>
+        <div id="status-grid" class="status-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>New Task</h2>
+          <span class="pill">dispatch or workflow</span>
+        </div>
+        <form id="task-form" class="task-form">
+          <label>Project<input name="project" placeholder="opencloud-gpt-agent"></label>
+          <label>Task Type
+            <select name="type">
+              <option value="virtual_browser_audit">virtual_browser_audit</option>
+              <option value="heartbeat">heartbeat</option>
+              <option value="worker_heartbeat">worker_heartbeat</option>
+            </select>
+          </label>
+          <label>Task ID<input name="id" placeholder="OC-MOBILE-BLS-AUDIT-001"></label>
+          <label>Goal<textarea name="goal" rows="3" placeholder="Read-only official source audit for BLS routes"></textarea></label>
+          <label>Target Origin<input name="target_origin" placeholder="https://www.bls.gov"></label>
+          <label>Routes<input name="routes" placeholder="/,/ooh/installation-maintenance-and-repair/home.htm"></label>
+          <label>Max Attempts<input name="max_attempts" type="number" min="1" max="5" value="2"></label>
+          <label>Expected Status
+            <select name="expected_status">
+              <option value="PASS">PASS</option>
+              <option value="BLOCKED">BLOCKED</option>
+              <option value="FAIL">FAIL</option>
+              <option value="DEGRADED">DEGRADED</option>
+            </select>
+          </label>
+          <label>User Comment<textarea name="comment" rows="2" placeholder="Optional operator note"></textarea></label>
+          <div class="button-row">
+            <button type="submit" data-mode="dispatch">Run via Dispatch</button>
+            <button type="submit" data-mode="workflow_dispatch">Run via Workflow</button>
+            <button id="preview" type="button">Check Without Launch</button>
+          </div>
+        </form>
+        <pre id="preview-output" class="preview"></pre>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Runs</h2>
+          <span class="pill">active + recent</span>
+        </div>
+        <div id="runs"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Log</h2>
+          <span class="pill">operator output</span>
+        </div>
+        <pre id="log" class="preview"></pre>
+      </section>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+  </html>

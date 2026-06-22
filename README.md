@@ -17,6 +17,8 @@ Primary task path:
 Secondary paths:
 
 - Direct task push to `ops/agent-control/tasks/*.json` triggers `openclaw-task-runner.yml`.
+- Direct task push only auto-runs tasks with `"status": "pending"`.
+- If the same push also adds a dispatch request for that task, the direct task push path is skipped to avoid duplicate execution.
 - Manual dispatch is available through GitHub CLI:
 
 ```bash

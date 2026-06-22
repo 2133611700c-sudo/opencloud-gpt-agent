@@ -71,10 +71,28 @@ jobs:
           if [ "${#TASK_FILES[@]}" -eq 0 ] && [ -n "${{ github.event.before }}" ]; then
             mapfile -t TASK_FILES < <(git diff --name-only --diff-filter=AM "${{ github.event.before }}" "$GITHUB_SHA" -- 'ops/agent-control/tasks/*.json' | sort -u)
           fi
+          mapfile -t DISPATCH_FILES < <(git diff-tree --no-commit-id --name-only --diff-filter=AM -r "$GITHUB_SHA" -- 'ops/agent-control/dispatch/*.json' | sort -u)
+          if [ "${#DISPATCH_FILES[@]}" -eq 0 ] && [ -n "${{ github.event.before }}" ]; then
+            mapfile -t DISPATCH_FILES < <(git diff --name-only --diff-filter=AM "${{ github.event.before }}" "$GITHUB_SHA" -- 'ops/agent-control/dispatch/*.json' | sort -u)
+          fi
+          DISPATCH_TASK_FILES=()
+          for DISPATCH_FILE in "${DISPATCH_FILES[@]}"; do
+            TASK_FILE="$(node -e "const fs=require('node:fs'); const payload=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); process.stdout.write(String(payload.task_file || '').trim());" "$DISPATCH_FILE")"
+            if [ -n "$TASK_FILE" ]; then
+              DISPATCH_TASK_FILES+=("$TASK_FILE")
+            fi
+          done
           FILTERED=()
           for FILE in "${TASK_FILES[@]}"; do
             BASENAME="$(basename "$FILE")"
             if [[ "$BASENAME" == TEMPLATE.* ]]; then
+              continue
+            fi
+            if printf '%s\n' "${DISPATCH_TASK_FILES[@]:-}" | grep -Fxq "$FILE"; then
+              continue
+            fi
+            TASK_STATUS="$(node -e "const fs=require('node:fs'); const payload=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); process.stdout.write(String(payload.status || '').trim());" "$FILE")"
+            if [ "$TASK_STATUS" != "pending" ]; then
               continue
             fi
             FILTERED+=("$FILE")

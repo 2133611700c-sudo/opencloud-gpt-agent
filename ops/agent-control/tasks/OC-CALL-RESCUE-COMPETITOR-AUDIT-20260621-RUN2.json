@@ -1,0 +1,18 @@
+{
+  "id": "OC-CALL-RESCUE-COMPETITOR-AUDIT-20260621-RUN2",
+  "type": "virtual_browser_audit",
+  "requested_by": "ChatGPT supervisor for Sergii",
+  "goal": "Collect read-only browser evidence from CallRail public product and pricing pages relevant to Call Rescue Kit: AI voice answering, missed-call recovery, lead qualification, appointment booking, call attribution, pricing visibility, and compliance claims. Record only visible, verifiable facts and page failures.",
+  "params": {
+    "target_origin": "https://www.callrail.com",
+    "routes": "/voice-assist,/pricing,/features/conversation-intelligence,/features/call-tracking",
+    "max_attempts": 2
+  },
+  "safety": {
+    "customer_action": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  },
+  "expected_status": "PASS"
+}

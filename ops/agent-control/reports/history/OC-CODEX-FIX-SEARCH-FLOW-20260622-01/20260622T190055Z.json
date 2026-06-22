@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-CODEX-FIX-SEARCH-FLOW-20260622-01",
+  "task_type": "codex_delegate",
+  "task_file": "ops/agent-control/tasks/OC-CODEX-FIX-SEARCH-FLOW-20260622-01.json",
+  "created_by": "ChatGPT",
+  "objective": "Fix the ChatGPT -> GitHub -> OpenClaw search-task flow so ChatGPT can create a branch-first task and dispatch it without writing task placeholders to main.",
+  "run_id": "27976797433",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27976797433",
+  "status": "failed",
+  "expected_status": "PASS",
+  "started_at": "2026-06-22T19:00:55.786Z",
+  "finished_at": "2026-06-22T19:00:55.852Z",
+  "summary": "codex_delegate failed during execution",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-CODEX-FIX-SEARCH-FLOW-20260622-01.json",
+    "executed task type codex_delegate",
+    "wrote markdown report ops/agent-control/reports/codex_delegate/20260622T190055Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-27976797433-0",
+      "report_file": "ops/agent-control/reports/codex_delegate/20260622T190055Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [
+    "Error: DEGRADED: codex CLI not available on worker\n    at runCodexDelegate (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:420:11)\n    at main (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:627:21)\n    at file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:719:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+  ],
+  "next_step": "Inspect the report and rerun only after the root cause is understood.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "d8f886b9564343e5f403eb4f69f938748380a5e5",
+  "dispatch_file": "",
+  "details": {}
+}

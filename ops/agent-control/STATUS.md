@@ -2,17 +2,18 @@
 
 <!-- OPENCLAW_CURRENT_STATUS:BEGIN -->
 ## OpenClaw Current
-- latest_run_id: 27976546368
-- latest_task_id: OC-SEARCH-BOX-TRUCK-LA-20260622-01
-- latest_status: PASS
-- latest_timestamp: 2026-06-22T18:56:36.578Z
-- latest_report: ops/agent-control/reports/job_lead_collect/20260622T185636Z.md
-- latest_artifact: openclaw-27976546368-0
-- latest_evidence_commit: 61564d6993085378916f2d76d9d4ffb40339d0b4
+- latest_run_id: 27976797433
+- latest_task_id: OC-CODEX-FIX-SEARCH-FLOW-20260622-01
+- latest_status: FAIL
+- latest_timestamp: 2026-06-22T19:00:55.786Z
+- latest_report: ops/agent-control/reports/codex_delegate/20260622T190055Z.md
+- latest_artifact: openclaw-27976797433-0
+- latest_evidence_commit: 
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |
 | --- | --- | --- | --- | --- | --- |
+| 2026-06-22T19:00:55.786Z | 27976797433 | OC-CODEX-FIX-SEARCH-FLOW-20260622-01 | codex_delegate | FAIL | ops/agent-control/reports/codex_delegate/20260622T190055Z.md |
 | 2026-06-22T18:56:36.578Z | 27976546368 | OC-SEARCH-BOX-TRUCK-LA-20260622-01 | job_lead_collect | PASS | ops/agent-control/reports/job_lead_collect/20260622T185636Z.md |
 | 2026-06-22T18:39:31.525Z | 27975557911 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01 | repo_patch | BLOCKED | ops/agent-control/reports/repo_patch/20260622T183931Z.md |
 | 2026-06-22T18:17:02.157Z | 27974251932 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-001 | repo_patch | BLOCKED | ops/agent-control/reports/repo_patch/20260622T181702Z.md |
@@ -32,7 +33,6 @@
 | 2026-05-13T09:16:17.839Z | 20260513T091617Z | OC-OPENCLAW-UNSAFE-BLOCKED-001 | heartbeat | BLOCKED | ops/agent-control/reports/openclaw-heartbeat/20260513T091617Z.md |
 | 2026-05-13T09:15:39.936Z | 20260513T091539Z | OC-OPENCLAW-SYNTHETIC-FAIL-001 | synthetic_fail | FAIL | ops/agent-control/reports/openclaw-heartbeat/20260513T091539Z.md |
 | 2026-05-13T09:13:25.954Z | 20260513T091325Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091325Z.md |
-| 2026-05-13T09:12:41.751Z | 20260513T091241Z | OC-OPENCLAW-UNSAFE-BLOCKED-001 | heartbeat | BLOCKED | ops/agent-control/reports/openclaw-heartbeat/20260513T091241Z.md |
 <!-- OPENCLAW_CURRENT_STATUS:END -->
 
 ## Goal

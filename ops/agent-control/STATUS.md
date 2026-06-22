@@ -8,7 +8,7 @@
 - latest_timestamp: 2026-06-22T21:32:43.966Z
 - latest_report: ops/agent-control/reports/job_lead_collect/20260622T213243Z.md
 - latest_artifact: openclaw-27985453751-0
-- latest_evidence_commit: 
+- latest_evidence_commit: 22d54390c49f2a83a0a2c7462bf1291661a97520
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |

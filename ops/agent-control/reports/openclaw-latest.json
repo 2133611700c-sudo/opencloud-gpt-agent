@@ -14,6 +14,6 @@
   "artifact_name": "openclaw-27985453751-0",
   "dedupe_key": "job_lead_collect:pass",
   "error": null,
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "22d54390c49f2a83a0a2c7462bf1291661a97520",
   "dispatch_file": ""
 }

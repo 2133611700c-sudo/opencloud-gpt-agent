@@ -2,17 +2,18 @@
 
 <!-- OPENCLAW_CURRENT_STATUS:BEGIN -->
 ## OpenClaw Current
-- latest_run_id: 27975557911
+- latest_run_id: 27975692359
 - latest_task_id: OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01
-- latest_status: BLOCKED
-- latest_timestamp: 2026-06-22T18:39:31.525Z
-- latest_report: ops/agent-control/reports/repo_patch/20260622T183931Z.md
-- latest_artifact: openclaw-27975557911
-- latest_evidence_commit: 968e69d6fc0ae511dab2b91eee6b5013555dee32
+- latest_status: PASS
+- latest_timestamp: 2026-06-22T18:41:56.200Z
+- latest_report: ops/agent-control/reports/repo_patch/20260622T184156Z.md
+- latest_artifact: openclaw-27975692359
+- latest_evidence_commit: 
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |
 | --- | --- | --- | --- | --- | --- |
+| 2026-06-22T18:41:56.200Z | 27975692359 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01 | repo_patch | PASS | ops/agent-control/reports/repo_patch/20260622T184156Z.md |
 | 2026-06-22T18:39:31.525Z | 27975557911 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01 | repo_patch | BLOCKED | ops/agent-control/reports/repo_patch/20260622T183931Z.md |
 | 2026-06-22T18:17:02.157Z | 27974251932 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-001 | repo_patch | BLOCKED | ops/agent-control/reports/repo_patch/20260622T181702Z.md |
 | 2026-06-22T18:04:47.021Z | 27973535347 | OC-CHATGPT-GITHUB-OPENCLAW-E2E-001 | repo_patch | PASS | ops/agent-control/reports/repo_patch/20260622T180447Z.md |
@@ -32,7 +33,6 @@
 | 2026-05-13T09:15:39.936Z | 20260513T091539Z | OC-OPENCLAW-SYNTHETIC-FAIL-001 | synthetic_fail | FAIL | ops/agent-control/reports/openclaw-heartbeat/20260513T091539Z.md |
 | 2026-05-13T09:13:25.954Z | 20260513T091325Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091325Z.md |
 | 2026-05-13T09:12:41.751Z | 20260513T091241Z | OC-OPENCLAW-UNSAFE-BLOCKED-001 | heartbeat | BLOCKED | ops/agent-control/reports/openclaw-heartbeat/20260513T091241Z.md |
-| 2026-05-13T09:10:51.961Z | 20260513T091051Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091051Z.md |
 <!-- OPENCLAW_CURRENT_STATUS:END -->
 
 ## Goal

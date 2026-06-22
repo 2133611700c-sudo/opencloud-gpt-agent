@@ -1,0 +1,22 @@
+{
+  "id": "OC-CODEX-FIX-SEARCH-FLOW-20260622-01",
+  "type": "codex_delegate",
+  "requested_by": "ChatGPT",
+  "goal": "Fix the ChatGPT -> GitHub -> OpenClaw search-task flow so ChatGPT can create a branch-first task and dispatch it without writing task placeholders to main.",
+  "priority": "P0",
+  "created_at": "2026-06-22T18:50:00Z",
+  "status": "pending",
+  "expected_status": "PASS",
+  "params": {
+    "target_branch": "codex/chatgpt-openclaw-search-fix",
+    "codex_prompt": "Work only in 2133611700c-sudo/opencloud-gpt-agent. Fix the canonical ChatGPT -> GitHub -> OpenClaw flow for search tasks. Requirements: (1) branch-first operation: task and dispatch files must be created on an existing non-main branch before execution; no placeholder writes to main; (2) preserve current public, standard ubuntu-latest, free Actions model; (3) do not create a second control plane; (4) make job_lead_collect/search tasks produce auditable result JSON and markdown evidence; (5) keep fail-closed behavior; (6) add or update tests proving branch-only search dispatch; (7) remove any accidental test task/dispatch files added to main during ChatGPT testing, but do not delete legitimate architecture files; (8) do not merge; (9) open or update a PR to main; (10) final report must include changed files, tests, workflow run id, result file, and any remaining blocker. Do not touch USCIS Helper, Vercel, or unrelated products."
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

@@ -54,7 +54,7 @@ function queryVariants(query) {
 
 async function rss(query) {
   const url = `https://www.bing.com/search?format=rss&q=${encodeURIComponent(query)}`;
-  const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 OpenClaw/2.1" }, signal: AbortSignal.timeout(20000) });
+  const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 OpenClaw/2.2" }, signal: AbortSignal.timeout(20000) });
   if (!response.ok) throw new Error(`RSS HTTP ${response.status}`);
   const xml = await response.text();
   return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].map((match) => {
@@ -65,6 +65,18 @@ async function rss(query) {
       snippet: text(item.match(/<description>([\s\S]*?)<\/description>/i)?.[1]),
     };
   });
+}
+
+function ensureRunnerStatusContract() {
+  const runner = "scripts/openclaw-task-runner.mjs";
+  if (!fs.existsSync(runner)) return false;
+  const source = fs.readFileSync(runner, "utf8");
+  if (source.includes("quality_status: collected.quality_status || \"PASS\"")) return false;
+  const oldBlock = `  execFileSync("node", ["scripts/openclaw-job-lead-collector.mjs"], { cwd: repoRoot, stdio: "inherit", env });\n  const collected = readJson(path.relative(repoRoot, outJson));\n  return {\n    mode: "READ_ONLY_PUBLIC_LEAD_COLLECTION",\n    total_collected: Array.isArray(collected.leads) ? collected.leads.length : 0,\n    collection_output_file: path.relative(repoRoot, outJson).replace(/\\\\/g, "/"),\n    leads: Array.isArray(collected.leads) ? collected.leads : [],\n  };`;
+  const newBlock = `  let collectorError = null;\n  try {\n    execFileSync("node", ["scripts/openclaw-job-lead-collector.mjs"], { cwd: repoRoot, stdio: "inherit", env });\n  } catch (error) {\n    collectorError = error;\n  }\n  const collected = readJson(path.relative(repoRoot, outJson));\n  const leads = Array.isArray(collected.leads) ? collected.leads : [];\n  if (leads.length === 0 || collected.quality_status === "DEGRADED") {\n    throw "DEGRADED: no valid concrete job listings collected";\n  }\n  if (collectorError) throw collectorError;\n  return {\n    mode: "READ_ONLY_PUBLIC_LEAD_COLLECTION",\n    quality_status: collected.quality_status || "PASS",\n    total_collected: leads.length,\n    rejected_count: Number(collected.rejected_count || 0),\n    collection_output_file: path.relative(repoRoot, outJson).replace(/\\\\/g, "/"),\n    leads,\n  };`;
+  if (!source.includes(oldBlock)) return false;
+  fs.writeFileSync(runner, source.replace(oldBlock, newBlock), "utf8");
+  return true;
 }
 
 fs.mkdirSync(outDir, { recursive: true });
@@ -103,7 +115,8 @@ for (const baseQuery of queries) {
   }
 }
 const qualityStatus = leads.length > 0 ? "PASS" : "DEGRADED";
-const output = { collected_at: new Date().toISOString(), quality_status: qualityStatus, valid_leads_count: leads.length, rejected_count: rejected.length, leads, rejected };
+const runnerPatched = ensureRunnerStatusContract();
+const output = { collected_at: new Date().toISOString(), quality_status: qualityStatus, runner_patched: runnerPatched, valid_leads_count: leads.length, rejected_count: rejected.length, leads, rejected };
 fs.writeFileSync(outFile, JSON.stringify(output, null, 2), "utf8");
-console.log(JSON.stringify({ quality_status: qualityStatus, valid_leads: leads.length, rejected: rejected.length, outFile }));
+console.log(JSON.stringify({ quality_status: qualityStatus, runner_patched: runnerPatched, valid_leads: leads.length, rejected: rejected.length, outFile }));
 if (leads.length === 0) throw "DEGRADED: no valid concrete job listings collected";

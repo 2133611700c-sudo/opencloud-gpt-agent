@@ -1,1 +1,37 @@
-{}
+{
+  "schema_version": 1,
+  "id": "OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01",
+  "type": "repo_patch",
+  "requested_by": "ChatGPT supervisor",
+  "created_by": "chatgpt",
+  "created_at": "2026-06-22T18:45:00Z",
+  "goal": "Run a safe branch-only end-to-end ChatGPT -> GitHub -> OpenClaw verification.",
+  "objective": "Append the task id to the dedicated OpenClaw e2e sandbox file and leave auditable evidence without merging.",
+  "instructions": "Append exactly one new line with the task id to ops/agent-control/e2e-sandbox/chatgpt-github-openclaw.txt. Do not modify any other non-report files. Do not merge.",
+  "repository": "2133611700c-sudo/opencloud-gpt-agent",
+  "base_branch": "main",
+  "status": "locked",
+  "priority": "P2",
+  "allowed_paths": ["ops/agent-control/e2e-sandbox"],
+  "forbidden_paths": [".github/workflows", "ops/agent-control/reports", "ops/agent-control/dispatch", "ops/agent-control/tasks"],
+  "allowed_actions": ["append_line"],
+  "forbidden_actions": ["merge", "direct_push_main", "delete_file"],
+  "requires_pr": true,
+  "allow_direct_push": false,
+  "allow_merge": false,
+  "timeout_minutes": 30,
+  "acceptance_criteria": [
+    "task passes schema validation",
+    "runner executes on github-hosted ubuntu-latest",
+    "sandbox file receives the task id line",
+    "result history json is written",
+    "openclaw-latest.json is updated",
+    "status ledger is updated",
+    "main is not modified directly"
+  ],
+  "context": {"test_kind": "chatgpt_github_openclaw_e2e", "safe_target": "ops/agent-control/e2e-sandbox/chatgpt-github-openclaw.txt"},
+  "metadata": {"owner": "sergii", "safe_e2e": true},
+  "params": {"target_file": "ops/agent-control/e2e-sandbox/chatgpt-github-openclaw.txt", "append_line": "OC-CHATGPT-GITHUB-OPENCLAW-E2E-20260622-01"},
+  "safety": {"production_code_change": false, "customer_action": false, "secrets_required": false, "public_posting": false, "paid_ads_change": false, "destructive_action": false},
+  "expected_status": "PASS"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-SEARCH-BOX-TRUCK-LA-20260622-02",
+  "task_type": "job_lead_collect",
+  "task_file": "ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-02.json",
+  "created_by": "ChatGPT",
+  "objective": "Verify that OpenClaw returns only concrete public box-truck job listings and rejects blocked or generic pages.",
+  "run_id": "27983040282",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/27983040282",
+  "status": "blocked",
+  "expected_status": "PASS",
+  "started_at": "2026-06-22T20:49:56.812Z",
+  "finished_at": "2026-06-22T20:49:56.887Z",
+  "summary": "job_lead_collect was blocked before safe completion",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-SEARCH-BOX-TRUCK-LA-20260622-02.json",
+    "executed task type job_lead_collect",
+    "wrote markdown report ops/agent-control/reports/job_lead_collect/20260622T204956Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-27983040282-0",
+      "report_file": "ops/agent-control/reports/job_lead_collect/20260622T204956Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [
+    "task dedupe window active (3.9m < 15m)"
+  ],
+  "next_step": "Use force_rerun=true or wait for the dedupe window to expire.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "a437673e8b885a3936600843133c96f2ede2fd2a",
+  "dispatch_file": "",
+  "details": {}
+}

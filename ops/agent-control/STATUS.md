@@ -8,7 +8,7 @@
 - latest_timestamp: 2026-06-22T06:12:13.042Z
 - latest_report: ops/agent-control/reports/heartbeat/20260622T061213Z.md
 - latest_artifact: openclaw-27933242100
-- latest_evidence_commit: 
+- latest_evidence_commit: a72b17ef070abbd79e63adc237e81608d085804b
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |

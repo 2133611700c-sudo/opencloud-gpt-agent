@@ -1,0 +1,144 @@
+{
+  "collected_at": "2026-06-22T21:37:48.726Z",
+  "provider": "duckduckgo_html_strict_v4",
+  "quality_status": "PASS",
+  "valid_leads_count": 4,
+  "rejected_count": 10,
+  "leads": [
+    {
+      "company": "NOT_SPECIFIED",
+      "role": "Non-CDL On-Demand Box Truck Driver (Flexible Hours)",
+      "location": "Los Angeles, CA",
+      "listing_url": "https://www.ziprecruiter.com/c/Centerline-Drivers/Job/Non-CDL-On-Demand-Box-Truck-Driver(Flexible-Hours)/-in-Los-Angeles,CA?jid=612d94519080794e",
+      "source_site": "www.ziprecruiter.com",
+      "compensation": "NOT_SPECIFIED",
+      "experience_requirements": "NOT_SPECIFIED",
+      "license_requirements": "NOT_SPECIFIED",
+      "public_contact_channel_if_visible": "NOT_SPECIFIED",
+      "apply_url": "https://www.ziprecruiter.com/c/Centerline-Drivers/Job/Non-CDL-On-Demand-Box-Truck-Driver(Flexible-Hours)/-in-Los-Angeles,CA?jid=612d94519080794e",
+      "target_profile": {
+        "commercial_driving_background": true,
+        "box_truck_interest": true,
+        "read_only_research": true
+      },
+      "validation": {
+        "concrete_listing_url": true,
+        "concrete_role": true
+      }
+    },
+    {
+      "company": "ZipRecruiter",
+      "role": "26' Box Truck Driver - Class C License - ZipRecruiter",
+      "location": "Los Angeles, CA",
+      "listing_url": "https://www.ziprecruiter.com/c/M-&-F-Laundry/Job/26-Box-Truck-Driver-Class-C-License/-in-Los-Angeles,CA?jid=ed8f5ec34efb679a",
+      "source_site": "www.ziprecruiter.com",
+      "compensation": "NOT_SPECIFIED",
+      "experience_requirements": "NOT_SPECIFIED",
+      "license_requirements": "NOT_SPECIFIED",
+      "public_contact_channel_if_visible": "NOT_SPECIFIED",
+      "apply_url": "https://www.ziprecruiter.com/c/M-&-F-Laundry/Job/26-Box-Truck-Driver-Class-C-License/-in-Los-Angeles,CA?jid=ed8f5ec34efb679a",
+      "target_profile": {
+        "commercial_driving_background": true,
+        "box_truck_interest": true,
+        "read_only_research": true
+      },
+      "validation": {
+        "concrete_listing_url": true,
+        "concrete_role": true
+      }
+    },
+    {
+      "company": "ZipRecruiter",
+      "role": "CDL‑B Bobtail Delivery Driver - 26' Box Truck - ZipRecruiter",
+      "location": "Los Angeles, CA",
+      "listing_url": "https://www.ziprecruiter.com/c/Express-Employment-Professionals-North-Hollywood/Job/CDL‑B-Bobtail-Delivery-Driver-26-Box-Truck/-in-Los-Angeles,CA?jid=badb1efd047df9a7",
+      "source_site": "www.ziprecruiter.com",
+      "compensation": "NOT_SPECIFIED",
+      "experience_requirements": "NOT_SPECIFIED",
+      "license_requirements": "NOT_SPECIFIED",
+      "public_contact_channel_if_visible": "NOT_SPECIFIED",
+      "apply_url": "https://www.ziprecruiter.com/c/Express-Employment-Professionals-North-Hollywood/Job/CDL‑B-Bobtail-Delivery-Driver-26-Box-Truck/-in-Los-Angeles,CA?jid=badb1efd047df9a7",
+      "target_profile": {
+        "commercial_driving_background": true,
+        "box_truck_interest": true,
+        "read_only_research": true
+      },
+      "validation": {
+        "concrete_listing_url": true,
+        "concrete_role": true
+      }
+    },
+    {
+      "company": "NOT_SPECIFIED",
+      "role": "Now Hiring Delivery Drivers to Deliver Amazon Packages",
+      "location": "Los Angeles, CA",
+      "listing_url": "https://www.ziprecruiter.com/c/ADD-Logistics/Job/NOW-HIRING-DELIVERY-DRIVERS-TO-DELIVER-AMAZON-PACKAGES/-in-Los-Angeles,CA?jid=ff66a0644bb53e7d",
+      "source_site": "www.ziprecruiter.com",
+      "compensation": "NOT_SPECIFIED",
+      "experience_requirements": "NOT_SPECIFIED",
+      "license_requirements": "NOT_SPECIFIED",
+      "public_contact_channel_if_visible": "NOT_SPECIFIED",
+      "apply_url": "https://www.ziprecruiter.com/c/ADD-Logistics/Job/NOW-HIRING-DELIVERY-DRIVERS-TO-DELIVER-AMAZON-PACKAGES/-in-Los-Angeles,CA?jid=ff66a0644bb53e7d",
+      "target_profile": {
+        "commercial_driving_background": true,
+        "box_truck_interest": true,
+        "read_only_research": true
+      },
+      "validation": {
+        "concrete_listing_url": true,
+        "concrete_role": true
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "query": "site:indeed.com/viewjob box truck driver Los Angeles CA",
+      "reason": "no_results"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view box truck driver Los Angeles CA",
+      "reason": "no_results"
+    },
+    {
+      "query": "site:ziprecruiter.com/c box truck driver Los Angeles CA",
+      "url": "https://duckduckgo.com/y.js?ad_domain=readysethire.com&ad_provider=bingv7aa&ad_type=txad&click_metadata=Y_Yb0YA-hAUaDj3WgPnAPzUgGUZZ0uw5oXPfjXdb8LBYoTPVrHObA8MK9sTq3hVc-bfTyrIIdvXP1-B_ZDnpmHST1xagpsvqt8POiy-ccOEnJ5jNbuW5-lRf04UPl_PxCISQWFVarVA-5DtlLaws49ilDNOhOzWBbNz_ONX3Ts4.acu82w76fRdUk8AA9-on_g&rut=404b3e05617ec4e56192d8f65d3df53c90119eb524567f00d12155af565b759e&u3=https://www.bing.com/aclick?ld=e8gmEOWlk0v0yWgkw-NUk1nzVUCUzlhREpBIg1amT8W6QKRGjklNJw_t7JVvOcvDNDV_1PQR6xc9VMi8VVPg-yXKuvRAGmtGDNXNZgb88vrEuTg9j6nJY7dHyrvOmrMHDpNNi8nBjSBPDZd83i-FLivIyVcJmQ8taT_c2W4_7mGaMR6mf9ik3b0WO1EU5FU-f3Q_2YyX8rBTEInechF_0km24P3FA&u=aHR0cHMlM2ElMmYlMmZqb2JzLnJlYWR5c2V0aGlyZS5jb20lMmZzZWFyY2glMmZyZXN1bHRzJTNmcSUzZERyaXZlciUyNmMxJTNkNCUyNmMyJTNkMCUyNmMzJTNkdHJ1Y2slMjUyMGRyaXZlciUyNmM0JTNkMjEzOCUyNmM1JTNkMTA0MjElMjZhZHBvcyUzZCUyNm1hdGNodHlwZSUzZHAlMjZuZXR3b3JrJTNkcyUyNnQyJTNkcyUyNmRldmljZSUzZGMlMjZkZXZpY2Vtb2RlbCUzZCUyNmt3JTNkdHJ1Y2slMjUyMGRyaXZlciUyNnBsJTNkJTI2aWZtb2JpbGUlM2RuJTI2aWZzZWFyY2glM2R5JTI2aWZjb250ZW50JTNkJTI2Y3JlYXRpdmUlM2QlMjZnZW8lM2Q4NDkwNyUyNmludCUzZDQ0MTUyJTI2bXNjbGtpZCUzZDI1NmRkOTViYzdjZjFiYTRiODljYjM2MjZjZTNmOGEyJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkMjAyMS0wNC0xMiUyNTIwQUklMjUyMC0lMjUyMFRXTCUyNTIwLSUyNTIwR1MlMjUyME1pZ3JhdGUlMjUyMFJTSCUyNnV0bV90ZXJtJTNkdHJ1Y2slMjUyMGRyaXZlciUyNnV0bV9jb250ZW50JTNkVFdMJTI1MjAtJTI1MjBDb25zb2xpZGF0ZWQ&rlid=256dd95bc7cf1ba4b89cb3626ce3f8a2&vqd=4-135256897822277224637010039039956512241&iurl={1}IG=A90BB8BD6E1742AA9DF500772FBFEC46&CID=15E6ADA0D090670C12EABA20D11C665F&ID=DevEx,5039.1",
+      "reason": "non_listing_url"
+    },
+    {
+      "query": "site:ziprecruiter.com/c box truck driver Los Angeles CA",
+      "url": "https://duckduckgo.com/y.js?ad_domain=joblist.com&ad_provider=bingv7aa&ad_type=txad&click_metadata=SfD255RJzNqP_V9FXl4snZKKpQ4BGCkciEBSPhz-xn-N8tRJjO8sKo_NscExy2bI9h9UB5k7wuT2uP_USOmlw0sx0_wKXYDLiK4daTn7SVeg0QcQBZjXMgiX7Uu2lSbMV0ePpPB0LLiEchh-jZfc4N8-AjGQNnwb0tnMNTxMUUQ.w6uuQoE8XjBpOYj5h1rxtg&rut=814298978ab572195bf4bc8569f04b4fb0df0337c1578d0e101af37276b6a0f2&u3=https://www.bing.com/aclick?ld=e8IA9I4gydreNrmIFmjC44czVUCUwoiCb4j7gjL46kwAIobi887wEgBkeBoN95XT0H8jn2i6YjayQ8BHwEjG4vycgTt_8BSqryxhPhzy0ACior-rB_YCMx0hCzdr8rXcEvY3vyWPpOO7loPUzmf0BJmNh4n3VANskprgPkFQROELwo-1AbKqy3V-MCipD8FY1JfWSGz7lDr6KFcjiVB6YZuV8RA88&u=aHR0cHMlM2ElMmYlMmZ3d3cuam9ibGlzdC5jb20lMmZqJTJmYm94LXRydWNrLWRyaXZlci1qb2JzJTNmdXRtX3NvdXJjZSUzZHRlc3QlMjZtc2Nsa2lkJTNkOWY5ZGE0OGM0OTBmMTQ3MjBlMTVjZWI1ZTIyMzZiMmU&rlid=9f9da48c490f14720e15ceb5e2236b2e&vqd=4-205496856468296850836091823117451221978&iurl={1}IG=A90BB8BD6E1742AA9DF500772FBFEC46&CID=15E6ADA0D090670C12EABA20D11C665F&ID=DevEx,5043.1",
+      "reason": "non_listing_url"
+    },
+    {
+      "query": "site:ziprecruiter.com/c box truck driver Los Angeles CA",
+      "url": "https://www.ziprecruiter.com/c/Mercaso/Job/Box-Truck-Delivery-Driver/-in-Los-Angeles,CA?jid=753075be0ae607fe",
+      "reason": "non_listing_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/c box truck driver Los Angeles CA",
+      "url": "https://www.ziprecruiter.com/c/xpress-hire/Job/Box-Truck-Driver/-in-Los-Angeles,CA?jid=2150be2a03b7498f",
+      "reason": "non_listing_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/c box truck driver Los Angeles CA",
+      "url": "https://www.ziprecruiter.com/c/Encore/Job/Non-CDL-Drivers-Los-Angeles-Market/-in-Los-Angeles,CA?jid=298f91ddcfb2e2c5",
+      "reason": "non_listing_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/c box truck driver Los Angeles CA",
+      "url": "https://www.ziprecruiter.com/c/Adeedo/Job/Warehouse-Driver/-in-Los-Angeles,CA?jid=e8200a4f1ab13451",
+      "reason": "non_listing_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/c box truck driver Los Angeles CA",
+      "url": "https://www.ziprecruiter.com/c/AutoZone/Job/Commercial-Driver-Part-Time/-in-Los-Angeles,CA?jid=c47800c2f78a029c",
+      "reason": "non_listing_title"
+    },
+    {
+      "query": "post_validation",
+      "url": "https://www.ziprecruiter.com/c/Knight-Transportation/Job/Western-Region-CDL-Truck-Driver-|-Los-Angeles,-CA/-in-Los-Angeles,CA?jid=16b0f1b8f29fb40f",
+      "role": "Western Region CDL Truck Driver | Los Angeles, CA",
+      "reason": "semantic_box_delivery_mismatch"
+    }
+  ]
+}

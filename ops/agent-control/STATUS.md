@@ -2,17 +2,18 @@
 
 <!-- OPENCLAW_CURRENT_STATUS:BEGIN -->
 ## OpenClaw Current
-- latest_run_id: 27985453751
-- latest_task_id: OC-SEARCH-BOX-TRUCK-LA-20260622-10
+- latest_run_id: 27985726698
+- latest_task_id: OC-SEARCH-BOX-TRUCK-LA-20260622-11
 - latest_status: PASS
-- latest_timestamp: 2026-06-22T21:32:43.966Z
-- latest_report: ops/agent-control/reports/job_lead_collect/20260622T213243Z.md
-- latest_artifact: openclaw-27985453751-0
-- latest_evidence_commit: 22d54390c49f2a83a0a2c7462bf1291661a97520
+- latest_timestamp: 2026-06-22T21:37:47.222Z
+- latest_report: ops/agent-control/reports/job_lead_collect/20260622T213747Z.md
+- latest_artifact: openclaw-27985726698-0
+- latest_evidence_commit: 
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |
 | --- | --- | --- | --- | --- | --- |
+| 2026-06-22T21:37:47.222Z | 27985726698 | OC-SEARCH-BOX-TRUCK-LA-20260622-11 | job_lead_collect | PASS | ops/agent-control/reports/job_lead_collect/20260622T213747Z.md |
 | 2026-06-22T21:32:43.966Z | 27985453751 | OC-SEARCH-BOX-TRUCK-LA-20260622-10 | job_lead_collect | PASS | ops/agent-control/reports/job_lead_collect/20260622T213243Z.md |
 | 2026-06-22T21:30:05.151Z | 27985308653 | OC-SEARCH-BOX-TRUCK-LA-20260622-09 | job_lead_collect | PASS | ops/agent-control/reports/job_lead_collect/20260622T213005Z.md |
 | 2026-06-22T21:25:29.630Z | 27985060938 | OC-SEARCH-STATUS-CONTRACT-20260622-08 | job_lead_collect | DEGRADED | ops/agent-control/reports/job_lead_collect/20260622T212529Z.md |
@@ -32,7 +33,6 @@
 | 2026-06-22T06:42:29.999Z | 27934530183 | OC-EXAMPLE-COM-AUDIT-20260621-01 | virtual_browser_audit | PASS | ops/agent-control/reports/virtual_browser_audit/20260622T064229Z.md |
 | 2026-06-22T06:31:00.192Z | 27934057338 | OC-CHATGPT-INTEGRATION-HEARTBEAT | heartbeat | PASS | ops/agent-control/reports/heartbeat/20260622T063100Z.md |
 | 2026-06-22T06:12:13.042Z | 27933242100 | OC-MOBILE-HEARTBEAT-20260622-002 | heartbeat | PASS | ops/agent-control/reports/heartbeat/20260622T061213Z.md |
-| 2026-06-22T06:06:11.412Z | 27932972023 | OC-MOBILE-HEARTBEAT-20260622-001 | heartbeat | BLOCKED | ops/agent-control/reports/heartbeat/20260622T060611Z.md |
 <!-- OPENCLAW_CURRENT_STATUS:END -->
 
 ## Goal

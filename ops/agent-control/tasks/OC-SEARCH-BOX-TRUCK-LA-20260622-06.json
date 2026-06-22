@@ -1,8 +1,8 @@
 {
-  "id": "OC-SEARCH-BOX-TRUCK-LA-20260622-09",
+  "id": "OC-SEARCH-BOX-TRUCK-LA-20260622-10",
   "type": "job_lead_collect",
   "requested_by": "ChatGPT",
-  "goal": "Collect up to five concrete public box-truck driver job listings in the Los Angeles area using DuckDuckGo collector v3.",
+  "goal": "Collect only concrete individual public box-truck driver job listings in the Los Angeles area using the strict DuckDuckGo collector.",
   "expected_status": "PASS",
   "status": "pending",
   "params": {

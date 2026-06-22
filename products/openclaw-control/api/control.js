@@ -158,6 +158,20 @@ async function putContent(path, content, message) {
   });
 }
 
+async function getBranchHead(branch = "main") {
+  const data = await gh(`/git/ref/heads/${encodeURIComponent(branch)}`);
+  return String(data?.object?.sha || "").trim();
+}
+
+async function waitForBranchHead(commitSha, { branch = "main", attempts = 10, delayMs = 1500 } = {}) {
+  if (!commitSha) return;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    if ((await getBranchHead(branch)) === commitSha) return;
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  throw new Error(`Timed out waiting for ${branch} to advance to ${commitSha}`);
+}
+
 async function listRuns() {
   const workflows = await gh("/actions/runs?per_page=20");
   return (workflows.workflow_runs || [])
@@ -301,12 +315,15 @@ async function launchTask(payload) {
   const existingTaskFile = String(payload.task_file || "").trim();
   let taskFile = existingTaskFile;
   let taskPayload = null;
+  let taskCommitSha = "";
   if (!taskFile) {
     taskPayload = buildTaskPayload(payload.task || payload, mode === "push" ? "push" : "dispatch");
     taskFile = `${TASKS_PREFIX}${taskPayload.id}.json`;
-    await putContent(taskFile, `${JSON.stringify(taskPayload, null, 2)}\n`, `ops(control): create ${taskPayload.id} task`);
+    const writeResult = await putContent(taskFile, `${JSON.stringify(taskPayload, null, 2)}\n`, `ops(control): create ${taskPayload.id} task`);
+    taskCommitSha = String(writeResult?.commit?.sha || "").trim();
   }
   if (mode === "workflow_dispatch") {
+    if (taskCommitSha) await waitForBranchHead(taskCommitSha);
     await gh("/actions/workflows/openclaw-task-runner.yml/dispatches", {
       method: "POST",
       body: {

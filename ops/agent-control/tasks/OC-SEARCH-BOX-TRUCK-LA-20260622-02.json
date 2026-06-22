@@ -18,7 +18,8 @@
       "commercial_driving_background": true,
       "box_truck_interest": true,
       "read_only_research": true
-    }
+    },
+    "rerun_nonce": "2026-06-22T21:05:00Z"
   },
   "safety": {
     "production_code_change": false,

@@ -1,4 +1,5 @@
 const secretInput = document.querySelector("#secret");
+const secretForm = document.querySelector("#secret-form");
 const saveSecretButton = document.querySelector("#save-secret");
 const refreshButton = document.querySelector("#refresh");
 const taskForm = document.querySelector("#task-form");
@@ -126,7 +127,14 @@ async function refresh() {
   log("Refreshed state.", payload.latest);
 }
 
-saveSecretButton.addEventListener("click", saveSecret);
+secretForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  saveSecret();
+});
+saveSecretButton.addEventListener("click", (event) => {
+  event.preventDefault();
+  saveSecret();
+});
 refreshButton.addEventListener("click", () => refresh().catch((error) => log("Refresh failed.", { error: String(error) })));
 previewButton.addEventListener("click", async () => {
   try {

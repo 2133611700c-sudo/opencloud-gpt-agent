@@ -2,17 +2,18 @@
 
 <!-- OPENCLAW_CURRENT_STATUS:BEGIN -->
 ## OpenClaw Current
-- latest_run_id: 27984038731
-- latest_task_id: OC-SEARCH-BOX-TRUCK-LA-20260622-04
+- latest_run_id: 27984523302
+- latest_task_id: OC-SEARCH-STATUS-CONTRACT-20260622-05
 - latest_status: FAIL
-- latest_timestamp: 2026-06-22T21:07:07.685Z
-- latest_report: ops/agent-control/reports/job_lead_collect/20260622T210707Z.md
-- latest_artifact: openclaw-27984038731-0
-- latest_evidence_commit: fe5ee226a1321eac19e5fab06ac3ad5c70ae09e5
+- latest_timestamp: 2026-06-22T21:15:38.458Z
+- latest_report: ops/agent-control/reports/job_lead_collect/20260622T211538Z.md
+- latest_artifact: openclaw-27984523302-0
+- latest_evidence_commit: 
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |
 | --- | --- | --- | --- | --- | --- |
+| 2026-06-22T21:15:38.458Z | 27984523302 | OC-SEARCH-STATUS-CONTRACT-20260622-05 | job_lead_collect | FAIL | ops/agent-control/reports/job_lead_collect/20260622T211538Z.md |
 | 2026-06-22T21:07:07.685Z | 27984038731 | OC-SEARCH-BOX-TRUCK-LA-20260622-04 | job_lead_collect | FAIL | ops/agent-control/reports/job_lead_collect/20260622T210707Z.md |
 | 2026-06-22T20:56:46.880Z | 27983433443 | OC-SEARCH-BOX-TRUCK-LA-20260622-03 | job_lead_collect | FAIL | ops/agent-control/reports/job_lead_collect/20260622T205646Z.md |
 | 2026-06-22T20:49:56.812Z | 27983040282 | OC-SEARCH-BOX-TRUCK-LA-20260622-02 | job_lead_collect | BLOCKED | ops/agent-control/reports/job_lead_collect/20260622T204956Z.md |
@@ -32,7 +33,6 @@
 | 2026-05-19T05:25:00.662Z | 20260519T052500Z | OC-OPENCLAW-AUTOTEST-20260518 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260519T052500Z.md |
 | 2026-05-16T22:35:28.073Z | 20260516T223528Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260516T223528Z.md |
 | 2026-05-16T22:11:21.989Z | 20260516T221121Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260516T221121Z.md |
-| 2026-05-13T09:19:37.837Z | 20260513T091937Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091937Z.md |
 <!-- OPENCLAW_CURRENT_STATUS:END -->
 
 ## Goal

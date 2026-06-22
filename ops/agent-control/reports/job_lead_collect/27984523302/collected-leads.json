@@ -1,0 +1,259 @@
+{
+  "collected_at": "2026-06-22T21:15:39.278Z",
+  "quality_status": "DEGRADED",
+  "valid_leads_count": 0,
+  "rejected_count": 50,
+  "leads": [],
+  "rejected": [
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/internet/answered-how-do-i-log-into-my-xfinity-provided-modem/602da6afc5375f08cdcdd678",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/reset-gateway-admin-password/64b605fcce76231eba591f83",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/gateway-login/63a7435b507b4d3af9e0c207",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/cant-access-gateway-login-page-at-10001/6915dd457b61ba70775fd955",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/admin-tool-password/68fba95ce56ede36fe635257",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/need-to-reset-password-of-admin-gateway-tool/63a3bb66ebc7551628360915",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/how-do-i-enable-moca-on-my-modem/602daf24c5375f08cd023955",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/gateway-login-administrator-tools-10001-credentials/68e85407566ff24c9bcb08d9",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/changing-router-admin-password/68f92dbbdcdf144ca6889c1d",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"zzzz-no-such-box-truck-role-987654321 Los Angeles\" jobs",
+      "url": "https://forums.xfinity.com/conversations/your-home-network/cant-login-locally-to-the-newly-replaced-xfi-xb8-gateway/6508927da4ef97258666e2b5",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/2465776?hl=en&co=GENIE.Platform%3DDesktop",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/37095?hl=en",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/?hl=en",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/2465776?hl=ja&co=GENIE.Platform%3DDesktop",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/2465776?hl=ko&co=GENIE.Platform%3DDesktop",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/a/users/answer/9247501?hl=en",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/2465776?hl=es-419&co=GENIE.Platform%3DDesktop",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/37188?hl=en&co=GENIE.Platform=Desktop",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/37648?hl=en",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://support.google.com/calendar/answer/37118?hl=en&co=GENIE.Platform%3DDesktop",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://redmondgardencenter.com/",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.facebook.com/redmondgardennj/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://redmondgardencenter.com/garden-center/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://businessyab.com/explore/united_states/new_jersey/burlington_county/tabernacle/us_206/1360/redmonds_garden_center_75315",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.yelp.com/biz/redmonds-garden-center-tabernacle-2",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.allbiz.com/business/redmonds-garden-center-609-268-1018",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.superpages.com/tabernacle-nj/bpp/redmonds-garden-center-5315611",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://local.us-info.com/USNJ101119719-6092681018/redmonds_garden_center-tabernacle.html",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://bestnurseryloc.com/branch/redmonds-garden-center-tabernacle-1360-us-206-tabernacle-nj-08088",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://outdoornearme.com/branch/redmonds-garden-center-tabernacle-1360-us-206-tabernacle-nj-08088",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.nudevista.com/?q=backseat+lesbians&s=t",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.xvideos.com/?k=backseat%20lesbian%20seduction",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://epornz.com/videos/backseat-lesbians",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.alohatube.com/top/backseat_lesbian",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.nudevista.com/?q=lesbian+back+seat&s=t",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.pornhub.com/video/search?search=backseat+lesbian",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.alohatube.com/top/lesbian_back_seat",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.lesbianpornvideos.com/category/backseat",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://xhamster.com/search/lesbians+in+backseat",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://spankbang.com/139ei/video/backseat+lesbians",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://procolombia.co/sala-de-prensa/noticias/oportunidades-globales-para-empresarios-colombianos-en-muebles-artesanias-y-productos-de-hogar",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://fedemaderas.org.co/exportaciones-colombianas-de-muebles/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.dane.gov.co/index.php/estadisticas-por-tema-2/comercio-internacional/exportaciones-1",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://ingeprojects.com/proyectos/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://fedemaderas.org.co/exportaciones-colombianas-muebles-de-madera-2023/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://es.scribd.com/document/525270196/Ejercicio-Muebles-de-Exportacion",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://es.scribd.com/document/846990332/Entregable-Preseleccion-de-Paises-4",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://ingeprojects.com/",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.studocu.com/es-ar/document/universidad-siglo-21/seminario-de-practica-de-comercio-internacional/tp2-seminario-analisis-de-mercados-para-exportacion-de-muebles/164948972",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"zzzz-no-such-box-truck-role-987654321 Los Angeles\"",
+      "url": "https://www.mincit.gov.co/estudios-economicos/estadisticas-e-informes/informes-de-exportacion",
+      "reason": "irrelevant_title"
+    }
+  ]
+}

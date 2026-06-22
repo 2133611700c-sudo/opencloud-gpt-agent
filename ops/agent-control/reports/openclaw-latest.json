@@ -13,7 +13,7 @@
   "artifact_name": "openclaw-27934530183",
   "dedupe_key": "virtual_browser_audit:pass",
   "error": null,
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "5ba9536e36556ba081ee155f3030fb4ac0d789fc",
   "dispatch_file": "ops/agent-control/dispatch/OC-CHATGPT-INTEGRATION-HEARTBEAT-20260621-01.request.json",
   "dispatch_report_file": "ops/agent-control/reports/dispatch/20260622T064229Z.md"
 }

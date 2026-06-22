@@ -8,7 +8,7 @@
 - latest_timestamp: 2026-06-22T06:42:29.999Z
 - latest_report: ops/agent-control/reports/virtual_browser_audit/20260622T064229Z.md
 - latest_artifact: openclaw-27934530183
-- latest_evidence_commit: 
+- latest_evidence_commit: 5ba9536e36556ba081ee155f3030fb4ac0d789fc
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |

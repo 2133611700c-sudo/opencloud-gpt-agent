@@ -170,3 +170,6 @@ const output = {
 };
 fs.writeFileSync(outFile, JSON.stringify(output, null, 2), "utf8");
 console.log(JSON.stringify({ valid_leads: leads.length, rejected: rejected.length, outFile }));
+if (leads.length === 0) {
+  throw new Error("DEGRADED: no valid concrete job listings collected; blocked and generic pages were rejected");
+}

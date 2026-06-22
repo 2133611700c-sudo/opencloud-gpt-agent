@@ -1,0 +1,759 @@
+{
+  "collected_at": "2026-06-22T21:16:25.575Z",
+  "quality_status": "DEGRADED",
+  "valid_leads_count": 0,
+  "rejected_count": 150,
+  "leads": [],
+  "rejected": [
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://account.box.com/login",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://www.box.com/",
+      "reason": "generic_url"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://www.box.org/use-box",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://www.box.org/home",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://play.google.com/store/apps/details?id=com.box.android&hl=en-US",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://en.wikipedia.org/wiki/Box,_Inc.",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://www.box.com/login?redirect_url=%2Flogin%3Fpopup%3Dtrue&popup=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://www.box.com/resources/downloads",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://app.box.com/login?accountReactivated=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"box truck driver Los Angeles CA\" jobs",
+      "url": "https://www.box.com/personal",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://account.box.com/login",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/use-box",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/home",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://play.google.com/store/apps/details?id=com.box.android&hl=en-US",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/Box,_Inc.",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/login?redirect_url=%2Flogin%3Fpopup%3Dtrue&popup=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/resources/downloads",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://app.box.com/login?accountReactivated=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/personal",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://account.box.com/login",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/use-box",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/home",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://play.google.com/store/apps/details?id=com.box.android&hl=en-US",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/Box,_Inc.",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/login?redirect_url=%2Flogin%3Fpopup%3Dtrue&popup=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/resources/downloads",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://app.box.com/login?accountReactivated=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/personal",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://account.box.com/login",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/use-box",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/home",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://play.google.com/store/apps/details?id=com.box.android&hl=en-US",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/Box,_Inc.",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/login?redirect_url=%2Flogin%3Fpopup%3Dtrue&popup=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/resources/downloads",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://app.box.com/login?accountReactivated=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/personal",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://account.box.com/login",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/",
+      "reason": "generic_url"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/use-box",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.org/home",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://play.google.com/store/apps/details?id=com.box.android&hl=en-US",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/Box,_Inc.",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/login?redirect_url=%2Flogin%3Fpopup%3Dtrue&popup=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/resources/downloads",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://app.box.com/login?accountReactivated=true",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"box truck driver Los Angeles CA\"",
+      "url": "https://www.box.com/personal",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://www.merriam-webster.com/dictionary/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://minnesotanonprofits.org/membership/membership-lists/nonprofit-member-list",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://www.dictionary.com/browse/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://dictionary.cambridge.org/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://en.wiktionary.org/wiki/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://www.collinsdictionary.com/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://www.yourdictionary.com/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://www.definitions.net/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://www.thefreedictionary.com/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"non CDL delivery driver Los Angeles CA\" jobs",
+      "url": "https://www.wordreference.com/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.merriam-webster.com/dictionary/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://minnesotanonprofits.org/membership/membership-lists/nonprofit-member-list",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.dictionary.com/browse/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://dictionary.cambridge.org/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://en.wiktionary.org/wiki/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.collinsdictionary.com/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.yourdictionary.com/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.definitions.net/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.thefreedictionary.com/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.wordreference.com/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.merriam-webster.com/dictionary/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://minnesotanonprofits.org/membership/membership-lists/nonprofit-member-list",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.dictionary.com/browse/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://dictionary.cambridge.org/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://en.wiktionary.org/wiki/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.collinsdictionary.com/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.yourdictionary.com/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.definitions.net/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.thefreedictionary.com/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.wordreference.com/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.merriam-webster.com/dictionary/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://minnesotanonprofits.org/membership/membership-lists/nonprofit-member-list",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.dictionary.com/browse/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://dictionary.cambridge.org/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://en.wiktionary.org/wiki/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.collinsdictionary.com/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.yourdictionary.com/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.definitions.net/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.thefreedictionary.com/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.wordreference.com/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.merriam-webster.com/dictionary/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://minnesotanonprofits.org/membership/membership-lists/nonprofit-member-list",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.dictionary.com/browse/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://dictionary.cambridge.org/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://en.wiktionary.org/wiki/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.collinsdictionary.com/dictionary/english/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.yourdictionary.com/non",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.definitions.net/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.thefreedictionary.com/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"non CDL delivery driver Los Angeles CA\"",
+      "url": "https://www.wordreference.com/definition/non-",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://en.wikipedia.org/wiki/26_(number)",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://number.academy/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://en.wikipedia.org/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://www.youtube.com/watch?v=tqkzL_smpFk",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://www.thefactsite.com/number-twenty-six-facts/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://www.youtube.com/watch?v=0OzHDHfr5f8",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://numeraly.com/about-the-number-26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://calculat.io/en/number/about/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://googology.fandom.com/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "\"26 foot truck driver Los Angeles CA\" jobs",
+      "url": "https://numbermatics.com/n/26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26_(number)",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://number.academy/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=tqkzL_smpFk",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.thefactsite.com/number-twenty-six-facts/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=0OzHDHfr5f8",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numeraly.com/about-the-number-26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://calculat.io/en/number/about/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://googology.fandom.com/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:indeed.com/viewjob \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numbermatics.com/n/26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26_(number)",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://number.academy/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=tqkzL_smpFk",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.thefactsite.com/number-twenty-six-facts/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=0OzHDHfr5f8",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numeraly.com/about-the-number-26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://calculat.io/en/number/about/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://googology.fandom.com/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:ziprecruiter.com/jobs \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numbermatics.com/n/26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26_(number)",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://number.academy/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=tqkzL_smpFk",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.thefactsite.com/number-twenty-six-facts/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=0OzHDHfr5f8",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numeraly.com/about-the-number-26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://calculat.io/en/number/about/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://googology.fandom.com/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:linkedin.com/jobs/view \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numbermatics.com/n/26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26_(number)",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://number.academy/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://en.wikipedia.org/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=tqkzL_smpFk",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.thefactsite.com/number-twenty-six-facts/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://www.youtube.com/watch?v=0OzHDHfr5f8",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numeraly.com/about-the-number-26/",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://calculat.io/en/number/about/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://googology.fandom.com/wiki/26",
+      "reason": "irrelevant_title"
+    },
+    {
+      "query": "site:glassdoor.com/job-listing \"26 foot truck driver Los Angeles CA\"",
+      "url": "https://numbermatics.com/n/26/",
+      "reason": "irrelevant_title"
+    }
+  ]
+}

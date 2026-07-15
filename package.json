@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "test": "node --test",
+    "verify:project-identity": "node scripts/project-identity-guard.mjs",
     "verify:openclaw": "node scripts/verify-openclaw-integration.mjs",
     "verify:openclaw:acceptance": "node scripts/openclaw-acceptance-verify.mjs"
   },

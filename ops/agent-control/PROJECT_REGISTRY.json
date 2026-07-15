@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "authority": "Canonical cross-repository identity registry for ChatGPT, Codex, OpenClaw, and human operators.",
-  "last_verified_utc": "2026-07-14T00:00:00Z",
+  "last_verified_utc": "2026-07-15T01:17:34Z",
   "owner": "2133611700c-sudo",
   "records": [
     {
@@ -15,9 +15,8 @@
         "messenginfo.com",
         "www.messenginfo.com"
       ],
-      "local_paths": [
-        "/Users/sergiikuropiatnyk/work/uscis-helper"
-      ],
+      "local_paths": [],
+      "local_paths_status": "UNVERIFIED",
       "aliases": [
         "Messenginfo",
         "USCIS Helper",
@@ -42,6 +41,7 @@
       "canonical_repository": "2133611700c-sudo/messenginfo",
       "public_domains": [],
       "local_paths": [],
+      "local_paths_status": "UNVERIFIED",
       "aliases": [
         "legacy messenginfo",
         "company checker",
@@ -67,6 +67,7 @@
       "source_repository": "2133611700c-sudo/uscis-helper",
       "public_domains": [],
       "local_paths": [],
+      "local_paths_status": "UNVERIFIED",
       "aliases": [
         "uscis-helper-ci",
         "CI mirror"
@@ -89,6 +90,7 @@
       "canonical_repository": "2133611700c-sudo/opencloud-gpt-agent",
       "public_domains": [],
       "local_paths": [],
+      "local_paths_status": "UNVERIFIED",
       "aliases": [
         "OpenClaw",
         "OpenCloud GPT Agent",
@@ -110,7 +112,7 @@
       "repository": "2133611700c-sudo/uscis-helper"
     },
     {
-      "intent": "Legacy EIN/FMSCA/VIN/OFAC/company or carrier checker only",
+      "intent": "Legacy EIN/FMCSA/VIN/OFAC/company or carrier checker only",
       "project_id": "messenginfo-legacy-company-checker",
       "repository": "2133611700c-sudo/messenginfo"
     },

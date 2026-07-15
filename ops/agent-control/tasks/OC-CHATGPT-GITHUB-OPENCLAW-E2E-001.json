@@ -8,6 +8,7 @@
   "goal": "Run a safe branch-only end-to-end ChatGPT -> GitHub -> OpenClaw test.",
   "objective": "Append the task id to the dedicated OpenClaw e2e sandbox file and open a PR without merging.",
   "instructions": "Append exactly one new line with the task id to ops/agent-control/e2e-sandbox/chatgpt-github-openclaw.txt. Do not modify any other non-report files. Do not merge.",
+  "project_id": "openclaw-control-plane",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "base_branch": "main",
   "status": "locked",

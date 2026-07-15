@@ -4,7 +4,15 @@
   "title": "OpenClaw Task Schema v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "type", "requested_by", "goal", "params", "safety", "expected_status"],
+  "required": [
+    "id",
+    "type",
+    "requested_by",
+    "goal",
+    "params",
+    "safety",
+    "expected_status"
+  ],
   "properties": {
     "schema_version": {
       "type": "integer",
@@ -60,6 +68,15 @@
       "minLength": 1,
       "maxLength": 20000
     },
+    "project_id": {
+      "type": "string",
+      "enum": [
+        "messenginfo-immigration",
+        "messenginfo-legacy-company-checker",
+        "uscis-helper-ci-mirror",
+        "openclaw-control-plane"
+      ]
+    },
     "repository": {
       "type": "string",
       "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
@@ -71,14 +88,27 @@
     },
     "priority": {
       "type": "string",
-      "enum": ["P0", "P1", "P2", "P3"]
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ]
     },
     "created_at": {
       "type": "string"
     },
     "status": {
       "type": "string",
-      "enum": ["pending", "locked", "running", "completed", "failed", "blocked", "degraded"]
+      "enum": [
+        "pending",
+        "locked",
+        "running",
+        "completed",
+        "failed",
+        "blocked",
+        "degraded"
+      ]
     },
     "params": {
       "type": "object"
@@ -151,7 +181,12 @@
     "safety": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["customer_action", "public_posting", "paid_ads_change", "destructive_action"],
+      "required": [
+        "customer_action",
+        "public_posting",
+        "paid_ads_change",
+        "destructive_action"
+      ],
       "properties": {
         "production_code_change": {
           "type": "boolean"
@@ -179,7 +214,12 @@
     },
     "expected_status": {
       "type": "string",
-      "enum": ["PASS", "FAIL", "BLOCKED", "DEGRADED"]
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "DEGRADED"
+      ]
     }
   },
   "allOf": [
@@ -189,10 +229,22 @@
           "type": {
             "const": "repo_patch"
           }
-        }
+        },
+        "required": [
+          "type"
+        ]
       },
       "then": {
-        "required": ["allowed_paths", "allowed_actions", "requires_pr", "allow_direct_push", "allow_merge", "acceptance_criteria"],
+        "required": [
+          "project_id",
+          "repository",
+          "allowed_paths",
+          "allowed_actions",
+          "requires_pr",
+          "allow_direct_push",
+          "allow_merge",
+          "acceptance_criteria"
+        ],
         "properties": {
           "allow_direct_push": {
             "const": false
@@ -203,7 +255,10 @@
           "params": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["target_file", "append_line"],
+            "required": [
+              "target_file",
+              "append_line"
+            ],
             "properties": {
               "target_file": {
                 "type": "string",
@@ -226,7 +281,10 @@
           "type": {
             "const": "heartbeat"
           }
-        }
+        },
+        "required": [
+          "type"
+        ]
       },
       "then": {
         "properties": {
@@ -244,7 +302,10 @@
           "type": {
             "const": "synthetic_fail"
           }
-        }
+        },
+        "required": [
+          "type"
+        ]
       },
       "then": {
         "properties": {
@@ -262,14 +323,21 @@
           "type": {
             "const": "virtual_browser_audit"
           }
-        }
+        },
+        "required": [
+          "type"
+        ]
       },
       "then": {
         "properties": {
           "params": {
             "type": "object",
             "additionalProperties": true,
-            "required": ["target_origin", "routes", "max_attempts"],
+            "required": [
+              "target_origin",
+              "routes",
+              "max_attempts"
+            ],
             "properties": {
               "target_origin": {
                 "type": "string",
@@ -295,6 +363,218 @@
             }
           }
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": [
+              "codex_delegate",
+              "repo_audit",
+              "repo_patch",
+              "supabase_check",
+              "regression_check"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "required": [
+          "project_id",
+          "repository"
+        ]
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "repository"
+        ]
+      },
+      "then": {
+        "required": [
+          "project_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project_id": {
+            "const": "messenginfo-immigration"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/uscis-helper"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/uscis-helper"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      },
+      "then": {
+        "properties": {
+          "project_id": {
+            "const": "messenginfo-immigration"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project_id": {
+            "const": "messenginfo-legacy-company-checker"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/messenginfo"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/messenginfo"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      },
+      "then": {
+        "properties": {
+          "project_id": {
+            "const": "messenginfo-legacy-company-checker"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project_id": {
+            "const": "uscis-helper-ci-mirror"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/uscis-helper-ci"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/uscis-helper-ci"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      },
+      "then": {
+        "properties": {
+          "project_id": {
+            "const": "uscis-helper-ci-mirror"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project_id": {
+            "const": "openclaw-control-plane"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/opencloud-gpt-agent"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "const": "2133611700c-sudo/opencloud-gpt-agent"
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      },
+      "then": {
+        "properties": {
+          "project_id": {
+            "const": "openclaw-control-plane"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
       }
     }
   ]

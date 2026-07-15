@@ -8,7 +8,7 @@
 - latest_timestamp: 2026-07-15T01:26:59.470Z
 - latest_report: ops/agent-control/reports/codex_delegate/20260715T012659Z.md
 - latest_artifact: openclaw-29381631086-0
-- latest_evidence_commit: 
+- latest_evidence_commit: 85fef36cfd0c0ea8807bb03b50665927cbd24dbe
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |

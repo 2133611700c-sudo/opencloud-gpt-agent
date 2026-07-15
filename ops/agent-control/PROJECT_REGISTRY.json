@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "authority": "Canonical cross-repository identity registry for ChatGPT, Codex, OpenClaw, and human operators.",
+  "last_verified_utc": "2026-07-14T00:00:00Z",
+  "owner": "2133611700c-sudo",
+  "records": [
+    {
+      "project_id": "messenginfo-immigration",
+      "display_name": "Messenginfo / USCIS Helper",
+      "public_brand": "Messenginfo",
+      "role": "ACTIVE_PRODUCT",
+      "lifecycle": "ACTIVE_CANONICAL",
+      "canonical_repository": "2133611700c-sudo/uscis-helper",
+      "public_domains": [
+        "messenginfo.com",
+        "www.messenginfo.com"
+      ],
+      "local_paths": [
+        "/Users/sergiikuropiatnyk/work/uscis-helper"
+      ],
+      "aliases": [
+        "Messenginfo",
+        "USCIS Helper",
+        "uscis-helper",
+        "immigration self-help"
+      ],
+      "never_route_to": [
+        "2133611700c-sudo/messenginfo",
+        "2133611700c-sudo/uscis-helper-ci"
+      ],
+      "identity_markers": [
+        "apps/web/src/app/[locale]/layout.tsx contains metadataBase https://messenginfo.com",
+        "Vercel project name uscis-helper owns messenginfo.com"
+      ]
+    },
+    {
+      "project_id": "messenginfo-legacy-company-checker",
+      "display_name": "Legacy MessengInfo company/logistics checker",
+      "public_brand": "MessengInfo (legacy)",
+      "role": "LEGACY_PRODUCT",
+      "lifecycle": "LEGACY_NOT_CURRENT_BRAND",
+      "canonical_repository": "2133611700c-sudo/messenginfo",
+      "public_domains": [],
+      "local_paths": [],
+      "aliases": [
+        "legacy messenginfo",
+        "company checker",
+        "FMCSA checker",
+        "VIN checker"
+      ],
+      "never_use_for": [
+        "current Messenginfo immigration work",
+        "USCIS Helper",
+        "messenginfo.com product work"
+      ],
+      "identity_markers": [
+        "FMCSA, EIN, VIN, OFAC, carrier and logistics code"
+      ]
+    },
+    {
+      "project_id": "uscis-helper-ci-mirror",
+      "display_name": "USCIS Helper public CI mirror",
+      "public_brand": "None",
+      "role": "CI_MIRROR",
+      "lifecycle": "MIRROR_NON_AUTHORITATIVE",
+      "canonical_repository": "2133611700c-sudo/uscis-helper-ci",
+      "source_repository": "2133611700c-sudo/uscis-helper",
+      "public_domains": [],
+      "local_paths": [],
+      "aliases": [
+        "uscis-helper-ci",
+        "CI mirror"
+      ],
+      "never_use_for": [
+        "canonical edits",
+        "product decisions",
+        "release truth"
+      ],
+      "identity_markers": [
+        "history-free secret-clean CI snapshot"
+      ]
+    },
+    {
+      "project_id": "openclaw-control-plane",
+      "display_name": "OpenCloud GPT Agent / OpenClaw control plane",
+      "public_brand": "None",
+      "role": "CONTROL_PLANE",
+      "lifecycle": "ACTIVE_CONTROL_PLANE",
+      "canonical_repository": "2133611700c-sudo/opencloud-gpt-agent",
+      "public_domains": [],
+      "local_paths": [],
+      "aliases": [
+        "OpenClaw",
+        "OpenCloud GPT Agent",
+        "control plane"
+      ],
+      "never_use_for": [
+        "Messenginfo application code",
+        "USCIS Helper product implementation"
+      ],
+      "identity_markers": [
+        "ops/agent-control/tasks, reports, STATUS.md and openclaw-task-runner workflow"
+      ]
+    }
+  ],
+  "routing_rules": [
+    {
+      "intent": "Current Messenginfo, USCIS Helper, TPS, EAD, translations, immigration self-help, or messenginfo.com",
+      "project_id": "messenginfo-immigration",
+      "repository": "2133611700c-sudo/uscis-helper"
+    },
+    {
+      "intent": "Legacy EIN/FMSCA/VIN/OFAC/company or carrier checker only",
+      "project_id": "messenginfo-legacy-company-checker",
+      "repository": "2133611700c-sudo/messenginfo"
+    },
+    {
+      "intent": "Public CI mirror maintenance only",
+      "project_id": "uscis-helper-ci-mirror",
+      "repository": "2133611700c-sudo/uscis-helper-ci"
+    },
+    {
+      "intent": "ChatGPT/OpenClaw task dispatch, evidence reports, and control workflows",
+      "project_id": "openclaw-control-plane",
+      "repository": "2133611700c-sudo/opencloud-gpt-agent"
+    }
+  ],
+  "mandatory_resolution_protocol": [
+    "Resolve project_id from this registry before reading or writing a repository.",
+    "Verify repository remote/default branch and at least one identity marker.",
+    "Do not infer product identity from a folder or repository name alone.",
+    "For current Messenginfo work, fail closed unless repository equals 2133611700c-sudo/uscis-helper.",
+    "Treat issue numbers, STATUS.md, HANDOFF.md, and SOURCE_OF_TRUTH.md as claims until checked against live GitHub or runtime evidence.",
+    "Report PASS, FAIL, BLOCKED, or DEGRADED and label every unproven statement UNVERIFIED."
+  ]
+}

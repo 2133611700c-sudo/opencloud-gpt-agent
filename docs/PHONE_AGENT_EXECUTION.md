@@ -1,202 +1,184 @@
-# PHONE AGENT — ACTIVE EXECUTION PLAN AND JOURNAL
+# PHONE AGENT — ACTIVE PLAN + JOURNAL
 
-Status date: 2026-09-03
-Historical record: `docs/PHONE_AGENT_STATE.md` (J-001..J-019).
+Updated: 2026-09-03
+Historical journal: `docs/PHONE_AGENT_STATE.md` (J-001..J-019).
 This file is the active source of truth from J-020 onward.
 
-## MASTER RULES
+## 0. MASTER RULES
 
 1. `READ JOURNAL -> VERIFY -> ONE SMALL ACTION -> VERIFY RESULT -> JOURNAL -> NEXT`.
-2. A failed path is not a result. Classify `CODE` / `PROVIDER` / `BLOCKED_PRIVILEGE`, record the cause, then use the next technically independent path. Stop only at a genuine provider hard limit or a Sergii-controlled payment/OTP/privilege unavailable to the current tools.
-3. Call2Me facts come from Call2Me official docs/OpenAPI/API responses first. Repo history proves only what our system already did.
-4. Permanent tools by default: extend the existing runner/workflow/task contract and permanent provider config. Do not create duplicate agents, duplicate orchestration, throwaway workflows or architecture pyramids without a proven need.
-5. **FREE FIRST. Spend $0.00 unless Sergii gives a NEW explicit approval.** Prior funding/number authorization is superseded by the latest user instruction. No wallet use, number purchase/rental, paid call, plan, auto-recharge, recording, SIP/BYOC/Twilio, porting or paid provider without new approval.
-6. Product acceptance is the real behavior, not infrastructure:
+2. “Не получилось” не является конечным статусом. Ошибка классифицируется как `CODE`, `PROVIDER` или `BLOCKED_PRIVILEGE`; затем используется следующий независимый путь. Остановка допустима только при доказанном внешнем hard limit или действии пользователя, которое невозможно выполнить имеющимися инструментами.
+3. По Call2Me сначала использовать официальные docs/OpenAPI/API responses. Не заменять первоисточник предположением.
+4. Делать постоянный продукт: расширять существующие runner/workflow/agent/config. Не строить дублирующие workflow, агентов, сервисы и временные архитектурные слои без доказанной необходимости.
+5. **FREE FIRST. Траты = $0.00, пока Sergii не даст НОВОЕ явное разрешение.** Предыдущая авторизация на пополнение/номер отменена более поздней инструкцией пользователя. Запрещены без нового разрешения: расход wallet, номер, paid call/plan/add-on, auto-recharge, recording, SIP/BYOC/Twilio, porting, другой платный provider.
+6. Продукт считается работающим только по факту поведения:
    `SERGII REQUEST -> PHONE TASK -> UNIVERSAL AGENT -> REAL CALL -> HUMAN DIALOG -> VERIFIED FACTS -> SERGII`.
 
-## LARGE TASK
+## 1. БОЛЬШАЯ ЗАДАЧА
 
-Build one universal outbound calling assistant that accepts Sergii's natural-language task, calls a real person, identifies itself correctly, states the purpose, listens, follows the human's real answers, asks useful follow-ups, stops when enough information is obtained, and returns evidence-derived facts.
+Один универсальный исходящий AI-агент. Sergii пишет обычным языком, кому позвонить и что выяснить. Система формирует PHONE TASK, звонит, представляется как AI от имени Sergii, объясняет конкретную цель, слушает реальные ответы, задаёт логичные уточнения, завершает разговор после достижения цели и возвращает только фактически подтверждённые данные.
 
-## VERIFIED INVENTORY
+## 2. ЧТО УЖЕ ДОКАЗАНО
 
 ### DONE
-- Provider frozen to Call2Me for this path.
-- Account access/auth recovery completed historically.
-- Universal agent exists: `agent_f2949915a3f2` / `Sergii Universal Phone Agent`.
-- Final live config verified purpose-first: dynamic opening; AI disclosure; `on behalf of Sergii`; runtime purpose; no `Can I help you?`; one question at a time; recording off; voicemail hangup.
-- Real telephony transport proven: Call2Me demo rang Sergii and AI spoke.
-- E.164 leading `+` bug fixed.
-- Permanent runner exists: `scripts/openclaw-phone-call.mjs`.
-- Permanent workflow exists: `.github/workflows/openclaw-phone-call.yml`.
-- Phone task template exists: `ops/agent-control/templates/phone-call.example.json`.
-- Runner already has approval checks, E.164/path validation, lock/dedupe/idempotency, no automatic redial, polling, duration/voicemail handling and sanitized public persistence.
-- Runner/workflow security validation completed; do not repeat unless code changes or new evidence appears.
-- Historical password reset, email verification, signup-credit retry, agent creation, greeting cleanup, API-key creation and secret-presence investigations are CLOSED unless new evidence changes state.
+- Provider: Call2Me; не менять без доказанного provider blocker.
+- Universal Agent: `agent_f2949915a3f2` / `Sergii Universal Phone Agent`.
+- Финальный live config уже проверен: dynamic opening, AI disclosure, `on behalf of Sergii`, runtime purpose-first, запрет `Can I help you?`, one-question-at-a-time, recording off, voicemail hangup.
+- Реальный demo-звонок Call2Me уже дошёл на телефон Sergii; Sergii подтвердил звонок и речь AI.
+- E.164 leading `+` исправлен.
+- Постоянный runner: `scripts/openclaw-phone-call.mjs`.
+- Постоянный workflow: `.github/workflows/openclaw-phone-call.yml`.
+- PHONE TASK template: `ops/agent-control/templates/phone-call.example.json`.
+- Runner уже имеет explicit approval, validation, lock/idempotency, provider dedupe по task id, no auto-redial, polling, max duration, voicemail handling, sanitized public persistence.
+- Предыдущая security/idempotency проверка была завершена; повторять только после изменения runner.
+- Auth/reset/email/signup-credit/agent creation/greeting/API-key historical investigations закрыты, если нет новых данных.
 
-### LAST VERIFIED PROVIDER STATE — HISTORICAL, NOT CURRENT READBACK
-- wallet `$0.00`, `can_proceed=false`;
-- production request reached HTTP 402 `Insufficient balance`;
-- owned production number list empty;
-- prior managed-number discovery required payment;
-- advertised/configured signup `$5` credit was not present in the verified wallet ledger at that time.
+### LAST VERIFIED PROVIDER STATE — ИСТОРИЧЕСКИЙ, НЕ СЧИТАТЬ ТЕКУЩИМ БЕЗ READBACK
+- wallet: `$0.00`, `can_proceed=false`;
+- production call path доходил до HTTP 402 `Insufficient balance`;
+- owned production numbers: empty;
+- signup `$5` был заявлен/сконфигурирован, но в фактическом wallet ledger отсутствовал на момент проверки.
 
-### PARTIAL / NOT ACCEPTED
-- Dynamic conversation is configured but has not passed a complete live acceptance conversation after the final config.
-- Production runner passes objective/context/questions/success condition, but relevant follow-up from a human's arbitrary answer is not yet accepted.
-- Current result path does not yet complete factual-answer return to ChatGPT.
-- `phone_call` is still outside generic `OPENCLAW_TASK_SCHEMA.v1.json` ingestion.
-- PR #39 is open/unmerged and historically Bland-oriented; cleanup is post-E2E.
+## 3. ЧТО ЕЩЁ НЕ ДОКАЗАНО
 
-## OFFICIAL CALL2ME CONTRACT — VERIFIED 2026-09-03
+1. Финальный Universal Agent ещё не прошёл полный live conversation acceptance после purpose-first настройки.
+2. Не доказано в живом звонке: arbitrary human answer -> логичное follow-up именно по этому ответу.
+3. Free demo ещё не привязан доказанно к `agent_f2949915a3f2` после финальной настройки.
+4. Не завершён путь: provider transcript/extraction -> private evidence -> ChatGPT -> Sergii.
+5. Не сделан practical factual external call после self-test.
+6. Production telephony/number/wallet не рассматриваются до исчерпания бесплатного тестирования.
 
-### Free demo
-Official Demo docs (updated 2026-05-06):
-- public `POST /v1/demo/call`;
-- no signup/card required;
-- shared temporary number, reserved 15 minutes;
-- one demo call per destination phone number per day;
-- 60-second maximum;
-- default demo agent unless workspace admin changes `Demo -> Agent` in dashboard;
-- documented request body contains `phone_number` and `name` only.
+## 4. ОФИЦИАЛЬНО ПОДТВЕРЖДЁННЫЙ CALL2ME CONTRACT
 
-**Conclusion:** free demo can prove real telephony and conversation. The documented public endpoint does NOT prove support for arbitrary PHONE TASK runtime variables.
+### FREE DEMO
+Call2Me official Demo docs:
+- `POST /v1/demo/call` публичный;
+- signup/card не нужны;
+- shared temporary number резервируется на 15 min;
+- one demo call per destination/day;
+- max 60 sec;
+- default demo agent;
+- workspace admin может выбрать свой agent через Dashboard `Demo -> Agent`;
+- documented request содержит `phone_number` + `name`; arbitrary runtime `objective/questions/dynamic_variables` для demo endpoint официально не документированы.
 
-### Call evidence / transcript / extraction
-Official Calls/API/Post-Call/Webhook docs verify:
-- call detail is available after a call;
-- full transcript is part of call results/Calls tab;
-- API reference documents `GET /v1/calls/{id}` and `GET /v1/calls/{id}/transcript`;
-- post-call extraction fields are configured on the agent and stored on the call;
-- `call.ended` webhooks can include a transcript URL;
-- post-call extraction runs automatically from the transcript;
-- vCon export is optional and not required for the MVP.
+### RESULT / TRANSCRIPT
+Official Calls/API/Post-Call/Webhook docs:
+- `GET /v1/calls/{id}`;
+- `GET /v1/calls/{id}/transcript`;
+- full transcript существует после call;
+- agent post-call extraction может извлекать structured fields из transcript и сохранять их на call;
+- `call.ended` webhook может нести transcript reference;
+- vCon optional, MVP не требует.
 
-**Conclusion:** our permanent result pipeline should use call detail + transcript + configured extraction; no custom transcript hallucination is needed.
+### DEMO AGENT BINDING
+Официально документирован Dashboard `Demo -> Agent`. В официальном API reference отдельный endpoint для изменения workspace demo-agent binding не найден. Не опираться на undocumented endpoint как на постоянный contract без прямого доказательства.
 
-### Demo -> Agent binding surface
-Official Demo docs explicitly document dashboard `Demo -> Agent` for workspace-admin override. The official API reference lists the public `POST /v1/demo/*` utility family but does not document an endpoint for setting the workspace demo-agent binding.
+## 5. КРУПНЫЙ ПЛАН
 
-**Conclusion:** documented binding is dashboard-side. An undocumented/internal endpoint must not be treated as a stable production contract unless directly proved and deliberately accepted.
-
-### Free vs paid boundary
-Official docs verify:
-- demo call is the explicit free phone-call surface;
-- regular PSTN calls use the prepaid workspace wallet;
-- production numbers are rented or supplied through BYOC/SIP;
-- regular answered voice is metered; unanswered/busy/no-answer is $0;
-- signup credit is advertised, but our last real wallet readback did not contain it.
-
-**Conclusion:** no production PSTN spend is required to finish code/task/result plumbing or the free demo proof. Paid production telephony remains locked.
-
-## ORDERED PLAN
-
-### T-1 — Governance + complete inventory — DONE
-Acceptance: rules, inventory, open gaps and ordered plan are journaled.
+### T-1 — Governance + inventory — DONE
+Этот документ содержит правила, фактическое состояние, gaps и последовательность.
 
 ### T-2 — Official provider contract audit — DONE
-- T-2.1 free demo/limits/custom-agent capability — DONE.
-- T-2.2 result/transcript/post-call extraction mechanisms — DONE.
-- T-2.3 documented Demo -> Agent binding surface — DONE: dashboard documented; no setting endpoint found in official API reference.
-- T-2.4 exact free-vs-paid boundary — DONE.
+Free demo, transcript/result, post-call extraction, demo binding surface и free/paid boundary проверены по первоисточникам.
 
-### T-3 — Permanent free conversational test path — ACTIVE
-Goal: use the EXISTING Universal Agent with Call2Me's free demo surface.
-- T-3.1 Set `agent_f2949915a3f2` as workspace Demo -> Agent using a permanent provider setting. — ACTIVE.
-- T-3.2 Verify binding by provider-side readback if available or direct observed call behavior.
-- T-3.3 Place one free call to an eligible, explicitly authorized destination.
-- T-3.4 Within 60 seconds prove: AI disclosure -> on behalf of Sergii -> concrete purpose -> first question -> arbitrary human answer -> relevant follow-up -> second answer -> proper end.
-- T-3.5 Keep private conversation data out of public Git; journal only sanitized evidence.
-Acceptance: Sergii confirms the agent listened and followed up logically.
+### T-3 — FREE LIVE CONVERSATION — ACTIVE / PRIORITY 1
+- T-3.1 Привязать существующий `agent_f2949915a3f2` как Dashboard `Demo -> Agent` постоянной настройкой provider.
+- T-3.2 Проверить binding readback или фактическим поведением.
+- T-3.3 Один free call на eligible и явно разрешённый destination.
+- T-3.4 За 60 sec доказать: AI disclosure -> on behalf of Sergii -> purpose -> first question -> arbitrary answer -> relevant follow-up -> second answer -> correct end.
+- T-3.5 Никаких conversational данных в public Git.
+Acceptance: Sergii подтверждает, что агент услышал, понял и логично продолжил разговор.
 
-### T-4 — Permanent verified-result pipeline — ACTIVE IN PARALLEL WHERE NO CALL IS NEEDED
-- T-4.1 Use official call detail/transcript/post-call extraction contract. — DONE DESIGN.
-- T-4.2 Extend EXISTING `scripts/openclaw-phone-call.mjs`; do not create a competing runner.
-- T-4.3 Keep raw transcript/provider bodies out of public Git and public logs.
-- T-4.4 Produce evidence-only structured result; missing = `unknown`.
-- T-4.5 Make private result retrievable by ChatGPT from the existing execution path.
-Acceptance: completed call returns requested facts, not merely `call completed`.
+### T-4 — PERMANENT RESULT PIPELINE — ACTIVE / CODE IMPLEMENTED, CI VERIFYING
+Использовать существующий `scripts/openclaw-phone-call.mjs`, не новый runner.
+- fetch official transcript endpoint;
+- keep transcript/analysis/extraction only in private workflow artifact;
+- public Git gets only sanitized evidence;
+- sanitized result includes `call_id`, status, answered, duration and evidence-availability flags;
+- workflow uploads private evidence separately with short retention.
+Acceptance: после реального call можно достать transcript/extraction privately и вернуть evidence-only факты Sergii.
 
-### T-5 — Permanent natural request -> PHONE TASK ingestion
-- T-5.1 Add `phone_call` to existing generic task schema without breaking other task types.
-- T-5.2 One task contract: destination, objective, language, caller identity, context, questions, success condition, approvals.
-- T-5.3 Reuse existing OpenClaw dispatch/runner path; no extra orchestration layer.
-- T-5.4 Validate without making a paid call.
-Acceptance: one validated PHONE TASK can represent a normal Sergii calling request.
+### T-5 — SERGII REQUEST -> PHONE TASK — SIMPLE EXISTING PATH
+Не тащить `phone_call` в generic OpenClaw task-runner до E2E: это не требуется для звонка и добавляет лишний слой.
+Постоянный путь уже есть:
+`ChatGPT -> ops/agent-control/phone-calls/<unique-id>.json -> existing openclaw-phone-call workflow -> existing phone runner`.
+- PHONE TASK contract держать в одном template;
+- ChatGPT создаёт один task JSON под конкретное поручение;
+- push task file запускает существующий phone workflow.
+Acceptance: нет ручного переписывания runner/prompts; новая задача меняет только task data.
 
-### T-6 — Full free vertical slice
-Prove as much as provider's free demo contract supports:
-`SERGII REQUEST -> PHONE TASK/TEST CONTEXT -> UNIVERSAL AGENT -> FREE REAL CALL -> DYNAMIC DIALOG -> VERIFIED RESULT -> SERGII`.
-If demo cannot carry arbitrary runtime variables, record that exact provider limitation and do not fake completion.
+### T-6 — FULL FREE VERTICAL SLICE
+Максимально доказать бесплатно:
+`SERGII REQUEST -> PHONE TASK -> UNIVERSAL AGENT -> FREE REAL CALL -> DYNAMIC DIALOG -> VERIFIED RESULT -> SERGII`.
+Если public demo технически не переносит runtime PHONE TASK data, это фиксируется как точный provider limit; всё остальное бесплатное тестирование должно быть исчерпано до обсуждения production spend.
 
-### T-7 — Paid production decision — LOCKED
-Only after free proof. Any paid proposal must state why necessary, all exhausted free alternatives, exact expected cost and hard maximum. Execution requires new Sergii approval.
+### T-7 — PAID PRODUCTION — LOCKED
+Только после T-3..T-6. Любое предложение денег обязано содержать: почему без этого нельзя; какие free paths исчерпаны; exact expected cost; hard maximum. Выполнение — только после нового разрешения Sergii.
 
-### T-8 — Practical external call + post-E2E hardening
-After self-test acceptance and explicit authorization: one factual external call; then permanent secret storage if needed and cleanup of obsolete experiments/PR scope.
+### T-8 — PRACTICAL CALL + HARDENING
+После self-test acceptance и отдельного разрешения: один factual external call; затем permanent credential hardening и cleanup obsolete experiments/PR.
 
-## FORBIDDEN / DEFERRED BEFORE FREE ACCEPTANCE
-Twilio/SIP/BYOC/AT&T work; number purchase; wallet spending; new voice provider; frontend/CRM/queue/microservices; multi-provider layer; mass dialing/cold outreach; cosmetic PR cleanup.
+## 6. ЧТО СЕЙЧАС НЕ ДЕЛАЕМ
 
-## CURRENT CHECKPOINT
+Twilio/SIP/BYOC/AT&T; номер; wallet spending; новый voice provider; dashboard/frontend/CRM/queue/microservices; mass dialing/cold outreach; cosmetic PR cleanup; generic phone orchestration до E2E.
+
+## 7. CURRENT CHECKPOINT
+
 - Branch: `feat/openclaw-vendor-phone-calls`.
 - PR #39: open/unmerged.
-- Current active tasks: T-3, T-4, T-5.
-- Next action: implement generic `phone_call` ingestion by extending the existing schema/lib/task-runner, then extend the existing phone runner's private evidence path.
+- Priority 1: T-3 free live conversation.
+- Parallel code work: T-4 private evidence pipeline CI verification.
+- T-5 uses the already-existing dedicated phone task path; no generic runner expansion before E2E.
 
-## JOURNAL CONTINUATION
+## JOURNAL
 
-### J-020 — Inventory reconciled
-- VERIFIED historical journal + branch + PR + runner/workflow/task template.
-- VERIFIED generic schema did not enumerate `phone_call`.
-- STATUS: DONE.
+### J-020 — Inventory reconciled — DONE
+Historical journal, branch, PR, universal runner/workflow/task template and open gaps verified.
 
-### J-021 — Historical spending authority
-- Prior authorization existed historically.
-- STATUS: HISTORICAL FACT ONLY.
+### J-021 — Historical spending authority — SUPERSEDED
+Earlier authorization existed; latest user instruction supersedes it. Current spend authority: `$0.00`.
 
-### J-022 — Exact-number investigation
-- Historical BYOC/SIP exploration occurred.
-- STATUS: SUPERSEDED by current free-first priority.
+### J-022 — Existing-number/BYOC investigation — SUPERSEDED
+Not relevant before free acceptance.
 
-### J-023 — Connector housekeeping
-- Accidental branch `tmp-do-not-use` exists from tool-schema probing; it contains no intentional PHONE AGENT work and is not a source of truth.
-- STATUS: NON-BLOCKING.
+### J-023 — Connector housekeeping — NON-BLOCKING
+Accidental branch `tmp-do-not-use` exists from tool probing; contains no intentional PHONE AGENT work; never use as source of truth.
 
-### J-024 — Latest governance rule
-- USER: no financial action without new explicit approval; exhaust free path; failed method must lead to another path; primary sources; permanent tools.
-- RESULT: wallet/number-first plan superseded.
-- STATUS: DONE.
+### J-024 — FREE-FIRST governance — DONE
+Latest explicit user rule locked: no financial action without new approval; exhaust free path; failed method must lead to another path; primary sources; permanent tools.
 
-### J-025 — Official demo contract
-- VERIFIED public free demo, 15-minute temporary number, 60-second cap, one destination/day, dashboard custom-agent override, no documented runtime task variables in public request.
-- STATUS: DONE.
+### J-025 — Official demo contract — DONE
+Free endpoint/60 sec/one destination per day/shared temporary number/custom agent via `Demo -> Agent` verified.
 
-### J-026 — Official result contract audit started
-- STATUS: SUPERSEDED by J-027 completion.
+### J-026 — Result audit start — SUPERSEDED BY J-027
 
-### J-027 — Official result/transcript/extraction contract verified
-- PRIMARY SOURCES: Call2Me Calls, API Reference, Post-Call Actions, Webhooks, vCon docs.
-- VERIFIED: call detail + transcript endpoints exist; full transcript is available after calls; structured extraction can be configured on agent and is stored on call; webhook can deliver call-ended/transcript references.
-- DECISION: extend the existing runner to consume provider evidence rather than build a separate result service.
-- STATUS: DONE.
+### J-027 — Official result/transcript/extraction contract — DONE
+Call detail, transcript endpoint, post-call extraction and webhook evidence mechanisms verified. Decision: extend existing runner, no separate result service.
 
-### J-028 — Demo binding and free/paid boundary verified
-- PRIMARY SOURCES: Call2Me Demo, API Reference, Phone Numbers, Pricing, Wallet docs.
-- VERIFIED: documented custom demo-agent selection is a workspace-admin dashboard setting; official API reference does not document a demo-agent-setting endpoint.
-- VERIFIED: public demo is the explicit free phone-call surface; normal PSTN calls use wallet and production caller-number infrastructure.
-- DECISION: free conversation proof first; production spend remains locked.
-- STATUS: DONE.
+### J-028 — Demo binding + free/paid boundary — DONE
+Documented custom demo-agent binding is Dashboard-side; no documented API setter found. Public demo is explicit free phone-call surface; production PSTN is wallet/number infrastructure.
 
-### J-029 — Permanent implementation action started
-- ACTIVE: inspect and modify only the existing production runner/schema/ingestion so PHONE TASK and provider-derived results are permanent. No call and no spend required for these code steps.
+### J-029 — Permanent implementation started — DONE
+Inspected existing phone runner/workflow and identified exact result-path gaps.
 
-### J-030 — Generic ingestion and result-path gaps verified
-- VERIFIED: `OPENCLAW_TASK_SCHEMA.v1.json` does not enumerate `phone_call`.
-- VERIFIED: `scripts/lib/openclaw-task-lib.mjs` does not include `phone_call` in `supportedTaskTypes`.
-- VERIFIED: generic `scripts/openclaw-task-runner.mjs` switch has no `phone_call` case.
-- VERIFIED: existing `scripts/create-openclaw-task.mjs` is hard-coded for `virtual_browser_audit`; it is not the phone-task contract.
-- VERIFIED: existing `scripts/openclaw-phone-call.mjs` already carries runtime objective/context/questions/success condition and has idempotent dial behavior, so it should be reused rather than replaced.
-- VERIFIED DEFICIENCY: phone runner does not call the official transcript endpoint when needed, does not persist a private evidence artifact, and its sanitized result omits `call_id` and factual answers.
-- DECISION: T-5 will extend the existing generic schema/lib/task runner to delegate `phone_call` to the existing phone runner; T-4 will extend the same phone runner to produce a private evidence artifact plus sanitized public metadata. No duplicate caller architecture.
-- STATUS: DONE.
+### J-030 — Unnecessary generic-integration path identified — DONE
+Initial inspection showed generic OpenClaw task schema/runner does not support `phone_call`. A generic integration was considered, but it is not required for the product because the dedicated permanent phone task/workflow already exists.
+
+### J-031 — Generic integration expansion reverted — DONE
+- ACTION: experimental additions of `phone_call` to generic task schema/lib were reverted before use.
+- REASON: they would require changing the large generic runner and duplicate routing logic before E2E.
+- RESULT: no unnecessary generic orchestration remains. Dedicated phone path stays authoritative.
+
+### J-032 — Permanent private evidence pipeline implemented — VERIFYING
+- ACTION: existing `scripts/openclaw-phone-call.mjs` extended; no competing runner created.
+- ADDED: official `/calls/{id}/transcript` retrieval with safe fallback to embedded transcript.
+- ADDED: provider extraction detection and private evidence JSON containing task context, call status, transcript, provider summary/analysis/extraction.
+- PRIVACY: private evidence writes under runner temp, chmod-restricted; transcript/analysis/extraction/destination are not written to public markdown.
+- ADDED: sanitized result now includes `call_id`, status, answered, duration, transcript/extraction availability and private evidence filename.
+- ACTION: existing `.github/workflows/openclaw-phone-call.yml` now uploads private evidence as a separate 3-day artifact and sanitized evidence separately.
+- ACTION: PR validation now performs `node --check scripts/openclaw-phone-call.mjs`.
+- STATUS: VERIFYING CI; do not mark DONE until current PR validation succeeds.
+
+### J-033 — Next action
+1. Wait only for current CI verification of J-032; fix if it fails.
+2. In parallel resolve T-3.1: documented permanent `Demo -> Agent` binding. If no tool can operate the authenticated Dashboard and no stable API setter exists, classify exact `BLOCKED_PRIVILEGE` and reduce to one Dashboard action for Sergii; continue all other free work instead of stopping.

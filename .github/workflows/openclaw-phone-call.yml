@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       task_file:
-        description: Phone task under ops/agent-control/phone-calls
+        description: Phone task under ops/agent-control/tasks or ops/agent-control/phone-calls
         required: true
         type: string
   push:
@@ -43,7 +43,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TASK_FILE="${{ inputs.task_file }}"
             case "$TASK_FILE" in
-              ops/agent-control/phone-calls/*.json) ;;
+              ops/agent-control/tasks/*.json|ops/agent-control/phone-calls/*.json) ;;
               *) echo "Invalid task path: $TASK_FILE" >&2; exit 1 ;;
             esac
             printf '%s\n' "$TASK_FILE" > /tmp/phone-call-tasks.txt
@@ -84,6 +84,26 @@ jobs:
             fi
             PHONE_CALL_TASK_FILE="$TASK_FILE" node scripts/openclaw-phone-call.mjs
           done < /tmp/phone-call-tasks.txt
+
+      - name: Upload private phone evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: openclaw-phone-private-${{ github.run_id }}
+          path: ${{ runner.temp }}/openclaw-phone-private/*.private.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Upload sanitized phone evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: openclaw-phone-sanitized-${{ github.run_id }}
+          path: |
+            ops/agent-control/reports/phone_call/*.result.json
+            ops/agent-control/reports/phone_call/*.md
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Commit sanitized phone summaries
         if: always()

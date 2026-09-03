@@ -184,7 +184,7 @@ jobs:
           set -euo pipefail
           ACCESS="$(cat /tmp/access.token)"
           CALL_ID="$(cat /tmp/call.id)"
-          for i in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             sleep 5
             CODE="$(curl -sS --connect-timeout 10 --max-time 20 \
               -o /tmp/result.json -w '%{http_code}' \

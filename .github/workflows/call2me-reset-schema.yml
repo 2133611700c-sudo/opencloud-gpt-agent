@@ -14,22 +14,17 @@ jobs:
   schema:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect Call2Me signup bonus lifecycle
+      - name: Inspect Call2Me account verification fields
         shell: bash
         run: |
           set -euo pipefail
           curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
 
-          echo '=== matching paths ==='
-          jq -r '.paths | to_entries[] | select((.key + " " + (.value|tostring)) | test("bonus|signup|promo|trial|verification|verify-email|resend-verification|onboarding|welcome"; "i")) | [.key, (.value|keys|join(","))] | @tsv' /tmp/openapi.json
+          echo '=== UserProfile schema ==='
+          jq '.components.schemas.UserProfile' /tmp/openapi.json
 
-          echo '=== auth signup / verification endpoints ==='
-          jq '{
-            signup:.paths["/v1/auth/signup"],
-            verify_email:.paths["/v1/auth/verify-email"],
-            resend_verification:.paths["/v1/auth/resend-verification"],
-            me:.paths["/v1/users/me"]
-          }' /tmp/openapi.json
+          echo '=== UserStats schema ==='
+          jq '.components.schemas.UserStats' /tmp/openapi.json
 
-          echo '=== schemas mentioning bonus/signup/verification ==='
-          jq '.components.schemas | with_entries(select((.key + " " + (.value|tostring)) | test("bonus|signup|promo|trial|verification|verified|onboarding|welcome"; "i")))' /tmp/openapi.json
+          echo '=== endpoints returning UserProfile/UserStats ==='
+          jq -r '.paths | to_entries[] | .key as $p | .value | to_entries[] | select(.value|tostring|test("UserProfile|UserStats")) | [$p,.key,((.value.summary // ""))] | @tsv' /tmp/openapi.json

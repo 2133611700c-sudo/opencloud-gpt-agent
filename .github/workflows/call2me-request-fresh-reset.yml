@@ -16,6 +16,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          echo 'request_purpose=final_phone_agent_setup'
           code="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
             -o /tmp/reset-request.json -w '%{http_code}' \
             -X POST https://api.call2me.app/v1/auth/forgot-password \

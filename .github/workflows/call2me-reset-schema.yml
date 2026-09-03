@@ -19,15 +19,21 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
-          echo '=== reset-password endpoint ==='
-          jq '.paths["/v1/auth/reset-password"].post' /tmp/openapi.json
-          echo '=== ResetPasswordRequest schema ==='
-          jq '.components.schemas.ResetPasswordRequest' /tmp/openapi.json
-          echo '=== login endpoint ==='
-          jq '.paths["/v1/auth/login"].post' /tmp/openapi.json
-          echo '=== LoginRequest schema ==='
-          jq '.components.schemas.LoginRequest' /tmp/openapi.json
-          echo '=== api-keys POST ==='
-          jq '.paths["/v1/api-keys"].post' /tmp/openapi.json
-          echo '=== CreateAPIKeyRequest schema ==='
-          jq '.components.schemas.CreateAPIKeyRequest' /tmp/openapi.json
+
+          print_endpoint_and_schema() {
+            local path="$1"
+            echo "=== $path endpoint ==="
+            jq --arg p "$path" '.paths[$p].post' /tmp/openapi.json
+            ref="$(jq -r --arg p "$path" '.paths[$p].post.requestBody.content["application/json"].schema["$ref"] // empty' /tmp/openapi.json)"
+            if [ -n "$ref" ]; then
+              name="${ref##*/}"
+              echo "=== $name schema ==="
+              jq --arg n "$name" '.components.schemas[$n]' /tmp/openapi.json
+            fi
+          }
+
+          print_endpoint_and_schema '/v1/auth/reset-password'
+          print_endpoint_and_schema '/v1/auth/login'
+          print_endpoint_and_schema '/v1/auth/quick-login'
+          print_endpoint_and_schema '/v1/auth/quick-login/verify'
+          print_endpoint_and_schema '/v1/api-keys'

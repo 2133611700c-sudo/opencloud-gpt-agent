@@ -18,13 +18,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
 
       - name: Locate trigger
         id: trigger
         shell: bash
         run: |
           set -euo pipefail
-          FILE="$(git diff-tree --no-commit-id --name-only --diff-filter=AM -r "$GITHUB_SHA" -- 'ops/agent-control/call2me-demo/*.json' | head -n1)"
+          FILE="$(git show --format='' --name-only "$GITHUB_SHA" -- 'ops/agent-control/call2me-demo/*.json' | sed '/^$/d' | head -n1)"
           if [ -z "$FILE" ]; then
             echo "No trigger file" >&2
             exit 1

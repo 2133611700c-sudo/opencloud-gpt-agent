@@ -37,3 +37,4 @@ jobs:
           print_endpoint_and_schema '/v1/auth/quick-login'
           print_endpoint_and_schema '/v1/auth/quick-login/verify'
           print_endpoint_and_schema '/v1/api-keys'
+          print_endpoint_and_schema '/v1/demo/call'

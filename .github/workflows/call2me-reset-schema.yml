@@ -14,14 +14,14 @@ jobs:
   schema:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect Call2Me call payload schema
+      - name: Inspect Call2Me agent update schema
         shell: bash
         run: |
           set -euo pipefail
           curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
-          echo '=== CreateCallRequest ==='
-          jq '.components.schemas["call2me_core__models__call__CreateCallRequest"]' /tmp/openapi.json
-          echo '=== Call response ==='
-          jq '.components.schemas.Call' /tmp/openapi.json
-          echo '=== phone-number paths ==='
-          jq -r '.paths | to_entries[] | select(.key | test("numbers|phone-numbers"; "i")) | [.key, (.value|keys|join(","))] | @tsv' /tmp/openapi.json
+          echo '=== agent endpoint ==='
+          jq '.paths["/v1/agents/{agent_id}"]' /tmp/openapi.json
+          echo '=== agent create endpoint ==='
+          jq '.paths["/v1/agents"].post' /tmp/openapi.json
+          echo '=== agent-related schemas with greeting fields ==='
+          jq '.components.schemas | with_entries(select((.value|tostring) | test("begin_message|begin_message_mode|system_prompt|response_engine")))' /tmp/openapi.json

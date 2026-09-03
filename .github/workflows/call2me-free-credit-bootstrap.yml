@@ -1,4 +1,4 @@
-name: Call2Me Free Credit Bootstrap
+name: Call2Me Final Phone Bootstrap
 
 on:
   workflow_dispatch:
@@ -16,27 +16,27 @@ jobs:
     env:
       API: https://api.call2me.app/v1
       EMAIL: 2133611700c@gmail.com
-      EXISTING_AGENT_ID: agent_f2949915a3f2
+      AGENT_ID: agent_f2949915a3f2
       PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-secure-reset/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
     steps:
-      - name: Generate one-time encryption key
+      - name: Generate one-time inbound encryption key
         shell: bash
         run: |
           set -euo pipefail
           umask 077
-          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/private.pem 2>/dev/null
-          openssl pkey -in /tmp/private.pem -pubout -out /tmp/public.pem
-          echo 'one_time_public_key_ready=true'
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/inbound-private.pem 2>/dev/null
+          openssl pkey -in /tmp/inbound-private.pem -pubout -out /tmp/inbound-public.pem
+          echo 'one_time_inbound_key_ready=true'
 
-      - name: Upload one-time public key
+      - name: Upload one-time inbound public key
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-wallet-public-key-${{ github.run_id }}
-          path: /tmp/public.pem
+          name: call2me-final-inbound-public-key-${{ github.run_id }}
+          path: /tmp/inbound-public.pem
           if-no-files-found: error
           retention-days: 1
 
-      - name: Wait for encrypted login payload
+      - name: Wait for encrypted reset payload
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -50,99 +50,253 @@ jobs:
               -H "Authorization: Bearer $GH_TOKEN" \
               -H 'Accept: application/vnd.github.raw+json' \
               "${PAYLOAD_API}&nonce=${GITHUB_RUN_ID}-${attempt}")"
-            if [ "$code" = "200" ]; then
-              found=true
-              break
-            fi
+            if [ "$code" = "200" ]; then found=true; break; fi
             sleep 5
           done
           if [ "$found" != "true" ]; then
-            echo 'Encrypted login payload was not supplied within the wait window.' >&2
+            echo 'Encrypted reset payload was not supplied within the wait window.' >&2
             exit 20
           fi
           base64 -d /tmp/payload.b64 > /tmp/payload.enc
           openssl pkeyutl -decrypt \
-            -inkey /tmp/private.pem \
+            -inkey /tmp/inbound-private.pem \
             -in /tmp/payload.enc \
             -out /tmp/payload.json \
             -pkeyopt rsa_padding_mode:oaep \
             -pkeyopt rsa_oaep_md:sha256
+          RESET_TOKEN="$(jq -r '.reset_token // empty' /tmp/payload.json)"
           PASSWORD="$(jq -r '.new_password // empty' /tmp/payload.json)"
-          if [ "${#PASSWORD}" -lt 16 ]; then
-            echo 'Decrypted login payload is invalid.' >&2
+          if [ -z "$RESET_TOKEN" ] || [ "${#PASSWORD}" -lt 16 ]; then
+            echo 'Decrypted reset payload is invalid.' >&2
             exit 21
           fi
+          echo "::add-mask::$RESET_TOKEN"
           echo "::add-mask::$PASSWORD"
+          printf '%s' "$RESET_TOKEN" > /tmp/reset.token
           printf '%s' "$PASSWORD" > /tmp/call2me.password
           rm -f /tmp/payload.json /tmp/payload.enc /tmp/payload.b64
-          echo 'encrypted_login_payload_decrypted=true'
+          echo 'encrypted_reset_payload_decrypted=true'
 
-      - name: Login to verified Call2Me account
+      - name: Reset password and login
         shell: bash
         run: |
           set -euo pipefail
+          RESET_TOKEN="$(cat /tmp/reset.token)"
           PASSWORD="$(cat /tmp/call2me.password)"
+          echo "::add-mask::$RESET_TOKEN"
           echo "::add-mask::$PASSWORD"
+
+          RESET_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+            -o /tmp/reset.json -w '%{http_code}' \
+            -X POST "$API/auth/reset-password" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg t "$RESET_TOKEN" --arg p "$PASSWORD" '{token:$t,new_password:$p}')")"
+          echo "reset_password_http=$RESET_CODE"
+          if [[ ! "$RESET_CODE" =~ ^2 ]]; then exit 30; fi
+
           LOGIN_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
             -o /tmp/login.json -w '%{http_code}' \
             -X POST "$API/auth/login" \
             -H 'Content-Type: application/json' \
             --data "$(jq -cn --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e,password:$p}')")"
           echo "login_http=$LOGIN_CODE"
-          if [[ ! "$LOGIN_CODE" =~ ^2 ]]; then exit 30; fi
+          if [[ ! "$LOGIN_CODE" =~ ^2 ]]; then exit 31; fi
           ACCESS="$(jq -r '.access_token // .data.access_token // empty' /tmp/login.json)"
           test -n "$ACCESS"
           echo "::add-mask::$ACCESS"
           printf '%s' "$ACCESS" > /tmp/access.token
-          rm -f /tmp/login.json
+          rm -f /tmp/reset.token /tmp/reset.json /tmp/login.json
 
-      - name: Audit wallet and signup bonus
+      - name: Convert universal agent to production behavior
         shell: bash
         run: |
           set -euo pipefail
           ACCESS="$(cat /tmp/access.token)"
           echo "::add-mask::$ACCESS"
+          SYSTEM_PROMPT=$(cat <<'PROMPT'
+          You are Sergii's authorized outbound AI phone assistant. This is always an outbound call initiated for Sergii. Runtime call context supplies: language, caller_name, on_behalf_of, objective, caller_context, questions, and success_condition.
 
-          get_json() {
-            local path="$1" out="$2"
-            local code
-            code="$(curl -sS --connect-timeout 15 --max-time 30 -o "$out" -w '%{http_code}' \
-              "$API$path" -H "Authorization: Bearer $ACCESS")"
-            echo "$out http=$code"
-            if [[ ! "$code" =~ ^2 ]]; then
-              printf '{"http_code":%s}' "$code" > "$out"
-            fi
-          }
+          FIRST TURN RULE: immediately identify yourself as an AI phone assistant, say you are calling on behalf of Sergii, and state the concrete purpose of this call using the runtime objective. Never begin with "Can I help you?", "How can I help you?", or any inbound-support greeting.
 
-          get_json '/wallet/balance' /tmp/wallet-balance.json
-          get_json '/wallet/summary' /tmp/wallet-summary.json
-          get_json '/wallet/transactions?limit=20&offset=0' /tmp/wallet-transactions.json
-          get_json '/wallet/pricing' /tmp/wallet-pricing.json
-          get_json '/users/me/balance' /tmp/user-balance.json
-          get_json "/agents/$EXISTING_AGENT_ID" /tmp/agent.json
+          Conduct a concise natural conversation in the requested language. Ask one question at a time. Listen to the actual answer before deciding the next question. Do not repeat facts already confirmed. Use caller_context only as background; never invent missing facts. If a price, availability, date, name, part number, address, spelling, policy, or other critical detail is ambiguous, ask one concise clarification or repeat-back confirmation.
+
+          The runtime questions are a checklist, not a script. Adapt their order and wording to the conversation. Stop when the success_condition is satisfied or when the person clearly cannot provide the requested information.
+
+          You may obtain or communicate factual information. You must not purchase, pay, reserve, accept contractual/legal terms, authorize work, or make commitments. Do not request passwords, payment card data, SSNs, or unnecessary sensitive information. If asked to speak directly with Sergii, say you can relay the request for Sergii to call back; do not impersonate him as a human.
+
+          If voicemail is detected, do not leave a message; end the call. Before ending a completed conversation, briefly confirm the key factual answer, thank the person, and call the end_call function.
+          PROMPT
+          )
+          BODY="$(jq -cn --arg prompt "$SYSTEM_PROMPT" '{
+            begin_message_mode:"dynamic",
+            max_call_duration_ms:300000,
+            enable_recording:false,
+            voicemail_detection_enabled:true,
+            voicemail_action:"hangup",
+            responsiveness:0.7,
+            interruption_sensitivity:0.7,
+            enable_backchannel:true,
+            response_engine:{
+              type:"call2me-llm",
+              system_prompt:$prompt,
+              llm_provider:"openrouter",
+              llm_model:"gpt-4o-mini",
+              temperature:0.2,
+              builtin_functions:["end_call"]
+            },
+            metadata:{owner:"Sergii",purpose:"universal_outbound_phone_agent",mode:"production"}
+          }')"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+            -o /tmp/agent-update.json -w '%{http_code}' \
+            -X PATCH "$API/agents/$AGENT_ID" \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $ACCESS" \
+            --data "$BODY")"
+          echo "agent_patch_http=$CODE"
+          if [[ ! "$CODE" =~ ^2 ]]; then
+            jq -r '{detail:(.detail // .message // "agent patch failed")}' /tmp/agent-update.json || true
+            exit 40
+          fi
+          VERIFY_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/agent-verified.json -w '%{http_code}' \
+            "$API/agents/$AGENT_ID" -H "Authorization: Bearer $ACCESS")"
+          echo "agent_verify_http=$VERIFY_CODE"
+          if [[ ! "$VERIFY_CODE" =~ ^2 ]]; then exit 41; fi
+          MODE="$(jq -r '.begin_message_mode // empty' /tmp/agent-verified.json)"
+          echo "agent_begin_message_mode=${MODE:-unknown}"
+          if [ "$MODE" != "dynamic" ]; then exit 42; fi
+
+      - name: Create dedicated OpenClaw API key
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          ACCESS="$(cat /tmp/access.token)"
+          echo "::add-mask::$ACCESS"
+
+          LIST_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/api-keys-before.json -w '%{http_code}' \
+            "$API/api-keys" -H "Authorization: Bearer $ACCESS")"
+          echo "api_key_list_http=$LIST_CODE"
+          if [[ ! "$LIST_CODE" =~ ^2 ]]; then exit 50; fi
+
+          while IFS= read -r KEY_ID; do
+            [ -n "$KEY_ID" ] || continue
+            REVOKE_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+              -o /tmp/revoke.json -w '%{http_code}' \
+              -X DELETE "$API/api-keys/$KEY_ID" \
+              -H "Authorization: Bearer $ACCESS")"
+            echo "previous_openclaw_key_revoked_http=$REVOKE_CODE"
+            if [[ ! "$REVOKE_CODE" =~ ^2 ]]; then exit 51; fi
+          done < <(jq -r '.[] | select(.name=="OpenClaw Phone Agent" and .is_active==true) | .key_id' /tmp/api-keys-before.json)
+
+          KEY_BODY='{"name":"OpenClaw Phone Agent","permissions":[],"rate_limit":120,"read_only":false,"expires_in_days":180}'
+          CREATE_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+            -o /tmp/api-key-created.json -w '%{http_code}' \
+            -X POST "$API/api-keys" \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $ACCESS" \
+            --data "$KEY_BODY")"
+          echo "api_key_create_http=$CREATE_CODE"
+          if [ "$CREATE_CODE" != "201" ]; then
+            jq -r '{detail:(.detail // .message // "api key create failed")}' /tmp/api-key-created.json || true
+            exit 52
+          fi
+          API_KEY="$(jq -r '.api_key // empty' /tmp/api-key-created.json)"
+          KEY_ID="$(jq -r '.key_id // empty' /tmp/api-key-created.json)"
+          KEY_PREFIX="$(jq -r '.key_prefix // empty' /tmp/api-key-created.json)"
+          test -n "$API_KEY" -a -n "$KEY_ID"
+          echo "::add-mask::$API_KEY"
+          printf '%s' "$API_KEY" > /tmp/call2me-api-key.secret
+          echo "created_api_key_id=$KEY_ID"
+          echo "created_api_key_prefix=$KEY_PREFIX"
+
+          cat > /tmp/return-public.pem <<'PUBKEY'
+          -----BEGIN PUBLIC KEY-----
+          MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAlERge/qMkja46KgGhwUi
+          DVb4eJQiZghWtXvCyp0knkUVgpNqeHoLq/LFVp4kZbxlEBzgvMRGOsbdVF53R/DJ
+          HvRfwwEWWZfWOglqkC8LqdY8mvG44Y/U8L09SbCrGLaSCfykQpoMnaECH7XBmEOZ
+          k+nhngbJwjGeDUWiwwc85iun6xFoyh8q7Eb2c0CvKWXQL/1nmbbINNgAewH0oQb2
+          QKtTohZHUaiGcjm8GCKnGeL8phin7JneFT9GLGKqhcPcSxgRLxIS7lnTV/52kUPD
+          FUTlkTp4CkRrglfpzCDgPfQJEDeBAh0tVX/f0FZ3NufAuDVwHTC/Y4+rEvXo0ghR
+          z59aKuNe4IhwPL8MJrNZlvQGSsCCH9mG6rg/5VnNLyXBQMw0gQ6pmjHuxiPzcOPF
+          G4Kn5mpFio92fu8KuWj3k/5LhfTAJpA59guHRaIe/YPlFFAmNt69iiVLIEivw+Dm
+          mS3wYSo5Qa3NzezTtoI1XFqke9qksGMhfTElAIYvv6VbAgMBAAE=
+          -----END PUBLIC KEY-----
+          PUBKEY
+          sed -i 's/^          //' /tmp/return-public.pem
+          openssl pkeyutl -encrypt \
+            -pubin -inkey /tmp/return-public.pem \
+            -in /tmp/call2me-api-key.secret \
+            -out /tmp/call2me-api-key.enc \
+            -pkeyopt rsa_padding_mode:oaep \
+            -pkeyopt rsa_oaep_md:sha256
+          rm -f /tmp/call2me-api-key.secret /tmp/return-public.pem
+          echo 'api_key_encrypted_for_private_return=true'
+
+      - name: Audit wallet and production caller numbers
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCESS="$(cat /tmp/access.token)"
+          echo "::add-mask::$ACCESS"
+          curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
+
+          BAL_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/wallet.json -w '%{http_code}' \
+            "$API/wallet/balance" -H "Authorization: Bearer $ACCESS")"
+          echo "wallet_http=$BAL_CODE"
+          if [[ ! "$BAL_CODE" =~ ^2 ]]; then exit 60; fi
+
+          NUMBERS_PATH="$(jq -r '.paths | to_entries[] | select((.key|test("phone-numbers|numbers";"i")) and (.value.get != null)) | .key' /tmp/openapi.json | head -n1)"
+          if [ -n "$NUMBERS_PATH" ]; then
+            RELATIVE="${NUMBERS_PATH#/v1}"
+            NUMBERS_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+              -o /tmp/numbers.json -w '%{http_code}' \
+              "$API$RELATIVE" -H "Authorization: Bearer $ACCESS")"
+          else
+            NUMBERS_CODE="0"
+            echo '[]' > /tmp/numbers.json
+          fi
+          echo "numbers_get_path=${NUMBERS_PATH:-none}"
+          echo "numbers_http=$NUMBERS_CODE"
+
+          KEY_ID="$(jq -r '.key_id' /tmp/api-key-created.json)"
+          KEY_PREFIX="$(jq -r '.key_prefix' /tmp/api-key-created.json)"
+          EXPIRES_AT="$(jq -r '.expires_at // empty' /tmp/api-key-created.json)"
+          AGENT_MODE="$(jq -r '.begin_message_mode // empty' /tmp/agent-verified.json)"
+          PHONE_PATHS="$(jq -c '[.paths | to_entries[] | select(.key|test("phone-numbers|numbers";"i")) | {path:.key,methods:(.value|keys)}]' /tmp/openapi.json)"
 
           jq -n \
-            --arg provider 'Call2Me' \
-            --arg agent_id "$EXISTING_AGENT_ID" \
-            --argjson wallet_balance "$(cat /tmp/wallet-balance.json)" \
-            --argjson wallet_summary "$(cat /tmp/wallet-summary.json)" \
-            --argjson transactions "$(cat /tmp/wallet-transactions.json)" \
-            --argjson pricing "$(cat /tmp/wallet-pricing.json)" \
-            --argjson user_balance "$(cat /tmp/user-balance.json)" \
-            --argjson agent "$(cat /tmp/agent.json)" \
-            '{provider:$provider,agent_id:$agent_id,wallet_balance:$wallet_balance,wallet_summary:$wallet_summary,transactions:$transactions,pricing:$pricing,user_balance:$user_balance,agent:{agent_id:($agent.agent_id // null),agent_name:($agent.agent_name // null),language:($agent.language // null),voice_id:($agent.voice_id // null)},verified_at:(now|todate)}' \
-            > /tmp/call2me-wallet-report.json
+            --arg agent_id "$AGENT_ID" \
+            --arg agent_mode "$AGENT_MODE" \
+            --arg key_id "$KEY_ID" \
+            --arg key_prefix "$KEY_PREFIX" \
+            --arg expires_at "$EXPIRES_AT" \
+            --arg numbers_path "$NUMBERS_PATH" \
+            --arg numbers_http "$NUMBERS_CODE" \
+            --argjson wallet "$(cat /tmp/wallet.json)" \
+            --argjson numbers "$(cat /tmp/numbers.json)" \
+            --argjson phone_paths "$PHONE_PATHS" \
+            '{provider:"Call2Me",agent_id:$agent_id,agent_begin_message_mode:$agent_mode,api_key:{key_id:$key_id,key_prefix:$key_prefix,expires_at:$expires_at},wallet:$wallet,numbers_get_path:$numbers_path,numbers_http:$numbers_http,phone_numbers:$numbers,phone_number_paths:$phone_paths,verified_at:(now|todate)}' \
+            > /tmp/final-bootstrap-report.json
 
-          echo '=== wallet summary ==='
-          jq '{wallet_balance, wallet_summary, pricing, user_balance, agent}' /tmp/call2me-wallet-report.json
-          echo '=== transactions summary ==='
-          jq '.transactions' /tmp/call2me-wallet-report.json
-          rm -f /tmp/access.token /tmp/call2me.password /tmp/private.pem
+          echo '=== sanitized final state ==='
+          jq '{agent_id,agent_begin_message_mode,api_key,wallet,numbers_get_path,numbers_http,phone_numbers}' /tmp/final-bootstrap-report.json
+          rm -f /tmp/access.token /tmp/call2me.password /tmp/inbound-private.pem /tmp/api-key-created.json /tmp/api-keys-before.json
 
-      - name: Upload sanitized wallet report
+      - name: Upload encrypted API key
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-wallet-report-${{ github.run_id }}
-          path: /tmp/call2me-wallet-report.json
+          name: call2me-openclaw-api-key-encrypted-${{ github.run_id }}
+          path: /tmp/call2me-api-key.enc
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload sanitized final report
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-final-phone-report-${{ github.run_id }}
+          path: /tmp/final-bootstrap-report.json
           if-no-files-found: error
           retention-days: 30

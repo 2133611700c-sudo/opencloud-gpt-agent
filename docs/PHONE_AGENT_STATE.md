@@ -2,50 +2,109 @@
 
 Last updated: 2026-09-03
 
-## CURRENT WORKING PATH
+## WORKING RULE
+
+For every phone-agent step, use this loop and do not skip it:
+
+`PLAN STEP -> VERIFY CURRENT STATE -> DO ONE SMALL ACTION -> VERIFY RESULT -> WRITE JOURNAL ENTRY -> MOVE TO NEXT STEP`
+
+Do not repeat a completed step unless the journal explicitly records new evidence that invalidates it.
+
+## PLAN
+
+1. Validate the current Call2Me/OpenClaw phone runner and workflow.
+2. Fix the universal agent opening so it immediately identifies itself, says it is calling on Sergii's behalf, and states the runtime purpose.
+3. Establish persistent Call2Me authentication for the workflow without storing plaintext credentials in Git history or logs.
+4. Resolve the missing signup credit / usable wallet balance.
+5. Obtain or bind one production caller number (`from_number`).
+6. Run the authorized self-test to `+12133611700`.
+7. Verify the complete chain: ring -> answer -> purpose-first intro -> two-way conversation -> follow-up -> call completion -> result retrieval.
+8. Only after that, perform one safe practical information call to an external business/manager.
+
+## CURRENT CHECKPOINT
 
 - Provider: Call2Me.
 - Account email: `2133611700c@gmail.com`.
-- Universal agent exists: `agent_f2949915a3f2` (`Sergii Universal Phone Agent`).
-- Verified auth recovery on 2026-09-03: password reset HTTP 200, login HTTP 200, agent creation HTTP 201, later agent lookup HTTP 200.
-- Correct outbound destination format was verified as E.164, including leading `+`.
-- New MVP runner: `scripts/openclaw-phone-call.mjs`.
-- New MVP workflow: `.github/workflows/openclaw-phone-call.yml`.
-- Task template: `ops/agent-control/templates/phone-call.example.json`.
-- Runtime task folder: `ops/agent-control/phone-calls/*.json`.
-
-## LAST VERIFIED CALL STATE
-
-- Call2Me demo calling has previously reached Sergii's real phone; Sergii confirmed the phone rang and the AI spoke.
-- Production `/v1/calls` was tested again on 2026-09-03 with destination `+12133611700`.
-- Production request reached Call2Me and returned HTTP 402 `Insufficient balance`.
-- Therefore a successful production two-way call through the new universal agent is NOT yet verified.
-
-## VERIFIED ACCOUNT / WALLET STATE
-
-Verified on 2026-09-03 through Call2Me API:
-
-- email verification: server returned `Email already verified`
-- wallet balance: `$0.00`
-- `can_proceed`: `false`
-- minimum required balance: `$0.01`
-- configured signup bonus: `$5.00`
-- wallet transactions: `0`
-- total top-up: `$0.00`
-- total usage: `$0.00`
-
-Call2Me sent an email stating that the verified account should receive a $5 signup credit. The credit was not provisioned. A support email was sent to `support@call2me.app` on 2026-09-03 requesting correction.
+- Universal agent: `agent_f2949915a3f2` (`Sergii Universal Phone Agent`).
+- Account access was already recovered and verified on 2026-09-03: password reset HTTP 200, login HTTP 200, agent creation HTTP 201, later agent lookup HTTP 200.
+- Correct outbound destination format is E.164 with leading `+`.
+- Demo calling has already reached Sergii's real phone; Sergii confirmed the phone rang and the AI spoke.
+- Production `/v1/calls` reached Call2Me and returned HTTP 402 `Insufficient balance`.
+- Wallet audit: balance `$0.00`, `can_proceed=false`, minimum `$0.01`, configured signup bonus `$5.00`, transactions `0`, total top-up `$0.00`, total usage `$0.00`.
+- Call2Me confirmed the account email is already verified.
+- Support request for the missing $5 signup credit was sent on 2026-09-03.
+- MVP runner exists: `scripts/openclaw-phone-call.mjs`.
+- MVP workflow exists: `.github/workflows/openclaw-phone-call.yml`.
+- Task template exists: `ops/agent-control/templates/phone-call.example.json`.
+- Runtime phone task folder: `ops/agent-control/phone-calls/*.json`.
 
 ## CURRENT BLOCKERS
 
-1. **Signup credit missing** — wallet is $0.00, so production calls return HTTP 402.
-2. **Production caller number required** — Call2Me production outbound requires an owned/bound `from_number` or BYOC/SIP number. The free demo caller does not satisfy production `/v1/calls`.
-3. **Persistent credential not installed** — the new workflow expects GitHub Actions secret `CALL2ME_API_KEY`. The connected GitHub tool cannot create repository Actions Secrets. No API key value is stored in this repository.
-4. **Agent greeting still needs production cleanup** — the current agent was initially created for the self-test and contains a self-test-oriented opening. Before the first business call it must be updated so every outbound call immediately identifies the AI assistant, states it is calling on Sergii's behalf, and states the runtime objective.
+1. **Signup credit missing** — wallet is `$0.00`; production calls return HTTP 402.
+2. **Production caller number required** — Call2Me production outbound requires an owned/bound `from_number` or BYOC/SIP number.
+3. **Persistent credential not installed in GitHub Actions** — workflow expects `CALL2ME_API_KEY`; the connected GitHub tool cannot create repository Actions Secrets.
+4. **Agent greeting needs production cleanup** — current agent began as a self-test agent and must be updated to a purpose-first opening before the next real production call.
+
+## JOURNAL — 2026-09-03
+
+### J-001 — Inventory completed
+- VERIFIED: repo `2133611700c-sudo/opencloud-gpt-agent`, branch `feat/openclaw-vendor-phone-calls`, PR #39, existing OpenClaw runner, Call2Me/Bland experiments.
+- RESULT: Call2Me chosen as the shortest proven path because a real demo call already reached Sergii's phone.
+- STATUS: DONE.
+
+### J-002 — Production Call2Me auth recovered
+- VERIFIED: password reset HTTP 200.
+- VERIFIED: login HTTP 200.
+- VERIFIED: universal agent creation HTTP 201.
+- VERIFIED: later agent lookup HTTP 200.
+- RESULT: account authentication and agent existence are not current blockers.
+- STATUS: DONE.
+
+### J-003 — Destination-number bug fixed
+- VERIFIED: first production request lost the leading `+` and returned validation error.
+- ACTION: corrected number handling to preserve E.164 `+12133611700`.
+- VERIFIED: subsequent request reached the wallet gate instead of E.164 validation.
+- STATUS: DONE.
+
+### J-004 — Wallet audited
+- VERIFIED: balance `$0.00`.
+- VERIFIED: minimum required balance `$0.01`.
+- VERIFIED: configured signup bonus `$5.00`.
+- VERIFIED: transactions `0`, total top-up `$0.00`, total usage `$0.00`.
+- VERIFIED: server says `Email already verified`.
+- RESULT: promised signup credit was not provisioned.
+- STATUS: DONE.
+
+### J-005 — Support escalation sent
+- ACTION: email sent to `support@call2me.app` with verified account/wallet facts and no credentials.
+- RESULT: waiting for provider-side correction; no need to repeat verification or wallet audit unless new provider state appears.
+- STATUS: DONE / EXTERNAL WAIT.
+
+### J-006 — Universal OpenClaw phone runner added
+- ACTION: added `scripts/openclaw-phone-call.mjs`.
+- ACTION: added `.github/workflows/openclaw-phone-call.yml`.
+- ACTION: added phone-call task template.
+- VERIFIED DESIGN: E.164 validation, explicit approval, wallet check, agent check, caller-number check, call dedupe, no automatic retry of dial POST, safe polling, sanitized public report.
+- STATUS: DONE; final runtime validation still pending.
+
+### J-007 — Process error identified
+- ERROR: after the above checkpoint, password-reset work was started again even though auth recovery was already marked DONE.
+- CORRECTION: reset/login are not to be repeated unless a fresh login test explicitly fails and the journal records that failure.
+- STATUS: CORRECTED.
+
+### J-008 — Fresh reset request accidentally triggered during process correction
+- VERIFIED: existing `Call2Me Password Reset Request` workflow was re-run and a fresh reset email arrived.
+- ACTION: no password change is required from this event because J-002 already proves auth recovery; this reset email is not the next task.
+- RESULT: ignore the reset email unless future login verification invalidates J-002.
+- STATUS: CLOSED AS UNNECESSARY.
+
+## NEXT MICRO STEP
+
+**P-01:** Validate the existing phone runner/workflow code and current PR checks. Do not touch passwords, reset flow, wallet audit, or provider selection during this step.
+
+After P-01 completes: write its result here as J-009, then proceed to P-02 (agent greeting cleanup).
 
 ## PHONE CALL TASK CONTRACT
-
-Minimal runtime task:
 
 ```json
 {
@@ -53,7 +112,7 @@ Minimal runtime task:
   "type": "phone_call",
   "status": "pending",
   "requested_by": "Sergii",
-  "goal": "Obtain factual information by phone.",
+  "goal": "Obtain or communicate factual information by phone.",
   "params": {
     "phone_number": "+1XXXXXXXXXX",
     "objective": "What must be learned or communicated",
@@ -74,23 +133,6 @@ Minimal runtime task:
 }
 ```
 
-## RUNNER BEHAVIOR
-
-The MVP runner currently:
-
-- requires E.164 phone numbers;
-- requires explicit approval;
-- blocks purchases, payments, reservations and recording;
-- checks wallet before dialing;
-- verifies the configured agent;
-- verifies/chooses an owned Call2Me caller number;
-- checks previous Call2Me calls for the same `openclaw_task_id` before creating a new call;
-- never automatically retries the call-creation POST;
-- polls only safe GET call-status endpoints;
-- retrieves status, duration, transcript availability/provider response fields and post-call analysis when Call2Me supplies them;
-- commits only a sanitized Markdown summary to the public repository;
-- does not commit passwords, API keys or full transcripts.
-
 ## TARGET OUTBOUND BEHAVIOR
 
 At the beginning of every outbound call the agent must immediately communicate three things:
@@ -105,28 +147,6 @@ Then it asks one question at a time, listens, adapts follow-ups to the actual an
 
 ## DEFINITION OF DONE
 
-`CHAT REQUEST → PHONE TASK → OPENCLAW PHONE WORKFLOW → CALL2ME → PHONE RINGS → HUMAN ANSWERS → PURPOSE-FIRST INTRO → TWO-WAY CONVERSATION → FOLLOW-UP → CALL ENDS → RESULT POLLED → SUMMARY RETURNED`
+`CHAT REQUEST -> PHONE TASK -> OPENCLAW PHONE WORKFLOW -> CALL2ME -> PHONE RINGS -> HUMAN ANSWERS -> PURPOSE-FIRST INTRO -> TWO-WAY CONVERSATION -> FOLLOW-UP -> CALL ENDS -> RESULT POLLED -> SUMMARY RETURNED`
 
 A provider HTTP 200/201 by itself is not considered success.
-
-## NEXT ACTION
-
-1. Verify repository workflow/code validation for the new Call2Me runner.
-2. Fix the universal agent's production greeting/system prompt.
-3. Obtain and install a dedicated Call2Me API key as `CALL2ME_API_KEY` without exposing it in Git history/logs.
-4. Get the promised $5 signup credit restored (support request already sent).
-5. Obtain or bind one production caller number.
-6. Run the authorized self-test to `+12133611700` and verify full two-way conversation plus retrieved result.
-7. Only after the verified self-test, perform one safe practical business-information call.
-
-## CHANGELOG
-
-- 2026-09-03 — Real Call2Me demo call previously confirmed by Sergii.
-- 2026-09-03 — Call2Me account access recovered securely.
-- 2026-09-03 — Universal agent `agent_f2949915a3f2` created and verified by API.
-- 2026-09-03 — E.164 leading-plus bug found and corrected.
-- 2026-09-03 — Production call reached wallet gate and returned HTTP 402.
-- 2026-09-03 — Wallet audited: $0 balance, zero transactions, configured $5 signup bonus.
-- 2026-09-03 — Server confirmed email is already verified.
-- 2026-09-03 — Support request sent for missing $5 credit.
-- 2026-09-03 — Universal Call2Me OpenClaw phone runner and workflow added on `feat/openclaw-vendor-phone-calls`.

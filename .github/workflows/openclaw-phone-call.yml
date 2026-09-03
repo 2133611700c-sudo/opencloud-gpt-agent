@@ -12,6 +12,16 @@ on:
         required: false
         default: false
         type: boolean
+      number_preview_only:
+        description: Search US local number inventory and prices without purchase or checkout
+        required: false
+        default: false
+        type: boolean
+      number_area_code:
+        description: Optional area code for number preview
+        required: false
+        default: ''
+        type: string
   push:
     paths:
       - "ops/agent-control/phone-calls/*.json"
@@ -42,6 +52,16 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Validate execution mode
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.preflight_only }}" = "true" ] && [ "${{ inputs.number_preview_only }}" = "true" ]; then
+            echo "CODE: choose only one read-only mode" >&2
+            exit 2
+          fi
+
       - name: Verify Call2Me credential
         shell: bash
         run: |
@@ -57,8 +77,18 @@ jobs:
         shell: bash
         run: node scripts/openclaw-phone-preflight.mjs
 
+      - name: Zero-spend number inventory and price preview
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.number_preview_only }}
+        shell: bash
+        env:
+          CALL2ME_NUMBER_COUNTRY: US
+          CALL2ME_NUMBER_TYPE: local
+          CALL2ME_NUMBER_AREA_CODE: ${{ inputs.number_area_code }}
+          CALL2ME_NUMBER_LIMIT: '10'
+        run: node scripts/openclaw-phone-number-preview.mjs
+
       - name: Resolve phone task files
-        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
+        if: ${{ !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
         shell: bash
         run: |
           set -euo pipefail
@@ -79,7 +109,7 @@ jobs:
           cat /tmp/phone-call-tasks.txt
 
       - name: Execute approved phone calls
-        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
+        if: ${{ !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
         shell: bash
         run: |
           set -euo pipefail
@@ -99,12 +129,12 @@ jobs:
           done < /tmp/phone-call-tasks.txt
 
       - name: Recover evidence through documented vCon endpoint
-        if: ${{ success() && !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
+        if: ${{ success() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
         shell: bash
         run: node scripts/openclaw-phone-vcon-fallback.mjs
 
       - name: Upload private phone evidence
-        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
         uses: actions/upload-artifact@v5
         with:
           name: openclaw-phone-private-${{ github.run_id }}
@@ -113,7 +143,7 @@ jobs:
           retention-days: 3
 
       - name: Upload sanitized phone evidence
-        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
         uses: actions/upload-artifact@v5
         with:
           name: openclaw-phone-sanitized-${{ github.run_id }}
@@ -124,7 +154,7 @@ jobs:
           retention-days: 14
 
       - name: Commit sanitized phone summaries
-        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
         shell: bash
         run: |
           set -euo pipefail

@@ -59,60 +59,20 @@ jobs:
           printf '%s' "$API_KEY" > /tmp/api.key
           rm -f /tmp/payload.b64 /tmp/payload.enc /tmp/payload.json
 
-      - name: Discover and execute email verification endpoint
+      - name: Verify email token
         shell: bash
         run: |
           set -euo pipefail
           TOKEN="$(cat /tmp/verify.token)"
           echo "::add-mask::$TOKEN"
           curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
-          python - <<'PY'
-          import json, os, subprocess, urllib.parse
-          spec=json.load(open('/tmp/openapi.json'))
-          token=open('/tmp/verify.token').read().strip()
-          candidates=[]
-          for path, item in spec.get('paths',{}).items():
-              low=path.lower()
-              if 'verify' not in low or 'email' not in low:
-                  continue
-              for method, op in item.items():
-                  if method.lower() not in {'get','post','put','patch'} or not isinstance(op,dict):
-                      continue
-                  candidates.append((path,method.lower(),op))
-          if not candidates:
-              raise SystemExit('no email verification endpoint in live OpenAPI')
-          attempts=[]
-          success=None
-          for path, method, op in candidates:
-              url='https://api.call2me.app'+path
-              params=op.get('parameters') or []
-              query_names=[p.get('name') for p in params if isinstance(p,dict) and p.get('in')=='query']
-              path_names=[p.get('name') for p in params if isinstance(p,dict) and p.get('in')=='path']
-              for n in path_names:
-                  if n and 'token' in n.lower():
-                      url=url.replace('{'+n+'}', urllib.parse.quote(token,safe=''))
-              body=None
-              rb=(op.get('requestBody') or {}).get('content') or {}
-              schema=(rb.get('application/json') or {}).get('schema') or {}
-              props=schema.get('properties') or {}
-              token_field=next((k for k in props if 'token' in k.lower()), None)
-              if token_field:
-                  body=json.dumps({token_field:token})
-              if any(n and 'token' in n.lower() for n in query_names):
-                  n=next(n for n in query_names if n and 'token' in n.lower())
-                  url += ('&' if '?' in url else '?') + urllib.parse.urlencode({n:token})
-              cmd=['curl','-sS','--connect-timeout','15','--max-time','45','-o','/tmp/verify-response.json','-w','%{http_code}','-X',method.upper(),url]
-              if body is not None:
-                  cmd += ['-H','Content-Type: application/json','--data',body]
-              code=subprocess.check_output(cmd,text=True).strip()
-              attempts.append({'path':path,'method':method,'http_code':code})
-              if code.startswith('2'):
-                  success={'path':path,'method':method,'http_code':code}
-                  break
-          json.dump({'attempts':attempts,'success':success},open('/tmp/verify-sanitized.json','w'))
-          if not success:
-              raise SystemExit('verification endpoint did not return 2xx')
-          PY
+          jq -e '.paths["/v1/auth/verify-email"].post != null' /tmp/openapi.json >/dev/null
+          CODE="$(curl -sS --connect-timeout 15 --max-time 45 -o /tmp/verify-response.json -w '%{http_code}' \
+            -X POST "$API/auth/verify-email" -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg token "$TOKEN" '{token:$token}')")"
+          echo "verify_email_http=$CODE"
+          DETAIL="$(jq -r '.detail // .message // .error.message // empty' /tmp/verify-response.json 2>/dev/null || true)"
+          jq -n --arg code "$CODE" --arg detail "$DETAIL" '{path:"/v1/auth/verify-email",method:"post",http_code:$code,detail:$detail}' > /tmp/verify-sanitized.json
 
       - name: Verify wallet after claim
         shell: bash
@@ -126,8 +86,9 @@ jobs:
           [[ "$CODE" =~ ^2 ]] || exit 30
           BAL="$(jq -r '.balance // .available_balance // .balance_usd // 0' /tmp/wallet.json)"
           jq -n --arg balance "$BAL" --argjson verification "$(cat /tmp/verify-sanitized.json)" \
-            '{provider:"Call2Me",verification:$verification,wallet_balance_usd:($balance|tonumber)}' > /tmp/report.json
+            '{provider:"Call2Me",verification:$verification,wallet_balance_usd:($balance|tonumber),credit_available:(($balance|tonumber)>0)}' > /tmp/report.json
           cat /tmp/report.json
+          test "$(jq -r '.credit_available' /tmp/report.json)" = "true"
           rm -f /tmp/api.key /tmp/verify.token /tmp/private.pem /tmp/wallet.json /tmp/openapi.json /tmp/verify-response.json
 
       - name: Upload sanitized result

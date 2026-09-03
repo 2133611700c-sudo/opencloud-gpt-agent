@@ -149,11 +149,20 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - RESULT: no persistent GitHub secret exists, but this session has a proven secure execution path; do not repeat secret discovery.
 - STATUS: DONE.
 
+### J-016 — P-04 security/review checkpoint
+- VERIFIED: all four PR review threads that referenced `scripts/openclaw-phone-call.mjs` are now marked `outdated`; no current active review thread points at the current universal phone runner.
+- VERIFIED current hardened runner commit `c221546829699ec48e1f1ba09d3bacf559dd97c2` (`fix(phone): harden Call2Me runner data handling`).
+- VERIFIED current code uses `O_NOFOLLOW` + a single opened file descriptor for the task file, validates provider `call_id`/phone/status/duration, restricts Call2Me endpoint shapes, and does not persist transcript/provider response bodies/summary content to disk.
+- VERIFIED Workflow Self Validation run `33795557371` = success.
+- VERIFIED OpenClaw PR Validation run `33795557050` = success; all regression/safety steps completed successfully.
+- PENDING: CodeQL run `33795557092` is still executing `Analyze` on this same hardened head.
+- STATUS: IN PROGRESS until current CodeQL completes.
+
 ## NEXT MICRO STEP
 
-**P-04:** Inspect current PR #39 review/security findings specifically for `scripts/openclaw-phone-call.mjs` and the Call2Me execution path. Fix only verified findings. Do not touch auth, password reset, verification, signup-credit claim, greeting, API-key creation, or number discovery again unless new evidence changes their state.
+**P-04A:** Wait only for CodeQL run `33795557092` on head `c221546829699ec48e1f1ba09d3bacf559dd97c2`. If it succeeds with no new current phone-runner finding, close P-04. If it produces a new current finding, fix only that finding and repeat validation. Do not change unrelated phone-agent state.
 
-After P-04, the only operational production gate is external/financial: usable wallet balance plus one production caller number. No paid purchase/top-up is performed without explicit payment authorization.
+After P-04, the operational production gates remain usable wallet balance and one production caller number. No paid purchase/top-up is performed without explicit payment authorization.
 
 ## PHONE CALL TASK CONTRACT
 

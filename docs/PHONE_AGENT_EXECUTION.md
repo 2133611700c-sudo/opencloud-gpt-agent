@@ -13,7 +13,7 @@ This file is the active source of truth from J-020 onward.
 6. Product acceptance: `SERGII REQUEST -> PHONE TASK -> UNIVERSAL AGENT -> REAL CALL -> HUMAN DIALOG -> VERIFIED FACTS -> SERGII`.
 7. Architect rule: choose the shortest permanent path that satisfies the acceptance test; do not add infrastructure that does not remove a verified blocker.
 8. Auditor rule: no DONE/READY claim without primary-source or runtime evidence; record contradictions and replace stale assumptions immediately.
-9. Current user order: finish all zero-spend production preparation first; live test and funding come later.
+9. Current user order: complete launch today; continue all safe configuration immediately and test as soon as the remaining authenticated provider access is available.
 
 ## 1. LARGE TASK
 One universal outbound AI agent: natural Sergii request -> PHONE TASK -> real phone call -> AI disclosure/on behalf/purpose -> listens to real answers -> logical follow-ups -> verified factual result.
@@ -36,10 +36,11 @@ One universal outbound AI agent: natural Sergii request -> PHONE TASK -> real ph
 - Current official result fallback verified: `GET /v1/calls/{call_id}/vcon`; zero-spend vCon recovery code added to private evidence pipeline.
 - Current number provisioning contract verified: read-only `GET /v1/numbers/search`; paid `POST /v1/numbers/purchase`; paid checkout `POST /v1/numbers/checkout`.
 - Zero-spend US local number inventory/price preview implemented; it calls search only and masks phone numbers in logs.
+- Latest branch head CI is green: Workflow Self Validation, OpenClaw PR Validation and CodeQL all succeeded on `d7302ec4183eb19e26fed618e1d41bcb22c3d0d5`.
 
 ## 3. OPEN GAPS
 1. `CALL2ME_API_KEY` is not configured as a repository secret accessible to the production workflow; this is `BLOCKED_PRIVILEGE` from the current connector surface.
-2. Production caller number is not yet purchased/selected; user wants funding and number purchase later.
+2. Production caller number is not yet purchased/selected.
 3. Final Universal Agent has not passed live dynamic follow-up acceptance after final config.
 4. Private result pipeline needs runtime acceptance on a new completed call.
 5. Practical factual external call not yet done.
@@ -56,32 +57,31 @@ One universal outbound AI agent: natural Sergii request -> PHONE TASK -> real ph
 - Search parameters include `country` (default `US`), `locality`, `area_code`, `phone_number_type` (default `local`), `limit`, and `provider`.
 - `SearchResponse.numbers[]` uses `AvailableNumber`; available-number data includes `monthly_price_usd` and `upfront_price_usd`.
 - `SearchResponse` also exposes `requires_payment` and `upfront_price_usd`.
-- `POST /v1/numbers/purchase` is the paid purchase endpoint and is not called before new explicit approval.
-- `POST /v1/numbers/checkout` is a commercial checkout endpoint and is not called before new explicit approval.
+- `POST /v1/numbers/purchase` is the paid purchase endpoint.
+- `POST /v1/numbers/checkout` is a commercial checkout endpoint.
 - `GET /v1/phone-numbers` lists owned numbers; `PhoneNumberResponse.monthly_price_usd` records rental price.
 
 ### Free demo
 - public `POST /v1/demo/call` exposes optional `agent_id` override.
-- demo remains separate from the production-number path and is not the current priority because user ordered build-first, funding/test-later.
 
 ## 5. ORDERED PLAN
 ### T-1 Governance/inventory — DONE
 ### T-2 Provider contract audit — DONE
-### T-3 Zero-spend production build — ACTIVE
+### T-3 Zero-spend production build — DONE EXCEPT EXTERNAL CREDENTIAL DELIVERY
 - T-3.1 permanent runner — DONE.
 - T-3.2 permanent workflow — DONE.
 - T-3.3 private transcript/extraction evidence pipeline — CODE DONE; current vCon fallback added.
 - T-3.4 read-only production preflight — CODE DONE.
 - T-3.5 read-only US local inventory/price preview — CODE DONE.
 - T-3.6 persistent production API credential — BLOCKED_PRIVILEGE until repository secret can be written through an authorized surface.
-- T-3.7 CI validation of latest zero-spend additions — ACTIVE.
-### T-4 Commercial activation — DEFERRED BY USER
-- fund wallet;
-- run `number_preview_only=true` and verify exact current US local `monthly_price_usd` / `upfront_price_usd`;
-- purchase/select exactly one permanent Call2Me US local number only after explicit approval;
+- T-3.7 CI validation — DONE.
+### T-4 Commercial activation — ACTIVE FOR LAUNCH DAY
+- authenticate Call2Me account;
+- verify current wallet balance and exact number price before any number purchase;
+- purchase/select exactly one permanent Call2Me US local number only after verified price and available balance;
 - bind/configure `CALL2ME_FROM_NUMBER` if needed;
 - run `preflight_only=true` and require `ready_for_paid_call=true` before any paid call.
-### T-5 Live acceptance — DEFERRED BY USER UNTIL AFTER BUILD/FUNDING
+### T-5 Live acceptance — NEXT AFTER T-4
 - one explicitly authorized destination;
 - disclosure -> concrete purpose -> first question -> real answer -> logical follow-up -> verified answer -> proper end;
 - no recording;
@@ -97,8 +97,10 @@ Twilio/SIP/BYOC/AT&T; new voice provider; CRM/frontend/queue/microservices; mass
 - Production call path is implemented against the current `POST /v1/calls` contract.
 - Read-only zero-spend readiness and number-price preview paths are implemented in the same permanent workflow.
 - Current documented vCon evidence fallback is implemented.
-- The only non-commercial infrastructure blocker is persistent `CALL2ME_API_KEY` delivery to GitHub Actions.
-- Funding, number purchase and live testing remain intentionally deferred until Sergii authorizes them.
+- Latest branch CI is green.
+- A Paddle receipt dated 2026-09-03 confirms a user-initiated $5 Call2Me payment; do not treat this as wallet balance until Call2Me API readback confirms it.
+- Latest Call2Me password reset email exists and is still within its one-hour validity window at this checkpoint.
+- Current remaining hard blocker is authenticated Call2Me access plus secure delivery of `CALL2ME_API_KEY` to GitHub Actions; current GitHub connector cannot write Actions secrets and current chat has no form-capable browser.
 
 ## JOURNAL
 ### J-020 — Inventory reconciled — DONE
@@ -130,7 +132,7 @@ Twilio/SIP/BYOC/AT&T; new voice provider; CRM/frontend/queue/microservices; mass
 ### J-038 — User changed execution order — RECORDED
 - Finish all zero-spend production preparation first.
 - Funding/number purchase/live test later.
-- No paid action authorized.
+- No paid action authorized at that checkpoint.
 
 ### J-039 — Zero-spend production preflight — CODE DONE
 - Added `scripts/openclaw-phone-preflight.mjs`.
@@ -175,7 +177,18 @@ Twilio/SIP/BYOC/AT&T; new voice provider; CRM/frontend/queue/microservices; mass
 - Commits: `b7dd34f420504dbfb51939a38e44c8d28002a00e`, `f877e36ea97448922a911a72dc6e9acee7be0d04`.
 - COST: `$0.00`.
 
-### J-045 — CURRENT ACTION
-- Wait only for CI to validate the latest zero-spend workflow/code changes; fix any CODE failure immediately.
-- After CI green, zero-spend build is complete except the external privilege requirement to install `CALL2ME_API_KEY` as a repository secret.
-- Do not purchase/fund/call yet.
+### J-045 — CI validation — DONE
+- Branch head `d7302ec4183eb19e26fed618e1d41bcb22c3d0d5`.
+- Workflow Self Validation run `33814413076`: SUCCESS.
+- CodeQL run `33814413083`: SUCCESS.
+- OpenClaw PR Validation run `33814413043`: SUCCESS.
+
+### J-046 — Launch-day commercial evidence — VERIFIED / NOT YET API-RECONCILED
+- Gmail contains Paddle receipt dated 2026-09-03 for `$5.00`, product `Call2Me`.
+- This proves the user made a payment; it does not prove current Call2Me wallet balance.
+- Call2Me password-reset email is present and valid for one hour from issuance.
+
+### J-047 — CURRENT ACTION
+- Finish authenticated Call2Me access, then immediately run wallet/number inventory preview, select one permanent local number, preflight, and live acceptance.
+- Current connector limitation: GitHub Actions secrets cannot be written through the GitHub connector, and this chat has no form-capable cloud browser to submit the password-reset form.
+- Do not commit any credential or reset token to the public repository.

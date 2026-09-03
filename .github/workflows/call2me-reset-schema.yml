@@ -1,6 +1,6 @@
 name: Call2Me Reset Schema
 
-# Retry 2026-09-03 with the current credential retained from the secure bootstrap.
+# Reused registered diagnostic workflow for a read-only OpenAPI payment schema check.
 on:
   push:
     branches:
@@ -14,110 +14,40 @@ permissions:
 jobs:
   schema:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
-    env:
-      API: https://api.call2me.app/v1
-      EMAIL: 2133611700c@gmail.com
+    timeout-minutes: 5
     steps:
-      - name: Generate one-time search key
+      - name: Inspect Call2Me payment and number purchase schemas
         shell: bash
         run: |
           set -euo pipefail
-          umask 077
-          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/private.pem 2>/dev/null
-          openssl pkey -in /tmp/private.pem -pubout -out /tmp/public.pem
+          curl -fsSL --connect-timeout 15 --max-time 45 https://api.call2me.app/openapi.json -o /tmp/openapi.json
 
-      - name: Upload one-time search public key
-        uses: actions/upload-artifact@v5
-        with:
-          name: call2me-la-search-public-key-${{ github.run_id }}
-          path: /tmp/public.pem
-          retention-days: 1
-          if-no-files-found: error
+          jq '{
+            topup_path:(.paths["/v1/payments/topup"].post // null),
+            buy_path:(.paths["/v1/phone-numbers/buy"].post // null),
+            schemas:.components.schemas
+          }' /tmp/openapi.json > /tmp/raw.json
 
-      - name: Wait for encrypted login payload
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          PAYLOAD_API="https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-number-search/payload-${GITHUB_RUN_ID}.b64?ref=feat%2Fopenclaw-vendor-phone-calls"
-          found=false
-          for attempt in $(seq 1 120); do
-            code="$(curl -sS --connect-timeout 10 --max-time 20 \
-              -o /tmp/payload.b64 -w '%{http_code}' \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H 'Accept: application/vnd.github.raw+json' \
-              "${PAYLOAD_API}&nonce=${GITHUB_RUN_ID}-${attempt}")"
-            if [ "$code" = "200" ]; then found=true; break; fi
-            sleep 5
-          done
-          if [ "$found" != "true" ]; then exit 20; fi
-          base64 -d /tmp/payload.b64 > /tmp/payload.enc
-          openssl pkeyutl -decrypt \
-            -inkey /tmp/private.pem \
-            -in /tmp/payload.enc \
-            -out /tmp/login-payload.json \
-            -pkeyopt rsa_padding_mode:oaep \
-            -pkeyopt rsa_oaep_md:sha256
-          PASSWORD="$(jq -r '.password // empty' /tmp/login-payload.json)"
-          test -n "$PASSWORD"
-          echo "::add-mask::$PASSWORD"
-          printf '%s' "$PASSWORD" > /tmp/password
-          rm -f /tmp/payload.b64 /tmp/payload.enc /tmp/login-payload.json
-
-      - name: Login to Call2Me
-        shell: bash
-        run: |
-          set -euo pipefail
-          PASSWORD="$(cat /tmp/password)"
-          echo "::add-mask::$PASSWORD"
-          CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
-            -o /tmp/login.json -w '%{http_code}' \
-            -X POST "$API/auth/login" \
-            -H 'Content-Type: application/json' \
-            --data "$(jq -cn --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e,password:$p}')")"
-          echo "login_http=$CODE"
-          if [[ ! "$CODE" =~ ^2 ]]; then exit 30; fi
-          ACCESS="$(jq -r '.access_token // .data.access_token // empty' /tmp/login.json)"
-          test -n "$ACCESS"
-          echo "::add-mask::$ACCESS"
-          printf '%s' "$ACCESS" > /tmp/access.token
-          rm -f /tmp/password /tmp/login.json
-
-      - name: Search LA numbers read-only
-        shell: bash
-        run: |
-          set -euo pipefail
-          ACCESS="$(cat /tmp/access.token)"
-          echo "::add-mask::$ACCESS"
-
-          for AREA in 213 323 310; do
-            CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
-              -o "/tmp/search-${AREA}.json" -w '%{http_code}' \
-              "$API/numbers/search?country=US&area_code=${AREA}&phone_number_type=local&limit=10" \
-              -H "Authorization: Bearer $ACCESS")"
-            echo "area_${AREA}_http=$CODE"
-            if [[ ! "$CODE" =~ ^2 ]]; then
-              printf '{"http_code":%s,"numbers":[]}' "$CODE" > "/tmp/search-${AREA}.json"
-            fi
-          done
+          TOPUP_REF="$(jq -r '.topup_path.requestBody.content["application/json"].schema["$ref"] // empty' /tmp/raw.json)"
+          BUY_REF="$(jq -r '.buy_path.requestBody.content["application/json"].schema["$ref"] // empty' /tmp/raw.json)"
+          TOPUP_NAME="${TOPUP_REF##*/}"
+          BUY_NAME="${BUY_REF##*/}"
 
           jq -n \
-            --argjson a213 "$(cat /tmp/search-213.json)" \
-            --argjson a323 "$(cat /tmp/search-323.json)" \
-            --argjson a310 "$(cat /tmp/search-310.json)" \
-            '{provider:"Call2Me",searched_at:(now|todate),areas:{"213":$a213,"323":$a323,"310":$a310}}' \
-            > /tmp/call2me-la-number-search.json
+            --arg topup_ref "$TOPUP_REF" \
+            --arg buy_ref "$BUY_REF" \
+            --argjson topup_op "$(jq '.topup_path | {summary,description,requestBody,responses}' /tmp/raw.json)" \
+            --argjson buy_op "$(jq '.buy_path | {summary,description,requestBody,responses}' /tmp/raw.json)" \
+            --argjson topup_schema "$(jq --arg n "$TOPUP_NAME" '.schemas[$n] // null' /tmp/raw.json)" \
+            --argjson buy_schema "$(jq --arg n "$BUY_NAME" '.schemas[$n] // null' /tmp/raw.json)" \
+            '{topup_ref:$topup_ref,topup_schema:$topup_schema,topup_operation:$topup_op,buy_ref:$buy_ref,buy_schema:$buy_schema,buy_operation:$buy_op}' \
+            > /tmp/payment-schema.json
 
-          echo '=== LA number results ==='
-          jq '[.areas | to_entries[] | .key as $area | (.value.numbers // .value.results // .value.items // [])[]? | {area_code:$area,phone_number,locality,provider,monthly_price_usd,upfront_price_usd,telnyx_cost_usd,features}] | .[0:20]' /tmp/call2me-la-number-search.json
-          rm -f /tmp/access.token /tmp/private.pem
-
-      - name: Upload sanitized LA number search
+          cat /tmp/payment-schema.json
+      - name: Upload sanitized schema evidence
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-la-number-search-${{ github.run_id }}
-          path: /tmp/call2me-la-number-search.json
-          retention-days: 7
+          name: call2me-payment-schema-${{ github.run_id }}
+          path: /tmp/payment-schema.json
+          retention-days: 1
           if-no-files-found: error

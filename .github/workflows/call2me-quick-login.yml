@@ -1,0 +1,29 @@
+name: Call2Me Quick Login
+
+on:
+  push:
+    branches:
+      - feat/openclaw-vendor-phone-calls
+    paths:
+      - '.github/workflows/call2me-quick-login.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  quick-login:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request Call2Me quick login
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl --silent --show-error --connect-timeout 15 --max-time 45 \
+            -o /tmp/quick-login.json \
+            -w '%{http_code}' \
+            -X POST 'https://api.call2me.app/v1/auth/quick-login' \
+            -H 'Content-Type: application/json' \
+            --data '{"email":"2133611700c@gmail.com"}')
+          echo "HTTP $code"
+          cat /tmp/quick-login.json
+          test "$code" -ge 200 -a "$code" -lt 300

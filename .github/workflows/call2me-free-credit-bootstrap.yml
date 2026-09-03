@@ -1,6 +1,7 @@
 name: Call2Me Free Credit Bootstrap
 
 on:
+  workflow_dispatch:
   push:
     branches: [feat/openclaw-vendor-phone-calls]
     paths: ['.github/workflows/call2me-free-credit-bootstrap.yml']
@@ -11,111 +12,168 @@ permissions:
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
-      - name: Verify account, create API key and agent
+      - name: Authenticate, create API key and multifunction agent
         shell: bash
         run: |
           set -euo pipefail
-          API='https://api.call2me.app'
+          umask 077
+          API='https://api.call2me.app/v1'
           EMAIL='2133611700c@gmail.com'
-          VERIFY_TOKEN='a_2Er4wh8rwcxLFdhzxjDOYrOBinv7MnaLATxERVcAk'
-          RESET_TOKEN='TEgqZ_Ohkw4zROvnemRFF-R63UXoov71JExV0Jjx5ZM'
-          PASSWORD="$(python3 - <<'PY'
-          import secrets,string
-          alphabet=string.ascii_letters+string.digits+'!@#%^+=' 
-          print(''.join(secrets.choice(alphabet) for _ in range(32)))
+
+          QCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/quick.json -w '%{http_code}' \
+            -X POST "$API/auth/quick-login" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg email "$EMAIL" --arg name 'Sergii' '{email:$email,full_name:$name,expires_hours:1}')")"
+          echo "quick_login_http=$QCODE"
+          if [[ ! "$QCODE" =~ ^2 ]]; then
+            echo 'Quick login request failed.' >&2
+            exit 10
+          fi
+
+          URL="$(jq -r '.url // empty' /tmp/quick.json)"
+          TOKEN="$(python3 - "$URL" <<'PY'
+          import sys, urllib.parse
+          u=urllib.parse.urlparse(sys.argv[1])
+          q=urllib.parse.parse_qs(u.query)
+          print((q.get('token') or [''])[0])
           PY
           )"
-
-          post_json() {
-            local url="$1" body="$2" outfile="$3"
-            curl --silent --show-error --connect-timeout 15 --max-time 60 \
-              -o "$outfile" -w '%{http_code}' \
-              -X POST "$url" -H 'Content-Type: application/json' --data "$body"
-          }
-
-          VERIFY_CODE="$(post_json "$API/v1/auth/verify-email" "$(jq -nc --arg t "$VERIFY_TOKEN" '{token:$t}')" /tmp/verify.json)"
-          echo "verify_email_http=$VERIFY_CODE"
-
-          RESET_CODE="$(post_json "$API/v1/auth/reset-password" "$(jq -nc --arg t "$RESET_TOKEN" --arg p "$PASSWORD" '{token:$t,new_password:$p}')" /tmp/reset.json)"
-          echo "reset_password_http=$RESET_CODE"
-          if [ "$RESET_CODE" -lt 200 ] || [ "$RESET_CODE" -ge 300 ]; then
-            echo 'Password reset failed (response redacted).'
-            exit 1
+          if [ -z "$TOKEN" ]; then
+            echo 'Quick login token was not returned.' >&2
+            exit 11
           fi
 
-          LOGIN_CODE="$(post_json "$API/v1/auth/login" "$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e,password:$p}')" /tmp/login.json)"
-          echo "login_http=$LOGIN_CODE"
-          if [ "$LOGIN_CODE" -lt 200 ] || [ "$LOGIN_CODE" -ge 300 ]; then
-            echo 'Login failed (response redacted).'
-            exit 1
+          VCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/verify.json -w '%{http_code}' \
+            -X POST "$API/auth/quick-login/verify" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg token "$TOKEN" '{token:$token}')")"
+          echo "quick_login_verify_http=$VCODE"
+          if [[ ! "$VCODE" =~ ^2 ]]; then
+            echo 'Quick login verification failed.' >&2
+            exit 12
           fi
-          ACCESS="$(jq -r '.access_token // empty' /tmp/login.json)"
-          test -n "$ACCESS"
 
-          BAL_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+          ACCESS="$(jq -r '.access_token // .data.access_token // .token // empty' /tmp/verify.json)"
+          if [ -z "$ACCESS" ]; then
+            echo 'No access token returned.' >&2
+            exit 13
+          fi
+
+          BAL_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
             -o /tmp/balance.json -w '%{http_code}' \
-            "$API/v1/users/me/balance" -H "Authorization: Bearer $ACCESS")"
+            "$API/users/me/balance" -H "Authorization: Bearer $ACCESS")"
           echo "balance_http=$BAL_CODE"
-          jq '.' /tmp/balance.json | sed -E 's/(token|key|secret|password)"?: ?"[^"]+"/REDACTED/Ig' || true
-
-          KEY_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
-            -o /tmp/key.json -w '%{http_code}' \
-            -X POST "$API/v1/api-keys" -H 'Content-Type: application/json' \
-            -H "Authorization: Bearer $ACCESS" \
-            --data '{"name":"openclaw-call2me","read_only":false,"rate_limit":1000}')"
-          echo "api_key_http=$KEY_CODE"
-          if [ "$KEY_CODE" -lt 200 ] || [ "$KEY_CODE" -ge 300 ]; then
-            echo 'API key creation failed (response redacted).'
-            exit 1
+          if [[ ! "$BAL_CODE" =~ ^2 ]]; then
+            echo 'Balance check failed.' >&2
+            exit 14
           fi
 
-          VOICE_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+          KEY_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/key.json -w '%{http_code}' \
+            -X POST "$API/api-keys" -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $ACCESS" \
+            --data '{"name":"openclaw-call2me-runtime","read_only":false,"rate_limit":1000}')"
+          echo "api_key_http=$KEY_CODE"
+          if [[ ! "$KEY_CODE" =~ ^2 ]]; then
+            echo 'API key creation failed.' >&2
+            exit 15
+          fi
+          API_KEY="$(jq -r '.api_key // empty' /tmp/key.json)"
+          KEY_ID="$(jq -r '.key_id // empty' /tmp/key.json)"
+          if [ -z "$API_KEY" ]; then
+            echo 'API key value missing from response.' >&2
+            exit 16
+          fi
+
+          VOICE_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
             -o /tmp/voices.json -w '%{http_code}' \
-            "$API/v1/voices?language=en-US" -H "Authorization: Bearer $ACCESS")"
+            "$API/voices?language=en-US" -H "Authorization: Bearer $API_KEY")"
           echo "voices_http=$VOICE_CODE"
-          VOICE_ID="$(jq -r 'map(select(.voice_id=="openai-nova"))[0].voice_id // .[0].voice_id // empty' /tmp/voices.json)"
+          VOICE_ID="$(jq -r 'map(select(.voice_id=="openai-nova"))[0].voice_id // .[0].voice_id // empty' /tmp/voices.json 2>/dev/null || true)"
           if [ -z "$VOICE_ID" ]; then VOICE_ID='openai-nova'; fi
           echo "selected_voice=$VOICE_ID"
 
-          AGENT_BODY="$(jq -nc --arg v "$VOICE_ID" '{agent_name:"OpenClaw Vendor Verification",voice_id:$v,language:"en-US",begin_message_mode:"static",begin_message:"Hello, this is Sergii’s AI assistant. This is a brief test call. Can you hear me clearly?",max_call_duration_ms:120000,enable_recording:false,response_engine:{type:"call2me-llm",system_prompt:"You are Sergii’s authorized AI phone assistant. For this test call only, confirm audio and conversational quality. Ask whether the person can hear you clearly. If they say yes, reply: Great, the phone-agent test passed. Then politely end the call. Do not make purchases, reservations, commitments, or collect sensitive information.",llm_provider:"openrouter",llm_model:"gpt-4o-mini",temperature:0.2,builtin_functions:["end_call"]}}')"
-          AGENT_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+          SYSTEM_PROMPT=$(cat <<'PROMPT'
+          You are Sergii's authorized multifunction outbound AI phone assistant. At the beginning of every call, clearly say that you are an AI assistant calling on behalf of Sergii. Speak concise, natural American English.
+
+          The call supplies role, vendor_name, objective, and first_sentence in dynamic variables. Follow those runtime facts exactly.
+
+          Supported roles:
+          - vendor_inventory: verify the exact item/model/part number, whether it is physically in stock now, quantity, current price, exact pickup location, and whether Sergii can pick it up today. Ask the employee to physically verify shelf/warehouse inventory when useful. Never treat a catalog listing as physical stock.
+          - service_booking: obtain factual service availability, scope, price/estimate, and earliest appointment. Do not book unless the runtime objective explicitly authorizes booking.
+          - information_request: obtain the requested factual information and confirm it back.
+          - follow_up: obtain the current status of a prior request/order/service and the next concrete step.
+
+          Ask one short question at a time. Do not invent facts. Do not purchase, pay, reserve, accept terms, or make commitments unless the runtime objective explicitly authorizes that action. Recording is disabled. Before ending, briefly repeat the verified facts and ask for correction if anything is inaccurate, then thank the person and end the call.
+          PROMPT
+          )
+
+          AGENT_BODY="$(jq -cn --arg v "$VOICE_ID" --arg prompt "$SYSTEM_PROMPT" '{
+            agent_name:"Sergii OpenClaw MultiRole Caller",
+            voice_id:$v,
+            language:"en-US",
+            begin_message_mode:"dynamic",
+            max_call_duration_ms:300000,
+            enable_recording:false,
+            response_engine:{
+              type:"call2me-llm",
+              system_prompt:$prompt,
+              llm_provider:"openrouter",
+              llm_model:"gpt-4o-mini",
+              temperature:0.2,
+              builtin_functions:["end_call"]
+            },
+            metadata:{owner:"Sergii",purpose:"openclaw_outbound_calls"}
+          }')"
+          AGENT_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
             -o /tmp/agent.json -w '%{http_code}' \
-            -X POST "$API/v1/agents" -H 'Content-Type: application/json' \
-            -H "Authorization: Bearer $ACCESS" --data "$AGENT_BODY")"
+            -X POST "$API/agents" -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $API_KEY" --data "$AGENT_BODY")"
           echo "agent_http=$AGENT_CODE"
-          if [ "$AGENT_CODE" -lt 200 ] || [ "$AGENT_CODE" -ge 300 ]; then
-            cat /tmp/agent.json
-            exit 1
+          if [[ ! "$AGENT_CODE" =~ ^2 ]]; then
+            jq -r '{detail:(.detail // .message // "agent creation failed")}' /tmp/agent.json || true
+            exit 17
           fi
           AGENT_ID="$(jq -r '.agent_id // empty' /tmp/agent.json)"
+          if [ -z "$AGENT_ID" ]; then
+            echo 'Agent id missing from response.' >&2
+            exit 18
+          fi
           echo "agent_id=$AGENT_ID"
 
           jq -n \
-            --arg api_key "$(jq -r '.api_key' /tmp/key.json)" \
-            --arg key_id "$(jq -r '.key_id' /tmp/key.json)" \
+            --arg api_key "$API_KEY" \
+            --arg key_id "$KEY_ID" \
             --arg agent_id "$AGENT_ID" \
             --arg voice_id "$VOICE_ID" \
             --argjson balance "$(cat /tmp/balance.json)" \
-            '{api_key:$api_key,key_id:$key_id,agent_id:$agent_id,voice_id:$voice_id,balance:$balance}' \
-            > /tmp/call2me-bootstrap-private.json
+            '{api_key:$api_key,key_id:$key_id,agent_id:$agent_id,voice_id:$voice_id,balance:$balance,created_at:(now|todate)}' \
+            > /tmp/call2me-runtime-credential.json
 
           jq -n \
-            --arg agent_id "$AGENT_ID" --arg voice_id "$VOICE_ID" \
+            --arg key_id "$KEY_ID" \
+            --arg agent_id "$AGENT_ID" \
+            --arg voice_id "$VOICE_ID" \
             --argjson balance "$(cat /tmp/balance.json)" \
-            '{status:"ready",agent_id:$agent_id,voice_id:$voice_id,balance:$balance}' \
+            '{status:"ready",key_id:$key_id,agent_id:$agent_id,voice_id:$voice_id,balance:$balance}' \
             > /tmp/call2me-bootstrap-report.json
 
-      - name: Upload private bootstrap credential
+      - name: Upload Call2Me runtime credential
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-private-bootstrap-${{ github.run_id }}
-          path: /tmp/call2me-bootstrap-private.json
-          retention-days: 1
+          name: call2me-runtime-credential
+          path: /tmp/call2me-runtime-credential.json
+          if-no-files-found: error
+          retention-days: 90
 
-      - name: Upload sanitized report
+      - name: Upload sanitized bootstrap report
         uses: actions/upload-artifact@v5
         with:
           name: call2me-bootstrap-report-${{ github.run_id }}
           path: /tmp/call2me-bootstrap-report.json
-          retention-days: 7
+          if-no-files-found: error
+          retention-days: 30

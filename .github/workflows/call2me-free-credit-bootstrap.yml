@@ -16,7 +16,6 @@ jobs:
     env:
       API: https://api.call2me.app/v1
       EMAIL: 2133611700c@gmail.com
-      TEST_PHONE: '+12133611700'
       EXISTING_AGENT_ID: agent_f2949915a3f2
       PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-secure-reset/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
     steps:
@@ -32,7 +31,7 @@ jobs:
       - name: Upload one-time public key
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-login-public-key-${{ github.run_id }}
+          name: call2me-wallet-public-key-${{ github.run_id }}
           path: /tmp/public.pem
           if-no-files-found: error
           retention-days: 1
@@ -82,7 +81,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          umask 077
           PASSWORD="$(cat /tmp/call2me.password)"
           echo "::add-mask::$PASSWORD"
           LOGIN_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
@@ -91,114 +89,60 @@ jobs:
             -H 'Content-Type: application/json' \
             --data "$(jq -cn --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e,password:$p}')")"
           echo "login_http=$LOGIN_CODE"
-          if [[ ! "$LOGIN_CODE" =~ ^2 ]]; then
-            echo 'Call2Me login failed.' >&2
-            exit 30
-          fi
+          if [[ ! "$LOGIN_CODE" =~ ^2 ]]; then exit 30; fi
           ACCESS="$(jq -r '.access_token // .data.access_token // empty' /tmp/login.json)"
-          if [ -z "$ACCESS" ]; then
-            echo 'Login returned no access token.' >&2
-            exit 31
-          fi
+          test -n "$ACCESS"
           echo "::add-mask::$ACCESS"
           printf '%s' "$ACCESS" > /tmp/access.token
           rm -f /tmp/login.json
-          echo 'call2me_login_ready=true'
 
-      - name: Verify existing universal phone agent
+      - name: Audit wallet and signup bonus
         shell: bash
         run: |
           set -euo pipefail
           ACCESS="$(cat /tmp/access.token)"
           echo "::add-mask::$ACCESS"
-          CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
-            -o /tmp/agent.json -w '%{http_code}' \
-            "$API/agents/$EXISTING_AGENT_ID" \
-            -H "Authorization: Bearer $ACCESS")"
-          echo "agent_lookup_http=$CODE"
-          if [[ ! "$CODE" =~ ^2 ]]; then
-            echo 'Existing universal phone agent is unavailable.' >&2
-            exit 40
-          fi
-          RETURNED_ID="$(jq -r '.agent_id // empty' /tmp/agent.json)"
-          if [ "$RETURNED_ID" != "$EXISTING_AGENT_ID" ]; then
-            echo 'Agent identity mismatch.' >&2
-            exit 41
-          fi
-          printf '%s' "$RETURNED_ID" > /tmp/agent.id
-          echo "agent_id=$RETURNED_ID"
 
-      - name: Place authorized self-test call
-        shell: bash
-        run: |
-          set -euo pipefail
-          ACCESS="$(cat /tmp/access.token)"
-          AGENT_ID="$(cat /tmp/agent.id)"
-          echo "::add-mask::$ACCESS"
-          echo "test_phone_format=$TEST_PHONE"
-          BODY="$(jq -cn --arg agent "$AGENT_ID" --arg phone "$TEST_PHONE" '{
-            agent_id:$agent,
-            to_number:$phone,
-            metadata:{test:"sergii_universal_phone_agent",requested_by:"Sergii"},
-            dynamic_variables:{language:"en",objective:"Confirm two-way audio and natural conversation quality."}
-          }')"
-          CALL_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
-            -o /tmp/call.json -w '%{http_code}' \
-            -X POST "$API/calls" \
-            -H 'Content-Type: application/json' \
-            -H "Authorization: Bearer $ACCESS" \
-            --data "$BODY")"
-          echo "call_http=$CALL_CODE"
-          if [[ ! "$CALL_CODE" =~ ^2 ]]; then
-            jq -r '{detail:(.detail // .message // "call request rejected")}' /tmp/call.json || true
-            exit 50
-          fi
-          CALL_ID="$(jq -r '.call_id // empty' /tmp/call.json)"
-          if [ -z "$CALL_ID" ]; then
-            echo 'Call API returned no call_id.' >&2
-            exit 51
-          fi
-          printf '%s' "$CALL_ID" > /tmp/call.id
-          echo "call_id=$CALL_ID"
-
-      - name: Poll call result
-        shell: bash
-        run: |
-          set -euo pipefail
-          ACCESS="$(cat /tmp/access.token)"
-          CALL_ID="$(cat /tmp/call.id)"
-          echo "::add-mask::$ACCESS"
-          for attempt in $(seq 1 72); do
-            CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
-              -o /tmp/call-result.json -w '%{http_code}' \
-              "$API/calls/$CALL_ID" -H "Authorization: Bearer $ACCESS")"
-            if [[ "$CODE" =~ ^2 ]]; then
-              STATUS="$(jq -r '.status // .call_status // empty' /tmp/call-result.json)"
-              echo "poll_status=${STATUS:-unknown}"
-              case "$STATUS" in
-                completed|ended|failed|no_answer|no-answer|busy|voicemail|cancelled|canceled) break ;;
-              esac
+          get_json() {
+            local path="$1" out="$2"
+            local code
+            code="$(curl -sS --connect-timeout 15 --max-time 30 -o "$out" -w '%{http_code}' \
+              "$API$path" -H "Authorization: Bearer $ACCESS")"
+            echo "$out http=$code"
+            if [[ ! "$code" =~ ^2 ]]; then
+              printf '{"http_code":%s}' "$code" > "$out"
             fi
-            sleep 5
-          done
-          test -s /tmp/call-result.json
-          jq '
-            def scrub:
-              walk(if type == "object" then with_entries(select(((.key|ascii_downcase)|test("token|password|secret|api_key|authorization"))|not)) else . end);
-            scrub
-          ' /tmp/call-result.json > /tmp/call-result-sanitized.json
+          }
+
+          get_json '/wallet/balance' /tmp/wallet-balance.json
+          get_json '/wallet/summary' /tmp/wallet-summary.json
+          get_json '/wallet/transactions?limit=20&offset=0' /tmp/wallet-transactions.json
+          get_json '/wallet/pricing' /tmp/wallet-pricing.json
+          get_json '/users/me/balance' /tmp/user-balance.json
+          get_json "/agents/$EXISTING_AGENT_ID" /tmp/agent.json
+
           jq -n \
-            --arg agent_id "$(cat /tmp/agent.id)" \
-            --arg call_id "$(cat /tmp/call.id)" \
-            --argjson provider_result "$(cat /tmp/call-result-sanitized.json)" \
-            '{status:"test_finished",provider:"Call2Me",agent_id:$agent_id,call_id:$call_id,provider_result:$provider_result,verified_at:(now|todate)}' \
-            > /tmp/call2me-bootstrap-report.json
+            --arg provider 'Call2Me' \
+            --arg agent_id "$EXISTING_AGENT_ID" \
+            --argjson wallet_balance "$(cat /tmp/wallet-balance.json)" \
+            --argjson wallet_summary "$(cat /tmp/wallet-summary.json)" \
+            --argjson transactions "$(cat /tmp/wallet-transactions.json)" \
+            --argjson pricing "$(cat /tmp/wallet-pricing.json)" \
+            --argjson user_balance "$(cat /tmp/user-balance.json)" \
+            --argjson agent "$(cat /tmp/agent.json)" \
+            '{provider:$provider,agent_id:$agent_id,wallet_balance:$wallet_balance,wallet_summary:$wallet_summary,transactions:$transactions,pricing:$pricing,user_balance:$user_balance,agent:{agent_id:($agent.agent_id // null),agent_name:($agent.agent_name // null),language:($agent.language // null),voice_id:($agent.voice_id // null)},verified_at:(now|todate)}' \
+            > /tmp/call2me-wallet-report.json
+
+          echo '=== wallet summary ==='
+          jq '{wallet_balance, wallet_summary, pricing, user_balance, agent}' /tmp/call2me-wallet-report.json
+          echo '=== transactions summary ==='
+          jq '.transactions' /tmp/call2me-wallet-report.json
           rm -f /tmp/access.token /tmp/call2me.password /tmp/private.pem
 
-      - name: Upload sanitized bootstrap report
+      - name: Upload sanitized wallet report
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-bootstrap-report-${{ github.run_id }}
-          path: /tmp/call2me-bootstrap-report.json
+          name: call2me-wallet-report-${{ github.run_id }}
+          path: /tmp/call2me-wallet-report.json
           if-no-files-found: error
           retention-days: 30

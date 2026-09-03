@@ -23,7 +23,6 @@ export const supportedTaskTypes = new Set([
   "outreach_send_approved",
   "codex_delegate",
   "repo_patch",
-  "phone_call",
 ]);
 export const allowedStatuses = new Set(["PASS", "FAIL", "BLOCKED", "DEGRADED"]);
 export const resultStatuses = new Set(["success", "failed", "blocked", "partial"]);

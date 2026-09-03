@@ -8,7 +8,7 @@ For every phone-agent step, use this loop and do not skip it:
 
 `PLAN STEP -> VERIFY CURRENT STATE -> DO ONE SMALL ACTION -> VERIFY RESULT -> WRITE JOURNAL ENTRY -> MOVE TO NEXT STEP`
 
-Do not repeat a completed step unless the journal explicitly records new evidence that invalidates it.
+Do not repeat a completed step unless the journal explicitly records new evidence that invalidates it. A failed approach is not task completion: find the next safe approach inside the same plan item until the item is actually complete or an external action is genuinely required.
 
 ## PLAN
 
@@ -98,11 +98,17 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - RESULT: ignore the reset email unless future login verification invalidates J-002.
 - STATUS: CLOSED AS UNNECESSARY.
 
+### J-009 — P-01 validation finding
+- VERIFIED: `.github/workflows/openclaw-phone-call.yml` parses successfully as YAML.
+- VERIFIED: all workflow YAML files parse successfully in `Workflow Self Validation`.
+- VERIFIED: `scripts/openclaw-phone-call.mjs` contains required wallet/agent/from-number checks, task-id dedupe, and no automatic retry of the dial POST.
+- CI FINDING: `Workflow Self Validation` run `33793570658` failed only in actionlint/shellcheck because old file `.github/workflows/call2me-multirole-selftest.yml` has SC2034 (`i` unused) in its polling loop.
+- RESULT: phone workflow itself is not the source of this CI failure; the branch cannot be declared validated until the old SC2034 is fixed and CI is green.
+- STATUS: IN PROGRESS — fix SC2034 and rerun validation.
+
 ## NEXT MICRO STEP
 
-**P-01:** Validate the existing phone runner/workflow code and current PR checks. Do not touch passwords, reset flow, wallet audit, or provider selection during this step.
-
-After P-01 completes: write its result here as J-009, then proceed to P-02 (agent greeting cleanup).
+**P-01A:** Fix only the SC2034 warning in `call2me-multirole-selftest.yml`, then verify Workflow Self Validation, OpenClaw PR Validation and CodeQL on the resulting head. When green, close J-009/P-01 and proceed to P-02.
 
 ## PHONE CALL TASK CONTRACT
 

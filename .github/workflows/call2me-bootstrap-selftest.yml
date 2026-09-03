@@ -7,7 +7,6 @@ on:
     paths:
       - "scripts/call2me-bootstrap-selftest.mjs"
       - ".github/workflows/call2me-bootstrap-selftest.yml"
-      - "ops/agent-control/call2me-bootstrap/*.json"
 
 permissions:
   contents: read

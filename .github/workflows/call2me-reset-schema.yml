@@ -14,27 +14,17 @@ jobs:
   schema:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch exact Call2Me auth schemas
+      - name: Inspect Call2Me credit and wallet schemas
         shell: bash
         run: |
           set -euo pipefail
           curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
 
-          print_endpoint_and_schema() {
-            local path="$1"
-            echo "=== $path endpoint ==="
-            jq --arg p "$path" '.paths[$p].post' /tmp/openapi.json
-            ref="$(jq -r --arg p "$path" '.paths[$p].post.requestBody.content["application/json"].schema["$ref"] // empty' /tmp/openapi.json)"
-            if [ -n "$ref" ]; then
-              name="${ref##*/}"
-              echo "=== $name schema ==="
-              jq --arg n "$name" '.components.schemas[$n]' /tmp/openapi.json
-            fi
-          }
+          echo '=== matching paths ==='
+          jq -r '.paths | to_entries[] | select(.key | test("wallet|balance|credit|claim|verify-email|pricing"; "i")) | [.key, (.value|keys|join(","))] | @tsv' /tmp/openapi.json
 
-          print_endpoint_and_schema '/v1/auth/reset-password'
-          print_endpoint_and_schema '/v1/auth/login'
-          print_endpoint_and_schema '/v1/auth/quick-login'
-          print_endpoint_and_schema '/v1/auth/quick-login/verify'
-          print_endpoint_and_schema '/v1/api-keys'
-          print_endpoint_and_schema '/v1/demo/call'
+          echo '=== endpoint details ==='
+          jq '.paths | with_entries(select(.key | test("wallet|balance|credit|claim|verify-email|pricing"; "i")))' /tmp/openapi.json
+
+          echo '=== matching component schemas ==='
+          jq '.components.schemas | with_entries(select(.key | test("wallet|balance|credit|claim|verify|pricing"; "i")))' /tmp/openapi.json

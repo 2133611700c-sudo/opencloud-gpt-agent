@@ -107,9 +107,17 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - RESULT: P-01 validation is complete.
 - STATUS: DONE.
 
+### J-010 — P-02A historical finalize check
+- VERIFIED: Gmail has one historical `Call2Me Finalize Login` notification for run `33792197023`, and it is FAILED.
+- VERIFIED: encrypted password payload was received and decrypted successfully by that run.
+- VERIFIED: `Login with existing password` returned `login_http=401`.
+- VERIFIED: `Configure universal outbound agent`, `Create dedicated OpenClaw API key`, `Audit wallet and caller-number readiness`, and both output-artifact steps were skipped.
+- RESULT: the historical finalize run did NOT patch the live agent and did NOT create the dedicated API key; these remain real work.
+- STATUS: DONE.
+
 ## NEXT MICRO STEP
 
-**P-02:** Read the current live agent configuration for `agent_f2949915a3f2`, then update the actual Call2Me agent (not merely repo text) to a production purpose-first prompt and `begin_message_mode=dynamic`. Verify by reading the agent back from Call2Me. Do not dial yet.
+**P-02B:** Before changing the password again, locate any still-valid credential already produced by the successful auth recovery (current password file, API-key artifact, or other non-expired credential evidence). If one exists, use it with the existing `call2me-finalize-login.yml`; if no valid credential exists, then perform one controlled password reset and immediately finish live agent PATCH/read-back plus API-key creation in the same secure flow. Do not dial during P-02.
 
 ## PHONE CALL TASK CONTRACT
 

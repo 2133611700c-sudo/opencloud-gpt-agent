@@ -1,4 +1,4 @@
-name: Call2Me Quick Login
+name: Call2Me Dashboard Contract Probe
 
 on:
   push:
@@ -6,25 +6,119 @@ on:
       - feat/openclaw-vendor-phone-calls
     paths:
       - '.github/workflows/call2me-quick-login.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  quick-login:
+  probe:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      API: https://api.call2me.app/v1
+      EMAIL: 2133611700c@gmail.com
+      AGENT_ID: agent_f2949915a3f2
     steps:
-      - name: Request Call2Me quick login
+      - name: Obtain passwordless dashboard session
         shell: bash
         run: |
           set -euo pipefail
-          code=$(curl --silent --show-error --connect-timeout 15 --max-time 45 \
-            -o /tmp/quick-login.json \
-            -w '%{http_code}' \
-            -X POST 'https://api.call2me.app/v1/auth/quick-login' \
+          umask 077
+          QCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/quick.json -w '%{http_code}' \
+            -X POST "$API/auth/quick-login" \
             -H 'Content-Type: application/json' \
-            --data '{"email":"2133611700c@gmail.com"}')
-          echo "HTTP $code"
-          cat /tmp/quick-login.json
-          test "$code" -ge 200 -a "$code" -lt 300
-# trigger: 2026-09-03T10:43-05:00
+            --data "$(jq -cn --arg email "$EMAIL" --arg name 'Sergii' '{email:$email,full_name:$name,expires_hours:1}')")"
+          echo "quick_login_http=$QCODE"
+          [[ "$QCODE" =~ ^2 ]] || exit 20
+
+          URL="$(jq -r '.url // empty' /tmp/quick.json)"
+          TOKEN="$(python - "$URL" <<'PY'
+          import sys, urllib.parse
+          u = urllib.parse.urlparse(sys.argv[1])
+          q = urllib.parse.parse_qs(u.query)
+          print((q.get('token') or [''])[0])
+          PY
+          )"
+          test -n "$TOKEN"
+          echo "::add-mask::$TOKEN"
+
+          VCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/verify.json -w '%{http_code}' \
+            -X POST "$API/auth/quick-login/verify" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg token "$TOKEN" '{token:$token}')")"
+          echo "quick_verify_http=$VCODE"
+          [[ "$VCODE" =~ ^2 ]] || exit 21
+          ACCESS="$(jq -r '.access_token // .data.access_token // .token // empty' /tmp/verify.json)"
+          test -n "$ACCESS"
+          echo "::add-mask::$ACCESS"
+          printf '%s' "$ACCESS" > /tmp/access.token
+          rm -f /tmp/quick.json /tmp/verify.json
+
+      - name: Audit official OpenAPI and authenticated settings read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCESS="$(cat /tmp/access.token)"
+          echo "::add-mask::$ACCESS"
+
+          OCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/openapi.json -w '%{http_code}' 'https://api.call2me.app/openapi.json')"
+          UCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/user.json -w '%{http_code}' "$API/users/me" -H "Authorization: Bearer $ACCESS")"
+          ACODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/auth-me.json -w '%{http_code}' "$API/auth/me" -H "Authorization: Bearer $ACCESS")"
+          GCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/agent.json -w '%{http_code}' "$API/agents/$AGENT_ID" -H "Authorization: Bearer $ACCESS")"
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          spec = json.loads(Path('/tmp/openapi.json').read_text())
+          matches = []
+          def walk(value, p='$'):
+              if isinstance(value, dict):
+                  for k, v in value.items():
+                      np = f'{p}.{k}'
+                      if 'demo' in str(k).lower():
+                          matches.append(np)
+                      walk(v, np)
+              elif isinstance(value, list):
+                  for i, v in enumerate(value):
+                      walk(v, f'{p}[{i}]')
+              elif isinstance(value, str) and 'demo' in value.lower():
+                  matches.append(p)
+          walk(spec)
+          paths = sorted(k for k in spec.get('paths', {}) if 'demo' in k.lower())
+          Path('/tmp/openapi-demo.json').write_text(json.dumps({
+              'demo_paths': paths,
+              'demo_reference_locations': sorted(set(matches))[:200],
+              'path_count': len(spec.get('paths', {})),
+          }, indent=2) + '\n')
+          PY
+
+          jq -n \
+            --arg openapi_http "$OCODE" \
+            --arg users_me_http "$UCODE" \
+            --arg auth_me_http "$ACODE" \
+            --arg agent_http "$GCODE" \
+            --arg agent_id "$AGENT_ID" \
+            --argjson openapi_demo "$(cat /tmp/openapi-demo.json)" \
+            --argjson user_keys "$(jq -c 'if type=="object" then (keys|sort) else [] end' /tmp/user.json 2>/dev/null || echo '[]')" \
+            --argjson user_demo_fields "$(jq -c 'if type=="object" then [to_entries[] | select(.key|test("demo|agent";"i")) | {key:.key,value:(if (.value|type)=="string" or (.value|type)=="number" or (.value|type)=="boolean" then .value else "<non-scalar>" end)}] else [] end' /tmp/user.json 2>/dev/null || echo '[]')" \
+            --arg agent_returned "$(jq -r '.agent_id // empty' /tmp/agent.json 2>/dev/null || true)" \
+            '{authenticated:true,openapi_http:$openapi_http,users_me_http:$users_me_http,auth_me_http:$auth_me_http,target_agent_http:$agent_http,target_agent_expected:$agent_id,target_agent_returned:$agent_returned,user_object_keys:$user_keys,user_demo_or_agent_fields:$user_demo_fields,openapi:$openapi_demo}' \
+            > /tmp/dashboard-contract-report.json
+          cat /tmp/dashboard-contract-report.json
+          rm -f /tmp/access.token /tmp/openapi.json /tmp/user.json /tmp/auth-me.json /tmp/agent.json /tmp/openapi-demo.json
+
+      - name: Upload sanitized contract report
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-dashboard-contract-${{ github.run_id }}
+          path: /tmp/dashboard-contract-report.json
+          retention-days: 7
+          if-no-files-found: error

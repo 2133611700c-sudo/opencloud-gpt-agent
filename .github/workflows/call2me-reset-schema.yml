@@ -1,5 +1,6 @@
 name: Call2Me Reset Schema
 
+# Retry 2026-09-03 with the current credential retained from the secure bootstrap.
 on:
   push:
     branches:

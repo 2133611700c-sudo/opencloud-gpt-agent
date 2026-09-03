@@ -15,8 +15,8 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 1. Validate the current Call2Me/OpenClaw phone runner and workflow. — DONE
 2. Fix and verify the universal agent purpose-first opening. — DONE
 3. Establish usable Call2Me authentication without plaintext credentials in Git history/logs. — DONE FOR CURRENT SESSION
-4. Resolve usable wallet balance. — EXTERNAL BLOCKER / RECHECK PROVIDER STATE
-5. Obtain or bind one production caller number (`from_number`). — REQUIRES PAID ACTION OR BYOC
+4. Resolve usable wallet balance. — EXTERNAL FINANCIAL GATE
+5. Obtain or bind one production caller number (`from_number`). — EXTERNAL FINANCIAL GATE
 6. Run the authorized self-test to `+12133611700`.
 7. Verify ring -> answer -> purpose-first intro -> two-way conversation -> follow-up -> call completion -> result retrieval.
 8. Only after that, perform one safe practical information call to an external business/manager.
@@ -33,12 +33,16 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - Production `/v1/calls` reached Call2Me and returned HTTP 402 `Insufficient balance`.
 - Wallet evidence: balance `$0.00`, `can_proceed=false`, minimum `$0.01`, configured signup bonus `$5.00`, transactions `0`, total top-up `$0.00`, total usage `$0.00`.
 - Call2Me confirmed the account email is already verified. The signup-credit verification/claim was also retried and the wallet still remained `$0.00`; do not repeat that claim unless provider state changes.
-- Support request for the missing $5 signup credit was sent on 2026-09-03.
+- Support request for the missing $5 signup credit was sent on 2026-09-03; latest support check found no reply.
 - Dedicated Call2Me API key exists: key id `key_6ab5960f19cb52ed`, expiration `2027-03-02T18:37:47Z`. The key value is not stored in Git.
 - GitHub Actions persistent secrets are absent: `CALL2ME_API_KEY=false`, `OPENCLAW_CONTROL_SHARED_SECRET=false`, `OPENCLAW_GITHUB_TOKEN=false`.
 - This absence is not a blocker for the current session: the dedicated Call2Me key was successfully reused through the existing RSA-encrypted one-time payload workflow; consumed ciphertext is removed after use.
 - `/v1/phone-numbers` returned HTTP 200 with an empty owned-number list.
-- Read-only LA number search succeeded. At the verified search time, multiple 213-area candidates were available at `$5.00 upfront / $5.00 monthly`. Recheck availability only immediately before an authorized purchase.
+- Read-only LA number search succeeded. Observed candidates had `upfront_price_usd=5.0`, `monthly_price_usd=5.0`, and `requires_payment=true`.
+- Official Call2Me docs confirm number billing is wallet-backed and production outbound needs a provisioned/owned or BYOC/SIP caller number.
+- Current public pricing page shows standard voice at about `$0.20/min` plus `$0.05/min` PSTN telephony; a 5-minute test therefore needs up to about `$1.25` usage credit. With the verified `$5` upfront number charge, a `$6.25` wallet budget covers one maximum-length self-test; `$7` is the practical target top-up amount if the provider accepts that amount.
+- Official current wallet docs expose `POST /v1/wallet/topup` with `{"amount_usd": ...}` to initiate a top-up; no payment is executed without explicit authorization.
+- Demo-number bypass was checked: one demo call per destination number per day, 60-second cap. Sergii's number already received today's demo call, so demo cannot provide a second purpose-first self-test today.
 - MVP runner: `scripts/openclaw-phone-call.mjs`.
 - MVP workflow: `.github/workflows/openclaw-phone-call.yml`.
 - Task template: `ops/agent-control/templates/phone-call.example.json`.
@@ -47,8 +51,8 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 
 ## CURRENT BLOCKERS
 
-1. **Usable wallet balance** — last verified balance is `$0.00`; production calls return HTTP 402. The promised $5 was not provisioned despite verified account/claim.
-2. **Production caller number** — owned number list is empty. A Call2Me number is a paid action; BYOC/SIP is the alternative.
+1. **Wallet funding authorization / payment completion** — wallet is `$0.00`; Call2Me production calls return HTTP 402.
+2. **Production caller-number purchase authorization** — owned-number list is empty; observed local numbers require `$5` upfront and `$5/month` renewal.
 
 ## CLOSED ITEMS — DO NOT REPEAT
 
@@ -61,8 +65,9 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - E.164 leading-plus fix.
 - Runner/workflow validation.
 - GitHub Actions secret-presence audit.
-- Read-only LA number discovery, except immediately before a real purchase.
+- Read-only LA number discovery, except immediately before an authorized purchase.
 - Old CodeQL findings against superseded versions of `scripts/openclaw-phone-call.mjs`.
+- Demo-number bypass for a second call to Sergii today.
 
 ## JOURNAL — 2026-09-03
 
@@ -127,23 +132,31 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - STATUS: DISCOVERY DONE / PURCHASE NOT AUTHORIZED.
 
 ### J-015 — P-03 credential execution path verified
-- VERIFIED: persistent GitHub secrets absent; GitHub Action cannot self-bootstrap repository secret; dedicated key can be passed securely by one-time RSA-OAEP/SHA-256 payload and used successfully.
+- VERIFIED: persistent GitHub secrets absent; dedicated key can be passed securely by one-time RSA-OAEP/SHA-256 payload and used successfully.
 - STATUS: DONE FOR CURRENT SESSION.
 
 ### J-016 — P-04 hardened runner security validation
-- VERIFIED: old PR CodeQL threads for `scripts/openclaw-phone-call.mjs` are outdated.
-- VERIFIED hardened commit `c221546829699ec48e1f1ba09d3bacf559dd97c2` uses `O_NOFOLLOW` plus one file descriptor, validates provider-controlled identifiers/status/duration, restricts endpoint shapes, and keeps transcript/provider bodies/summary content off disk.
+- VERIFIED hardened commit `c221546829699ec48e1f1ba09d3bacf559dd97c2`.
 - VERIFIED Workflow Self Validation run `33795557371` = SUCCESS.
 - VERIFIED OpenClaw PR Validation run `33795557050` = SUCCESS.
 - VERIFIED CodeQL run `33795557092`, job `100782274434`, including Analyze = SUCCESS.
-- RESULT: no new current CodeQL finding against the hardened universal phone runner.
+- VERIFIED all four CodeQL threads targeting the old `scripts/openclaw-phone-call.mjs` version are resolved/outdated.
 - STATUS: DONE.
+
+### J-017 — P-05 external financial gate quantified
+- VERIFIED: Call2Me support has not replied yet.
+- ACTION: wallet was not re-queried because no new provider-side state existed; verification/claim/reset were not repeated.
+- VERIFIED: demo docs allow one call per destination number per day and max 60 seconds; Sergii's number already used today's demo path.
+- VERIFIED artifact: candidate local numbers require payment and report `$5.00` upfront / `$5.00` monthly.
+- VERIFIED current public pricing: about `$0.20/min` voice + `$0.05/min` PSTN telephony; recording is disabled on our agent.
+- CALCULATED: maximum configured 5-minute self-test usage is about `$1.25`; number + full self-test budget is about `$6.25`; practical requested wallet funding target is `$7` if accepted by the payment provider.
+- VERIFIED: current wallet docs expose `POST /v1/wallet/topup` and current API reference exposes `POST /v1/phone-numbers/buy`.
+- RESULT: all remaining non-financial blockers before self-test are closed. The next action can create/complete funding and purchase one production caller number, then immediately run the self-test.
+- STATUS: DONE / AWAITING EXPLICIT PAYMENT AUTHORIZATION.
 
 ## NEXT MICRO STEP
 
-**P-05:** Check for a new Call2Me support reply and, only if there is new provider-side state, re-read wallet balance once. Do not repeat verification/claim/reset. If balance remains zero with no provider correction, record the external financial gate and proceed to evaluate the exact minimum authorized funding/number purchase needed for the self-test.
-
-No paid purchase/top-up is performed without explicit payment authorization.
+**P-06:** After explicit authorization to spend, initiate Call2Me wallet funding with a target of `$7` (or the provider's smallest permitted amount at or above the required budget), provision one available local US production number with an upfront charge not exceeding `$5`, bind it to `agent_f2949915a3f2`, verify wallet + owned number, then run the authorized self-test to `+12133611700` and retrieve the sanitized result. Do not enable recording. Do not make any other purchase.
 
 ## PHONE CALL TASK CONTRACT
 

@@ -28,11 +28,14 @@ One universal outbound AI agent: natural Sergii request -> PHONE TASK -> real ph
 - Permanent workflow `.github/workflows/openclaw-phone-call.yml`.
 - PHONE TASK template exists.
 - Idempotency/no-redial/safety/public-sanitization guards exist.
-- Private transcript/extraction artifact pipeline implemented and CI green.
-- OpenClaw PR Validation, Workflow Self Validation and CodeQL green after current runner changes.
-- Current official OpenAPI 3.1 contract audited successfully in run `33805529385`.
+- Private transcript/extraction artifact pipeline implemented.
+- Current official OpenAPI 3.1 contract audited successfully.
 - Zero-spend production preflight implemented in `scripts/openclaw-phone-preflight.mjs`.
-- Existing phone workflow now has `preflight_only` mode that performs read-only provider checks and cannot create a call.
+- Existing phone workflow has `preflight_only` mode that performs read-only provider checks and cannot create a call.
+- Current production call creation contract verified: `POST /v1/calls` supports `agent_id`, `to_number`, optional `from_number`, `metadata`, and `dynamic_variables`; existing runner matches it.
+- Current official result fallback verified: `GET /v1/calls/{call_id}/vcon`; zero-spend vCon recovery code added to private evidence pipeline.
+- Current number provisioning contract verified: read-only `GET /v1/numbers/search`; paid `POST /v1/numbers/purchase`; paid checkout `POST /v1/numbers/checkout`.
+- Zero-spend US local number inventory/price preview implemented; it calls search only and masks phone numbers in logs.
 
 ## 3. OPEN GAPS
 1. `CALL2ME_API_KEY` is not configured as a repository secret accessible to the production workflow; this is `BLOCKED_PRIVILEGE` from the current connector surface.
@@ -42,19 +45,24 @@ One universal outbound AI agent: natural Sergii request -> PHONE TASK -> real ph
 5. Practical factual external call not yet done.
 
 ## 4. OFFICIAL CALL2ME FACTS
-### Free demo — current machine-readable contract
-- public `POST /v1/demo/call`; no signup/card for the public demo path;
-- `DemoCallRequest` requires only `phone_number` and currently also exposes optional `name`, optional `website` honeypot, and optional `agent_id` described as `Optional agent ID override`;
-- therefore a custom agent can be selected directly per free demo call through the current API contract; dashboard binding is not required for this test path;
-- `POST /v1/demo/reserve` separately accepts optional `agent_id` described as `Agent to bind the number to`;
-- `/v1/demo/eligibility`, `/v1/demo/my-reservation`, `/v1/demo/pool`, `/v1/demo/release` also exist in current OpenAPI;
-- arbitrary PHONE TASK runtime variables are still not documented on `DemoCallRequest`.
+### Production calls — current machine-readable contract
+- `POST /v1/calls`: required `agent_id`, `to_number`; optional `from_number`, `metadata`, `dynamic_variables`.
+- `GET /v1/calls/{call_id}` provides call detail.
+- Current OpenAPI exposes `GET /v1/calls/{call_id}/vcon` for conversation evidence.
+- The earlier standalone `/calls/{call_id}/transcript` assumption is not present in the current OpenAPI; runner keeps it as best-effort compatibility only, while vCon is the current documented fallback.
 
-### Result/transcript
-- call detail and transcript APIs documented;
-- post-call structured extraction from transcript documented;
-- webhook can deliver completed-call evidence;
-- vCon optional.
+### Phone numbers — current machine-readable contract
+- `GET /v1/numbers/search` is the read-only inventory endpoint.
+- Search parameters include `country` (default `US`), `locality`, `area_code`, `phone_number_type` (default `local`), `limit`, and `provider`.
+- `SearchResponse.numbers[]` uses `AvailableNumber`; available-number data includes `monthly_price_usd` and `upfront_price_usd`.
+- `SearchResponse` also exposes `requires_payment` and `upfront_price_usd`.
+- `POST /v1/numbers/purchase` is the paid purchase endpoint and is not called before new explicit approval.
+- `POST /v1/numbers/checkout` is a commercial checkout endpoint and is not called before new explicit approval.
+- `GET /v1/phone-numbers` lists owned numbers; `PhoneNumberResponse.monthly_price_usd` records rental price.
+
+### Free demo
+- public `POST /v1/demo/call` exposes optional `agent_id` override.
+- demo remains separate from the production-number path and is not the current priority because user ordered build-first, funding/test-later.
 
 ## 5. ORDERED PLAN
 ### T-1 Governance/inventory — DONE
@@ -62,19 +70,22 @@ One universal outbound AI agent: natural Sergii request -> PHONE TASK -> real ph
 ### T-3 Zero-spend production build — ACTIVE
 - T-3.1 permanent runner — DONE.
 - T-3.2 permanent workflow — DONE.
-- T-3.3 private transcript/extraction evidence pipeline — CODE DONE.
+- T-3.3 private transcript/extraction evidence pipeline — CODE DONE; current vCon fallback added.
 - T-3.4 read-only production preflight — CODE DONE.
-- T-3.5 persistent production API credential — BLOCKED_PRIVILEGE until repository secret can be written through an authorized surface.
+- T-3.5 read-only US local inventory/price preview — CODE DONE.
+- T-3.6 persistent production API credential — BLOCKED_PRIVILEGE until repository secret can be written through an authorized surface.
+- T-3.7 CI validation of latest zero-spend additions — ACTIVE.
 ### T-4 Commercial activation — DEFERRED BY USER
 - fund wallet;
-- purchase/select one permanent Call2Me US local number;
+- run `number_preview_only=true` and verify exact current US local `monthly_price_usd` / `upfront_price_usd`;
+- purchase/select exactly one permanent Call2Me US local number only after explicit approval;
 - bind/configure `CALL2ME_FROM_NUMBER` if needed;
-- run `preflight_only` and require `ready_for_paid_call=true` before any paid call.
+- run `preflight_only=true` and require `ready_for_paid_call=true` before any paid call.
 ### T-5 Live acceptance — DEFERRED BY USER UNTIL AFTER BUILD/FUNDING
 - one explicitly authorized destination;
 - disclosure -> concrete purpose -> first question -> real answer -> logical follow-up -> verified answer -> proper end;
 - no recording;
-- verify transcript/extraction/private evidence.
+- verify vCon/transcript/extraction/private evidence.
 ### T-6 Practical factual external call
 - run only after T-5 passes.
 
@@ -83,10 +94,11 @@ Twilio/SIP/BYOC/AT&T; new voice provider; CRM/frontend/queue/microservices; mass
 
 ## 7. CURRENT CHECKPOINT
 - Branch `feat/openclaw-vendor-phone-calls`, PR #39 open/unmerged.
-- Production call path is implemented.
-- Read-only zero-spend readiness path is now implemented in the same permanent workflow.
+- Production call path is implemented against the current `POST /v1/calls` contract.
+- Read-only zero-spend readiness and number-price preview paths are implemented in the same permanent workflow.
+- Current documented vCon evidence fallback is implemented.
 - The only non-commercial infrastructure blocker is persistent `CALL2ME_API_KEY` delivery to GitHub Actions.
-- Funding, number purchase and live testing are intentionally deferred until Sergii authorizes them.
+- Funding, number purchase and live testing remain intentionally deferred until Sergii authorizes them.
 
 ## JOURNAL
 ### J-020 — Inventory reconciled — DONE
@@ -96,16 +108,14 @@ Twilio/SIP/BYOC/AT&T; new voice provider; CRM/frontend/queue/microservices; mass
 ### J-024 — FREE-FIRST governance — DONE
 ### J-025 — Official demo contract — DONE
 ### J-026 — Result audit start — SUPERSEDED by J-027
-### J-027 — Official result/transcript/extraction contract — DONE
+### J-027 — Official result/transcript/extraction contract — SUPERSEDED in part by current OpenAPI vCon finding
 ### J-028 — Demo binding + free/paid boundary — SUPERSEDED by J-037 direct agent override discovery
 ### J-029 — Existing permanent phone runner/workflow inspected — DONE
 ### J-030 — Generic integration considered — DONE
 ### J-031 — Unnecessary generic expansion reverted — DONE
 ### J-032 — Permanent private evidence pipeline — CODE DONE / LIVE ACCEPTANCE OPEN
-- existing phone runner retrieves transcript endpoint and provider extraction into private temp evidence;
 - public Git only sanitized call metadata;
-- phone workflow uploads private artifact separately (3 days);
-- CI: OpenClaw PR Validation `33804632776` SUCCESS, Workflow Self Validation `33804632726` SUCCESS, CodeQL `33804632582` SUCCESS.
+- phone workflow uploads private artifact separately (3 days).
 
 ### J-033 — Official Demo binding surface — SUPERSEDED by J-037
 ### J-034 — Quick-login autonomous path discovered — SUPERSEDED for current path
@@ -130,13 +140,42 @@ Twilio/SIP/BYOC/AT&T; new voice provider; CRM/frontend/queue/microservices; mass
 - Commit: `f349e46a722445b36245a02937c77f1490b503f4`.
 
 ### J-040 — Existing permanent workflow extended — CODE DONE
-- `.github/workflows/openclaw-phone-call.yml` now supports manual `preflight_only=true`.
-- Preflight mode skips task resolution, call creation, call evidence upload and report commits.
+- `.github/workflows/openclaw-phone-call.yml` supports manual `preflight_only=true`.
 - Added optional `CALL2ME_FROM_NUMBER` repository variable support.
 - Commit: `907e3907aae9dbc5349e29dd0252227a96ae6f04`.
 
-### J-041 — CURRENT BLOCKER
-- `CALL2ME_API_KEY` must exist as a GitHub Actions repository secret before authenticated preflight can run.
-- Current GitHub connector explicitly does not expose sensitive repository Secrets APIs, so writing that secret from this chat is `BLOCKED_PRIVILEGE`.
+### J-041 — Persistent credential blocker — OPEN / BLOCKED_PRIVILEGE
+- `CALL2ME_API_KEY` must exist as a GitHub Actions repository secret before authenticated preflight/search can run.
+- Current GitHub connector explicitly does not expose sensitive repository Secrets APIs.
 - Do not weaken security by committing the API key to Git, workflow YAML, artifacts or logs.
-- Once the secret is available, first action is `preflight_only=true`; no call is allowed until preflight proves the agent/number/wallet state.
+
+### J-042 — Current production Call2Me contract re-audited — DONE
+- Existing public OpenAPI audit workflow expanded; no authentication and no spend.
+- Production call schema verifies the existing runner request shape for `POST /v1/calls`.
+- Current OpenAPI exposes `GET /v1/calls/{call_id}/vcon`; standalone transcript endpoint is not present in the current contract.
+- Number contract exposes `GET /v1/numbers/search`, `POST /v1/numbers/purchase`, `POST /v1/numbers/checkout`.
+- Search supports US/local/area-code filtering and returns price fields before purchase.
+- Audit run `33813374519`: SUCCESS; artifact `9915623357`, digest `sha256:88d70a6e8fabadc43917e5c98e7c5e766ef577a76ecd163cb6e881215f25eabe`.
+- COST: `$0.00`.
+
+### J-043 — Current vCon evidence fallback — CODE DONE
+- Added `scripts/openclaw-phone-vcon-fallback.mjs`.
+- If legacy/embedded transcript is unavailable after a completed call, it queries current documented `/v1/calls/{call_id}/vcon` and writes only to private evidence.
+- Wired into the existing permanent phone workflow; no new orchestration.
+- Commits: `91e8c387819394965549e0fe3c82a1d900f890f0`, `e099ec4b3d2b553ed7618edeb5629eaa6ca80213`.
+- COST: `$0.00`.
+
+### J-044 — Zero-spend US local number preview — CODE DONE
+- Added `scripts/openclaw-phone-number-preview.mjs` using only `GET /v1/numbers/search`.
+- Defaults: `country=US`, `phone_number_type=local`, limit 10; optional area code.
+- Logs mask candidate phone numbers while retaining exact `monthly_price_usd`, `upfront_price_usd`, provider and payment flags.
+- No purchase, checkout, payment or call endpoint is used.
+- Existing `.github/workflows/openclaw-phone-call.yml` now supports `number_preview_only=true` and optional `number_area_code`.
+- Read-only modes are mutually exclusive and both skip task resolution/call execution/evidence commits.
+- Commits: `b7dd34f420504dbfb51939a38e44c8d28002a00e`, `f877e36ea97448922a911a72dc6e9acee7be0d04`.
+- COST: `$0.00`.
+
+### J-045 — CURRENT ACTION
+- Wait only for CI to validate the latest zero-spend workflow/code changes; fix any CODE failure immediately.
+- After CI green, zero-spend build is complete except the external privilege requirement to install `CALL2ME_API_KEY` as a repository secret.
+- Do not purchase/fund/call yet.

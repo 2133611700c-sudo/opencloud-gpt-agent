@@ -27,7 +27,7 @@ jobs:
           [[ "$CODE" =~ ^2 ]] || exit 20
           jq -e '.openapi and .paths' /tmp/openapi.json >/dev/null
 
-      - name: Extract auth demo and settings contract
+      - name: Extract phone production contract
         shell: bash
         run: |
           set -euo pipefail
@@ -37,7 +37,7 @@ jobs:
 
           spec = json.loads(Path('/tmp/openapi.json').read_text())
           selected = {}
-          needles = ('auth', 'demo', 'user', 'setting', 'profile')
+          needles = ('auth', 'demo', 'user', 'setting', 'profile', 'call', 'phone-number', 'phone_number', 'wallet', 'agent', 'transcript', 'extract')
           for p, methods in spec.get('paths', {}).items():
               if any(n in p.lower() for n in needles):
                   selected[p] = {}
@@ -49,14 +49,15 @@ jobs:
                           'summary': op.get('summary'),
                           'requestBody': op.get('requestBody'),
                           'parameters': op.get('parameters'),
-                          'responses': {k: {'description': v.get('description')} for k,v in op.get('responses', {}).items()},
+                          'responses': {k: {'description': v.get('description'), 'content': v.get('content')} for k,v in op.get('responses', {}).items()},
                       }
 
           component_hits = {}
+          schema_needles = ('quick-login','quick_login','google','demo','setting','profile','call','phone','wallet','agent','transcript','extract')
           for name, schema in spec.get('components', {}).get('schemas', {}).items():
               blob = json.dumps(schema).lower()
               lname = name.lower()
-              if any(n in lname or n in blob for n in ('quick-login','quick_login','google','demo','setting','profile')):
+              if any(n in lname or n in blob for n in schema_needles):
                   component_hits[name] = schema
 
           report = {

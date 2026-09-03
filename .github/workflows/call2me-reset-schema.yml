@@ -13,13 +13,13 @@ permissions:
 jobs:
   schema:
     runs-on: ubuntu-latest
+    env:
+      OPENCLAW_CONTROL_SHARED_SECRET: ${{ secrets.OPENCLAW_CONTROL_SHARED_SECRET }}
+      OPENCLAW_GITHUB_TOKEN: ${{ secrets.OPENCLAW_GITHUB_TOKEN }}
     steps:
-      - name: Inspect Call2Me API key schema
+      - name: Verify OpenClaw secret availability
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
-          echo '=== api key paths ==='
-          jq '.paths | with_entries(select(.key | test("api-keys"; "i")))' /tmp/openapi.json
-          echo '=== api key schemas ==='
-          jq '.components.schemas | with_entries(select((.key + " " + (.value|tostring)) | test("api key|api_key|apikey"; "i")))' /tmp/openapi.json
+          if [ -n "${OPENCLAW_CONTROL_SHARED_SECRET:-}" ]; then echo 'openclaw_control_shared_secret_present=true'; else echo 'openclaw_control_shared_secret_present=false'; fi
+          if [ -n "${OPENCLAW_GITHUB_TOKEN:-}" ]; then echo 'openclaw_github_token_present=true'; else echo 'openclaw_github_token_present=false'; fi

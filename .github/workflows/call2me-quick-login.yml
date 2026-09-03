@@ -37,7 +37,11 @@ jobs:
 
           spec = json.loads(Path('/tmp/openapi.json').read_text())
           selected = {}
-          needles = ('auth', 'demo', 'user', 'setting', 'profile', 'call', 'phone-number', 'phone_number', 'wallet', 'agent', 'transcript', 'extract')
+          needles = (
+              'auth', 'demo', 'user', 'setting', 'profile', 'call', 'phone-number', 'phone_number',
+              'wallet', 'agent', 'transcript', 'extract', 'provision', 'checkout', 'available',
+              'inventory', 'number-search', 'search-number'
+          )
           for p, methods in spec.get('paths', {}).items():
               if any(n in p.lower() for n in needles):
                   selected[p] = {}
@@ -53,7 +57,10 @@ jobs:
                       }
 
           component_hits = {}
-          schema_needles = ('quick-login','quick_login','google','demo','setting','profile','call','phone','wallet','agent','transcript','extract')
+          schema_needles = (
+              'quick-login','quick_login','google','demo','setting','profile','call','phone','wallet',
+              'agent','transcript','extract','provision','checkout','available','inventory','purchase'
+          )
           for name, schema in spec.get('components', {}).get('schemas', {}).items():
               blob = json.dumps(schema).lower()
               lname = name.lower()

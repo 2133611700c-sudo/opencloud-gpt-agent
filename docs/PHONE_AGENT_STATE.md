@@ -48,6 +48,7 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - Task template: `ops/agent-control/templates/phone-call.example.json`.
 - Runtime phone task folder: `ops/agent-control/phone-calls/*.json`.
 - Hardened runner head: `c221546829699ec48e1f1ba09d3bacf559dd97c2`.
+- Current branch head verified at `4e1506160f74cfca0701af861716fdff640bb38a`; commit history scoped to `scripts/openclaw-phone-call.mjs` confirms `c221546829699ec48e1f1ba09d3bacf559dd97c2` is still the latest commit touching the runner.
 
 ## CURRENT BLOCKERS
 
@@ -152,6 +153,14 @@ Do not repeat a completed step unless the journal explicitly records new evidenc
 - CALCULATED: maximum configured 5-minute self-test usage is about `$1.25`; number + full self-test budget is about `$6.25`; practical requested wallet funding target is `$7` if accepted by the payment provider.
 - VERIFIED: current wallet docs expose `POST /v1/wallet/topup` and current API reference exposes `POST /v1/phone-numbers/buy`.
 - RESULT: all remaining non-financial blockers before self-test are closed. The next action can create/complete funding and purchase one production caller number, then immediately run the self-test.
+- STATUS: DONE / AWAITING EXPLICIT PAYMENT AUTHORIZATION.
+
+### J-018 — Current-state recheck before payment gate
+- PLAN: Reconcile the new chat prompt against the live journal without repeating closed work.
+- VERIFIED BEFORE: journal already marked P-04 DONE and P-05 at an external financial gate.
+- ACTION: verified branch head and searched Gmail for any new Call2Me support response.
+- VERIFIED AFTER: branch head is `4e1506160f74cfca0701af861716fdff640bb38a`; path-scoped commit history confirms `c221546829699ec48e1f1ba09d3bacf559dd97c2` remains the latest commit touching `scripts/openclaw-phone-call.mjs`; newer commits only changed/removed one-shot Call2Me helper workflows. No inbound support response was found from `support@call2me.app`, and a broader recent `Call2Me` mail search also found no support reply.
+- RESULT: P-04 remains DONE; P-05/P-06 remain blocked only by the explicit paid-action authorization already identified in J-017.
 - STATUS: DONE / AWAITING EXPLICIT PAYMENT AUTHORIZATION.
 
 ## NEXT MICRO STEP

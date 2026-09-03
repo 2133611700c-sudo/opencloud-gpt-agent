@@ -14,14 +14,12 @@ jobs:
   schema:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe Call2Me verification resend state
+      - name: Inspect Call2Me API key schema
         shell: bash
         run: |
           set -euo pipefail
-          CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
-            -o /tmp/resend.json -w '%{http_code}' \
-            -X POST 'https://api.call2me.app/v1/auth/resend-verification' \
-            -H 'Content-Type: application/json' \
-            --data '{"email":"2133611700c@gmail.com"}')"
-          echo "resend_verification_http=$CODE"
-          jq '{message:(.message // null),detail:(.detail // null),status:(.status // null)}' /tmp/resend.json || cat /tmp/resend.json
+          curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
+          echo '=== api key paths ==='
+          jq '.paths | with_entries(select(.key | test("api-keys"; "i")))' /tmp/openapi.json
+          echo '=== api key schemas ==='
+          jq '.components.schemas | with_entries(select((.key + " " + (.value|tostring)) | test("api key|api_key|apikey"; "i")))' /tmp/openapi.json

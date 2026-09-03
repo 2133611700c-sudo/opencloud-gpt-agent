@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 12
     env:
       API: https://api.call2me.app/v1
-      PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-number-search/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
+      EMAIL: 2133611700c@gmail.com
     steps:
       - name: Generate one-time search key
         shell: bash
@@ -34,12 +34,13 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: Wait for encrypted API key
+      - name: Wait for encrypted login payload
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          PAYLOAD_API="https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-number-search/payload-${GITHUB_RUN_ID}.b64?ref=feat%2Fopenclaw-vendor-phone-calls"
           found=false
           for attempt in $(seq 1 120); do
             code="$(curl -sS --connect-timeout 10 --max-time 20 \
@@ -55,26 +56,46 @@ jobs:
           openssl pkeyutl -decrypt \
             -inkey /tmp/private.pem \
             -in /tmp/payload.enc \
-            -out /tmp/api-key \
+            -out /tmp/login-payload.json \
             -pkeyopt rsa_padding_mode:oaep \
             -pkeyopt rsa_oaep_md:sha256
-          API_KEY="$(cat /tmp/api-key)"
-          test -n "$API_KEY"
-          echo "::add-mask::$API_KEY"
-          rm -f /tmp/payload.b64 /tmp/payload.enc
+          PASSWORD="$(jq -r '.password // empty' /tmp/login-payload.json)"
+          test -n "$PASSWORD"
+          echo "::add-mask::$PASSWORD"
+          printf '%s' "$PASSWORD" > /tmp/password
+          rm -f /tmp/payload.b64 /tmp/payload.enc /tmp/login-payload.json
+
+      - name: Login to Call2Me
+        shell: bash
+        run: |
+          set -euo pipefail
+          PASSWORD="$(cat /tmp/password)"
+          echo "::add-mask::$PASSWORD"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+            -o /tmp/login.json -w '%{http_code}' \
+            -X POST "$API/auth/login" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e,password:$p}')")"
+          echo "login_http=$CODE"
+          if [[ ! "$CODE" =~ ^2 ]]; then exit 30; fi
+          ACCESS="$(jq -r '.access_token // .data.access_token // empty' /tmp/login.json)"
+          test -n "$ACCESS"
+          echo "::add-mask::$ACCESS"
+          printf '%s' "$ACCESS" > /tmp/access.token
+          rm -f /tmp/password /tmp/login.json
 
       - name: Search LA numbers read-only
         shell: bash
         run: |
           set -euo pipefail
-          API_KEY="$(cat /tmp/api-key)"
-          echo "::add-mask::$API_KEY"
+          ACCESS="$(cat /tmp/access.token)"
+          echo "::add-mask::$ACCESS"
 
           for AREA in 213 323 310; do
             CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
               -o "/tmp/search-${AREA}.json" -w '%{http_code}' \
               "$API/numbers/search?country=US&area_code=${AREA}&phone_number_type=local&limit=10" \
-              -H "Authorization: Bearer $API_KEY")"
+              -H "Authorization: Bearer $ACCESS")"
             echo "area_${AREA}_http=$CODE"
             if [[ ! "$CODE" =~ ^2 ]]; then
               printf '{"http_code":%s,"numbers":[]}' "$CODE" > "/tmp/search-${AREA}.json"
@@ -90,7 +111,7 @@ jobs:
 
           echo '=== LA number results ==='
           jq '[.areas | to_entries[] | .key as $area | (.value.numbers // .value.results // .value.items // [])[]? | {area_code:$area,phone_number,locality,provider,monthly_price_usd,upfront_price_usd,telnyx_cost_usd,features}] | .[0:20]' /tmp/call2me-la-number-search.json
-          rm -f /tmp/api-key /tmp/private.pem
+          rm -f /tmp/access.token /tmp/private.pem
 
       - name: Upload sanitized LA number search
         uses: actions/upload-artifact@v5

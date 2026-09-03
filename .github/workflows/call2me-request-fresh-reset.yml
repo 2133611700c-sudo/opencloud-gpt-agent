@@ -1,0 +1,25 @@
+name: Call2Me Fresh Reset
+
+on:
+  push:
+    branches: [feat/openclaw-vendor-phone-calls]
+    paths: ['.github/workflows/call2me-request-fresh-reset.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  request-reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request fresh reset email
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+            -o /tmp/reset-request.json -w '%{http_code}' \
+            -X POST https://api.call2me.app/v1/auth/forgot-password \
+            -H 'Content-Type: application/json' \
+            --data '{"email":"2133611700c@gmail.com"}')"
+          echo "forgot_password_http=$code"
+          test "$code" -ge 200 -a "$code" -lt 300

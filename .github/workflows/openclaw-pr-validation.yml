@@ -20,6 +20,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --check scripts/openclaw-task-runner.mjs
+      - run: node --check scripts/openclaw-phone-call.mjs
       - run: node --check scripts/openclaw-job-lead-collector.mjs
       - run: npx playwright install chromium
 

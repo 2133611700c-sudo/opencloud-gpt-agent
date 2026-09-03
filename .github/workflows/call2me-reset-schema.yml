@@ -19,9 +19,15 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
-          echo '=== reset-password ==='
+          echo '=== reset-password endpoint ==='
           jq '.paths["/v1/auth/reset-password"].post' /tmp/openapi.json
-          echo '=== login ==='
+          echo '=== ResetPasswordRequest schema ==='
+          jq '.components.schemas.ResetPasswordRequest' /tmp/openapi.json
+          echo '=== login endpoint ==='
           jq '.paths["/v1/auth/login"].post' /tmp/openapi.json
+          echo '=== LoginRequest schema ==='
+          jq '.components.schemas.LoginRequest' /tmp/openapi.json
           echo '=== api-keys POST ==='
           jq '.paths["/v1/api-keys"].post' /tmp/openapi.json
+          echo '=== CreateAPIKeyRequest schema ==='
+          jq '.components.schemas.CreateAPIKeyRequest' /tmp/openapi.json

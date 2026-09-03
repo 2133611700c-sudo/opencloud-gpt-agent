@@ -142,7 +142,7 @@ Twilio/SIP/BYOC/AT&T work; number purchase; wallet spending; new voice provider;
 - Branch: `feat/openclaw-vendor-phone-calls`.
 - PR #39: open/unmerged.
 - Current active tasks: T-3, T-4, T-5.
-- Next action: inspect existing runner/schema/ingestion against official result contract; make only permanent changes; journal each verified change.
+- Next action: implement generic `phone_call` ingestion by extending the existing schema/lib/task-runner, then extend the existing phone runner's private evidence path.
 
 ## JOURNAL CONTINUATION
 
@@ -188,5 +188,15 @@ Twilio/SIP/BYOC/AT&T work; number purchase; wallet spending; new voice provider;
 - DECISION: free conversation proof first; production spend remains locked.
 - STATUS: DONE.
 
-### J-029 — Next permanent implementation action
+### J-029 — Permanent implementation action started
 - ACTIVE: inspect and modify only the existing production runner/schema/ingestion so PHONE TASK and provider-derived results are permanent. No call and no spend required for these code steps.
+
+### J-030 — Generic ingestion and result-path gaps verified
+- VERIFIED: `OPENCLAW_TASK_SCHEMA.v1.json` does not enumerate `phone_call`.
+- VERIFIED: `scripts/lib/openclaw-task-lib.mjs` does not include `phone_call` in `supportedTaskTypes`.
+- VERIFIED: generic `scripts/openclaw-task-runner.mjs` switch has no `phone_call` case.
+- VERIFIED: existing `scripts/create-openclaw-task.mjs` is hard-coded for `virtual_browser_audit`; it is not the phone-task contract.
+- VERIFIED: existing `scripts/openclaw-phone-call.mjs` already carries runtime objective/context/questions/success condition and has idempotent dial behavior, so it should be reused rather than replaced.
+- VERIFIED DEFICIENCY: phone runner does not call the official transcript endpoint when needed, does not persist a private evidence artifact, and its sanitized result omits `call_id` and factual answers.
+- DECISION: T-5 will extend the existing generic schema/lib/task runner to delegate `phone_call` to the existing phone runner; T-4 will extend the same phone runner to produce a private evidence artifact plus sanitized public metadata. No duplicate caller architecture.
+- STATUS: DONE.

@@ -14,17 +14,14 @@ jobs:
   schema:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect Call2Me account verification fields
+      - name: Probe Call2Me verification resend state
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
-
-          echo '=== UserProfile schema ==='
-          jq '.components.schemas.UserProfile' /tmp/openapi.json
-
-          echo '=== UserStats schema ==='
-          jq '.components.schemas.UserStats' /tmp/openapi.json
-
-          echo '=== endpoints returning UserProfile/UserStats ==='
-          jq -r '.paths | to_entries[] | .key as $p | .value | to_entries[] | select(.value|tostring|test("UserProfile|UserStats")) | [$p,.key,((.value.summary // ""))] | @tsv' /tmp/openapi.json
+          CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/resend.json -w '%{http_code}' \
+            -X POST 'https://api.call2me.app/v1/auth/resend-verification' \
+            -H 'Content-Type: application/json' \
+            --data '{"email":"2133611700c@gmail.com"}')"
+          echo "resend_verification_http=$CODE"
+          jq '{message:(.message // null),detail:(.detail // null),status:(.status // null)}' /tmp/resend.json || cat /tmp/resend.json

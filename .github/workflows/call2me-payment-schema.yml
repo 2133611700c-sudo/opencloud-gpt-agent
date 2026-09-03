@@ -1,5 +1,6 @@
 name: Call2Me Payment Schema
 
+# Registered probe; read-only OpenAPI inspection only.
 on:
   push:
     branches: [feat/openclaw-vendor-phone-calls]

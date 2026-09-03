@@ -1,6 +1,5 @@
 name: Call2Me Reset Schema
 
-# Reused registered diagnostic workflow for a read-only OpenAPI payment schema check.
 on:
   push:
     branches:
@@ -16,38 +15,42 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Inspect Call2Me payment and number purchase schemas
+      - name: Inspect Call2Me password reset contract
         shell: bash
         run: |
           set -euo pipefail
           curl -fsSL --connect-timeout 15 --max-time 45 https://api.call2me.app/openapi.json -o /tmp/openapi.json
-
-          jq '{
-            topup_path:(.paths["/v1/payments/topup"].post // null),
-            buy_path:(.paths["/v1/phone-numbers/buy"].post // null),
-            schemas:.components.schemas
-          }' /tmp/openapi.json > /tmp/raw.json
-
-          TOPUP_REF="$(jq -r '.topup_path.requestBody.content["application/json"].schema["$ref"] // empty' /tmp/raw.json)"
-          BUY_REF="$(jq -r '.buy_path.requestBody.content["application/json"].schema["$ref"] // empty' /tmp/raw.json)"
-          TOPUP_NAME="${TOPUP_REF##*/}"
-          BUY_NAME="${BUY_REF##*/}"
-
-          jq -n \
-            --arg topup_ref "$TOPUP_REF" \
-            --arg buy_ref "$BUY_REF" \
-            --argjson topup_op "$(jq '.topup_path | {summary,description,requestBody,responses}' /tmp/raw.json)" \
-            --argjson buy_op "$(jq '.buy_path | {summary,description,requestBody,responses}' /tmp/raw.json)" \
-            --argjson topup_schema "$(jq --arg n "$TOPUP_NAME" '.schemas[$n] // null' /tmp/raw.json)" \
-            --argjson buy_schema "$(jq --arg n "$BUY_NAME" '.schemas[$n] // null' /tmp/raw.json)" \
-            '{topup_ref:$topup_ref,topup_schema:$topup_schema,topup_operation:$topup_op,buy_ref:$buy_ref,buy_schema:$buy_schema,buy_operation:$buy_op}' \
-            > /tmp/payment-schema.json
-
-          cat /tmp/payment-schema.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          spec=json.loads(Path('/tmp/openapi.json').read_text())
+          hits={}
+          for p, methods in spec.get('paths',{}).items():
+              lp=p.lower()
+              if 'password' in lp or 'reset' in lp or 'forgot' in lp:
+                  hits[p]={}
+                  for m, op in methods.items():
+                      if m.lower() in {'get','post','put','patch','delete'}:
+                          hits[p][m.lower()]={
+                              'summary':op.get('summary'),
+                              'description':op.get('description'),
+                              'requestBody':op.get('requestBody'),
+                              'parameters':op.get('parameters'),
+                              'responses':op.get('responses'),
+                          }
+          schemas={}
+          for name,schema in spec.get('components',{}).get('schemas',{}).items():
+              blob=json.dumps(schema).lower()
+              if any(k in name.lower() or k in blob for k in ('password','reset','forgot')):
+                  schemas[name]=schema
+          out={'paths':hits,'schemas':schemas}
+          Path('/tmp/reset-schema.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps({'paths':sorted(hits),'schemas':sorted(schemas)},indent=2))
+          PY
       - name: Upload sanitized schema evidence
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-payment-schema-${{ github.run_id }}
-          path: /tmp/payment-schema.json
+          name: call2me-reset-schema-${{ github.run_id }}
+          path: /tmp/reset-schema.json
           retention-days: 1
           if-no-files-found: error

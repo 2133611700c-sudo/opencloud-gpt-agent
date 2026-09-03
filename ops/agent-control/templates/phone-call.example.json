@@ -1,9 +1,11 @@
 {
+  "schema_version": 1,
   "id": "phone-call-example-001",
   "type": "phone_call",
-  "status": "template",
+  "status": "pending",
   "requested_by": "Sergii",
   "goal": "Call one phone number and obtain specific factual information.",
+  "expected_status": "PASS",
   "params": {
     "phone_number": "+12135551234",
     "objective": "Ask whether the requested item or service is available today and get the exact current price.",
@@ -19,6 +21,12 @@
     "timeout_seconds": 300
   },
   "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false,
     "explicit_approval": true,
     "purchase_authorized": false,
     "payment_authorized": false,

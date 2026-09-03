@@ -1,0 +1,121 @@
+name: Call2Me Free Credit Bootstrap
+
+on:
+  push:
+    branches: [feat/openclaw-vendor-phone-calls]
+    paths: ['.github/workflows/call2me-free-credit-bootstrap.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify account, create API key and agent
+        shell: bash
+        run: |
+          set -euo pipefail
+          API='https://api.call2me.app'
+          EMAIL='2133611700c@gmail.com'
+          VERIFY_TOKEN='a_2Er4wh8rwcxLFdhzxjDOYrOBinv7MnaLATxERVcAk'
+          RESET_TOKEN='TEgqZ_Ohkw4zROvnemRFF-R63UXoov71JExV0Jjx5ZM'
+          PASSWORD="$(python3 - <<'PY'
+          import secrets,string
+          alphabet=string.ascii_letters+string.digits+'!@#%^+=' 
+          print(''.join(secrets.choice(alphabet) for _ in range(32)))
+          PY
+          )"
+
+          post_json() {
+            local url="$1" body="$2" outfile="$3"
+            curl --silent --show-error --connect-timeout 15 --max-time 60 \
+              -o "$outfile" -w '%{http_code}' \
+              -X POST "$url" -H 'Content-Type: application/json' --data "$body"
+          }
+
+          VERIFY_CODE="$(post_json "$API/v1/auth/verify-email" "$(jq -nc --arg t "$VERIFY_TOKEN" '{token:$t}')" /tmp/verify.json)"
+          echo "verify_email_http=$VERIFY_CODE"
+
+          RESET_CODE="$(post_json "$API/v1/auth/reset-password" "$(jq -nc --arg t "$RESET_TOKEN" --arg p "$PASSWORD" '{token:$t,new_password:$p}')" /tmp/reset.json)"
+          echo "reset_password_http=$RESET_CODE"
+          if [ "$RESET_CODE" -lt 200 ] || [ "$RESET_CODE" -ge 300 ]; then
+            echo 'Password reset failed (response redacted).'
+            exit 1
+          fi
+
+          LOGIN_CODE="$(post_json "$API/v1/auth/login" "$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e,password:$p}')" /tmp/login.json)"
+          echo "login_http=$LOGIN_CODE"
+          if [ "$LOGIN_CODE" -lt 200 ] || [ "$LOGIN_CODE" -ge 300 ]; then
+            echo 'Login failed (response redacted).'
+            exit 1
+          fi
+          ACCESS="$(jq -r '.access_token // empty' /tmp/login.json)"
+          test -n "$ACCESS"
+
+          BAL_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+            -o /tmp/balance.json -w '%{http_code}' \
+            "$API/v1/users/me/balance" -H "Authorization: Bearer $ACCESS")"
+          echo "balance_http=$BAL_CODE"
+          jq '.' /tmp/balance.json | sed -E 's/(token|key|secret|password)"?: ?"[^"]+"/REDACTED/Ig' || true
+
+          KEY_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+            -o /tmp/key.json -w '%{http_code}' \
+            -X POST "$API/v1/api-keys" -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $ACCESS" \
+            --data '{"name":"openclaw-call2me","read_only":false,"rate_limit":1000}')"
+          echo "api_key_http=$KEY_CODE"
+          if [ "$KEY_CODE" -lt 200 ] || [ "$KEY_CODE" -ge 300 ]; then
+            echo 'API key creation failed (response redacted).'
+            exit 1
+          fi
+
+          VOICE_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+            -o /tmp/voices.json -w '%{http_code}' \
+            "$API/v1/voices?language=en-US" -H "Authorization: Bearer $ACCESS")"
+          echo "voices_http=$VOICE_CODE"
+          VOICE_ID="$(jq -r 'map(select(.voice_id=="openai-nova"))[0].voice_id // .[0].voice_id // empty' /tmp/voices.json)"
+          if [ -z "$VOICE_ID" ]; then VOICE_ID='openai-nova'; fi
+          echo "selected_voice=$VOICE_ID"
+
+          AGENT_BODY="$(jq -nc --arg v "$VOICE_ID" '{agent_name:"OpenClaw Vendor Verification",voice_id:$v,language:"en-US",begin_message_mode:"static",begin_message:"Hello, this is Sergii’s AI assistant. This is a brief test call. Can you hear me clearly?",max_call_duration_ms:120000,enable_recording:false,response_engine:{type:"call2me-llm",system_prompt:"You are Sergii’s authorized AI phone assistant. For this test call only, confirm audio and conversational quality. Ask whether the person can hear you clearly. If they say yes, reply: Great, the phone-agent test passed. Then politely end the call. Do not make purchases, reservations, commitments, or collect sensitive information.",llm_provider:"openrouter",llm_model:"gpt-4o-mini",temperature:0.2,builtin_functions:["end_call"]}}')"
+          AGENT_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 60 \
+            -o /tmp/agent.json -w '%{http_code}' \
+            -X POST "$API/v1/agents" -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $ACCESS" --data "$AGENT_BODY")"
+          echo "agent_http=$AGENT_CODE"
+          if [ "$AGENT_CODE" -lt 200 ] || [ "$AGENT_CODE" -ge 300 ]; then
+            cat /tmp/agent.json
+            exit 1
+          fi
+          AGENT_ID="$(jq -r '.agent_id // empty' /tmp/agent.json)"
+          echo "agent_id=$AGENT_ID"
+
+          jq -n \
+            --arg api_key "$(jq -r '.api_key' /tmp/key.json)" \
+            --arg key_id "$(jq -r '.key_id' /tmp/key.json)" \
+            --arg agent_id "$AGENT_ID" \
+            --arg voice_id "$VOICE_ID" \
+            --argjson balance "$(cat /tmp/balance.json)" \
+            '{api_key:$api_key,key_id:$key_id,agent_id:$agent_id,voice_id:$voice_id,balance:$balance}' \
+            > /tmp/call2me-bootstrap-private.json
+
+          jq -n \
+            --arg agent_id "$AGENT_ID" --arg voice_id "$VOICE_ID" \
+            --argjson balance "$(cat /tmp/balance.json)" \
+            '{status:"ready",agent_id:$agent_id,voice_id:$voice_id,balance:$balance}' \
+            > /tmp/call2me-bootstrap-report.json
+
+      - name: Upload private bootstrap credential
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-private-bootstrap-${{ github.run_id }}
+          path: /tmp/call2me-bootstrap-private.json
+          retention-days: 1
+
+      - name: Upload sanitized report
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-bootstrap-report-${{ github.run_id }}
+          path: /tmp/call2me-bootstrap-report.json
+          retention-days: 7

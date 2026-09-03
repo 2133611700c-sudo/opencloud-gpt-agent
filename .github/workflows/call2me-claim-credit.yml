@@ -1,0 +1,142 @@
+name: Call2Me Claim Signup Credit
+
+on:
+  push:
+    branches: [feat/openclaw-vendor-phone-calls]
+    paths: ['.github/workflows/call2me-claim-credit.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  claim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      API: https://api.call2me.app/v1
+      PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-claim-credit/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
+    steps:
+      - name: Generate one-time inbound key
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/private.pem 2>/dev/null
+          openssl pkey -in /tmp/private.pem -pubout -out /tmp/public.pem
+
+      - name: Upload one-time public key
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-claim-credit-key-${{ github.run_id }}
+          path: /tmp/public.pem
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Wait for encrypted verification payload
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          found=false
+          for attempt in $(seq 1 100); do
+            code="$(curl -sS --connect-timeout 10 --max-time 20 -o /tmp/payload.b64 -w '%{http_code}' \
+              -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github.raw+json' \
+              "${PAYLOAD_API}&nonce=${GITHUB_RUN_ID}-${attempt}")"
+            if [ "$code" = "200" ]; then found=true; break; fi
+            sleep 4
+          done
+          [ "$found" = "true" ] || exit 20
+          base64 -d /tmp/payload.b64 > /tmp/payload.enc
+          openssl pkeyutl -decrypt -inkey /tmp/private.pem -in /tmp/payload.enc -out /tmp/payload.json \
+            -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256
+          TOKEN="$(jq -r '.verification_token // empty' /tmp/payload.json)"
+          API_KEY="$(jq -r '.api_key // empty' /tmp/payload.json)"
+          [ -n "$TOKEN" ] && [ -n "$API_KEY" ] || exit 21
+          echo "::add-mask::$TOKEN"
+          echo "::add-mask::$API_KEY"
+          printf '%s' "$TOKEN" > /tmp/verify.token
+          printf '%s' "$API_KEY" > /tmp/api.key
+          rm -f /tmp/payload.b64 /tmp/payload.enc /tmp/payload.json
+
+      - name: Discover and execute email verification endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOKEN="$(cat /tmp/verify.token)"
+          echo "::add-mask::$TOKEN"
+          curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
+          python - <<'PY'
+          import json, os, subprocess, urllib.parse
+          spec=json.load(open('/tmp/openapi.json'))
+          token=open('/tmp/verify.token').read().strip()
+          candidates=[]
+          for path, item in spec.get('paths',{}).items():
+              low=path.lower()
+              if 'verify' not in low or 'email' not in low:
+                  continue
+              for method, op in item.items():
+                  if method.lower() not in {'get','post','put','patch'} or not isinstance(op,dict):
+                      continue
+                  candidates.append((path,method.lower(),op))
+          if not candidates:
+              raise SystemExit('no email verification endpoint in live OpenAPI')
+          attempts=[]
+          success=None
+          for path, method, op in candidates:
+              url='https://api.call2me.app'+path
+              params=op.get('parameters') or []
+              query_names=[p.get('name') for p in params if isinstance(p,dict) and p.get('in')=='query']
+              path_names=[p.get('name') for p in params if isinstance(p,dict) and p.get('in')=='path']
+              for n in path_names:
+                  if n and 'token' in n.lower():
+                      url=url.replace('{'+n+'}', urllib.parse.quote(token,safe=''))
+              body=None
+              rb=(op.get('requestBody') or {}).get('content') or {}
+              schema=(rb.get('application/json') or {}).get('schema') or {}
+              props=schema.get('properties') or {}
+              token_field=next((k for k in props if 'token' in k.lower()), None)
+              if token_field:
+                  body=json.dumps({token_field:token})
+              if any(n and 'token' in n.lower() for n in query_names):
+                  n=next(n for n in query_names if n and 'token' in n.lower())
+                  url += ('&' if '?' in url else '?') + urllib.parse.urlencode({n:token})
+              cmd=['curl','-sS','--connect-timeout','15','--max-time','45','-o','/tmp/verify-response.json','-w','%{http_code}','-X',method.upper(),url]
+              if body is not None:
+                  cmd += ['-H','Content-Type: application/json','--data',body]
+              code=subprocess.check_output(cmd,text=True).strip()
+              attempts.append({'path':path,'method':method,'http_code':code})
+              if code.startswith('2'):
+                  success={'path':path,'method':method,'http_code':code}
+                  break
+          json.dump({'attempts':attempts,'success':success},open('/tmp/verify-sanitized.json','w'))
+          if not success:
+              raise SystemExit('verification endpoint did not return 2xx')
+          PY
+
+      - name: Verify wallet after claim
+        shell: bash
+        run: |
+          set -euo pipefail
+          API_KEY="$(cat /tmp/api.key)"
+          echo "::add-mask::$API_KEY"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 30 -o /tmp/wallet.json -w '%{http_code}' \
+            "$API/wallet/balance" -H "Authorization: Bearer $API_KEY")"
+          echo "wallet_http=$CODE"
+          [[ "$CODE" =~ ^2 ]] || exit 30
+          BAL="$(jq -r '.balance // .available_balance // .balance_usd // 0' /tmp/wallet.json)"
+          jq -n --arg balance "$BAL" --argjson verification "$(cat /tmp/verify-sanitized.json)" \
+            '{provider:"Call2Me",verification:$verification,wallet_balance_usd:($balance|tonumber)}' > /tmp/report.json
+          cat /tmp/report.json
+          rm -f /tmp/api.key /tmp/verify.token /tmp/private.pem /tmp/wallet.json /tmp/openapi.json /tmp/verify-response.json
+
+      - name: Upload sanitized result
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-claim-credit-${{ github.run_id }}
+          path: |
+            /tmp/report.json
+            /tmp/verify-sanitized.json
+          retention-days: 7
+          if-no-files-found: warn

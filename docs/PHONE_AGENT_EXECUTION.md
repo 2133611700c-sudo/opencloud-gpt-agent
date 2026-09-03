@@ -2,206 +2,205 @@
 
 Status date: 2026-09-03
 
-This file is the ACTIVE execution source of truth from journal entry J-020 onward.
-`docs/PHONE_AGENT_STATE.md` remains the historical record for J-001 through J-019.
+Historical journal: `docs/PHONE_AGENT_STATE.md` (J-001 through J-019).
+This file is the ACTIVE source of truth from J-020 onward.
 
-Working loop for every step:
+## MASTER RULES
 
-`PLAN STEP -> VERIFY CURRENT STATE -> DO ONE SMALL ACTION -> VERIFY RESULT -> WRITE JOURNAL ENTRY -> MOVE TO NEXT STEP`
+### R-01 — Execution loop
+For every meaningful step:
 
-Authority order:
-1. Sergii's latest explicit instruction.
-2. This active execution plan.
-3. Historical journal/evidence in `docs/PHONE_AGENT_STATE.md`.
+`READ JOURNAL -> VERIFY CURRENT STATE -> DO ONE SMALL ACTION -> VERIFY RESULT -> WRITE JOURNAL -> NEXT STEP`
 
-## PRODUCT GOAL
+No step is DONE because code exists or HTTP returned 2xx. DONE means its acceptance condition is proved.
 
-`SERGII REQUEST -> PHONE TASK -> EXISTING OPENCLAW ENTRY -> CALL2ME -> REAL PHONE CALL -> HUMAN ANSWERS -> PURPOSE-FIRST AI -> DYNAMIC TWO-WAY CONVERSATION -> VERIFIED RESULT -> CHATGPT -> SERGII`
+### R-02 — No terminal “could not do it”
+A failed path is not a task result. Determine the exact cause, classify it as `CODE`, `PROVIDER`, or `BLOCKED_PRIVILEGE`, record it, then use the next technically independent path. Stop only for a genuine provider hard limit or an action that requires Sergii-controlled payment/OTP/privilege unavailable to the current tools.
 
-The product is the working calling agent. GitHub workflows, scripts, numbers and provider setup are implementation details, not completion criteria.
+### R-03 — Primary sources first
+For Call2Me behavior, pricing, limits and API contracts use Call2Me official docs/OpenAPI/API responses first. Repository history is evidence of what OUR system already did; it is not a substitute for current provider documentation.
 
-## CURRENT FINANCIAL / NUMBER AUTHORITY
+### R-04 — Permanent tools by default
+Do not build throwaway pyramids, duplicate workflows, duplicate agents or temporary orchestration when an existing permanent path can be extended. Necessary product changes must live in the existing production runner/workflow/task contract or permanent provider configuration.
 
-- Historical journal records Sergii's explicit authorization to top up Call2Me up to `$7` and purchase exactly one production caller number with upfront price `<= $5`.
-- Recording remains disabled and no other purchase is authorized.
-- No evidence has superseded that authorization.
-- HOWEVER, Sergii's latest caller-ID preference is to use his existing real number if this can be done legitimately and without disrupting current service.
-- Therefore do NOT buy a fallback Call2Me managed number until the exact-existing-number route is resolved or Sergii explicitly chooses the fallback.
-- Do not port the existing number, open a new external carrier account, enable SIP/BYOC, or change its current voice/SMS service without separate explicit authorization.
+### R-05 — FREE FIRST / NO SPEND WITHOUT NEW APPROVAL
+Sergii’s latest instruction supersedes prior spending authorization.
+- Spend `$0.00` unless Sergii gives a NEW explicit approval after the free path is exhausted.
+- Do not consume wallet balance, buy/rent a number, start a paid production call, enable paid plans/add-ons, auto-recharge, recording, SIP/BYOC/Twilio, porting, or another paid provider.
+- Before proposing any paid step, state: why it is necessary, what free paths were exhausted, exact expected cost, and a hard maximum.
+
+### R-06 — Product, not infrastructure
+The product is:
+
+`SERGII REQUEST -> PHONE TASK -> UNIVERSAL AGENT -> REAL CALL -> HUMAN CONVERSATION -> VERIFIED FACTS -> SERGII`
+
+GitHub, numbers, secrets, workflows and providers are implementation details.
+
+## LARGE TASK
+
+Build one universal outbound calling assistant that can accept a natural-language task from Sergii, place a real call, introduce itself correctly, conduct a dynamic human-like factual conversation, ask follow-ups based on actual answers, stop when the objective is met, and return verified facts with evidence.
 
 ## VERIFIED INVENTORY
 
 ### DONE
+1. Call2Me selected as the single voice provider for the current path.
+2. Account access/auth recovery completed historically.
+3. Universal agent exists: `agent_f2949915a3f2` — `Sergii Universal Phone Agent`.
+4. Final live agent config was verified purpose-first: dynamic opening, AI disclosure, `on behalf of Sergii`, runtime purpose, no inbound-style `Can I help you?`, one question at a time, recording off, voicemail hangup.
+5. Real telephony transport is proven: a Call2Me demo call reached Sergii’s real phone and Sergii confirmed ring + AI speech.
+6. E.164 leading `+` bug fixed.
+7. Permanent production runner exists: `scripts/openclaw-phone-call.mjs`.
+8. Permanent production workflow exists: `.github/workflows/openclaw-phone-call.yml`.
+9. Phone task template exists: `ops/agent-control/templates/phone-call.example.json`.
+10. Runner has approval, E.164/path validation, lock/dedupe/idempotency, no automatic redial, polling, duration/voicemail guards and sanitized public persistence.
+11. Runner/workflow security validation was completed. Do not repeat unless the runner changes or new evidence appears.
+12. Historical auth/reset/email/signup-credit/agent-creation/greeting/API-key/secret-presence investigations are closed unless new evidence changes state.
 
-1. Provider selected and frozen: Call2Me unless a genuine provider-level blocker is proved.
-2. Call2Me account access/authentication recovered historically.
-3. Dedicated Call2Me API key exists historically; its value is not stored in public Git.
-4. Universal live agent exists: `agent_f2949915a3f2` / `Sergii Universal Phone Agent`.
-5. Final live agent configuration was verified purpose-first: dynamic opening, AI disclosure, `on behalf of Sergii`, runtime purpose, no inbound-style `Can I help you?`, one question at a time, recording off, voicemail hangup.
-6. Real telephony transport was proven: Call2Me demo call reached Sergii and Sergii confirmed ring + AI speech.
-7. Correct E.164 destination handling with leading `+` was fixed.
-8. Production runner exists: `scripts/openclaw-phone-call.mjs`.
-9. Production workflow exists: `.github/workflows/openclaw-phone-call.yml`.
-10. Phone task template exists: `ops/agent-control/templates/phone-call.example.json`.
-11. Production runner has explicit approval, E.164/path validation, task locking, provider dedupe by task id, no automatic re-dial after unknown result, polling, duration/voicemail handling and sanitized public persistence.
-12. Runner/workflow security validation was completed; do not repeat unless runner changes or new evidence appears.
-13. Historical password-reset, email-verification, signup-credit, agent-creation, greeting-cleanup, API-key-creation, secret-presence and demo-bypass investigations are closed and must not be repeated without new evidence.
+### LAST VERIFIED PROVIDER STATE — MUST NOT BE ASSUMED CURRENT
+1. Wallet was `$0.00`, `can_proceed=false` at the last provider readback.
+2. Production call path reached Call2Me and stopped at HTTP 402 `Insufficient balance`.
+3. Owned production number list was empty.
+4. Managed-number discovery previously found local numbers requiring payment.
+5. Signup `$5` credit was advertised/configured but was not present in the verified wallet ledger at that time.
 
-### LAST VERIFIED PROVIDER STATE — NOT ASSUMED TO BE CURRENT WITHOUT NEW READBACK
-
-1. Wallet last verified at `$0.00`, `can_proceed=false`.
-2. Production `/v1/calls` reached Call2Me and stopped at HTTP 402 `Insufficient balance`.
-3. Owned production phone numbers last verified as empty.
-4. Read-only managed-number discovery previously found local 213 candidates at `$5` upfront / `$5` monthly at that time.
-5. No newer provider-side wallet/number readback has yet been journaled.
-
-### PARTIAL / NOT YET ACCEPTED
-
-1. Dynamic conversational behavior is configured but NOT yet accepted in a complete purpose-first production conversation after final configuration.
-2. Production runner passes runtime `objective`, context, questions and success condition, but the final human conversation has not yet proved that the agent reliably uses real answers for follow-up.
-3. Result persistence currently records sanitized metadata/availability flags. It does not yet complete the user-facing evidence path of factual answers derived from transcript/provider data back into ChatGPT.
-4. `phone_call` remains a separate phone-task path and is not integrated into the generic `OPENCLAW_TASK_SCHEMA.v1.json` / generic ChatGPT ingestion contract.
-5. PR #39 is still experimental and historically Bland-oriented in title/body; cleanup is deferred until the Call2Me E2E path is proven.
+### PARTIAL
+1. Agent is configured for dynamic conversation, but the final configuration has not yet passed a complete live acceptance conversation.
+2. Production runner passes objective/context/questions/success condition, but real follow-up based on a human answer is not yet accepted.
+3. Call detail/result handling does not yet complete the full verified-facts return path into ChatGPT.
+4. `phone_call` remains separate from the generic `OPENCLAW_TASK_SCHEMA.v1.json` ingestion path.
+5. PR #39 remains experimental and historically Bland-oriented; cleanup is post-E2E.
 
 ### NOT DONE
+1. Prove one free live purpose-first conversation after the final agent config.
+2. Prove the agent uses an arbitrary human answer to ask a relevant follow-up.
+3. Establish a permanent evidence path for transcript/post-call extraction without publishing private conversation data.
+4. Integrate `phone_call` into the existing generic task contract/ingestion with the smallest permanent change.
+5. Return verified factual answers automatically to Sergii.
+6. Prove one practical external factual call after self-test acceptance and explicit authorization.
+7. Only after free proof: decide whether any production telephony spend is actually necessary.
 
-1. Decide/verify the production caller identity route:
-   - preferred: Sergii's existing real number through legitimate BYOC/SIP if current carrier/product supports it without disruptive porting;
-   - fallback: one Call2Me managed number under the existing spending cap.
-2. Identify the current carrier/product/SIP capability for Sergii's existing number. Current carrier is not yet verified.
-3. Obtain a production-usable `from_number` by one of the above legitimate routes.
-4. Obtain a usable wallet balance if the selected production route requires Call2Me wallet funding; last verified balance is still `$0`.
-5. Run the real production self-test.
-6. Prove ring -> answer -> AI disclosure -> on behalf of Sergii -> runtime purpose -> listens -> relevant follow-up -> second human response -> proper end.
-7. Retrieve terminal provider result with `call_id`, status, duration and private transcript/summary/extraction when available.
-8. Convert actual call evidence into structured factual result; missing data must be `unknown`.
-9. Return that verified result automatically to Sergii in ChatGPT.
-10. Run one safe practical external-business information call after self-test acceptance.
-11. After E2E: permanent credential integration and PR cleanup/minimal production core.
+## OFFICIAL FREE-PATH FACTS
 
-## NUMBER STRATEGY — CURRENT ACTIVE DECISION
+From Call2Me official Demo documentation:
+- `POST /v1/demo/call` is public, no signup/card required.
+- Demo number comes from a shared pool and is reserved for 15 minutes.
+- One demo call per destination phone number per day.
+- Maximum demo call duration is 60 seconds.
+- Default route uses Call2Me’s demo agent.
+- Workspace admins can change `Demo -> Agent` in the dashboard to use their own agent.
+- The documented public demo request contains `phone_number` and `name`; it does not document runtime `objective/questions/dynamic_variables`.
 
-Official Call2Me documentation supports Bring Your Own Carrier (BYOC) using a SIP trunk: a number that already lives at a SIP-capable carrier can be bound to a Call2Me agent, and outbound calls can use that bound number as `from_number`.
-
-This does NOT authorize arbitrary caller-ID spoofing. The number must be under legitimate control through a SIP carrier/trunk.
-
-Current unknown: whether Sergii's existing carrier/product exposes SIP trunking for the existing number without porting or disrupting current voice/SMS. This must be proved before choosing BYOC.
-
-If direct non-disruptive SIP/BYOC is unavailable, do not port automatically. Present that fact and use the already-authorized managed-number fallback only after the exact-number preference is resolved.
+Implication: the free demo path is suitable to prove the voice/agent conversational loop, but it is not yet proven to carry arbitrary runtime PHONE TASK data. Do not pretend otherwise.
 
 ## ORDERED PLAN
 
-### P-00 — Governance and journal — DONE
-Use the loop in this file. Never repeat closed work. Classify failures as CODE / PROVIDER / BLOCKED_PRIVILEGE. Journal every meaningful microstep.
+### T-1 — Governance + complete inventory — DONE
+Acceptance: active journal contains rules, verified inventory, open gaps and ordered plan.
 
-### P-01 — Full current inventory — DONE
-Reconciled historical journal, branch contents, production runner/workflow/task template, generic task schema and PR state.
+### T-2 — Official provider contract audit — ACTIVE
+Small steps:
+- T-2.1 Verify free demo endpoint, limits and custom-agent capability from Call2Me official docs. — DONE
+- T-2.2 Verify official call-result/transcript/post-call extraction mechanisms. — ACTIVE
+- T-2.3 Verify whether any documented API exists to set the workspace Demo -> Agent binding, or whether it is dashboard-only. — ACTIVE
+- T-2.4 Record exact free-vs-paid boundary; no assumptions from marketing text. — ACTIVE
 
-### P-02 — Universal agent / purpose-first behavior — DONE
-Already verified live. No more greeting/config work unless new evidence invalidates it.
+Acceptance: every provider-dependent next step has an official-source answer or is explicitly marked undocumented/provider-unknown.
 
-### P-03 — Production runner / security / idempotency — DONE
-Already verified. No new calling architecture unless the existing production path is proved incapable of the next required step.
+### T-3 — Permanent free conversational test path
+Goal: make the existing Universal Agent the workspace demo agent and use the public free demo transport.
+Small steps:
+- T-3.1 Resolve permanent Demo -> Agent binding for `agent_f2949915a3f2` using documented provider capability first.
+- T-3.2 Verify binding by provider-side readback or direct observed behavior.
+- T-3.3 Place one free eligible self-test call.
+- T-3.4 Acceptance conversation within 60 sec: disclosure -> on behalf of Sergii -> purpose -> first question -> arbitrary answer -> relevant follow-up -> second answer -> proper end.
+- T-3.5 Record actual call evidence; never publish transcript in Git.
 
-### P-04 — Authentication path — DONE FOR FIRST E2E
-Dedicated key exists historically and one-time RSA-OAEP/SHA-256 credential execution was already proved. Permanent secret storage is post-E2E hardening.
+Acceptance: Sergii confirms the agent actually listened and followed up logically.
 
-### P-05 — Production caller identity — ACTIVE
-Goal: resolve the preferred exact-number route first.
+### T-4 — Permanent verified-result pipeline
+Small steps:
+- T-4.1 Use official call-detail/transcript/post-call extraction endpoint(s) supported by Call2Me.
+- T-4.2 Update the EXISTING `scripts/openclaw-phone-call.mjs`; do not create a competing runner.
+- T-4.3 Keep private transcript/raw provider bodies out of the public repository and public logs.
+- T-4.4 Produce a sanitized structured result: called/answered/status/duration + requested factual answers + `unknown` for missing facts.
+- T-4.5 Make the result retrievable by ChatGPT from the existing execution path.
 
-Substeps:
-1. identify current carrier/product for Sergii's existing number;
-2. verify whether that exact carrier/product provides SIP trunk/BYOC control for the number without porting;
-3. if yes and non-disruptive, define the minimal legitimate Call2Me binding path and obtain any additional explicit authorization required before configuration;
-4. if no, record `PROVIDER/CARRIER LIMITATION` and present the managed Call2Me number fallback;
-5. no number purchase while exact-number preference remains unresolved.
+Acceptance: a completed call produces evidence-derived structured facts, not merely `call completed`.
 
-Acceptance: a legitimate production `from_number` route is selected and verified.
+### T-5 — Permanent natural request -> PHONE TASK ingestion
+Small steps:
+- T-5.1 Add `phone_call` to the existing generic task schema if this can be done without breaking other OpenClaw task types.
+- T-5.2 Define required PHONE TASK fields once: destination, objective, language, caller identity, context, questions, success condition, approval flags.
+- T-5.3 Reuse the existing OpenClaw dispatch/runner path; no new orchestration layer unless technically required.
+- T-5.4 Validate schema/task creation without making a paid call.
 
-### P-06 — Wallet readiness — BLOCKED_PRIVILEGE IF STILL `$0`
-After caller-number route is known, read provider wallet once. If still insufficient and no provider-side free credit is available, complete only the minimum payment action already within Sergii's existing `$7` authorization. Never expose card credentials. If payment UI/OTP is user-controlled, reduce to one concrete user action.
+Acceptance: a natural Sergii request can be represented by one validated permanent PHONE TASK consumed by the existing system.
 
-Acceptance: provider readback says wallet can proceed for the bounded self-test.
+### T-6 — Full free vertical slice
+Goal: to the maximum extent the provider’s free demo allows, prove:
+`SERGII REQUEST -> PHONE TASK/TEST CONTEXT -> UNIVERSAL AGENT -> FREE REAL CALL -> DYNAMIC CONVERSATION -> VERIFIED RESULT -> SERGII`.
 
-### P-07 — Real production self-test — NEXT AFTER P-05/P-06
-Destination: Sergii's approved self-test number.
-Acceptance:
-1. task accepted;
-2. exactly one dial POST;
-3. call created;
-4. phone rings;
-5. Sergii answers;
-6. AI identifies itself;
-7. says it calls on behalf of Sergii;
-8. states runtime purpose;
-9. asks first task question;
-10. listens to Sergii's actual answer;
-11. asks a logically relevant follow-up based on that answer;
-12. Sergii replies;
-13. agent ends correctly;
-14. terminal provider state retrieved;
-15. `call_id` / status / duration verified;
-16. private transcript/summary/extraction retrieved if provider exposes them;
-17. evidence-only result returned to Sergii;
-18. Sergii confirms conversation quality.
+If the public demo API cannot carry runtime task variables, record that exact provider limitation and do not fake completion. Prove all conversation/result capabilities that can be proved for free before discussing production telephony.
 
-Only then is the PHONE AGENT MVP considered working.
+### T-7 — Paid production decision — LOCKED
+No work that spends money until Sergii gives new explicit authorization. If production telephony is still required after T-3 through T-6, present the minimum permanent option and exact hard cost cap.
 
-### P-08 — Practical business information call
-One safe factual information call after P-07: availability/price/hours/status/documents/responsible contact. No purchase/payment/reservation unless separately authorized.
+### T-8 — Practical external call + post-E2E cleanup
+Only after self-test acceptance and explicit authorization: one factual external call. Then permanent secret storage if needed, remove/deprecate obsolete experiments, and clean PR scope.
 
-### P-09 — ChatGPT natural request -> PHONE TASK -> verified result
-Integrate `phone_call` into the existing generic task ingestion with the smallest necessary change, and complete result return to ChatGPT. No new orchestration layer unless existing entry is technically insufficient.
-
-### P-10 — Post-E2E hardening and cleanup
-Permanent credential storage, remove/deprecate obsolete Bland/reset/bootstrap/probe paths from production core, correct PR #39 scope/title/body or create a clean production PR if necessary, then merge only the proven minimal core.
-
-## DEFERRED / DO NOT WORK ON BEFORE P-07
-
+## DEFERRED / FORBIDDEN BEFORE FREE ACCEPTANCE
+- Twilio/SIP/BYOC/AT&T-number work.
+- Number purchase/rental.
+- Wallet spending.
+- New voice provider.
 - Dashboard/frontend/CRM/queue/microservices.
 - Multi-provider abstraction.
-- DeepSeek/analytics/elaborate database.
-- Mass dialing or cold outreach automation.
-- Porting Sergii's existing number.
-- New external SIP/Twilio/Telnyx account.
-- PR cleanup merely for aesthetics.
+- Mass dialing/cold outreach.
+- Cosmetic PR cleanup.
 
 ## CURRENT CHECKPOINT
-
-- Branch: `feat/openclaw-vendor-phone-calls`.
+- Active branch: `feat/openclaw-vendor-phone-calls`.
+- PR #39: open, unmerged.
 - Historical journal: `docs/PHONE_AGENT_STATE.md` through J-019.
-- Active plan/journal: this file from J-020 onward.
-- PR #39 is open and not merged.
-- Current active technical question: legitimate caller identity / exact existing number feasibility.
-- Current product acceptance remains the real production E2E call, not CI/configuration.
+- Active journal/plan: this file from J-020 onward.
+- Current execution item: `T-2 official provider contract audit`, then `T-3 permanent free conversational test path`.
 
 ## JOURNAL CONTINUATION
 
 ### J-020 — Full current inventory reconciled
-- VERIFIED: historical source of truth exists in `docs/PHONE_AGENT_STATE.md` and defines the working loop, blocker taxonomy, provider freeze and production E2E acceptance criteria.
-- VERIFIED: branch contains `scripts/openclaw-phone-call.mjs`, `.github/workflows/openclaw-phone-call.yml`, `ops/agent-control/templates/phone-call.example.json`, two historical demo workflows, universal agent configuration workflow and prior Call2Me experiments.
-- VERIFIED: generic `OPENCLAW_TASK_SCHEMA.v1.json` does not currently enumerate `phone_call`; phone calling remains a separate path.
-- VERIFIED: production runner requires a usable wallet and legitimate owned/bound `from_number`.
-- VERIFIED: PR #39 remains open, unmerged and still carries historical Bland-oriented title/body.
-- RESULT: no new architecture is justified. Continue from open production gates only.
+- VERIFIED: historical source of truth defines the original execution loop and production E2E acceptance criteria.
+- VERIFIED: branch contains universal runner, workflow, task template, demo workflows, agent config and historical provider experiments.
+- VERIFIED: generic task schema does not enumerate `phone_call`.
+- VERIFIED: PR #39 is open/unmerged and historically Bland-oriented.
 - STATUS: DONE.
 
-### J-021 — Financial authority corrected
-- VERIFIED FROM HISTORICAL JOURNAL: Sergii authorized up to `$7` Call2Me funding and exactly one production number with upfront cost `<= $5`; recording off; no other purchase authorized.
-- CORRECTION: no later evidence in the journal supersedes that authorization.
-- RESULT: do not invent a zero-spend rule. Spending still must stay strictly within the existing scope and only when needed for the selected production path.
-- STATUS: DONE.
+### J-021 — Historical spending authority recorded
+- Historical journal recorded authorization for Call2Me funding/one number.
+- STATUS: HISTORICAL FACT ONLY.
 
-### J-022 — Existing-number preference becomes caller-ID gate
-- USER PREFERENCE: use Sergii's existing real number if legitimately possible.
-- VERIFIED PROVIDER CAPABILITY: Call2Me supports BYOC through a SIP trunk and allows outbound `from_number` on a number bound to that trunk.
-- UNKNOWN: Sergii's current carrier/product and whether it exposes SIP trunk control for this exact number without porting/disrupting service.
-- SAFETY: no spoofing, no automatic port, no new external carrier account without separate explicit authorization.
-- RESULT: managed-number purchase is paused until this exact-number route is resolved.
-- STATUS: ACTIVE.
+### J-022 — Exact-number investigation
+- Historical work explored BYOC/SIP for Sergii’s existing number.
+- STATUS: SUPERSEDED BY CURRENT FREE-FIRST PRIORITY.
 
-### J-023 — Connector-side housekeeping note
-- During inventory tooling, an extra branch named `tmp-do-not-use` was accidentally created while probing branch-operation schema.
-- It contains no intentional PHONE AGENT work and must not be used as a source of truth.
-- The active branch remains `feat/openclaw-vendor-phone-calls`.
+### J-023 — Connector housekeeping
+- An accidental `tmp-do-not-use` branch was created during tool-schema probing. It is not a source of truth and contains no intentional PHONE AGENT work.
 - STATUS: NON-BLOCKING HOUSEKEEPING.
+
+### J-024 — Latest user governance supersedes spending path
+- USER RULE: no payment, wallet use, paid plan, number purchase, SIP/BYOC/Twilio or other financial step without a NEW explicit approval.
+- USER RULE: exhaust and prove the free path first.
+- USER RULE: failure of one method means find another method; only genuine provider hard limits or unavailable user privilege may block execution.
+- USER RULE: use primary sources and permanent tools; no unnecessary temporary architecture.
+- RESULT: prior wallet/number-first plan is superseded. Active work is free conversational proof + permanent task/result plumbing.
+- STATUS: DONE.
+
+### J-025 — Official demo contract verified
+- PRIMARY SOURCE: Call2Me official Demo docs, updated 2026-05-06.
+- VERIFIED: public `POST /v1/demo/call`, shared temporary number, no card/signup, one call per destination per day, 60-second cap.
+- VERIFIED: default demo agent is used unless workspace admin overrides `Demo -> Agent` in dashboard.
+- VERIFIED: documented demo request only includes destination/name; arbitrary PHONE TASK runtime variables are not documented on this endpoint.
+- RESULT: free demo can prove real phone transport and dynamic conversation, but arbitrary runtime-task delivery through demo remains unproved.
+- STATUS: DONE.
+
+### J-026 — Next action
+- ACTIVE: audit official Call2Me call-result/transcript/extraction contract and documented Demo -> Agent binding surface; then implement only the smallest permanent changes required.

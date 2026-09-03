@@ -1,0 +1,27 @@
+name: Call2Me Reset Schema
+
+on:
+  push:
+    branches:
+      - feat/openclaw-vendor-phone-calls
+    paths:
+      - '.github/workflows/call2me-reset-schema.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch exact Call2Me auth schemas
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://api.call2me.app/openapi.json -o /tmp/openapi.json
+          echo '=== reset-password ==='
+          jq '.paths["/v1/auth/reset-password"].post' /tmp/openapi.json
+          echo '=== login ==='
+          jq '.paths["/v1/auth/login"].post' /tmp/openapi.json
+          echo '=== api-keys POST ==='
+          jq '.paths["/v1/api-keys"].post' /tmp/openapi.json

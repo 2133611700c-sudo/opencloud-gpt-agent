@@ -5,8 +5,13 @@ on:
     inputs:
       task_file:
         description: Phone task under ops/agent-control/tasks or ops/agent-control/phone-calls
-        required: true
+        required: false
         type: string
+      preflight_only:
+        description: Verify Call2Me agent, owned number and wallet without creating a call
+        required: false
+        default: false
+        type: boolean
   push:
     paths:
       - "ops/agent-control/phone-calls/*.json"
@@ -25,6 +30,7 @@ jobs:
     env:
       CALL2ME_API_KEY: ${{ secrets.CALL2ME_API_KEY }}
       CALL2ME_AGENT_ID: agent_f2949915a3f2
+      CALL2ME_FROM_NUMBER: ${{ vars.CALL2ME_FROM_NUMBER }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -36,7 +42,23 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Verify Call2Me credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CALL2ME_API_KEY:-}" ]; then
+            echo "BLOCKED_PRIVILEGE: CALL2ME_API_KEY repository secret is not configured" >&2
+            exit 20
+          fi
+          echo "call2me_api_key_present=true"
+
+      - name: Zero-spend production preflight
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.preflight_only }}
+        shell: bash
+        run: node scripts/openclaw-phone-preflight.mjs
+
       - name: Resolve phone task files
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
         shell: bash
         run: |
           set -euo pipefail
@@ -56,17 +78,8 @@ jobs:
           fi
           cat /tmp/phone-call-tasks.txt
 
-      - name: Verify Call2Me credential
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${CALL2ME_API_KEY:-}" ]; then
-            echo "BLOCKED: CALL2ME_API_KEY repository secret is not configured" >&2
-            exit 20
-          fi
-          echo "call2me_api_key_present=true"
-
       - name: Execute approved phone calls
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
         shell: bash
         run: |
           set -euo pipefail
@@ -86,7 +99,7 @@ jobs:
           done < /tmp/phone-call-tasks.txt
 
       - name: Upload private phone evidence
-        if: always()
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
         uses: actions/upload-artifact@v5
         with:
           name: openclaw-phone-private-${{ github.run_id }}
@@ -95,7 +108,7 @@ jobs:
           retention-days: 3
 
       - name: Upload sanitized phone evidence
-        if: always()
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
         uses: actions/upload-artifact@v5
         with:
           name: openclaw-phone-sanitized-${{ github.run_id }}
@@ -106,7 +119,7 @@ jobs:
           retention-days: 14
 
       - name: Commit sanitized phone summaries
-        if: always()
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.preflight_only) }}
         shell: bash
         run: |
           set -euo pipefail

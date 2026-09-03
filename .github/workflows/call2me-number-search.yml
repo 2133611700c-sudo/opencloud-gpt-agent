@@ -1,0 +1,109 @@
+name: Call2Me Number Search
+
+on:
+  push:
+    branches: [feat/openclaw-vendor-phone-calls]
+    paths: ['.github/workflows/call2me-number-search.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      API: https://api.call2me.app/v1
+      PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-number-search/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
+    steps:
+      - name: Generate one-time inbound encryption key
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/private.pem 2>/dev/null
+          openssl pkey -in /tmp/private.pem -pubout -out /tmp/public.pem
+          echo 'one_time_search_key_ready=true'
+
+      - name: Upload one-time public key
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-number-search-public-key-${{ github.run_id }}
+          path: /tmp/public.pem
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Wait for encrypted API key
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          umask 077
+          found=false
+          for attempt in $(seq 1 120); do
+            code="$(curl -sS --connect-timeout 10 --max-time 20 \
+              -o /tmp/payload.b64 -w '%{http_code}' \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H 'Accept: application/vnd.github.raw+json' \
+              "${PAYLOAD_API}&nonce=${GITHUB_RUN_ID}-${attempt}")"
+            if [ "$code" = "200" ]; then found=true; break; fi
+            sleep 5
+          done
+          if [ "$found" != "true" ]; then exit 20; fi
+          base64 -d /tmp/payload.b64 > /tmp/payload.enc
+          openssl pkeyutl -decrypt \
+            -inkey /tmp/private.pem \
+            -in /tmp/payload.enc \
+            -out /tmp/api-key \
+            -pkeyopt rsa_padding_mode:oaep \
+            -pkeyopt rsa_oaep_md:sha256
+          API_KEY="$(cat /tmp/api-key)"
+          test -n "$API_KEY"
+          echo "::add-mask::$API_KEY"
+          echo 'encrypted_api_key_decrypted=true'
+          rm -f /tmp/payload.b64 /tmp/payload.enc
+
+      - name: Search Los Angeles numbers read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          API_KEY="$(cat /tmp/api-key)"
+          echo "::add-mask::$API_KEY"
+
+          search_area() {
+            local area="$1"
+            local out="/tmp/search-${area}.json"
+            local code
+            code="$(curl -sS --connect-timeout 15 --max-time 45 \
+              -o "$out" -w '%{http_code}' \
+              "$API/numbers/search?country=US&area_code=${area}&phone_number_type=local&limit=10" \
+              -H "Authorization: Bearer $API_KEY")"
+            echo "area_${area}_http=$code"
+            if [[ ! "$code" =~ ^2 ]]; then
+              jq -n --arg area "$area" --arg code "$code" '{area_code:$area,http_code:$code,results:[]}' > "$out"
+            fi
+          }
+
+          search_area 213
+          search_area 323
+          search_area 310
+
+          jq -n \
+            --argjson a213 "$(cat /tmp/search-213.json)" \
+            --argjson a323 "$(cat /tmp/search-323.json)" \
+            --argjson a310 "$(cat /tmp/search-310.json)" \
+            '{provider:"Call2Me",searched_at:(now|todate),areas:{"213":$a213,"323":$a323,"310":$a310}}' \
+            > /tmp/call2me-number-search.json
+
+          echo '=== price summary ==='
+          jq '[.areas | to_entries[] | .key as $area | (.value.numbers // .value.results // .value.items // [])[]? | {area_code:$area,phone_number,locality,provider,monthly_price_usd,upfront_price_usd,telnyx_cost_usd,features}] | .[0:15]' /tmp/call2me-number-search.json
+          rm -f /tmp/api-key /tmp/private.pem
+
+      - name: Upload sanitized search report
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-number-search-${{ github.run_id }}
+          path: /tmp/call2me-number-search.json
+          retention-days: 7
+          if-no-files-found: error

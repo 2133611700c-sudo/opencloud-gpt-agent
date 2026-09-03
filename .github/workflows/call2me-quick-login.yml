@@ -1,0 +1,93 @@
+name: Call2Me Current API Contract Audit
+
+on:
+  push:
+    branches:
+      - feat/openclaw-vendor-phone-calls
+    paths:
+      - '.github/workflows/call2me-quick-login.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch official OpenAPI contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/openapi.json -w '%{http_code}' \
+            'https://api.call2me.app/openapi.json')"
+          echo "openapi_http=$CODE"
+          [[ "$CODE" =~ ^2 ]] || exit 20
+          jq -e '.openapi and .paths' /tmp/openapi.json >/dev/null
+
+      - name: Extract phone production contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          spec = json.loads(Path('/tmp/openapi.json').read_text())
+          selected = {}
+          needles = (
+              'auth', 'demo', 'user', 'setting', 'profile', 'call', 'phone-number', 'phone_number',
+              '/numbers', 'wallet', 'agent', 'transcript', 'extract', 'provision', 'checkout', 'available',
+              'inventory', 'number-search', 'search-number'
+          )
+          for p, methods in spec.get('paths', {}).items():
+              if any(n in p.lower() for n in needles):
+                  selected[p] = {}
+                  for method, op in methods.items():
+                      if method.lower() not in {'get','post','put','patch','delete','options','head'}:
+                          continue
+                      selected[p][method.lower()] = {
+                          'operationId': op.get('operationId'),
+                          'summary': op.get('summary'),
+                          'requestBody': op.get('requestBody'),
+                          'parameters': op.get('parameters'),
+                          'responses': {k: {'description': v.get('description'), 'content': v.get('content')} for k,v in op.get('responses', {}).items()},
+                      }
+
+          component_hits = {}
+          schema_needles = (
+              'quick-login','quick_login','google','demo','setting','profile','call','phone','wallet',
+              'agent','transcript','extract','provision','checkout','available','inventory','purchase','search'
+          )
+          for name, schema in spec.get('components', {}).get('schemas', {}).items():
+              blob = json.dumps(schema).lower()
+              lname = name.lower()
+              if any(n in lname or n in blob for n in schema_needles):
+                  component_hits[name] = schema
+
+          report = {
+              'openapi_version': spec.get('openapi'),
+              'api_title': spec.get('info', {}).get('title'),
+              'api_version': spec.get('info', {}).get('version'),
+              'total_paths': len(spec.get('paths', {})),
+              'selected_paths': selected,
+              'relevant_component_schemas': component_hits,
+          }
+          Path('/tmp/call2me-current-contract.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+          print(json.dumps({
+              'total_paths': report['total_paths'],
+              'selected_path_names': sorted(selected),
+              'relevant_schema_names': sorted(component_hits),
+          }, indent=2))
+          PY
+          rm -f /tmp/openapi.json
+
+      - name: Upload official contract evidence
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-current-contract-${{ github.run_id }}
+          path: /tmp/call2me-current-contract.json
+          retention-days: 7
+          if-no-files-found: error

@@ -1,0 +1,43 @@
+name: Call2Me Multi-Role Self Test
+
+on:
+  push:
+    branches:
+      - feat/openclaw-vendor-phone-calls
+    paths:
+      - "scripts/call2me-bootstrap-selftest.mjs"
+      - ".github/workflows/call2me-bootstrap-selftest.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Bootstrap Call2Me and run multi-role self-test
+        run: node scripts/call2me-bootstrap-selftest.mjs
+
+      - name: Upload private self-test evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-multirole-selftest-${{ github.run_id }}
+          path: ops/agent-control/reports/call2me-selftest/
+          if-no-files-found: error
+          retention-days: 7

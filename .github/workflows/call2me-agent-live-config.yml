@@ -1,0 +1,139 @@
+name: Call2Me Live Agent Config
+
+on:
+  push:
+    branches: [feat/openclaw-vendor-phone-calls]
+    paths: ['.github/workflows/call2me-agent-live-config.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  verify-agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      API: https://api.call2me.app/v1
+      AGENT_ID: agent_f2949915a3f2
+      PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-agent-live-config/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
+    steps:
+      - name: Generate one-time inbound key
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/private.pem 2>/dev/null
+          openssl pkey -in /tmp/private.pem -pubout -out /tmp/public.pem
+
+      - name: Upload one-time public key
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-agent-live-config-key-${{ github.run_id }}
+          path: /tmp/public.pem
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Wait for encrypted API key
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          found=false
+          for attempt in $(seq 1 100); do
+            code="$(curl -sS --connect-timeout 10 --max-time 20 -o /tmp/payload.b64 -w '%{http_code}' \
+              -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github.raw+json' \
+              "${PAYLOAD_API}&nonce=${GITHUB_RUN_ID}-${attempt}")"
+            if [ "$code" = "200" ]; then found=true; break; fi
+            sleep 4
+          done
+          [ "$found" = "true" ] || exit 20
+          base64 -d /tmp/payload.b64 > /tmp/payload.enc
+          openssl pkeyutl -decrypt -inkey /tmp/private.pem -in /tmp/payload.enc -out /tmp/api.key \
+            -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256
+          API_KEY="$(cat /tmp/api.key)"
+          test -n "$API_KEY"
+          echo "::add-mask::$API_KEY"
+          rm -f /tmp/payload.b64 /tmp/payload.enc
+
+      - name: Read live agent before
+        shell: bash
+        run: |
+          set -euo pipefail
+          API_KEY="$(cat /tmp/api.key)"
+          echo "::add-mask::$API_KEY"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 30 -o /tmp/before.json -w '%{http_code}' \
+            "$API/agents/$AGENT_ID" -H "Authorization: Bearer $API_KEY")"
+          echo "agent_get_before_http=$CODE"
+          [[ "$CODE" =~ ^2 ]] || exit 30
+          PROMPT="$(jq -r '.response_engine.system_prompt // .system_prompt // empty' /tmp/before.json)"
+          jq -n \
+            --arg http "$CODE" \
+            --arg mode "$(jq -r '.begin_message_mode // empty' /tmp/before.json)" \
+            --arg recording "$(jq -r '.enable_recording // false' /tmp/before.json)" \
+            --arg voicemail "$(jq -r '.voicemail_action // empty' /tmp/before.json)" \
+            --arg max_ms "$(jq -r '.max_call_duration_ms // 0' /tmp/before.json)" \
+            --arg prompt "$PROMPT" \
+            '{http_code:$http,begin_message_mode:$mode,enable_recording:($recording=="true"),voicemail_action:$voicemail,max_call_duration_ms:($max_ms|tonumber),prompt_checks:{identifies_ai:($prompt|test("AI phone assistant|AI assistant";"i")),on_behalf_of_sergii:($prompt|test("on behalf of Sergii";"i")),purpose_first:($prompt|test("purpose|objective";"i")),blocks_inbound_greeting:($prompt|test("Can I help you|How can I help you";"i")),one_question_at_a_time:($prompt|test("one question at a time";"i"))}}' > /tmp/before-sanitized.json
+          cat /tmp/before-sanitized.json
+
+      - name: Enforce production purpose-first agent
+        shell: bash
+        run: |
+          set -euo pipefail
+          API_KEY="$(cat /tmp/api.key)"
+          echo "::add-mask::$API_KEY"
+          SYSTEM_PROMPT=$(cat <<'PROMPT'
+          You are Sergii's authorized outbound AI phone assistant. Every call is outbound and has runtime context: language, caller_name, on_behalf_of, objective, caller_context, questions, and success_condition.
+
+          FIRST TURN: immediately identify yourself as an AI phone assistant calling on behalf of Sergii and state the concrete purpose of the call from the runtime objective. Never open with "Can I help you?" or "How can I help you?".
+
+          Speak in the requested language. Ask one question at a time. Listen to the real answer before the next question. Treat runtime questions as a checklist, not a rigid script. Use caller_context only as background. Never invent missing facts. Confirm ambiguous names, dates, prices, model or part numbers, addresses, spelling, policies, or other critical details.
+
+          Stop when success_condition is met or the person cannot provide the requested information. You may exchange factual information but must not purchase, pay, reserve, authorize work, accept contractual or legal terms, or make commitments. Never request passwords, card data, SSNs, or unnecessary sensitive information. If asked for Sergii directly, say you can relay a callback request.
+
+          If voicemail is detected, hang up without leaving a message. At the end, briefly confirm the key factual result, thank the person, and end the call.
+          PROMPT
+          )
+          BODY="$(jq -cn --arg prompt "$SYSTEM_PROMPT" '{begin_message_mode:"dynamic",max_call_duration_ms:300000,enable_recording:false,voicemail_detection_enabled:true,voicemail_action:"hangup",responsiveness:0.7,interruption_sensitivity:0.7,enable_backchannel:true,response_engine:{type:"call2me-llm",system_prompt:$prompt,llm_provider:"openrouter",llm_model:"gpt-4o-mini",temperature:0.2,builtin_functions:["end_call"]},metadata:{owner:"Sergii",purpose:"universal_outbound_phone_agent",mode:"production"}}')"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 45 -o /tmp/patch.json -w '%{http_code}' \
+            -X PATCH "$API/agents/$AGENT_ID" -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $API_KEY" --data "$BODY")"
+          echo "agent_patch_http=$CODE"
+          [[ "$CODE" =~ ^2 ]] || exit 40
+
+      - name: Read live agent after and assert
+        shell: bash
+        run: |
+          set -euo pipefail
+          API_KEY="$(cat /tmp/api.key)"
+          echo "::add-mask::$API_KEY"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 30 -o /tmp/after.json -w '%{http_code}' \
+            "$API/agents/$AGENT_ID" -H "Authorization: Bearer $API_KEY")"
+          echo "agent_get_after_http=$CODE"
+          [[ "$CODE" =~ ^2 ]] || exit 50
+          PROMPT="$(jq -r '.response_engine.system_prompt // .system_prompt // empty' /tmp/after.json)"
+          jq -n \
+            --arg http "$CODE" \
+            --arg mode "$(jq -r '.begin_message_mode // empty' /tmp/after.json)" \
+            --arg recording "$(jq -r '.enable_recording // false' /tmp/after.json)" \
+            --arg voicemail "$(jq -r '.voicemail_action // empty' /tmp/after.json)" \
+            --arg max_ms "$(jq -r '.max_call_duration_ms // 0' /tmp/after.json)" \
+            --arg prompt "$PROMPT" \
+            '{http_code:$http,begin_message_mode:$mode,enable_recording:($recording=="true"),voicemail_action:$voicemail,max_call_duration_ms:($max_ms|tonumber),prompt_checks:{identifies_ai:($prompt|test("AI phone assistant|AI assistant";"i")),on_behalf_of_sergii:($prompt|test("on behalf of Sergii";"i")),purpose_first:($prompt|test("purpose|objective";"i")),blocks_inbound_greeting:($prompt|test("Can I help you|How can I help you";"i")),one_question_at_a_time:($prompt|test("one question at a time";"i"))}}' > /tmp/after-sanitized.json
+          jq -e '.begin_message_mode=="dynamic" and .enable_recording==false and .voicemail_action=="hangup" and .max_call_duration_ms==300000 and (.prompt_checks|to_entries|all(.value==true))' /tmp/after-sanitized.json >/dev/null
+          jq -n --arg agent_id "$AGENT_ID" --argjson before "$(cat /tmp/before-sanitized.json)" --argjson after "$(cat /tmp/after-sanitized.json)" '{provider:"Call2Me",agent_id:$agent_id,before:$before,after:$after,production_purpose_first_verified:true}' > /tmp/report.json
+          cat /tmp/report.json
+          rm -f /tmp/api.key /tmp/private.pem /tmp/before.json /tmp/after.json /tmp/patch.json
+
+      - name: Upload sanitized evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-agent-live-config-${{ github.run_id }}
+          path: |
+            /tmp/report.json
+            /tmp/before-sanitized.json
+            /tmp/after-sanitized.json
+          retention-days: 14
+          if-no-files-found: warn

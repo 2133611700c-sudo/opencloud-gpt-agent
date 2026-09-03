@@ -1,0 +1,51 @@
+name: Call2Me Bootstrap
+
+on:
+  push:
+    paths:
+      - "ops/agent-control/call2me-bootstrap/*.json"
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Fetch live Call2Me OpenAPI
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --connect-timeout 15 --max-time 45 https://api.call2me.app/openapi.json -o /tmp/call2me-openapi.json
+          jq -r '.paths | keys[]' /tmp/call2me-openapi.json | grep -E '^/v1/(auth|api-keys|agents|calls|phone-numbers)' | sort
+
+      - name: Show auth and call schemas
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq '{paths: (.paths | with_entries(select(.key|test("^/v1/(auth|api-keys|agents|calls)"))))}' /tmp/call2me-openapi.json > /tmp/call2me-core.json
+          jq -r '.paths | to_entries[] | "\(.key): \(.value|keys|join(","))"' /tmp/call2me-core.json
+
+      - name: Check existing OpenClaw secret availability
+        env:
+          CONTROL_SECRET: ${{ secrets.OPENCLAW_CONTROL_SHARED_SECRET }}
+          FALLBACK_TOKEN: ${{ secrets.OPENCLAW_GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "${CONTROL_SECRET:-}" ] && echo 'OPENCLAW_CONTROL_SHARED_SECRET=PRESENT' || echo 'OPENCLAW_CONTROL_SHARED_SECRET=MISSING'
+          [ -n "${FALLBACK_TOKEN:-}" ] && echo 'OPENCLAW_GITHUB_TOKEN=PRESENT' || echo 'OPENCLAW_GITHUB_TOKEN=MISSING'
+
+      - name: Upload discovery evidence
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-bootstrap-${{ github.run_id }}
+          path: |
+            /tmp/call2me-openapi.json
+            /tmp/call2me-core.json
+          retention-days: 7

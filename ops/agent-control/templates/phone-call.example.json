@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "phone-call-example-001",
+  "type": "phone_call",
+  "status": "pending",
+  "requested_by": "Sergii",
+  "goal": "Call one phone number and obtain specific factual information.",
+  "expected_status": "PASS",
+  "params": {
+    "phone_number": "+12135551234",
+    "objective": "Ask whether the requested item or service is available today and get the exact current price.",
+    "language": "en",
+    "caller_name": "Sergii's AI phone assistant",
+    "on_behalf_of": "Sergii",
+    "caller_context": "Keep the call concise and factual. Do not make purchases or commitments.",
+    "questions": [
+      "Is it available today?",
+      "What is the exact current price?"
+    ],
+    "success_condition": "Availability and exact current price are clearly confirmed.",
+    "timeout_seconds": 300
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false,
+    "explicit_approval": true,
+    "purchase_authorized": false,
+    "payment_authorized": false,
+    "reservation_authorized": false,
+    "recording_authorized": false
+  }
+}

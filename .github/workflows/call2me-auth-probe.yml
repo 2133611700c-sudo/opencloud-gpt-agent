@@ -1,0 +1,39 @@
+name: Call2Me Auth Probe
+
+on:
+  push:
+    paths:
+      - "ops/agent-control/call2me-auth-probe/*.json"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Probe register schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          HTTP_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 45 \
+            -o /tmp/call2me-auth-probe.json \
+            -w '%{http_code}' \
+            -X POST https://api.call2me.app/v1/auth/register \
+            -H 'Content-Type: application/json' \
+            --data '{}')"
+          echo "HTTP $HTTP_CODE"
+          cat /tmp/call2me-auth-probe.json
+
+      - name: Upload probe response
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-auth-probe-${{ github.run_id }}
+          path: /tmp/call2me-auth-probe.json
+          if-no-files-found: error
+          retention-days: 1

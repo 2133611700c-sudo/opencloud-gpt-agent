@@ -32,8 +32,7 @@
         "repo_patch",
         "supabase_check",
         "synthetic_lead_check",
-        "regression_check",
-        "phone_call"
+        "regression_check"
       ]
     },
     "requested_by": {
@@ -175,21 +174,6 @@
         "destructive_action": {
           "type": "boolean",
           "const": false
-        },
-        "explicit_approval": {
-          "type": "boolean"
-        },
-        "purchase_authorized": {
-          "type": "boolean"
-        },
-        "payment_authorized": {
-          "type": "boolean"
-        },
-        "reservation_authorized": {
-          "type": "boolean"
-        },
-        "recording_authorized": {
-          "type": "boolean"
         }
       }
     },
@@ -268,103 +252,6 @@
             "type": "object",
             "additionalProperties": false,
             "maxProperties": 0
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "type": {
-            "const": "phone_call"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "params": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["phone_number", "objective", "language", "caller_name", "on_behalf_of", "questions", "success_condition"],
-            "properties": {
-              "phone_number": {
-                "type": "string",
-                "pattern": "^\\+[1-9][0-9]{7,14}$"
-              },
-              "objective": {
-                "type": "string",
-                "minLength": 5,
-                "maxLength": 4000
-              },
-              "language": {
-                "type": "string",
-                "minLength": 2,
-                "maxLength": 20
-              },
-              "caller_name": {
-                "type": "string",
-                "minLength": 2,
-                "maxLength": 200
-              },
-              "on_behalf_of": {
-                "type": "string",
-                "minLength": 2,
-                "maxLength": 200
-              },
-              "caller_context": {
-                "type": "string",
-                "maxLength": 4000
-              },
-              "questions": {
-                "type": "array",
-                "minItems": 1,
-                "maxItems": 12,
-                "items": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 500
-                }
-              },
-              "success_condition": {
-                "type": "string",
-                "minLength": 5,
-                "maxLength": 1000
-              },
-              "from_number": {
-                "type": "string",
-                "pattern": "^\\+[1-9][0-9]{7,14}$"
-              },
-              "poll_seconds": {
-                "type": "integer",
-                "minimum": 3,
-                "maximum": 15
-              },
-              "timeout_seconds": {
-                "type": "integer",
-                "minimum": 60,
-                "maximum": 600
-              }
-            }
-          },
-          "safety": {
-            "required": [
-              "customer_action",
-              "public_posting",
-              "paid_ads_change",
-              "destructive_action",
-              "explicit_approval",
-              "purchase_authorized",
-              "payment_authorized",
-              "reservation_authorized",
-              "recording_authorized"
-            ],
-            "properties": {
-              "explicit_approval": {"const": true},
-              "purchase_authorized": {"const": false},
-              "payment_authorized": {"const": false},
-              "reservation_authorized": {"const": false},
-              "recording_authorized": {"const": false}
-            }
           }
         }
       }

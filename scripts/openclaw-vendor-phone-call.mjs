@@ -179,13 +179,11 @@ const md = [
   "",
   report.summary || "No summary returned.",
   "",
-  "## Transcript",
-  "",
-  report.transcript || "No transcript returned.",
-  "",
   "## Error",
   "",
   report.error_message || "none",
+  "",
+  "Raw transcript is retained only in the workflow artifact and is not intended for repository commit.",
   "",
 ].join("\n");
 fs.writeFileSync(mdPath, md, "utf8");

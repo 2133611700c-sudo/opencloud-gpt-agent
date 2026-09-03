@@ -15,6 +15,7 @@ jobs:
     env:
       API: https://api.call2me.app/v1
       PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-number-search/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
+      DEMO_CALL_ID: demo_177cf10bd989
     steps:
       - name: Generate one-time inbound encryption key
         shell: bash
@@ -64,46 +65,30 @@ jobs:
           echo 'encrypted_api_key_decrypted=true'
           rm -f /tmp/payload.b64 /tmp/payload.enc
 
-      - name: Search Los Angeles numbers read-only
+      - name: Probe historical demo result read-only
         shell: bash
         run: |
           set -euo pipefail
           API_KEY="$(cat /tmp/api-key)"
           echo "::add-mask::$API_KEY"
-
-          search_area() {
-            local area="$1"
-            local out="/tmp/search-${area}.json"
-            local code
-            code="$(curl -sS --connect-timeout 15 --max-time 45 \
-              -o "$out" -w '%{http_code}' \
-              "$API/numbers/search?country=US&area_code=${area}&phone_number_type=local&limit=10" \
-              -H "Authorization: Bearer $API_KEY")"
-            echo "area_${area}_http=$code"
-            if [[ ! "$code" =~ ^2 ]]; then
-              jq -n --arg area "$area" --arg code "$code" '{area_code:$area,http_code:$code,results:[]}' > "$out"
-            fi
-          }
-
-          search_area 213
-          search_area 323
-          search_area 310
-
+          CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+            -o /tmp/raw.json -w '%{http_code}' \
+            "$API/calls/$DEMO_CALL_ID" \
+            -H "Authorization: Bearer $API_KEY")"
+          echo "demo_result_http=$CODE"
           jq -n \
-            --argjson a213 "$(cat /tmp/search-213.json)" \
-            --argjson a323 "$(cat /tmp/search-323.json)" \
-            --argjson a310 "$(cat /tmp/search-310.json)" \
-            '{provider:"Call2Me",searched_at:(now|todate),areas:{"213":$a213,"323":$a323,"310":$a310}}' \
-            > /tmp/call2me-number-search.json
+            --arg id "$DEMO_CALL_ID" \
+            --arg code "$CODE" \
+            --argjson raw "$(cat /tmp/raw.json 2>/dev/null || echo '{}')" \
+            '{provider:"Call2Me",call_id:$id,http_code:($code|tonumber),status:($raw.call_status // $raw.status // null),duration_ms:($raw.duration_ms // null),transcript_available:(($raw.transcript // $raw.transcript_object // null)!=null),summary_available:(($raw.call_analysis.summary // $raw.call_analysis.call_summary // $raw.summary // null)!=null),recording_available:(($raw.recording_url // null)!=null),detail:($raw.detail // $raw.message // null)}' \
+            > /tmp/call2me-demo-result-probe.json
+          cat /tmp/call2me-demo-result-probe.json
+          rm -f /tmp/api-key /tmp/private.pem /tmp/raw.json
 
-          echo '=== price summary ==='
-          jq '[.areas | to_entries[] | .key as $area | (.value.numbers // .value.results // .value.items // [])[]? | {area_code:$area,phone_number,locality,provider,monthly_price_usd,upfront_price_usd,telnyx_cost_usd,features}] | .[0:15]' /tmp/call2me-number-search.json
-          rm -f /tmp/api-key /tmp/private.pem
-
-      - name: Upload sanitized search report
+      - name: Upload sanitized probe result
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-number-search-${{ github.run_id }}
-          path: /tmp/call2me-number-search.json
-          retention-days: 7
+          name: call2me-demo-result-probe-${{ github.run_id }}
+          path: /tmp/call2me-demo-result-probe.json
+          retention-days: 1
           if-no-files-found: error

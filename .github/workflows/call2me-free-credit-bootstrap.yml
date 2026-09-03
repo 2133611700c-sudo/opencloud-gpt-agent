@@ -16,7 +16,8 @@ jobs:
     env:
       API: https://api.call2me.app/v1
       EMAIL: 2133611700c@gmail.com
-      TEST_PHONE: +12133611700
+      TEST_PHONE: '+12133611700'
+      EXISTING_AGENT_ID: agent_f2949915a3f2
       PAYLOAD_API: https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/contents/ops/agent-control/call2me-secure-reset/payload.b64?ref=feat%2Fopenclaw-vendor-phone-calls
     steps:
       - name: Generate one-time encryption key
@@ -31,12 +32,12 @@ jobs:
       - name: Upload one-time public key
         uses: actions/upload-artifact@v5
         with:
-          name: call2me-reset-public-key-${{ github.run_id }}
+          name: call2me-login-public-key-${{ github.run_id }}
           path: /tmp/public.pem
           if-no-files-found: error
           retention-days: 1
 
-      - name: Wait for encrypted reset payload
+      - name: Wait for encrypted login payload
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -57,7 +58,7 @@ jobs:
             sleep 5
           done
           if [ "$found" != "true" ]; then
-            echo 'Encrypted payload was not supplied within the wait window.' >&2
+            echo 'Encrypted login payload was not supplied within the wait window.' >&2
             exit 20
           fi
           base64 -d /tmp/payload.b64 > /tmp/payload.enc
@@ -67,40 +68,23 @@ jobs:
             -out /tmp/payload.json \
             -pkeyopt rsa_padding_mode:oaep \
             -pkeyopt rsa_oaep_md:sha256
-          RESET_TOKEN="$(jq -r '.reset_token // empty' /tmp/payload.json)"
           PASSWORD="$(jq -r '.new_password // empty' /tmp/payload.json)"
-          if [ -z "$RESET_TOKEN" ] || [ "${#PASSWORD}" -lt 16 ]; then
-            echo 'Decrypted payload is invalid.' >&2
+          if [ "${#PASSWORD}" -lt 16 ]; then
+            echo 'Decrypted login payload is invalid.' >&2
             exit 21
           fi
-          echo "::add-mask::$RESET_TOKEN"
           echo "::add-mask::$PASSWORD"
-          printf '%s' "$RESET_TOKEN" > /tmp/reset.token
-          printf '%s' "$PASSWORD" > /tmp/new.password
+          printf '%s' "$PASSWORD" > /tmp/call2me.password
           rm -f /tmp/payload.json /tmp/payload.enc /tmp/payload.b64
-          echo 'encrypted_payload_decrypted=true'
+          echo 'encrypted_login_payload_decrypted=true'
 
-      - name: Reset password and login
+      - name: Login to verified Call2Me account
         shell: bash
         run: |
           set -euo pipefail
           umask 077
-          RESET_TOKEN="$(cat /tmp/reset.token)"
-          PASSWORD="$(cat /tmp/new.password)"
-          echo "::add-mask::$RESET_TOKEN"
+          PASSWORD="$(cat /tmp/call2me.password)"
           echo "::add-mask::$PASSWORD"
-
-          RESET_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
-            -o /tmp/reset.json -w '%{http_code}' \
-            -X POST "$API/auth/reset-password" \
-            -H 'Content-Type: application/json' \
-            --data "$(jq -cn --arg t "$RESET_TOKEN" --arg p "$PASSWORD" '{token:$t,new_password:$p}')")"
-          echo "reset_password_http=$RESET_CODE"
-          if [[ ! "$RESET_CODE" =~ ^2 ]]; then
-            echo 'Password reset rejected.' >&2
-            exit 30
-          fi
-
           LOGIN_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
             -o /tmp/login.json -w '%{http_code}' \
             -X POST "$API/auth/login" \
@@ -108,96 +92,41 @@ jobs:
             --data "$(jq -cn --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e,password:$p}')")"
           echo "login_http=$LOGIN_CODE"
           if [[ ! "$LOGIN_CODE" =~ ^2 ]]; then
-            echo 'Login failed after password reset.' >&2
-            exit 31
+            echo 'Call2Me login failed.' >&2
+            exit 30
           fi
           ACCESS="$(jq -r '.access_token // .data.access_token // empty' /tmp/login.json)"
           if [ -z "$ACCESS" ]; then
             echo 'Login returned no access token.' >&2
-            exit 32
+            exit 31
           fi
           echo "::add-mask::$ACCESS"
           printf '%s' "$ACCESS" > /tmp/access.token
-          rm -f /tmp/reset.token /tmp/reset.json /tmp/login.json
+          rm -f /tmp/login.json
           echo 'call2me_login_ready=true'
 
-      - name: Check balance and voice
+      - name: Verify existing universal phone agent
         shell: bash
         run: |
           set -euo pipefail
           ACCESS="$(cat /tmp/access.token)"
           echo "::add-mask::$ACCESS"
-          BAL_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
-            -o /tmp/balance.json -w '%{http_code}' \
-            "$API/users/me/balance" -H "Authorization: Bearer $ACCESS")"
-          echo "balance_http=$BAL_CODE"
-          if [[ ! "$BAL_CODE" =~ ^2 ]]; then exit 40; fi
-
-          VOICE_CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
-            -o /tmp/voices.json -w '%{http_code}' \
-            "$API/voices?language=en-US" -H "Authorization: Bearer $ACCESS")"
-          echo "voices_http=$VOICE_CODE"
-          if [[ ! "$VOICE_CODE" =~ ^2 ]]; then exit 41; fi
-          VOICE_ID="$(jq -r 'map(select(.voice_id=="openai-nova"))[0].voice_id // .[0].voice_id // empty' /tmp/voices.json 2>/dev/null || true)"
-          if [ -z "$VOICE_ID" ]; then VOICE_ID='openai-nova'; fi
-          printf '%s' "$VOICE_ID" > /tmp/voice.id
-          echo "selected_voice=$VOICE_ID"
-
-      - name: Create universal phone agent
-        shell: bash
-        run: |
-          set -euo pipefail
-          ACCESS="$(cat /tmp/access.token)"
-          VOICE_ID="$(cat /tmp/voice.id)"
-          echo "::add-mask::$ACCESS"
-          SYSTEM_PROMPT=$(cat <<'PROMPT'
-          You are Sergii's authorized outbound AI phone assistant. You call people and organizations on Sergii's behalf to transfer or obtain factual information. Runtime context may specify a target language, objective, background, and questions.
-
-          At the start of every call, clearly identify yourself as an AI phone assistant calling on behalf of Sergii and state the purpose of the call. Speak naturally and concisely in the requested target language. Ask one question at a time, listen to the answer, adapt follow-up questions to what the person actually said, and do not repeat facts already confirmed. Never invent an answer. If an answer is ambiguous, ask one concise clarification.
-
-          Do not purchase, pay, reserve, accept legal or commercial terms, impersonate Sergii as a human, or make commitments unless the runtime objective explicitly authorizes that specific action. Do not request passwords, payment card data, SSNs, or other unnecessary sensitive information. Before ending, briefly confirm the important facts obtained or information delivered, thank the person, and end the call.
-
-          For the current self-test only: speak English. Say: "Hello. This is a test call from Sergii's AI phone assistant. Can you hear me clearly?" If the answer is yes, ask: "Does my voice sound clear and natural?" Acknowledge the answer, thank Sergii, and end the call.
-          PROMPT
-          )
-          BODY="$(jq -cn --arg v "$VOICE_ID" --arg prompt "$SYSTEM_PROMPT" '{
-            agent_name:"Sergii Universal Phone Agent",
-            voice_id:$v,
-            language:"en-US",
-            begin_message_mode:"static",
-            begin_message:"Hello. This is a test call from Sergii’s AI phone assistant. Can you hear me clearly?",
-            max_call_duration_ms:120000,
-            enable_recording:false,
-            responsiveness:0.7,
-            interruption_sensitivity:0.7,
-            enable_backchannel:true,
-            voicemail_detection_enabled:true,
-            voicemail_action:"hangup",
-            response_engine:{
-              type:"call2me-llm",
-              system_prompt:$prompt,
-              llm_provider:"openrouter",
-              llm_model:"gpt-4o-mini",
-              temperature:0.2,
-              builtin_functions:["end_call"]
-            },
-            metadata:{owner:"Sergii",purpose:"universal_outbound_phone_agent"}
-          }')"
-          AGENT_CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+          CODE="$(curl -sS --connect-timeout 15 --max-time 30 \
             -o /tmp/agent.json -w '%{http_code}' \
-            -X POST "$API/agents" \
-            -H 'Content-Type: application/json' \
-            -H "Authorization: Bearer $ACCESS" \
-            --data "$BODY")"
-          echo "agent_http=$AGENT_CODE"
-          if [[ ! "$AGENT_CODE" =~ ^2 ]]; then
-            jq -r '{detail:(.detail // .message // "agent creation failed")}' /tmp/agent.json || true
-            exit 50
+            "$API/agents/$EXISTING_AGENT_ID" \
+            -H "Authorization: Bearer $ACCESS")"
+          echo "agent_lookup_http=$CODE"
+          if [[ ! "$CODE" =~ ^2 ]]; then
+            echo 'Existing universal phone agent is unavailable.' >&2
+            exit 40
           fi
-          AGENT_ID="$(jq -r '.agent_id // empty' /tmp/agent.json)"
-          if [ -z "$AGENT_ID" ]; then exit 51; fi
-          printf '%s' "$AGENT_ID" > /tmp/agent.id
-          echo "agent_id=$AGENT_ID"
+          RETURNED_ID="$(jq -r '.agent_id // empty' /tmp/agent.json)"
+          if [ "$RETURNED_ID" != "$EXISTING_AGENT_ID" ]; then
+            echo 'Agent identity mismatch.' >&2
+            exit 41
+          fi
+          printf '%s' "$RETURNED_ID" > /tmp/agent.id
+          echo "agent_id=$RETURNED_ID"
 
       - name: Place authorized self-test call
         shell: bash
@@ -206,6 +135,7 @@ jobs:
           ACCESS="$(cat /tmp/access.token)"
           AGENT_ID="$(cat /tmp/agent.id)"
           echo "::add-mask::$ACCESS"
+          echo "test_phone_format=$TEST_PHONE"
           BODY="$(jq -cn --arg agent "$AGENT_ID" --arg phone "$TEST_PHONE" '{
             agent_id:$agent,
             to_number:$phone,
@@ -221,10 +151,13 @@ jobs:
           echo "call_http=$CALL_CODE"
           if [[ ! "$CALL_CODE" =~ ^2 ]]; then
             jq -r '{detail:(.detail // .message // "call request rejected")}' /tmp/call.json || true
-            exit 60
+            exit 50
           fi
           CALL_ID="$(jq -r '.call_id // empty' /tmp/call.json)"
-          if [ -z "$CALL_ID" ]; then exit 61; fi
+          if [ -z "$CALL_ID" ]; then
+            echo 'Call API returned no call_id.' >&2
+            exit 51
+          fi
           printf '%s' "$CALL_ID" > /tmp/call.id
           echo "call_id=$CALL_ID"
 
@@ -257,12 +190,10 @@ jobs:
           jq -n \
             --arg agent_id "$(cat /tmp/agent.id)" \
             --arg call_id "$(cat /tmp/call.id)" \
-            --arg voice_id "$(cat /tmp/voice.id)" \
             --argjson provider_result "$(cat /tmp/call-result-sanitized.json)" \
-            --argjson balance "$(cat /tmp/balance.json)" \
-            '{status:"test_finished",provider:"Call2Me",agent_id:$agent_id,call_id:$call_id,voice_id:$voice_id,balance:$balance,provider_result:$provider_result,verified_at:(now|todate)}' \
+            '{status:"test_finished",provider:"Call2Me",agent_id:$agent_id,call_id:$call_id,provider_result:$provider_result,verified_at:(now|todate)}' \
             > /tmp/call2me-bootstrap-report.json
-          rm -f /tmp/access.token /tmp/new.password /tmp/private.pem
+          rm -f /tmp/access.token /tmp/call2me.password /tmp/private.pem
 
       - name: Upload sanitized bootstrap report
         uses: actions/upload-artifact@v5

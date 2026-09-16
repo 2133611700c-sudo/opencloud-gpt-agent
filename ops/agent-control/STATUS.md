@@ -19,7 +19,7 @@
 - Email inventory mapped the notification noise: stale Dependabot closure emails plus historical `uscis-helper` OCR/L1 workflow failures; current OCR and L1 probes are healthy.
 - Original 16-open-PR inventory is classified: `KEEP 5`, `SUPERSEDED 7`, `NEEDS_REVIEW 4`; after verified cleanup, 4 remain open.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-open-pr-classification.md`.
-- PR #172 static blocker was corrected at `af8b6b04a0be148c81033e9bca144fe48c561f67`; all 12 changed TS/TSX files parse with TypeScript 5.9.3 (0 syntax errors). Full install/typecheck/test/build remain `UNVERIFIED` because the environment lacks cached Next/React packages and network approval is exhausted.
+- PR #172 was rebased onto current `main` at `a93304dfe10c752784b8b967d4bf97fdcf50a873` and is now `mergeable=true`; all 12 changed TS/TSX files parse with TypeScript 5.9.3 (0 syntax errors). Its lockfile carries `next@16.3.5`, `js-yaml@4.3.2`, current browserslist data, and no `extract-zip` entry. Full install/typecheck/test/build remain `UNVERIFIED` because the environment lacks cached Next/React packages and network approval is exhausted.
 
 ## Completed
 - Read-only inventory of repositories, workflow surface, open PRs, branches, and canonical state files.
@@ -37,7 +37,7 @@
 - Do not run paid/full CI or production changes without a scoped decision and evidence plan.
 
 ## One next action
-Review remaining open PRs #149, #153, #154, and #172 one at a time; do not merge draft/needs-review items without evidence.
+Run the approved Node 20 dependency install and full checks for rebased PR #172; keep it draft and do not merge until those checks produce evidence.
 
 # OpenClaw Status
 

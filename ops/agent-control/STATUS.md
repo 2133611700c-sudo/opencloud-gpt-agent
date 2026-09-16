@@ -1,3 +1,34 @@
+# SUPERVISOR BOARD — READ FIRST
+
+- updated_utc: 2026-09-16
+- function: one short orientation point for ChatGPT/OpenClaw and every new session; the automated run ledger remains below.
+- active_goal: determine the real source of GitHub notification noise, remove its cause safely, and improve the product in small verified steps.
+- operating_rule: one small action -> verify evidence -> record result -> choose one next action.
+- canonical_product: `2133611700c-sudo/uscis-helper`
+- legacy_operations_repo: `2133611700c-sudo/messenginfo`
+- execution_control_plane: `2133611700c-sudo/opencloud-gpt-agent`
+
+## Current verified state
+- `uscis-helper/main`: `746c691ef89db195deb3ed9ad651a84fd628a244`.
+- OCR availability monitor fix is merged; 19 consecutive scheduled runs were reported successful, latest known run #1555 at 2026-09-16T15:25Z.
+- `messenginfo/main`: `fb7c7d5d54dda18c95990782443a5d60540e3d17`.
+- `messenginfo`: 16 open PRs and 44 workflow files were inventoried.
+- GitHub Actions in `messenginfo` were intentionally left OFF for cost control and pending credential rotation; this is not an unexplained outage.
+- The exact email notification samples have not yet been mapped to their originating PR/workflow: `UNVERIFIED`.
+
+## Completed
+- Read-only inventory of repositories, workflow surface, open PRs, branches, and canonical state files.
+- No workflow enabled, no PR merged or closed, no branch deleted, no production flag changed.
+
+## Do not do yet
+- Do not enable `messenginfo` Actions.
+- Do not merge draft PR #172.
+- Do not close PRs or delete old branches before individual classification.
+- Do not run paid/full CI or production changes without a scoped decision and evidence plan.
+
+## One next action
+Read-only classify the 16 open `messenginfo` PRs as `KEEP`, `SUPERSEDED`, or `NEEDS_REVIEW`; make no GitHub mutations.
+
 # OpenClaw Status
 
 <!-- OPENCLAW_CURRENT_STATUS:BEGIN -->

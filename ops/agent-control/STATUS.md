@@ -10,12 +10,13 @@
 
 ## Current verified state
 - `uscis-helper/main`: `746c691ef89db195deb3ed9ad651a84fd628a244`.
-- OCR availability monitor fix is merged; 19 consecutive scheduled runs were reported successful, latest known run #1555 at 2026-09-16T15:25Z.
+- OCR availability monitor fix is merged; latest known scheduled run #1557 at 2026-09-16T17:22Z is successful.
 - `messenginfo/main`: `0a5d2fbaba6060fd8626dcd9d3594cd05d87c9c1` (PR #157 workflow pin update merged).
 - `messenginfo`: 8 open PRs remain after verified cleanup of superseded #138, #139, #152, #155, #156, #160, and #161; 44 workflow files were inventoried.
 - GitHub Actions in `messenginfo` were intentionally left OFF for cost control and pending credential rotation; this is not an unexplained outage.
 - `uscis-helper` OCR probe classifier is fixed on main; latest 20 scheduled runs (#1538–#1557) are successful.
-- Email inventory mapped the notification noise: stale Dependabot closure emails plus 16 `uscis-helper` OCR/L1 workflow failures; current OCR probe is healthy.
+- Latest L1 runs are also healthy: `L1 Escalation Tick` #2653 and `L1 Guard-Block Rate Check` #1557 succeeded on main at 2026-09-16T18:07Z.
+- Email inventory mapped the notification noise: stale Dependabot closure emails plus historical `uscis-helper` OCR/L1 workflow failures; current OCR and L1 probes are healthy.
 - All 16 open `messenginfo` PRs are classified: `KEEP 5`, `SUPERSEDED 7`, `NEEDS_REVIEW 4`.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-open-pr-classification.md`.
 - PR #172 static blocker was corrected at `af8b6b04a0be148c81033e9bca144fe48c561f67`; all 12 changed TS/TSX files parse with TypeScript 5.9.3 (0 syntax errors). Full install/typecheck/test/build remain `UNVERIFIED` because the environment lacks cached Next/React packages and network approval is exhausted.

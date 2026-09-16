@@ -11,8 +11,8 @@
 ## Current verified state
 - `uscis-helper/main`: `746c691ef89db195deb3ed9ad651a84fd628a244`.
 - OCR availability monitor fix is merged; latest known scheduled run #1557 at 2026-09-16T17:22Z is successful.
-- `messenginfo/main`: `0a5d2fbaba6060fd8626dcd9d3594cd05d87c9c1` (PR #157 workflow pin update merged).
-- `messenginfo`: 8 open PRs remain after verified cleanup of superseded #138, #139, #152, #155, #156, #160, and #161; 44 workflow files were inventoried.
+- `messenginfo/main`: `84a7e9c6cc20d3e2712a10e1764c8deb68ca0e6f` (PRs #157, #162, #164, #165, #166 merged after scoped audits).
+- `messenginfo`: 4 open PRs remain after verified cleanup of superseded #138, #139, #152, #155, #156, #160, and #161; 44 workflow files were inventoried.
 - GitHub Actions in `messenginfo` were intentionally left OFF for cost control and pending credential rotation; this is not an unexplained outage.
 - `uscis-helper` OCR probe classifier is fixed on main; latest 20 scheduled runs (#1538–#1557) are successful.
 - Latest L1 runs are also healthy: `L1 Escalation Tick` #2653 and `L1 Guard-Block Rate Check` #1557 succeeded on main at 2026-09-16T18:07Z.
@@ -25,7 +25,7 @@
 - Read-only inventory of repositories, workflow surface, open PRs, branches, and canonical state files.
 - No workflow enabled, no `messenginfo` PR merged or closed, no branch deleted, no production flag changed.
 - Read-only classification of all 16 open `messenginfo` PRs completed and evidence report verified.
-- Verified closed without merge: #138, #139, #152, #155, #156, #160, #161; #157 merged after exact pinned-SHA-only audit; open PR inventory rechecked at 8.
+- Verified closed without merge: #138, #139, #152, #155, #156, #160, #161; #157, #162, #164, #165, and #166 merged after scoped audits; open PR inventory rechecked at 4.
 - PR #172: corrected one confirmed async-function blocker and statically reviewed all 13 changed source/config files.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-pr172-static-correction.md`.
 
@@ -37,7 +37,7 @@
 - Do not run paid/full CI or production changes without a scoped decision and evidence plan.
 
 ## One next action
-Review remaining open PRs #149, #153, #154, #162, #164, #165, #166, and #172 one at a time; do not merge draft/needs-review items without evidence.
+Review remaining open PRs #149, #153, #154, and #172 one at a time; do not merge draft/needs-review items without evidence.
 
 # OpenClaw Status
 

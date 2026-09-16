@@ -12,17 +12,18 @@
 - `uscis-helper/main`: `746c691ef89db195deb3ed9ad651a84fd628a244`.
 - OCR availability monitor fix is merged; 19 consecutive scheduled runs were reported successful, latest known run #1555 at 2026-09-16T15:25Z.
 - `messenginfo/main`: `fb7c7d5d54dda18c95990782443a5d60540e3d17`.
-- `messenginfo`: 16 open PRs and 44 workflow files were inventoried.
+- `messenginfo`: 9 open PRs remain after verified cleanup of superseded #138, #139, #152, #155, #156, #160, and #161; 44 workflow files were inventoried.
 - GitHub Actions in `messenginfo` were intentionally left OFF for cost control and pending credential rotation; this is not an unexplained outage.
 - The exact email notification samples have not yet been mapped to their originating PR/workflow: `UNVERIFIED`.
 - All 16 open `messenginfo` PRs are classified: `KEEP 5`, `SUPERSEDED 7`, `NEEDS_REVIEW 4`.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-open-pr-classification.md`.
-- PR #172 static blocker was corrected at `af8b6b04a0be148c81033e9bca144fe48c561f67`; full install/typecheck/test/build remain `UNVERIFIED`.
+- PR #172 static blocker was corrected at `af8b6b04a0be148c81033e9bca144fe48c561f67`; all 12 changed TS/TSX files parse with TypeScript 5.9.3 (0 syntax errors). Full install/typecheck/test/build remain `UNVERIFIED` because the environment lacks cached Next/React packages and network approval is exhausted.
 
 ## Completed
 - Read-only inventory of repositories, workflow surface, open PRs, branches, and canonical state files.
 - No workflow enabled, no `messenginfo` PR merged or closed, no branch deleted, no production flag changed.
 - Read-only classification of all 16 open `messenginfo` PRs completed and evidence report verified.
+- Verified closed without merge: #138, #139, #152, #155, #156, #160, #161; open PR inventory rechecked at 9.
 - PR #172: corrected one confirmed async-function blocker and statically reviewed all 13 changed source/config files.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-pr172-static-correction.md`.
 
@@ -34,7 +35,7 @@
 - Do not run paid/full CI or production changes without a scoped decision and evidence plan.
 
 ## One next action
-Close only superseded grouped dependency PRs #138 and #139 with factual replacement notes; then verify their final states.
+Review remaining open PRs #149, #153, #154, #157, #162, #164, #165, #166, and #172 one at a time; do not merge draft/needs-review items without evidence.
 
 # OpenClaw Status
 

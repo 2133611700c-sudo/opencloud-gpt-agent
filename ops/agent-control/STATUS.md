@@ -15,10 +15,13 @@
 - `messenginfo`: 16 open PRs and 44 workflow files were inventoried.
 - GitHub Actions in `messenginfo` were intentionally left OFF for cost control and pending credential rotation; this is not an unexplained outage.
 - The exact email notification samples have not yet been mapped to their originating PR/workflow: `UNVERIFIED`.
+- All 16 open `messenginfo` PRs are classified: `KEEP 5`, `SUPERSEDED 7`, `NEEDS_REVIEW 4`.
+- Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-open-pr-classification.md`.
 
 ## Completed
 - Read-only inventory of repositories, workflow surface, open PRs, branches, and canonical state files.
-- No workflow enabled, no PR merged or closed, no branch deleted, no production flag changed.
+- No workflow enabled, no `messenginfo` PR merged or closed, no branch deleted, no production flag changed.
+- Read-only classification of all 16 open `messenginfo` PRs completed and evidence report verified.
 
 ## Do not do yet
 - Do not enable `messenginfo` Actions.
@@ -27,7 +30,7 @@
 - Do not run paid/full CI or production changes without a scoped decision and evidence plan.
 
 ## One next action
-Read-only classify the 16 open `messenginfo` PRs as `KEEP`, `SUPERSEDED`, or `NEEDS_REVIEW`; make no GitHub mutations.
+Inspect PR #172 only; correct the probable `await params` compile blocker on its existing branch and verify the changed source surface without enabling repository Actions.
 
 # OpenClaw Status
 

@@ -17,20 +17,24 @@
 - The exact email notification samples have not yet been mapped to their originating PR/workflow: `UNVERIFIED`.
 - All 16 open `messenginfo` PRs are classified: `KEEP 5`, `SUPERSEDED 7`, `NEEDS_REVIEW 4`.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-open-pr-classification.md`.
+- PR #172 static blocker was corrected at `af8b6b04a0be148c81033e9bca144fe48c561f67`; full install/typecheck/test/build remain `UNVERIFIED`.
 
 ## Completed
 - Read-only inventory of repositories, workflow surface, open PRs, branches, and canonical state files.
 - No workflow enabled, no `messenginfo` PR merged or closed, no branch deleted, no production flag changed.
 - Read-only classification of all 16 open `messenginfo` PRs completed and evidence report verified.
+- PR #172: corrected one confirmed async-function blocker and statically reviewed all 13 changed source/config files.
+- Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-pr172-static-correction.md`.
 
 ## Do not do yet
 - Do not enable `messenginfo` Actions.
 - Do not merge draft PR #172.
-- Do not close PRs or delete old branches before individual classification.
+- Do not close `KEEP` or `NEEDS_REVIEW` PRs; close only individually verified `SUPERSEDED` PRs with a factual note.
+- Do not delete old branches.
 - Do not run paid/full CI or production changes without a scoped decision and evidence plan.
 
 ## One next action
-Inspect PR #172 only; correct the probable `await params` compile blocker on its existing branch and verify the changed source surface without enabling repository Actions.
+Close only superseded grouped dependency PRs #138 and #139 with factual replacement notes; then verify their final states.
 
 # OpenClaw Status
 

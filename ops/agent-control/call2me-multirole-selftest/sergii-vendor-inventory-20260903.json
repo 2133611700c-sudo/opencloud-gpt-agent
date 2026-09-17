@@ -1,0 +1,8 @@
+{
+  "type": "call2me_multirole_selftest",
+  "requested_by": "Sergii",
+  "target": "+12133611700",
+  "role": "vendor_inventory",
+  "objective": "Verify GEN-Y GH-16072 aluminum ramps physical stock, quantity, pair price, pickup address, and pickup today.",
+  "explicit_approval": true
+}

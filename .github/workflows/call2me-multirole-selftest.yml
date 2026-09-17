@@ -1,0 +1,211 @@
+name: Call2Me Multifunction Agent Self-Test
+
+on:
+  push:
+    paths:
+      - "ops/agent-control/call2me-multirole-selftest/*.json"
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      API: https://api.call2me.app/v1
+      SERGII_EMAIL: 2133611700c@gmail.com
+      SERGII_PHONE: +12133611700
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Authenticate without persisting credentials
+        id: auth
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          ACCESS=""
+          AUTH_MODE=""
+
+          # First try Call2Me's passwordless quick-login endpoint.
+          QCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+            -o /tmp/quick.json -w '%{http_code}' \
+            -X POST "$API/auth/quick-login" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg email "$SERGII_EMAIL" --arg name 'Sergii' '{email:$email,full_name:$name,expires_hours:1}')")"
+
+          if [[ "$QCODE" =~ ^2 ]]; then
+            URL="$(jq -r '.url // empty' /tmp/quick.json)"
+            TOKEN="$(python - "$URL" <<'PY'
+          import sys, urllib.parse
+          u=urllib.parse.urlparse(sys.argv[1])
+          q=urllib.parse.parse_qs(u.query)
+          print((q.get('token') or [''])[0])
+          PY
+          )"
+            if [ -n "$TOKEN" ]; then
+              VCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+                -o /tmp/verify.json -w '%{http_code}' \
+                -X POST "$API/auth/quick-login/verify" \
+                -H 'Content-Type: application/json' \
+                --data "$(jq -cn --arg token "$TOKEN" '{token:$token}')")"
+              if [[ "$VCODE" =~ ^2 ]]; then
+                ACCESS="$(jq -r '.access_token // .data.access_token // .token // empty' /tmp/verify.json)"
+                AUTH_MODE="quick-login"
+              fi
+            fi
+          fi
+
+          # Fallback: create a user with a random password; password is never logged or committed.
+          if [ -z "$ACCESS" ]; then
+            PASSWORD="$(openssl rand -base64 36 | tr -d '\n' | tr '/+' '_-')"
+            SCODE="$(curl -sS --connect-timeout 15 --max-time 30 \
+              -o /tmp/signup.json -w '%{http_code}' \
+              -X POST "$API/auth/signup" \
+              -H 'Content-Type: application/json' \
+              --data "$(jq -cn --arg email "$SERGII_EMAIL" --arg pass "$PASSWORD" --arg name 'Sergii' '{email:$email,password:$pass,full_name:$name}')")"
+            if [[ "$SCODE" =~ ^2 ]]; then
+              ACCESS="$(jq -r '.access_token // .data.access_token // empty' /tmp/signup.json)"
+              AUTH_MODE="signup"
+            else
+              # Account may already exist; do not expose response body.
+              echo "auth_status=signup_http_$SCODE" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+          if [ -z "$ACCESS" ]; then
+            echo 'authenticated=false' >> "$GITHUB_OUTPUT"
+            echo "quick_login_http=$QCODE" >> "$GITHUB_OUTPUT"
+            exit 20
+          fi
+
+          printf '%s' "$ACCESS" > /tmp/access.token
+          echo 'authenticated=true' >> "$GITHUB_OUTPUT"
+          echo "auth_mode=$AUTH_MODE" >> "$GITHUB_OUTPUT"
+          echo "quick_login_http=$QCODE" >> "$GITHUB_OUTPUT"
+
+      - name: Create multifunction voice agent
+        id: agent
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCESS="$(cat /tmp/access.token)"
+          SYSTEM_PROMPT=$(cat <<'PROMPT'
+          You are Sergii's multifunction outbound AI calling assistant. At the beginning of every call, clearly say that you are an AI assistant calling on behalf of Sergii. Speak concise, natural American English.
+
+          Your runtime role is supplied in call dynamic variables. Supported roles:
+          1. vendor_inventory — call a store or parts seller. Verify the exact item/model/part number, whether it is physically in stock now, quantity, current total price, exact pickup location, and whether Sergii can pick it up today. Ask the employee to check the shelf/warehouse if needed. Never treat a catalog listing as physical inventory.
+          2. service_booking — obtain factual service availability, scope, price/estimate and earliest appointment. Do not book or commit unless runtime instructions explicitly authorize it.
+          3. information_request — obtain specific factual information and confirm it back.
+          4. follow_up — obtain the current status of a prior request/order/service and the next concrete step.
+
+          General rules: ask one short question at a time; adapt to the human's answers; do not invent facts; do not purchase, pay, reserve, accept terms, or make commitments unless explicitly authorized in the runtime objective. Before ending, briefly repeat the verified facts and ask the human to correct anything inaccurate. Then thank them and end the call.
+
+          For the current self-test, Sergii will answer as if he is a store employee. Runtime role is vendor_inventory. Objective: ask whether GEN-Y GH-16072 aluminum loading ramps, 72 x 14 inches, 3,000 lb capacity per ramp, are physically in stock right now; verify quantity, price for the pair, pickup address, and whether they can be picked up today.
+          PROMPT
+          )
+          BODY="$(jq -cn --arg prompt "$SYSTEM_PROMPT" '{
+            agent_name:"Sergii MultiRole Caller",
+            voice_id:"openai-nova",
+            language:"en-US",
+            response_engine:{type:"call2me-llm",system_prompt:$prompt},
+            begin_message_mode:"dynamic",
+            voice_speed:1.0,
+            responsiveness:0.7,
+            interruption_sensitivity:0.7,
+            enable_backchannel:true,
+            enable_recording:false,
+            max_call_duration_ms:300000,
+            voicemail_detection_enabled:true,
+            voicemail_action:"hangup",
+            metadata:{owner:"Sergii",purpose:"multirole_outbound_agent"}
+          }')"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+            -o /tmp/agent.json -w '%{http_code}' \
+            -X POST "$API/agents" \
+            -H "Authorization: Bearer $ACCESS" \
+            -H 'Content-Type: application/json' \
+            --data "$BODY")"
+          echo "agent_http=$CODE" >> "$GITHUB_OUTPUT"
+          if [[ ! "$CODE" =~ ^2 ]]; then
+            jq -r '{detail:(.detail // .message // "agent creation failed")}' /tmp/agent.json
+            exit 30
+          fi
+          AGENT_ID="$(jq -r '.agent_id // empty' /tmp/agent.json)"
+          if ! [[ "$AGENT_ID" =~ ^agent_[a-f0-9]{12}$ ]]; then
+            echo 'No valid agent_id returned' >&2
+            exit 31
+          fi
+          printf '%s' "$AGENT_ID" > /tmp/agent.id
+          echo "agent_id=$AGENT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Place production self-test call
+        id: call
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCESS="$(cat /tmp/access.token)"
+          AGENT_ID="$(cat /tmp/agent.id)"
+          BODY="$(jq -cn --arg agent "$AGENT_ID" --arg phone "$SERGII_PHONE" '{
+            agent_id:$agent,
+            to_number:$phone,
+            metadata:{test:"sergii_vendor_inventory",requested_by:"Sergii"},
+            dynamic_variables:{
+              role:"vendor_inventory",
+              objective:"Verify GEN-Y GH-16072 ramps are physically in stock now, quantity, pair price, pickup address, and pickup today."
+            }
+          }')"
+          CODE="$(curl -sS --connect-timeout 15 --max-time 45 \
+            -o /tmp/call.json -w '%{http_code}' \
+            -X POST "$API/calls" \
+            -H "Authorization: Bearer $ACCESS" \
+            -H 'Content-Type: application/json' \
+            --data "$BODY")"
+          echo "call_http=$CODE" >> "$GITHUB_OUTPUT"
+          if [ "$CODE" = "201" ]; then
+            CALL_ID="$(jq -r '.call_id // empty' /tmp/call.json)"
+            echo "call_id=$CALL_ID" >> "$GITHUB_OUTPUT"
+            echo "queued=true" >> "$GITHUB_OUTPUT"
+            printf '%s' "$CALL_ID" > /tmp/call.id
+          else
+            echo 'queued=false' >> "$GITHUB_OUTPUT"
+            # Print only non-sensitive validation reason.
+            jq -r '{detail:(.detail // .message // "call request rejected")}' /tmp/call.json
+            exit 40
+          fi
+
+      - name: Poll call result
+        if: steps.call.outputs.queued == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCESS="$(cat /tmp/access.token)"
+          CALL_ID="$(cat /tmp/call.id)"
+          for _ in $(seq 1 30); do
+            sleep 5
+            CODE="$(curl -sS --connect-timeout 10 --max-time 20 \
+              -o /tmp/result.json -w '%{http_code}' \
+              -H "Authorization: Bearer $ACCESS" \
+              "$API/calls/$CALL_ID")"
+            [ "$CODE" = "200" ] || continue
+            STATUS="$(jq -r '.call_status // "unknown"' /tmp/result.json)"
+            echo "call_status=$STATUS"
+            case "$STATUS" in
+              completed|failed|no_answer|busy|ended|transferred) break ;;
+            esac
+          done
+          jq '{call_id,call_status,direction,duration_ms,disconnection_reason,call_analysis,transcript}' /tmp/result.json > /tmp/sanitized-call-result.json
+          jq . /tmp/sanitized-call-result.json
+
+      - name: Upload non-secret self-test evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-multirole-selftest-${{ github.run_id }}
+          path: |
+            /tmp/sanitized-call-result.json
+          if-no-files-found: warn
+          retention-days: 7

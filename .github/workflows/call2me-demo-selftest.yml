@@ -1,0 +1,35 @@
+name: Call2Me Demo Self-Test
+
+on:
+  push:
+    branches:
+      - feat/openclaw-vendor-phone-calls
+    paths:
+      - 'ops/agent-control/triggers/call2me-demo-selftest.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  call:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Place official Call2Me demo call
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --show-error --silent \
+            -X POST 'https://api.call2me.app/v1/demo/call' \
+            -H 'Content-Type: application/json' \
+            -d '{"phone_number":"+12133611700","name":"Sergii"}' \
+            | tee call2me-demo-response.json
+      - name: Upload response
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-demo-selftest-${{ github.run_id }}
+          path: call2me-demo-response.json
+          if-no-files-found: warn
+          retention-days: 7

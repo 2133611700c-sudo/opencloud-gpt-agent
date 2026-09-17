@@ -1,0 +1,80 @@
+name: Call2Me Real Demo Call Test
+
+on:
+  push:
+    paths:
+      - "ops/agent-control/call2me-demo/*.json"
+
+permissions:
+  contents: read
+
+env:
+  CALL2ME_DEMO_ENDPOINT: https://api.call2me.app/v1/demo/call
+
+jobs:
+  call:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Locate trigger
+        id: trigger
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="$(git show --format='' --name-only "$GITHUB_SHA" -- 'ops/agent-control/call2me-demo/*.json' | sed '/^$/d' | head -n1)"
+          if [ -z "$FILE" ]; then
+            echo "No trigger file" >&2
+            exit 1
+          fi
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Validate explicit self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="${{ steps.trigger.outputs.file }}"
+          node - "$FILE" <<'NODE'
+          const fs = require('node:fs');
+          const file = process.argv[2];
+          const t = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (t.type !== 'self_demo_phone_call') throw new Error('wrong type');
+          if (t.explicit_approval !== true) throw new Error('explicit approval required');
+          if (t.phone_number !== '+12133611700') throw new Error('this workflow is scoped only to Sergii self-test number');
+          if (!/^[A-Za-z0-9 _.-]{1,80}$/.test(String(t.name || 'Sergii'))) throw new Error('invalid name');
+          NODE
+
+      - name: Place real demo call
+        id: place
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="${{ steps.trigger.outputs.file }}"
+          PHONE="$(jq -r '.phone_number' "$FILE")"
+          NAME="$(jq -r '.name // "Sergii"' "$FILE")"
+          HTTP_CODE="$(curl --silent --show-error --connect-timeout 15 --max-time 45 \
+            -o /tmp/call2me-response.json \
+            -w '%{http_code}' \
+            -X POST "$CALL2ME_DEMO_ENDPOINT" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -cn --arg p "$PHONE" --arg n "$NAME" '{phone_number:$p,name:$n}')")"
+          echo "http_code=$HTTP_CODE" >> "$GITHUB_OUTPUT"
+          echo "Call2Me HTTP $HTTP_CODE"
+          jq . /tmp/call2me-response.json || cat /tmp/call2me-response.json
+          case "$HTTP_CODE" in
+            200|201|202) exit 0 ;;
+            *) exit 1 ;;
+          esac
+
+      - name: Upload API response
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-demo-response-${{ github.run_id }}
+          path: /tmp/call2me-response.json
+          if-no-files-found: error
+          retention-days: 7

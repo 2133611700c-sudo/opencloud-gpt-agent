@@ -1,6 +1,6 @@
 # SUPERVISOR BOARD — READ FIRST
 
-- updated_utc: 2026-09-16
+- updated_utc: 2026-09-17
 - function: one short orientation point for ChatGPT/OpenClaw and every new session; the automated run ledger remains below.
 - active_goal: determine the real source of GitHub notification noise, remove its cause safely, and improve the product in small verified steps.
 - operating_rule: one small action -> verify evidence -> record result -> choose one next action.
@@ -15,18 +15,19 @@
 - `messenginfo`: 4 open PRs remain after verified cleanup of superseded #138, #139, #152, #155, #156, #160, and #161; 44 workflow files were inventoried.
 - GitHub Actions in `messenginfo` were intentionally left OFF for cost control and pending credential rotation; this is not an unexplained outage.
 - `uscis-helper` OCR probe classifier is fixed on main; latest 20 scheduled runs (#1538–#1557) are successful.
+- `uscis-helper-ci`: security PR #8 merged Next `15.5.24` at `e2fdbc1335911e3c939b3a2af8d20f04882da109`; security PR #9 merged a `js-yaml 4.3.2` pnpm override at `831a1d7b61b17e5adc1148ebd5c30488fc0c208e`. Post-merge Core Proof and CodeQL runs succeeded.
 - Latest L1 runs are also healthy: `L1 Escalation Tick` #2653 and `L1 Guard-Block Rate Check` #1557 succeeded on main at 2026-09-16T18:07Z.
 - Email inventory mapped the notification noise: stale Dependabot closure emails plus historical `uscis-helper` OCR/L1 workflow failures; current OCR and L1 probes are healthy.
 - Original 16-open-PR inventory is classified: `KEEP 5`, `SUPERSEDED 7`, `NEEDS_REVIEW 4`; after verified cleanup, 4 remain open.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-open-pr-classification.md`.
-- PR #172 was rebased onto current `main` at `a93304dfe10c752784b8b967d4bf97fdcf50a873` and is now `mergeable=true`; all 12 changed TS/TSX files parse with TypeScript 5.9.3 (0 syntax errors). Its lockfile carries `next@16.3.5`, `js-yaml@4.3.2`, current browserslist data, and no `extract-zip` entry. Full install/typecheck/test/build remain `UNVERIFIED` because the environment lacks cached Next/React packages and network approval is exhausted.
+- `messenginfo` PR #172 head `7cfef81a4103c7c90822c49712fc641de162e3ae` is `mergeable=true` and remains draft. Verified: clean `npm ci --ignore-scripts` succeeds from its committed lockfile; `npm audit --json` reports 0 vulnerabilities; OpenTelemetry init/shutdown smoke passes; the Next 16 async `headers()` incompatibility is fixed; no remaining synchronous `headers()/cookies()/draftMode()` access was found in the available source snapshot. Full repository typecheck/test/build remain `UNVERIFIED` because the local snapshot is incomplete.
 
 ## Completed
 - Read-only inventory of repositories, workflow surface, open PRs, branches, and canonical state files.
 - No workflow enabled, no branch deleted, and no production flag changed; dependency/CI PR actions were limited to the individually audited items recorded above.
 - Read-only classification of all 16 open `messenginfo` PRs completed and evidence report verified.
 - Verified closed without merge: #138, #139, #152, #155, #156, #160, #161; #157, #162, #164, #165, and #166 merged after scoped audits; open PR inventory rechecked at 4.
-- PR #172: corrected one confirmed async-function blocker and statically reviewed all 13 changed source/config files.
+- PR #172: corrected the confirmed Next 16 `headers()` blocker; migrated OpenTelemetry; refreshed security dependencies; clean install and zero-vulnerability npm audit verified on the exact committed manifest/lockfile.
 - Evidence: `ops/agent-control/reports/github-pr-inventory/20260916-messenginfo-pr172-static-correction.md`.
 
 ## Do not do yet
@@ -37,7 +38,7 @@
 - Do not run paid/full CI or production changes without a scoped decision and evidence plan.
 
 ## One next action
-Run the approved Node 20 dependency install and full checks for rebased PR #172; keep it draft and do not merge until those checks produce evidence.
+Obtain a complete checkout of `messenginfo` PR #172 and run the remaining Node 20 typecheck, test, and build gates; keep it draft and do not merge until those checks produce evidence.
 
 # OpenClaw Status
 

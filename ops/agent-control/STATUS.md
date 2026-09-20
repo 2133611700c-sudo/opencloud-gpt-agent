@@ -231,3 +231,12 @@ Start OC-002 browser audit task packet and publish first UI evidence report.
 - task_type: job_lead_collect
 - status: PASS
 - report_file: /home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/job-lead-audit/20260601T090445Z.md
+
+
+## 2026-09-20 — Message Info OCR alert loop stopped
+- VERIFIED root cause: `uscis-helper` hourly `OCR Availability Probe` kept calling the production alias `messenginfo.com` while the product was paused.
+- VERIFIED provider failure: Gemini returned HTTP 402; the application exposed it as HTTP 502.
+- Fixed in `2133611700c-sudo/uscis-helper` PR #38, squash `33910432563f9e42b5c71938cee82f6cf100e564`.
+- Automatic schedule removed; manual `workflow_dispatch` retained.
+- HTTP 402 now maps to non-retryable `OCR_BILLING_DISABLED`; regression test added.
+- PR checks and Vercel preview passed. No domain, secret, billing, or production data was changed.

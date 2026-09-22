@@ -1,0 +1,5 @@
+{
+  "type": "call2me_bootstrap_discovery",
+  "requested_by": "Sergii",
+  "purpose": "Discover live auth, agent and call API endpoints for multifunction voice agent bootstrap"
+}

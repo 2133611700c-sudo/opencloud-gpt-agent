@@ -1,0 +1,38 @@
+name: Call2Me Payment Schema
+
+# Registered probe; read-only OpenAPI inspection only.
+on:
+  push:
+    branches: [feat/openclaw-vendor-phone-calls]
+    paths: ['.github/workflows/call2me-payment-schema.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch public OpenAPI and extract payment schemas
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --connect-timeout 15 --max-time 45 https://api.call2me.app/openapi.json -o /tmp/openapi.json
+          jq '{
+            topup:(.paths["/v1/payments/topup"].post // .paths["/v1/payments/top-up"].post // null),
+            buy_number:(.paths["/v1/phone-numbers/buy"].post // null)
+          }' /tmp/openapi.json > /tmp/payment-schema.json
+          jq '{
+            topup_request_schema:(.topup.requestBody.content["application/json"].schema // null),
+            topup_responses:.topup.responses,
+            buy_request_schema:(.buy_number.requestBody.content["application/json"].schema // null),
+            buy_responses:.buy_number.responses
+          }' /tmp/payment-schema.json
+      - name: Upload schema evidence
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-payment-schema-${{ github.run_id }}
+          path: /tmp/payment-schema.json
+          retention-days: 1
+          if-no-files-found: error

@@ -1,0 +1,56 @@
+name: Call2Me Reset Schema
+
+on:
+  push:
+    branches:
+      - feat/openclaw-vendor-phone-calls
+    paths:
+      - '.github/workflows/call2me-reset-schema.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect Call2Me password reset contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --connect-timeout 15 --max-time 45 https://api.call2me.app/openapi.json -o /tmp/openapi.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          spec=json.loads(Path('/tmp/openapi.json').read_text())
+          hits={}
+          for p, methods in spec.get('paths',{}).items():
+              lp=p.lower()
+              if 'password' in lp or 'reset' in lp or 'forgot' in lp:
+                  hits[p]={}
+                  for m, op in methods.items():
+                      if m.lower() in {'get','post','put','patch','delete'}:
+                          hits[p][m.lower()]={
+                              'summary':op.get('summary'),
+                              'description':op.get('description'),
+                              'requestBody':op.get('requestBody'),
+                              'parameters':op.get('parameters'),
+                              'responses':op.get('responses'),
+                          }
+          schemas={}
+          for name,schema in spec.get('components',{}).get('schemas',{}).items():
+              blob=json.dumps(schema).lower()
+              if any(k in name.lower() or k in blob for k in ('password','reset','forgot')):
+                  schemas[name]=schema
+          out={'paths':hits,'schemas':schemas}
+          Path('/tmp/reset-schema.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps({'paths':sorted(hits),'schemas':sorted(schemas)},indent=2))
+          PY
+      - name: Upload sanitized schema evidence
+        uses: actions/upload-artifact@v5
+        with:
+          name: call2me-reset-schema-${{ github.run_id }}
+          path: /tmp/reset-schema.json
+          retention-days: 1
+          if-no-files-found: error

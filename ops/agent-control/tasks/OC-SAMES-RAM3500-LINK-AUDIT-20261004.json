@@ -1,0 +1,20 @@
+{
+  "id": "OC-SAMES-RAM3500-LINK-AUDIT-20261004",
+  "type": "virtual_browser_audit",
+  "requested_by": "Sergii",
+  "goal": "Open and audit the exact public Sames Bastrop CDJR vehicle URL https://www.samesbastropchryslerdodgejeepram.com/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm using the real browser/Playwright execution layer. Do not substitute a similar vehicle or another URL. Capture browser-visible evidence and screenshots. Report the exact VIN, stock number, model year, trim, cab, bed, 4x4/DRW, engine, transmission, axle ratio, fuel tank, odometer, MSRP, dealer/sale price, incentives/rebates and conditions, interior seat material (vinyl vs cloth), Max Tow, fifth-wheel/gooseneck prep, Adaptive Cruise Control, Blind Spot Monitoring, Lane Keep Assist/Lane Departure, ParkSense/cameras, and any window-sticker/build-sheet links. If the exact URL redirects, record the complete redirect chain and final URL. If content is dynamically loaded, inspect the rendered page. If blocked, record the exact HTTP/browser error and screenshot. No sign-in, form submission, purchase, customer action, or dealer contact. Evidence only; do not infer missing specifications.",
+  "expected_status": "PASS",
+  "params": {
+    "target_origin": "https://www.samesbastropchryslerdodgejeepram.com",
+    "routes": "/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm",
+    "max_attempts": 3
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

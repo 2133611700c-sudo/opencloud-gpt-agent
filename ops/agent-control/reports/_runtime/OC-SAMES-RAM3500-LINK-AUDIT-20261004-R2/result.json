@@ -1,0 +1,62 @@
+{
+  "summary": {
+    "ok": false,
+    "target": "https://www.samesbastropchryslerdodgejeepram.com",
+    "generated_at": "2026-10-05T02:00:39.429Z",
+    "pages_checked": 2,
+    "failed_pages": [
+      {
+        "viewport": "desktop",
+        "route": "/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm",
+        "status": 403
+      },
+      {
+        "viewport": "mobile",
+        "route": "/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm",
+        "status": 403
+      }
+    ]
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm",
+      "url": "https://www.samesbastropchryslerdodgejeepram.com/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm",
+      "ok": false,
+      "status": 403,
+      "ms": 1554,
+      "title": "Access Denied",
+      "body_text_excerpt": "Access Denied\nYou don't have permission to access \"http://www.samesbastropchryslerdodgejeepram.com/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm\" on this server.\n\nReference #18.6d0f3417.1791165636.e3328487\n\nhttps://errors.edgesuite.net/18.6d0f3417.1791165636.e3328487",
+      "body_text_chars": 280,
+      "links": [],
+      "phone_links": 0,
+      "external_links": 0,
+      "buttons": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2/desktop-new_Ram_2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm",
+      "url": "https://www.samesbastropchryslerdodgejeepram.com/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm",
+      "ok": false,
+      "status": 403,
+      "ms": 1334,
+      "title": "Access Denied",
+      "body_text_excerpt": "Access Denied\nYou don't have permission to access \"http://www.samesbastropchryslerdodgejeepram.com/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm\" on this server.\n\nReference #18.700f3417.1791165638.7848dedb\n\nhttps://errors.edgesuite.net/18.700f3417.1791165638.7848dedb",
+      "body_text_chars": 280,
+      "links": [],
+      "phone_links": 0,
+      "external_links": 0,
+      "buttons": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "request_failures": [],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2/mobile-new_Ram_2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm.png"
+    }
+  ]
+}

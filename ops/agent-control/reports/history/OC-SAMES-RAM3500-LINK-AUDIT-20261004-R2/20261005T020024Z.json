@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2",
+  "task_type": "virtual_browser_audit",
+  "task_file": "ops/agent-control/tasks/OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2.json",
+  "created_by": "Sergii",
+  "objective": "Open and audit the exact public Sames Bastrop CDJR vehicle URL https://www.samesbastropchryslerdodgejeepram.com/new/Ram/2026-Ram-3500-fb7bdd5cac183305a3d01a2355858bb8.htm using the real browser/Playwright execution layer. Do not substitute a similar vehicle or another URL. Capture browser-visible evidence and screenshots. Report the exact VIN, stock number, model year, trim, cab, bed, 4x4/DRW, engine, transmission, axle ratio, fuel tank, odometer, MSRP, dealer/sale price, incentives/rebates and conditions, interior seat material (vinyl vs cloth), Max Tow, fifth-wheel/gooseneck prep, Adaptive Cruise Control, Blind Spot Monitoring, Lane Keep Assist/Lane Departure, ParkSense/cameras, and any window-sticker/build-sheet links. If the exact URL redirects, record the complete redirect chain and final URL. If content is dynamically loaded, inspect the rendered page. If blocked, record the exact HTTP/browser error and screenshot. No sign-in, form submission, purchase, customer action, or dealer contact. Evidence only; do not infer missing specifications.",
+  "run_id": "37253611954",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/37253611954",
+  "status": "failed",
+  "expected_status": "PASS",
+  "started_at": "2026-10-05T02:00:24.331Z",
+  "finished_at": "2026-10-05T02:00:39.445Z",
+  "summary": "virtual_browser_audit failed during execution",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2.json",
+    "executed task type virtual_browser_audit",
+    "wrote markdown report ops/agent-control/reports/virtual_browser_audit/20261005T020024Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-37253611954-0",
+      "report_file": "ops/agent-control/reports/virtual_browser_audit/20261005T020024Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [
+    "Error: Command failed: node scripts/openclaw-virtual-browser-audit.mjs\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at checkExecSyncError (node:child_process:916:11)\n    at execFileSync (node:child_process:952:15)\n    at runBrowserAudit (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:237:7)\n    at main (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:609:21)\n    at file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:719:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+  ],
+  "next_step": "Inspect the report and rerun only after the root cause is understood.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "cb19b57d38a196b6e8741d30a8c8fb5c41de8915",
+  "dispatch_file": "",
+  "details": {}
+}

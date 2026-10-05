@@ -14,6 +14,6 @@
   "artifact_name": "openclaw-37253524238-0",
   "dedupe_key": "virtual_browser_audit:schema_error",
   "error": "schema validation failed: /params/routes must be array; / must match \"then\" schema",
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "45a1167ffadf203771f8578ab4b5de72e9b466db",
   "dispatch_file": ""
 }

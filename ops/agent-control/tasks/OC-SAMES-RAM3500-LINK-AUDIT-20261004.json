@@ -16,5 +16,6 @@
     "public_posting": false,
     "paid_ads_change": false,
     "destructive_action": false
-  }
+  },
+  "status": "pending"
 }

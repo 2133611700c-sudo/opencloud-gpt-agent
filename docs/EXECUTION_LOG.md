@@ -106,3 +106,13 @@ These are independent review/check lanes, not claimed as separate running agents
 - The current V2 tree contains no canonical `cancel_task` SQL function, no cancellation runtime command/handler, and no cancellation lifecycle regression test.
 - Therefore reservation cleanup on cancellation is neither implemented nor proven. This is not marked PASS and no speculative cleanup migration was added.
 - Next micro-gate: read-only comparison of `src/kernel/state.mjs` against all effective SQL lifecycle transitions after migrations 0009-0012; produce the exact mismatch set before changing either side.
+
+
+### Kernel stabilization — JS↔SQL lifecycle alignment [PASS]
+- Read-only audit found a real contract mismatch: SQL deadline terminalization can move a task from `PENDING` or `AWAITING_APPROVAL` to `FAIL_WITH_EVIDENCE`, while the JS matrix rejected those transitions.
+- Writer commit `17f00c6569df8d583b47559de014b21e7b7a48d0` changed only `src/kernel/state.mjs`: added supported system terminal-failure transitions from `PENDING` and `AWAITING_APPROVAL`.
+- Verification commit `2c0668a252a9eda7ae382cb4df24f9800f288756` added targeted tests proving those failure transitions are allowed while direct `PENDING/AWAITING_APPROVAL -> SUCCESS` remains forbidden.
+- Reviewer diff audit: PASS; only state contract and targeted test changed, no SQL/migration mutation, terminal-state fail-closed behavior preserved.
+- Full CI run `38167555303`: SUCCESS. Node tests, migrations, PostgreSQL kernel assertions, pinned OpenClaw install, provider/plugin installs, and Research config validation all passed.
+- Hosted Neon and live DeepSeek steps remained SKIPPED because repository Actions secrets are absent; they are not counted as PASS.
+- Next micro-gate: canonical cancellation lifecycle and reservation cleanup.

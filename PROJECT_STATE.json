@@ -9,7 +9,7 @@
   "current_phase": 6,
   "current_phase_name": "Research Agent + Native Web Search/Fetch",
   "walking_skeleton_gate": "KERNEL_STABILIZATION_IN_PROGRESS",
-  "kernel_regression_status": "PASS_REVALIDATED_AT_a719e00ea7b8b36052923936ecdab08e42c1601c",
+  "kernel_regression_status": "PASS_REVALIDATED_AT_2c0668a252a9eda7ae382cb4df24f9800f288756",
   "completed_units": [
     {"unit":"core_postgres_schema","status":"PASS","ci_run_id":38152899381},
     {"unit":"deterministic_state_machine","status":"PASS","ci_run_id":38153032460},
@@ -68,6 +68,14 @@
       "unit":"dag_deadlock_reservation_reachability_audit",
       "status":"PASS_SUPPORTED_STATE_CONTRACT",
       "evidence":"DAG_DEADLOCK requires v_running=0. Budget reservations can be created only for an active RUNNING node. Supported exits from RUNNING either reject SUCCESS while RESERVED or release reservations on requeue, terminal failure, reclaim, exhausted attempts, exhausted total steps, or deadline. No supported Kernel transition path to DAG_DEADLOCK with an unresolved RESERVED reservation was found. This does not certify arbitrary externally corrupted SQL state."
+    },
+    {
+      "unit":"js_sql_state_machine_alignment",
+      "status":"PASS",
+      "implementation_commit":"17f00c6569df8d583b47559de014b21e7b7a48d0",
+      "verification_commit":"2c0668a252a9eda7ae382cb4df24f9800f288756",
+      "ci_run_id":38167555303,
+      "evidence":"JS task transitions now permit supported system terminal failure from PENDING and AWAITING_APPROVAL, matching SQL deadline finalization. Unsupported direct SUCCESS transitions from those states remain forbidden. Full Node, migration, PostgreSQL, OpenClaw and config CI passed."
     }
   ],
   "known_gaps": {
@@ -76,8 +84,8 @@
       "evidence":"CANCELLED exists in the SQL/JS status vocabulary and transition matrix, but the current V2 tree contains no canonical cancel_task SQL function, cancellation runtime handler/command, or cancellation lifecycle regression test. Reservation cleanup on cancellation is therefore not yet implemented or proven."
     }
   },
-  "phase_3_status":"PASS_REVALIDATED_38166510250",
-  "phase_4_status":"PASS_REVALIDATED_38166510250",
+  "phase_3_status":"PASS_REVALIDATED_38167555303",
+  "phase_4_status":"PASS_REVALIDATED_38167555303",
   "phase_5_status":"PARTIAL_EXTERNAL_LIVE_SECRET_GATE_PENDING",
   "phase_6_status":"IN_PROGRESS",
   "live_capabilities": {
@@ -99,5 +107,5 @@
   "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
   "persistence_note":"Historical hosted persistence is proven on the isolated Neon branch/database through migrations 0001-0007. Migrations 0009-0012 have not yet been applied/revalidated there. GitHub Actions cannot reach hosted Neon until DATABASE_URL is stored securely. No database credential or connection string is committed to GitHub or Library.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Micro-audit only: compare the JS state-machine transition matrix in src/kernel/state.mjs with all effective SQL lifecycle transitions after migrations 0009-0012. Produce an exact mismatch list. Read-only verdict first; one canonical-contract correction only after the mismatch set is proven."
+  "next_action":"Micro-gate: implement canonical cancellation lifecycle with reservation cleanup and deterministic regression coverage, then full CI. Do not advance to Kernel-to-Research execution adapter until cancellation is proven or explicitly deferred by roadmap policy."
 }

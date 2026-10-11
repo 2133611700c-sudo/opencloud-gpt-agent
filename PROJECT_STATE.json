@@ -10,8 +10,8 @@
     "ci_run_id": 38149188562,
     "ci_conclusion": "success"
   },
-  "current_phase": 3,
-  "current_phase_name": "Lease, Fencing, Circuit Breakers",
+  "current_phase": 4,
+  "current_phase_name": "Lite Orchestrator",
   "completed_units": [
     {
       "unit": "core_postgres_schema",
@@ -36,8 +36,15 @@
       "status": "PASS",
       "ci_run_id": 38154703360,
       "evidence": "Idempotent fenced cost/token reservation, oversubscription rejection, reconcile/release, terminal-node no-new-reservation, deadline, total-step and max-attempt breakers passed on PostgreSQL 16"
+    },
+    {
+      "unit": "application_heartbeat_manager",
+      "status": "PASS",
+      "ci_run_id": 38154875398,
+      "evidence": "Independent async renew loop aborts on lease loss/renewal error, prevents overlapping renewals, stops cleanly, and avoids false abort during in-flight shutdown; all SQL gates remain green"
     }
   ],
+  "phase_3_status": "PASS",
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action": "Implement and test application-level asynchronous heartbeat manager over the proven heartbeat_node fencing contract. It must renew independently, abort work immediately on lost lease or renewal error, prevent overlapping renewals, and stop cleanly. Do not start Lite Orchestrator until this gate passes."
+  "next_action": "Phase 4A only: implement idempotent task intake and deterministic Lite DAG creation for Research -> Data/Result. Prove repeated request_id returns the same task, exactly two canonical nodes exist, and Data depends on Research. Do not implement finalizer/cascade until this gate passes."
 }

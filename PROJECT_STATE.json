@@ -10,16 +10,22 @@
     "ci_run_id": 38149188562,
     "ci_conclusion": "success"
   },
-  "current_phase": 2,
-  "current_phase_name": "Persistent State + Durable Kernel",
+  "current_phase": 3,
+  "current_phase_name": "Lease, Fencing, Circuit Breakers",
   "completed_units": [
     {
       "unit": "core_postgres_schema",
       "status": "PASS",
       "ci_run_id": 38152899381,
       "evidence": "PostgreSQL 16 migration applied and SQL invariants passed"
+    },
+    {
+      "unit": "deterministic_state_machine",
+      "status": "PASS",
+      "ci_run_id": 38153032460,
+      "evidence": "Task/node transition tests, Postgres migration, SQL invariants and health checks all passed on current V2 head"
     }
   ],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action": "Implement deterministic Task/Node state-transition contracts and tests, then proceed to atomic lease/fencing contracts. Do not advance to browser, vision, swarm, judge, repair, or bulk 71/311 migration before Walking Skeleton gates pass."
+  "next_action": "Implement atomic node claim with SKIP LOCKED, unique fencing token, heartbeat renewal, stale-worker rejection, and bounded reservation contracts; prove with concurrent-worker tests before advancing."
 }

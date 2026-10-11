@@ -15,6 +15,8 @@ const requireText = (value, name) => {
   return value.trim();
 };
 
+const FAILED_TERMINAL_TASK_STATUSES = new Set(['FAIL_WITH_EVIDENCE', 'BLOCKED', 'CANCELLED']);
+
 const isOfficialDeepSeekSource = (source) => {
   try {
     const url = new URL(source?.url);
@@ -70,13 +72,17 @@ const cancelFailedGateTask = async (query, taskId, originalError) => {
       'SELECT cancel_task($1,$2,$3::jsonb) AS cancelled',
       [taskId, 'LIVE_GATE_FAILED', JSON.stringify({ gate: 'research-live-kernel', originalCode })],
     );
-    if (cleanup?.rows?.[0]?.cancelled !== true) {
-      throw gateError(
-        `live gate failed with ${originalCode} and task cleanup was rejected`,
-        'LIVE_GATE_CLEANUP_FAILED',
-        { originalCode },
-      );
-    }
+    if (cleanup?.rows?.[0]?.cancelled === true) return;
+
+    const statusResult = await query('SELECT status FROM tasks WHERE id=$1', [taskId]);
+    const taskStatus = statusResult?.rows?.[0]?.status ?? null;
+    if (FAILED_TERMINAL_TASK_STATUSES.has(taskStatus)) return;
+
+    throw gateError(
+      `live gate failed with ${originalCode} and task cleanup was rejected; task_status=${String(taskStatus)}`,
+      'LIVE_GATE_CLEANUP_FAILED',
+      { originalCode, taskStatus },
+    );
   } catch (cleanupError) {
     if (cleanupError?.code === 'LIVE_GATE_CLEANUP_FAILED' && cleanupError?.originalCode === originalCode) {
       throw cleanupError;

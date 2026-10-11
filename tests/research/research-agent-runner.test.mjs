@@ -281,6 +281,8 @@ test('kills child on timeout and AbortSignal', async () => {
   const root2 = isolatedRoot();
   const abortChild = makeFakeChild();
   const controller = new AbortController();
+  let markSpawned;
+  const spawned = new Promise((resolve) => { markSpawned = resolve; });
   try {
     const promise = runResearchAgent({
       request,
@@ -288,8 +290,12 @@ test('kills child on timeout and AbortSignal', async () => {
       env: { DEEPSEEK_API_KEY: 'test-only-key' },
       tempRoot: root2,
       signal: controller.signal,
-      spawnImpl: () => abortChild,
+      spawnImpl: () => {
+        markSpawned();
+        return abortChild;
+      },
     });
+    await spawned;
     controller.abort();
     await assert.rejects(promise, (error) => error.code === 'ABORTED');
     assert.deepEqual(abortChild.killSignals, ['SIGKILL']);

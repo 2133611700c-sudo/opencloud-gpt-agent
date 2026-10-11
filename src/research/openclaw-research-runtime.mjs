@@ -1,3 +1,4 @@
+import { isAbsolute } from 'node:path';
 import { normalizeResearchRequest } from './research-contract.mjs';
 
 const DEFAULT_MODEL = 'deepseek/deepseek-flash';
@@ -6,6 +7,13 @@ const MODEL_RE = /^deepseek\/[A-Za-z0-9._:-]+$/;
 const boundedInteger = (value, field, min, max) => {
   if (!Number.isSafeInteger(value) || value < min || value > max) {
     throw new RangeError(`${field} must be an integer between ${min} and ${max}`);
+  }
+  return value;
+};
+
+const absolutePath = (value, field) => {
+  if (typeof value !== 'string' || value.trim() === '' || !isAbsolute(value)) {
+    throw new TypeError(`${field} must be an absolute path`);
   }
   return value;
 };
@@ -94,12 +102,12 @@ export function buildResearchPrompt(rawRequest) {
 export function buildResearchAgentExecInvocation({
   request,
   configPath,
+  stateDir,
   model = DEFAULT_MODEL,
   timeoutSeconds = 120,
 } = {}) {
-  if (typeof configPath !== 'string' || configPath.trim() === '') {
-    throw new TypeError('configPath is required');
-  }
+  absolutePath(configPath, 'configPath');
+  absolutePath(stateDir, 'stateDir');
   if (typeof model !== 'string' || !MODEL_RE.test(model)) {
     throw new TypeError('model must be a deepseek/<model> reference');
   }
@@ -114,7 +122,6 @@ export function buildResearchAgentExecInvocation({
       '--message-file', '-',
       '--config', configPath,
       '--model', model,
-      '--auth-env-only',
       '--code-mode', 'direct',
       '--thinking', 'off',
       '--timeout', String(timeoutSeconds),
@@ -123,5 +130,7 @@ export function buildResearchAgentExecInvocation({
     stdin: prompt,
     model,
     timeoutSeconds,
+    stateDir,
+    envOverrides: Object.freeze({ OPENCLAW_STATE_DIR: stateDir }),
   });
 }

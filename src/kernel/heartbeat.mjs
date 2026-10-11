@@ -85,10 +85,12 @@ export class LeaseHeartbeatManager {
 
         try {
           const renewed = await this.#renew();
+          if (!this.#running) break;
           if (renewed !== true) {
             throw new LeaseLostError();
           }
         } catch (error) {
+          if (!this.#running) break;
           const failure = error instanceof LeaseLostError
             ? error
             : new HeartbeatRenewalError('Heartbeat renewal failed', error);

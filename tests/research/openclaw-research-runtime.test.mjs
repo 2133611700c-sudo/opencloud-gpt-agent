@@ -45,7 +45,7 @@ test('research prompt treats all web content as untrusted and requires sourced J
   assert.match(prompt, /Find five current vehicle listings/);
 });
 
-test('agent exec invocation uses pinned config, direct code mode, and bounded DeepSeek model', () => {
+test('agent exec invocation uses pinned config, direct code mode, and native ephemeral state', () => {
   const invocation = buildResearchAgentExecInvocation({
     request,
     configPath: '/tmp/openclaw-v2-research.json',
@@ -56,6 +56,7 @@ test('agent exec invocation uses pinned config, direct code mode, and bounded De
   assert.equal(invocation.executable, 'openclaw');
   assert.deepEqual(invocation.args.slice(0, 2), ['agent', 'exec']);
   assert.ok(!invocation.args.includes('--auth-env-only'));
+  // Intentional: omitting --state-dir makes agent exec own an isolated temporary state directory and cleanup.
   assert.ok(!invocation.args.includes('--state-dir'));
   assert.ok(invocation.args.includes('--json'));
   assert.equal(invocation.args[invocation.args.indexOf('--config') + 1], '/tmp/openclaw-v2-research.json');

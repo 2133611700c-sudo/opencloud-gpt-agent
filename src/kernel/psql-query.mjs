@@ -127,9 +127,11 @@ export function createPsqlQuery({
     const wrapped = `WITH __openclaw_query AS (${bound}) SELECT COALESCE(json_agg(row_to_json(__openclaw_query)), '[]'::json)::text FROM __openclaw_query`;
     let stdout;
     try {
-      stdout = execFileSyncImpl('psql', ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-A', '-t', '-c', wrapped], {
+      // Feed SQL over stdin so bound task/payload values never appear in process argv.
+      stdout = execFileSyncImpl('psql', ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-A', '-t'], {
         encoding: 'utf8',
         env: pgEnv,
+        input: `${wrapped}\n`,
         maxBuffer: maxBufferBytes,
       });
     } catch (error) {

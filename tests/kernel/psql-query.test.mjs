@@ -34,28 +34,32 @@ test('database URL becomes minimal libpq environment without forwarding unrelate
   assert.equal(env.DEEPSEEK_API_KEY, undefined);
 });
 
-test('psql query transport keeps connection secret out of argv and parses rows', async () => {
+test('psql query transport keeps connection and bound task data out of argv while parsing rows', async () => {
   const calls = [];
   const databaseUrl = 'postgresql://openclaw:super-secret@ep-example.neon.tech/openclaw_v2?sslmode=require';
+  const sensitiveTaskValue = 'private-task-goal-do-not-expose-in-process-list';
   const query = createPsqlQuery({
     databaseUrl,
     parentEnv: { PATH: '/usr/bin', DEEPSEEK_API_KEY: 'deepseek-secret', DATABASE_URL: databaseUrl },
     execFileSyncImpl: (file, args, options) => {
       calls.push({ file, args, options });
-      return '[{"accepted":true,"node_id":"n-1"}]\n';
+      return '[{"accepted":true,"value":"ok"}]\n';
     },
   });
 
-  const result = await query('SELECT $1::uuid AS node_id, $2::boolean AS accepted', ['n-1', true]);
-  assert.deepEqual(result, { rows: [{ accepted: true, node_id: 'n-1' }] });
+  const result = await query('SELECT $1::text AS value, $2::boolean AS accepted', [sensitiveTaskValue, true]);
+  assert.deepEqual(result, { rows: [{ accepted: true, value: 'ok' }] });
   assert.equal(calls.length, 1);
   assert.equal(calls[0].file, 'psql');
   assert.ok(calls[0].args.every((arg) => !arg.includes('super-secret')));
   assert.ok(calls[0].args.every((arg) => !arg.includes('postgresql://')));
+  assert.ok(calls[0].args.every((arg) => !arg.includes(sensitiveTaskValue)));
+  assert.equal(calls[0].args.includes('-c'), false);
   assert.equal(calls[0].options.env.PGPASSWORD, 'super-secret');
   assert.equal(calls[0].options.env.DEEPSEEK_API_KEY, undefined);
   assert.equal(calls[0].options.env.DATABASE_URL, undefined);
-  assert.match(calls[0].args.at(-1), /^WITH __openclaw_query AS \(SELECT /);
+  assert.match(calls[0].options.input, /^WITH __openclaw_query AS \(SELECT /);
+  assert.ok(calls[0].options.input.includes(sensitiveTaskValue));
 });
 
 test('psql transport fails closed on malformed output', async () => {

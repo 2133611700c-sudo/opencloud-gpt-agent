@@ -12,6 +12,13 @@ on:
 permissions:
   contents: read
 
+# Hosted Neon is shared state. Serialize all V2 CI runs so two live gates can
+# never pass the isolation pre-check concurrently and claim each other's task.
+# Do not cancel a running gate: abrupt cancellation could bypass task cleanup.
+concurrency:
+  group: openclaw-v2-shared-hosted-state
+  cancel-in-progress: false
+
 jobs:
   foundation:
     runs-on: ubuntu-latest

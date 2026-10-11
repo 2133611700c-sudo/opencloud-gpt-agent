@@ -95,22 +95,37 @@ const normalizeModel = (provider, model) => {
 const normalizeOptionalUsage = (usage) => {
   if (!usage || typeof usage !== 'object' || Array.isArray(usage)) return null;
 
-  const copyInteger = (field) => {
+  const fields = ['input', 'output', 'total', 'cacheRead', 'cacheWrite'];
+  const normalized = {};
+  let observed = 0;
+
+  for (const field of fields) {
+    if (!(field in usage) || usage[field] == null) {
+      normalized[field] = null;
+      continue;
+    }
+
     const value = usage[field];
-    return Number.isSafeInteger(value) && value >= 0 ? value : null;
-  };
+    if (!Number.isSafeInteger(value) || value < 0) {
+      return null;
+    }
 
-  const normalized = {
-    input: copyInteger('input'),
-    output: copyInteger('output'),
-    total: copyInteger('total'),
-    cacheRead: copyInteger('cacheRead'),
-    cacheWrite: copyInteger('cacheWrite'),
-  };
+    normalized[field] = value;
+    observed += 1;
+  }
 
-  return Object.values(normalized).some((value) => value !== null)
-    ? Object.freeze(normalized)
-    : null;
+  if (observed === 0) return null;
+
+  if (
+    normalized.input !== null
+    && normalized.output !== null
+    && normalized.total !== null
+    && normalized.input + normalized.output !== normalized.total
+  ) {
+    return null;
+  }
+
+  return Object.freeze(normalized);
 };
 
 export function parseDeepSeekInferEnvelope(value, { requestedModel } = {}) {

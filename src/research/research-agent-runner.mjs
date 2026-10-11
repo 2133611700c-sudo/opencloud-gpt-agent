@@ -1,5 +1,5 @@
 import { spawn as nodeSpawn } from 'node:child_process';
-import { chmod, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -66,15 +66,17 @@ export async function runResearchAgent({
   const config = buildResearchOpenClawConfig(configOptions);
   const tempDir = await mkdtemp(join(tempRoot, 'openclaw-v2-research-'));
   const configPath = join(tempDir, 'openclaw.json');
+  const stateDir = join(tempDir, 'state');
 
   try {
+    await mkdir(stateDir, { mode: 0o700 });
     await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
-    // Explicit chmod closes the umask/platform ambiguity and makes the contract observable in tests.
     await chmod(configPath, 0o600);
 
     const invocation = buildResearchAgentExecInvocation({
       request,
       configPath,
+      stateDir,
       model,
       timeoutSeconds: researchTimeoutSeconds(timeoutMs),
     });
@@ -134,6 +136,7 @@ export async function runResearchAgent({
           shell: false,
           env: {
             ...env,
+            ...invocation.envOverrides,
             OPENCLAW_CONFIG_PATH: configPath,
             OPENCLAW_CONFIG_READONLY: '1',
           },

@@ -14,17 +14,17 @@ const request = {
   requiredFields: ['price', 'dealer', 'url'],
 };
 
-test('research config exposes only group:web and disables private-network fetch', () => {
+test('research config exposes only web_search and web_fetch and disables private-network fetch', () => {
   const config = buildResearchOpenClawConfig();
 
-  assert.deepEqual(config.tools.allow, ['group:web']);
+  assert.deepEqual(config.tools.allow, ['web_search', 'web_fetch']);
   assert.equal(config.tools.web.search.provider, 'duckduckgo');
   assert.equal(config.tools.web.search.cacheTtlMinutes, 0);
   assert.equal(config.tools.web.fetch.cacheTtlMinutes, 0);
   assert.equal(config.tools.web.fetch.ssrfPolicy.dangerouslyAllowPrivateNetwork, false);
 
   const serialized = JSON.stringify(config);
-  assert.doesNotMatch(serialized, /group:runtime|group:fs|group:ui|browser|sessions_spawn|exec|write|edit/);
+  assert.doesNotMatch(serialized, /x_search|group:runtime|group:fs|group:ui|browser|sessions_spawn|"exec"|"write"|"edit"/);
 });
 
 test('walking skeleton rejects an unapproved search provider', () => {

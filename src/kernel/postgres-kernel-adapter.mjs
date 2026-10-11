@@ -8,22 +8,28 @@ const one = async (query, text, values) => {
   return result?.rows?.[0] ?? null;
 };
 
+const mapClaim = (row, workerId) => row ? Object.freeze({
+  nodeId: row.node_id,
+  taskId: row.task_id,
+  leaseToken: row.lease_token,
+  agentId: row.agent_id,
+  inputPayload: row.input_payload,
+  attempt: row.attempt,
+  workerId,
+}) : null;
+
 export function createPostgresKernelAdapter({ query } = {}) {
   const q = requireQuery(query);
 
   return Object.freeze({
     async claimNextNode({ workerId, leaseSeconds = 30 }) {
       const row = await one(q, 'SELECT * FROM claim_next_node($1, $2)', [workerId, leaseSeconds]);
-      if (!row) return null;
-      return Object.freeze({
-        nodeId: row.node_id,
-        taskId: row.task_id,
-        leaseToken: row.lease_token,
-        agentId: row.agent_id,
-        inputPayload: row.input_payload,
-        attempt: row.attempt,
-        workerId,
-      });
+      return mapClaim(row, workerId);
+    },
+
+    async claimNextNodeForAgent({ workerId, agentId, leaseSeconds = 30 }) {
+      const row = await one(q, 'SELECT * FROM claim_next_node_for_agent($1, $2, $3)', [workerId, agentId, leaseSeconds]);
+      return mapClaim(row, workerId);
     },
 
     async heartbeat({ nodeId, workerId, leaseToken, leaseSeconds = 30 }) {

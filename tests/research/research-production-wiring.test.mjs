@@ -48,7 +48,7 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ca
         process: { latencyMs: 9 },
       };
     },
-    heartbeatIntervalMs: 60_000,
+    heartbeatIntervalMs: 10_000,
     researchTimeoutMs: 30_000,
   });
 
@@ -88,6 +88,20 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ca
     needsBrowser: [],
     confidence: 'HIGH',
   });
+});
+
+test('production wiring rejects heartbeat intervals that cannot renew the lease before expiry', () => {
+  let queried = false;
+  assert.throws(() => createProductionResearchWorker({
+    query: async () => { queried = true; return { rows: [] }; },
+    workerId: 'research-production-1',
+    pricingVersion: 'pricing-v1',
+    estimateReservation: async () => ({ costUsd: 0.1, tokens: 100 }),
+    runResearchImpl: async () => ({ result: { status: 'NO_RESULTS' }, telemetry: {} }),
+    leaseSeconds: 30,
+    heartbeatIntervalMs: 30_000,
+  }), /heartbeatIntervalMs must be less than the lease duration/);
+  assert.equal(queried, false);
 });
 
 test('native production wiring refuses missing DeepSeek credential before any claim', () => {

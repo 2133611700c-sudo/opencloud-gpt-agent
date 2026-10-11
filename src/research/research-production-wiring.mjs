@@ -68,6 +68,10 @@ export function createProductionResearchWorker({
   requireInteger(leaseSeconds, 'leaseSeconds', 5, 3600);
   requireInteger(heartbeatIntervalMs, 'heartbeatIntervalMs', 1, 3_600_000);
   requireInteger(researchTimeoutMs, 'researchTimeoutMs', 1, 300_000);
+  const leaseDurationMs = leaseSeconds * 1000;
+  if (heartbeatIntervalMs >= leaseDurationMs) {
+    throw new RangeError('heartbeatIntervalMs must be less than the lease duration');
+  }
   if (!researchConfigOptions || typeof researchConfigOptions !== 'object' || Array.isArray(researchConfigOptions)) {
     throw new TypeError('researchConfigOptions must be an object');
   }

@@ -2,12 +2,9 @@ name: OpenClaw DeepSeek Smoke
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "ops/agent-control/deepseek-smoke.request"
 
 permissions:
-  contents: write
+  contents: read
   actions: read
 
 concurrency:
@@ -17,11 +14,10 @@ concurrency:
 jobs:
   deepseek-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
-      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-      OPENCLAW_VERSION: "2026.9.8"
-      DEEPSEEK_PLUGIN_VERSION: "2026.9.8"
+      OPENCLAW_VERSION: "2026.10.1"
+      DEEPSEEK_PLUGIN_VERSION: "2026.10.1"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -34,6 +30,8 @@ jobs:
           node-version: "22"
 
       - name: Require DeepSeek secret
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
@@ -48,25 +46,86 @@ jobs:
       - name: Install official DeepSeek provider
         run: openclaw plugins install "@openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}"
 
-      - name: Verify provider catalog
-        run: openclaw models list --all --provider deepseek
-
-      - name: Run V4.1 Flash thinking smoke
+      - name: Verify versions and provider catalog
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p ops/agent-control/reports/deepseek_health
+          openclaw --version | tee ops/agent-control/reports/deepseek_health/openclaw-version.txt
+          grep -q "2026.10.1" ops/agent-control/reports/deepseek_health/openclaw-version.txt
+          openclaw models list --all --provider deepseek | tee ops/agent-control/reports/deepseek_health/catalog.txt
+          grep -q "deepseek-flash" ops/agent-control/reports/deepseek_health/catalog.txt
+          grep -q "deepseek-v4-pro" ops/agent-control/reports/deepseek_health/catalog.txt
+
+      - name: Verify V4.1 Flash Think Max
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=ops/agent-control/reports/deepseek_health/thinking.json
+          openclaw infer model run \
+            --local \
+            --model deepseek/deepseek-flash \
+            --thinking max \
+            --prompt "Reply with exactly: THINK_OK" \
+            --json | tee "$OUT"
+          jq -e '.ok == true and .provider == "deepseek"' "$OUT" >/dev/null
+          grep -q "THINK_OK" "$OUT"
+
+      - name: Verify V4.1 Flash tool call
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          OUT=ops/agent-control/reports/deepseek_health/tool-call.json
           openclaw agent exec \
-            "Return exactly DEEPSEEK_OK after reasoning silently. Do not modify files and do not call tools." \
+            "Use the shell command pwd exactly once. Do not create, edit, or delete files. Then reply with TOOL_OK followed by the pwd output." \
+            --cwd "$TMP" \
             --isolated \
             --auth-env-only \
             --model deepseek/deepseek-flash \
             --fallback deepseek/deepseek-v4-pro \
             --thinking max \
             --code-mode direct \
-            --timeout 120 \
-            --json | tee ops/agent-control/reports/deepseek_health/latest.json
-          grep -q "DEEPSEEK_OK" ops/agent-control/reports/deepseek_health/latest.json
+            --timeout 180 \
+            --json | tee "$OUT"
+          jq -e '.ok == true and .provider == "deepseek" and (.toolSummary.calls // 0) >= 1' "$OUT" >/dev/null
+          grep -q "TOOL_OK" "$OUT"
+          rm -rf "$TMP"
+
+      - name: Create deterministic vision fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import struct, zlib
+          w = h = 64
+          raw = b''.join(b'\x00' + bytes([255, 0, 0]) * w for _ in range(h))
+          def chunk(name, data):
+              return struct.pack('>I', len(data)) + name + data + struct.pack('>I', zlib.crc32(name + data) & 0xffffffff)
+          png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+          open('/tmp/deepseek-red-square.png', 'wb').write(png)
+          PY
+
+      - name: Verify V4.1 Flash vision
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=ops/agent-control/reports/deepseek_health/vision.json
+          openclaw infer model run \
+            --local \
+            --model deepseek/deepseek-flash \
+            --thinking low \
+            --file /tmp/deepseek-red-square.png \
+            --prompt "Identify the dominant color in this image. Reply with exactly: RED_SQUARE" \
+            --json | tee "$OUT"
+          jq -e '.ok == true and .provider == "deepseek"' "$OUT" >/dev/null
+          grep -q "RED_SQUARE" "$OUT"
 
       - name: Write smoke report
         if: always()
@@ -81,7 +140,7 @@ jobs:
           - plugin: @openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}
           - primary_model: deepseek/deepseek-flash
           - fallback_model: deepseek/deepseek-v4-pro
-          - thinking: max
+          - verified_surfaces_requested: catalog, thinking=max, tool-call, vision
           - secret_value_logged: false
           - run_url: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
           EOF

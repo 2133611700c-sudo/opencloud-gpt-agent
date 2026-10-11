@@ -83,6 +83,45 @@ jobs:
             echo "Running ${test_sql}"
             psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f "${test_sql}"
           done
+      - name: Verify hosted Neon persistence when DATABASE_URL exists
+        if: steps.prereqs.outputs.database_present == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          SELECT CASE WHEN (
+            SELECT count(*) FROM information_schema.tables
+            WHERE table_schema='public' AND table_name IN (
+              'tasks','task_nodes','task_node_dependencies','llm_accounting','artifacts',
+              'registry_agents','registry_skills','approval_requests','budget_reservations'
+            )
+          ) = 9 THEN 1 ELSE 1/0 END AS core_tables_ok;
+
+          SELECT CASE WHEN (
+            SELECT count(DISTINCT p.proname)
+            FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+            WHERE n.nspname='public' AND p.proname IN (
+              'claim_next_node','heartbeat_node','complete_node_success','requeue_node_retry',
+              'reserve_node_budget','reconcile_node_budget','release_node_budget','create_lite_research_task',
+              'block_task_nodes','cascade_block_descendants','finalize_task','fail_node_terminal',
+              'release_reservations_for_lease','record_llm_call'
+            )
+          ) = 14 THEN 1 ELSE 1/0 END AS core_functions_ok;
+
+          BEGIN;
+          SELECT * FROM create_lite_research_task(
+            ('ci-hosted-smoke-' || gen_random_uuid()::text)::varchar(128),
+            'CI hosted persistence smoke',
+            '{"source":"github-actions"}'::jsonb,
+            0.010000,
+            1000,
+            4,
+            NOW() + INTERVAL '5 minutes'
+          );
+          ROLLBACK;
+          SQL
 
       - name: Set up supported Node for pinned OpenClaw runtime
         uses: actions/setup-node@v4

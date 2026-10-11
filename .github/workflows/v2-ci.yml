@@ -135,11 +135,21 @@ jobs:
           echo "$version_output"
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
           test "$version_token" = "2026.9.8"
+      - name: Prepare isolated OpenClaw V2 trust scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-v2-state"
+          install -d -m 700 "$state_dir"
+          test ! -e "$state_dir/state/openclaw.sqlite"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
       - name: Install matching official DeepSeek provider plugin
         run: |
           set -euo pipefail
           openclaw plugins install @openclaw/deepseek-provider@2026.9.8
-          openclaw plugins list
+          openclaw plugins list | grep -i deepseek
+          test -d "$OPENCLAW_STATE_DIR/npm/projects"
       - name: Install matching official DuckDuckGo research plugin
         run: |
           set -euo pipefail
@@ -153,6 +163,7 @@ jobs:
           set -euo pipefail
           node scripts/write-research-openclaw-config.mjs "$OPENCLAW_CONFIG_PATH"
           test "$(stat -c '%a' "$OPENCLAW_CONFIG_PATH")" = "600"
+          test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
           openclaw config validate --json
       - name: Run one live DeepSeek provider smoke when secret exists
         if: steps.prereqs.outputs.deepseek_present == 'true'

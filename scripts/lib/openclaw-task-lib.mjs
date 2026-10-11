@@ -39,7 +39,7 @@ const taskPrefix = `${tasksDir}/`;
 const dispatchPrefix = `${dispatchDir}/`;
 const redactionPatterns = [
   { pattern: /(postgres(?:ql)?:\/\/)\S+/gi, replacement: "$1***REDACTED***" },
-  { pattern: /\b(sk|ghp|gho|xox[baprs]-)[A-Za-z0-9_-]+\b/g, replacement: "***REDACTED***" },
+  { pattern: /\b(sk-|ghp|gho|xox[baprs]-)[A-Za-z0-9_-]+\b/g, replacement: "***REDACTED***" },
   { pattern: /\b(service_role|authorization|bearer|token|password|secret)\s*[:=]\s*\S+/gi, replacement: "$1=***REDACTED***" },
 ];
 
@@ -174,7 +174,7 @@ export function validateSchema(schemaFile, payload) {
 export function detectSensitiveStrings(payload) {
   const text = JSON.stringify(payload);
   const errors = [];
-  if (/\b(sk|ghp|gho|xox[baprs]-)[A-Za-z0-9_-]+\b/.test(text)) errors.push("task contains a token-like secret");
+  if (/\b(sk-|ghp|gho|xox[baprs]-)[A-Za-z0-9_-]+\b/.test(text)) errors.push("task contains a token-like secret");
   if (/\bssn\b|\bsocial security\b|\bdate of birth\b|\bdob\b/i.test(text)) errors.push("task contains restricted private data markers");
   return errors;
 }

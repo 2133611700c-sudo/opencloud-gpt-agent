@@ -104,7 +104,18 @@
     "blocked": false,
     "execution_rule": "PLAN_BUILD_JUDGE"
   },
-  "generated_at": "2026-10-11T14:23:47.960Z",
+  "selected_skill_names": [
+    "agent-security-hardening",
+    "verification-loop",
+    "github-ops",
+    "repo-scan",
+    "plan-orchestrate",
+    "team-agent-orchestration",
+    "skill-comply",
+    "continuous-learning-v2"
+  ],
+  "loaded_skill_names": [],
+  "generated_at": "2026-10-11T14:36:13.813Z",
   "source_task_file": "ops/agent-control/tasks/OC-CHATGPT-INTEGRATION-HEARTBEAT.json",
   "status": "SKIPPED_SIMPLE",
   "reason": "router complexity below model-advisory threshold"

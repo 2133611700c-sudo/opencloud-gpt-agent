@@ -58,13 +58,17 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
   - AbortSignal kill;
   - credential redaction;
   - sanitized child environment excluding unrelated secrets;
-  - dedicated absolute `OPENCLAW_STATE_DIR` trust root;
   - provider/model/direct-code-mode attestation;
   - only `web_search`/`web_fetch` tool evidence accepted;
   - `SUCCESS` requires `web_fetch` evidence;
   - strict sourced Research JSON contract;
   - optional usage telemetry is never invented and malformed telemetry fails closed.
-- Run `38161523563` also kept all PostgreSQL assertions, pinned OpenClaw install, both official plugins, and official config validation green. Hosted-Neon-in-CI and live-DeepSeek steps were correctly SKIPPED because repository Actions secrets are absent.
+- Research trust-root fail-closed gate passed full CI run `38161772567`:
+  - `OPENCLAW_STATE_DIR` is mandatory and must be absolute before any temp config or process spawn;
+  - missing/relative roots produce typed `INVALID_OPENCLAW_STATE_DIR`;
+  - negative tests prove zero spawn/temp side effects on rejection;
+  - all existing Node/PostgreSQL/OpenClaw/DeepSeek-plugin/DuckDuckGo-plugin/config-validation gates remained green.
+- Hosted-Neon-in-CI and live-DeepSeek steps remain correctly SKIPPED because repository Actions secrets are absent; hosted Neon itself is separately proven live.
 
 ### ECC review lanes selected for the current engineering stage
 - `agentic-engineering`
@@ -76,7 +80,7 @@ These are independent review/check lanes, not claimed as separate running agents
 
 ### Current engineering position
 - Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS.
-- Research contract/runtime/plugin/process boundary: PASS without a live model call.
+- Research contract/runtime/plugin/process/trust boundary: PASS without a live model call.
 - External secrets remain pending only for live hosted-CI and live DeepSeek proof; they no longer block deterministic implementation work.
-- Next unit: inspect existing Kernel/worker code, then build the smallest Kernel-to-Research execution adapter that wires one claimed Research node through heartbeat, budget reservation, canonical `runResearchAgent`, accounting, and fenced terminal update. Test deterministically before any live DeepSeek call.
+- Next unit: build the smallest Kernel-to-Research execution adapter with an injected runner first: one already-claimed Research lease -> budget reservation -> `LeaseHeartbeatManager` -> injected Research runner -> exactly-once accounting -> fenced complete/fail/release. Prove call ordering, lease-loss abort, budget refusal, accounting failure and runner failure deterministically.
 - Do not advance to Browser, Vision, Swarm, Judge, Repair, or bulk 71/311 migration yet.

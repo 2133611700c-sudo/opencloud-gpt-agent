@@ -16,11 +16,38 @@ jobs:
   foundation:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: openclaw
+          POSTGRES_PASSWORD: openclaw
+          POSTGRES_DB: openclaw_v2_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U openclaw -d openclaw_v2_test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      PGPASSWORD: openclaw
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm run validate:foundation
-      - run: npm test
-      - run: npm run health
+      - name: Validate foundation
+        run: npm run validate:foundation
+      - name: Run Node tests
+        run: npm test
+      - name: Run health check
+        run: npm run health
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Apply core PostgreSQL migration
+        run: psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f migrations/0001_core.sql
+      - name: Assert core PostgreSQL invariants
+        run: psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f tests/sql/0001_core_schema_test.sql

@@ -44,17 +44,20 @@ Obtain a complete checkout of `messenginfo` PR #172 and run the remaining Node 2
 
 <!-- OPENCLAW_CURRENT_STATUS:BEGIN -->
 ## OpenClaw Current
-- latest_run_id: 37253611954
-- latest_task_id: OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2
-- latest_status: FAIL
-- latest_timestamp: 2026-10-05T02:00:24.331Z
-- latest_report: ops/agent-control/reports/virtual_browser_audit/20261005T020024Z.md
-- latest_artifact: openclaw-37253611954-0
-- latest_evidence_commit: 02ce619303fd684cb385c808f60140afc2a19518
+- latest_run_id: 38146963745
+- latest_task_id: OC-CHATGPT-INTEGRATION-HEARTBEAT
+- latest_status: PASS
+- latest_timestamp: 2026-10-11T14:23:47.825Z
+- latest_report: ops/agent-control/reports/heartbeat/20261011T142347Z.md
+- latest_artifact: openclaw-mobile-38146963745
+- latest_evidence_commit: 5138e72eba1ad7e5f1a0e80d342bf7c6ed60e783
 
 ## Recent OpenClaw Runs
 | Timestamp | Run ID | Task ID | Type | Status | Report |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-11T14:23:47.825Z | 38146963745 | OC-CHATGPT-INTEGRATION-HEARTBEAT | heartbeat | PASS | ops/agent-control/reports/heartbeat/20261011T142347Z.md |
+| 2026-10-11T14:07:56.293Z | 38145904311 | OC-CHATGPT-INTEGRATION-HEARTBEAT | heartbeat | PASS | ops/agent-control/reports/heartbeat/20261011T140756Z.md |
+| 2026-10-11T14:04:10.348Z | 38145650690 | OC-CHATGPT-INTEGRATION-HEARTBEAT | heartbeat | BLOCKED | ops/agent-control/reports/heartbeat/20261011T140410Z.md |
 | 2026-10-05T02:00:24.331Z | 37253611954 | OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2 | virtual_browser_audit | FAIL | ops/agent-control/reports/virtual_browser_audit/20261005T020024Z.md |
 | 2026-10-05T01:59:08.312Z | 37253524238 | OC-SAMES-RAM3500-LINK-AUDIT-20261004 | virtual_browser_audit | BLOCKED | ops/agent-control/reports/virtual_browser_audit/20261005T015908Z.md |
 | 2026-06-22T18:56:36.578Z | 27976546368 | OC-SEARCH-BOX-TRUCK-LA-20260622-01 | job_lead_collect | PASS | ops/agent-control/reports/job_lead_collect/20260622T185636Z.md |
@@ -72,9 +75,6 @@ Obtain a complete checkout of `messenginfo` PR #172 and run the remaining Node 2
 | 2026-05-16T22:35:28.073Z | 20260516T223528Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260516T223528Z.md |
 | 2026-05-16T22:11:21.989Z | 20260516T221121Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260516T221121Z.md |
 | 2026-05-13T09:19:37.837Z | 20260513T091937Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091937Z.md |
-| 2026-05-13T09:19:04.742Z | 20260513T091904Z | OC-OPENCLAW-HEARTBEAT-001 | heartbeat | PASS | ops/agent-control/reports/openclaw-heartbeat/20260513T091904Z.md |
-| 2026-05-13T09:16:17.839Z | 20260513T091617Z | OC-OPENCLAW-UNSAFE-BLOCKED-001 | heartbeat | BLOCKED | ops/agent-control/reports/openclaw-heartbeat/20260513T091617Z.md |
-| 2026-05-13T09:15:39.936Z | 20260513T091539Z | OC-OPENCLAW-SYNTHETIC-FAIL-001 | synthetic_fail | FAIL | ops/agent-control/reports/openclaw-heartbeat/20260513T091539Z.md |
 <!-- OPENCLAW_CURRENT_STATUS:END -->
 
 ## Goal

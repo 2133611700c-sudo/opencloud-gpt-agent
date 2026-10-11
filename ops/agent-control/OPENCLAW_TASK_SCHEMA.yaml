@@ -1,35 +1,8 @@
-schema_version: "1.0"
-required_fields:
-  - id
-  - title
-  - priority
-  - supervisor
-  - executor
-  - mode
-  - scope
-  - steps
-  - evidence_required
-  - output
-task_template:
-  id: "OC-000"
-  title: "Task title"
-  priority: "P0"
-  supervisor: "ChatGPT"
-  executor: "OpenClaw Cloud Agent"
-  mode: "evidence_only"
-  scope:
-    repository: "owner/repo"
-    urls: []
-    files: []
-    workflows: []
-  steps:
-    - "Step 1"
-    - "Step 2"
-  evidence_required:
-    - "UTC timestamp"
-    - "git sha"
-    - "status PASS|FAIL|BLOCKED"
-    - "exact blocker if blocked"
-  output:
-    report_path: "ops/agent-control/reports/<task>/<UTC_TIMESTAMP>.md"
-    commit_message: "ops(agent): evidence for <task>"
+schema_status: deprecated
+canonical_schema: ops/agent-control/OPENCLAW_TASK_SCHEMA.v1.json
+canonical_runtime: scripts/openclaw-task-runner.mjs
+note: >-
+  This file is retained only as a legacy pointer. Do not use it to create,
+  validate, route, or execute OpenClaw tasks. The JSON Schema above is the
+  authoritative task contract and its task-type enum must remain synchronized
+  with supportedTaskTypes in scripts/lib/openclaw-task-lib.mjs.

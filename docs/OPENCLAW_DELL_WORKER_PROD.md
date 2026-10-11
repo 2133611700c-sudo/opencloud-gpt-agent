@@ -1,12 +1,20 @@
-# OpenClaw Dell Worker (Production)
+# OpenClaw Dell Worker — Optional Legacy/Fallback Worker
 
-## 1) Prerequisites (Windows)
+> **Not the primary production path.** The authoritative production control plane is documented in `ops/agent-control/MOBILE_CLOUD_CONTROL_PLANE.md` and runs on GitHub-hosted Actions from iPhone/ChatGPT + GitHub. This Windows worker is optional only and may remain disabled.
+
+## Primary production path
+
+`iPhone / ChatGPT -> GitHub task + dispatch -> GitHub Actions -> ECC/OpenClaw router -> bounded agents + skills -> core runner -> evidence -> ChatGPT verification`
+
+No Dell/Windows machine is required for this path.
+
+## Optional Dell prerequisites (Windows)
 - Install Git: `winget install --id Git.Git`
 - Install Node LTS: `winget install --id OpenJS.NodeJS.LTS`
 - Install GitHub CLI: `winget install --id GitHub.cli`
 - Optional Codex CLI: `npm install -g @openai/codex`
 
-## 2) Clone and auth
+## Optional clone and auth
 ```powershell
 cd C:\OpenClaw
 git clone https://github.com/2133611700c-sudo/opencloud-gpt-agent.git
@@ -14,13 +22,13 @@ cd opencloud-gpt-agent
 gh auth login
 ```
 
-## 3) Install dependencies
+## Optional install
 ```powershell
 npm ci
 npx playwright install chromium
 ```
 
-## 4) Manual worker run
+## Manual fallback worker run
 ```powershell
 cd C:\OpenClaw\opencloud-gpt-agent
 $env:OPENCLAW_REPO="2133611700c-sudo/opencloud-gpt-agent"
@@ -28,7 +36,9 @@ $env:OPENCLAW_TASK_INBOX_MODE="files+issues"
 node scripts/openclaw-worker.mjs
 ```
 
-## 5) Scheduled Task (24/7)
+## Scheduled fallback worker
+Only configure this if a persistent local worker is intentionally restored. It is not required for normal ChatGPT/mobile dispatch.
+
 Create `C:\OpenClaw\run-openclaw-worker.ps1`:
 ```powershell
 cd C:\OpenClaw\opencloud-gpt-agent
@@ -43,25 +53,16 @@ schtasks /Create /SC MINUTE /MO 15 /TN "OpenClawWorker" /TR "pwsh -NoProfile -Ex
 schtasks /Run /TN "OpenClawWorker"
 ```
 
-## 6) Report and evidence locations
+## Evidence locations
 - Task reports: `ops/agent-control/reports/`
-- Worker heartbeat: `ops/agent-control/reports/openclaw-heartbeat/`
-- Lead collect/audit: `ops/agent-control/reports/job-lead-audit/`
-- Outreach draft: `ops/agent-control/reports/outreach-draft/`
 - Latest summary: `ops/agent-control/reports/openclaw-latest.json`
 - Status log: `ops/agent-control/STATUS.md`
+- Orchestration plans: `ops/agent-control/reports/orchestration/`
 
-## 7) ChatGPT verification flow
-1. ChatGPT creates GitHub issue (`openclaw-task`) or task JSON in `ops/agent-control/tasks/`.
-2. Worker runs `scripts/openclaw-worker.mjs`.
-3. Runner writes report + latest summary.
-4. ChatGPT verifies:
-- status (`PASS|FAIL|BLOCKED|DEGRADED`)
-- `task_id`, `task_type`, `run_id`, `run_url`
-- `report_file` and evidence files
-- `next_action`
+## Verification rule
+No local-worker result is trusted merely because the process ran. ChatGPT must verify the same terminal evidence contract used by the cloud path: status, task/run IDs, report file, artifact/evidence handles, and next action.
 
-## 8) Safe stop
+## Safe stop
 ```powershell
 schtasks /End /TN "OpenClawWorker"
 schtasks /Change /TN "OpenClawWorker" /DISABLE

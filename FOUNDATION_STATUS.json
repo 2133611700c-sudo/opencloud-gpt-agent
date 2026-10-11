@@ -1,7 +1,7 @@
 {
   "phase": 1,
   "name": "foundation",
-  "status": "BUILDING",
+  "status": "TESTING",
   "legacy_main_frozen": true,
   "canonical_spec": "SYSTEM.md"
 }

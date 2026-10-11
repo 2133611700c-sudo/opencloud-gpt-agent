@@ -6,8 +6,8 @@
   "legacy_branch": "main",
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {"status":"PASS","ci_run_id":38149188562,"ci_conclusion":"success"},
-  "current_phase": 5,
-  "current_phase_name": "DeepSeek + Model Accounting",
+  "current_phase": 6,
+  "current_phase_name": "Research Agent + Native Web Search/Fetch",
   "completed_units": [
     {"unit":"core_postgres_schema","status":"PASS","ci_run_id":38152899381},
     {"unit":"deterministic_state_machine","status":"PASS","ci_run_id":38153032460},
@@ -16,30 +16,38 @@
     {"unit":"application_heartbeat_manager","status":"PASS","ci_run_id":38154875398},
     {"unit":"lite_orchestrator_intake","status":"PASS","ci_run_id":38155010163},
     {"unit":"lite_orchestrator_finalizer","status":"PASS","ci_run_id":38155170623},
-    {"unit":"live_prerequisite_presence_check","status":"BLOCKED","ci_run_id":38155306054,"evidence":"At that run, LIVE_DATABASE_URL=MISSING and LIVE_DEEPSEEK_API_KEY=MISSING; values were not printed. Hosted Postgres was later brought live directly in Neon; GitHub Actions DATABASE_URL secret still remains pending."},
     {"unit":"deterministic_model_usage_accounting","status":"PASS","ci_run_id":38155477561},
     {"unit":"exactly_once_model_accounting","status":"PASS","ci_run_id":38155852410},
     {"unit":"openclaw_deepseek_infer_adapter","status":"PASS","ci_run_id":38156265994},
     {"unit":"bounded_deepseek_smoke_process_runner","status":"PASS","ci_run_id":38156463925},
-    {
-      "unit":"pinned_openclaw_deepseek_runtime_wiring",
-      "status":"PASS",
-      "ci_run_id":38157033206,
-      "evidence":"OpenClaw 2026.9.8 installed on Node 24 and version token verified; official @openclaw/deepseek-provider@2026.9.8 installed successfully; 39 Node tests and all PostgreSQL kernel assertions remained green. Live provider call was correctly skipped because DEEPSEEK_API_KEY was not yet stored in GitHub Actions secrets."
-    },
+    {"unit":"pinned_openclaw_deepseek_runtime_wiring","status":"PASS","ci_run_id":38157033206},
     {
       "unit":"hosted_neon_postgres_persistence_and_kernel_smoke",
       "status":"PASS",
-      "evidence":"Existing Neon project little-tree-63040612 was reused safely by creating isolated branch br-odd-forest-a4leyaqj named openclaw-v2 and separate database openclaw_v2. Main branch was not modified. Core schema/migrations 0001-0007 were applied. Verification found 9/9 expected core tables and 14/14 expected core functions. Hosted E2E task 947e17d9-0958-4436-a23f-df4eba8b4a38 passed idempotent intake, Research claim/fencing/heartbeat/completion, dependency release, Data claim/completion, finalizer SUCCESS, and a separate follow-up read returned SUCCESS with current_steps=2, successful_nodes=2, dependencies=1. Connection string/password are intentionally not stored in project files."
+      "evidence":"Existing Neon project little-tree-63040612 reused via isolated branch br-odd-forest-a4leyaqj named openclaw-v2 and separate database openclaw_v2. Migrations 0001-0007 applied. 9/9 core tables and 14/14 functions verified. Hosted Research->Data DB-only E2E reached SUCCESS and a separate read confirmed durable state. Main branch was not modified; credentials are not committed."
+    },
+    {"unit":"research_result_source_contract","status":"PASS","ci_run_id":38159514170},
+    {"unit":"research_evidence_timestamp_hardening","status":"PASS","ci_run_id":38159670726},
+    {"unit":"native_openclaw_research_runtime_policy","status":"PASS","ci_run_id":38159803006},
+    {"unit":"pinned_duckduckgo_plugin_and_official_config_validation","status":"PASS","ci_run_id":38159959702},
+    {"unit":"isolated_openclaw_research_trust_scope","status":"PASS","ci_run_id":38160694918},
+    {
+      "unit":"canonical_research_runner_and_envelope_consolidation",
+      "status":"PASS",
+      "ci_run_id":38161523563,
+      "evidence":"One canonical Research runner and one envelope parser remain. Duplicate runner removed. Research execution is shell-free, bounded by timeout/output limits, redacts credentials, requires a dedicated absolute OPENCLAW_STATE_DIR, sanitizes child environment, requires DeepSeek provider/model attestation, direct code mode, web_search evidence and web_fetch evidence for SUCCESS, and validates strict sourced result JSON. Full Node/Postgres/OpenClaw/plugin/config gates passed."
     }
   ],
   "phase_3_status":"PASS",
   "phase_4_status":"PASS",
+  "phase_5_status":"PARTIAL_EXTERNAL_LIVE_SECRET_GATE_PENDING",
+  "phase_6_status":"IN_PROGRESS",
   "live_capabilities": {
     "hosted_postgres":"LIVE_NEON_PERSISTENCE_E2E_PASS",
     "hosted_postgres_ci_secret":"PENDING_SECURE_GITHUB_ACTIONS_DATABASE_URL_STORAGE",
     "openclaw_deepseek_runtime":"PASS_PINNED_INSTALL_AND_PLUGIN",
-    "deepseek":"SECRET_PROVIDED_IN_CHAT_PENDING_SECURE_GITHUB_ACTIONS_STORAGE_AND_LIVE_SMOKE"
+    "openclaw_native_research_runtime":"PASS_CONTRACT_RUNNER_PLUGIN_AND_CONFIG_VALIDATION",
+    "deepseek_live_inference":"PENDING_SECURE_EXECUTION_SECRET_AND_LIVE_SMOKE"
   },
   "hosted_postgres": {
     "provider":"Neon",
@@ -51,7 +59,7 @@
     "credentials_stored_in_repo":false
   },
   "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
-  "persistence_note":"Hosted persistence is now proven live in Neon on an isolated branch/database. GitHub Actions still cannot use it until DATABASE_URL is stored as a repository secret. No database credential or connection string is committed to GitHub or Library.",
+  "persistence_note":"Hosted persistence is proven live in Neon on an isolated branch/database. GitHub Actions cannot use it until DATABASE_URL is stored as a repository secret. No database credential or connection string is committed to GitHub or Library.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"External secret gate only: authenticate the GitHub browser profile, store DATABASE_URL and the user-provided DeepSeek credential as repository Actions secrets without exposing either value, then trigger CI. Require hosted DB presence plus exactly one real bounded DeepSeek smoke to pass before advancing to the Research Agent/web-search E2E."
+  "next_action":"Build the smallest Kernel-to-Research execution adapter: inspect existing kernel/worker code first, then wire one claimed Research node through heartbeat + budget reservation + canonical runResearchAgent + accounting + fenced complete/fail. Prove it with deterministic tests before any live DeepSeek call or Browser work."
 }

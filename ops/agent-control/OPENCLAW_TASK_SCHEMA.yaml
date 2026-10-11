@@ -1,8 +1,0 @@
-schema_status: deprecated
-canonical_schema: ops/agent-control/OPENCLAW_TASK_SCHEMA.v1.json
-canonical_runtime: scripts/openclaw-task-runner.mjs
-note: >-
-  This file is retained only as a legacy pointer. Do not use it to create,
-  validate, route, or execute OpenClaw tasks. The JSON Schema above is the
-  authoritative task contract and its task-type enum must remain synchronized
-  with supportedTaskTypes in scripts/lib/openclaw-task-lib.mjs.

@@ -1,16 +1,14 @@
 {
-  "name": "opencloud-gpt-agent",
+  "name": "openclaw-v2",
+  "version": "0.1.0",
   "private": true,
-  "version": "1.0.0",
-  "description": "Independent OpenClaw execution layer for ChatGPT",
-  "license": "UNLICENSED",
-  "scripts": {
-    "test": "node --test",
-    "verify:openclaw": "node scripts/verify-openclaw-integration.mjs",
-    "verify:openclaw:acceptance": "node scripts/openclaw-acceptance-verify.mjs"
+  "type": "module",
+  "engines": {
+    "node": ">=22"
   },
-  "devDependencies": {
-    "ajv": "^8.17.1",
-    "playwright": "^1.60.0"
+  "scripts": {
+    "health": "node src/health.mjs",
+    "validate:foundation": "node scripts/validate-foundation.mjs",
+    "test": "node --test"
   }
 }

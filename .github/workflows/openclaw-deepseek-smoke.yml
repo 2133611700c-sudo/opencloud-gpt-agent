@@ -1,0 +1,96 @@
+name: OpenClaw DeepSeek Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "ops/agent-control/deepseek-smoke.request"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: openclaw-deepseek-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deepseek-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_VERSION: "2026.9.8"
+      DEEPSEEK_PLUGIN_VERSION: "2026.9.8"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Require DeepSeek secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${DEEPSEEK_API_KEY:-}" ]; then
+            echo "DEEPSEEK_API_KEY is not configured in GitHub Actions secrets."
+            exit 2
+          fi
+
+      - name: Install pinned OpenClaw
+        run: npm install --global "openclaw@${OPENCLAW_VERSION}"
+
+      - name: Install official DeepSeek provider
+        run: openclaw plugins install "@openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}"
+
+      - name: Verify provider catalog
+        run: openclaw models list --all --provider deepseek
+
+      - name: Run V4.1 Flash thinking smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ops/agent-control/reports/deepseek_health
+          openclaw agent exec \
+            "Return exactly DEEPSEEK_OK after reasoning silently. Do not modify files and do not call tools." \
+            --isolated \
+            --auth-env-only \
+            --model deepseek/deepseek-flash \
+            --fallback deepseek/deepseek-v4-pro \
+            --thinking max \
+            --code-mode direct \
+            --timeout 120 \
+            --json | tee ops/agent-control/reports/deepseek_health/latest.json
+          grep -q "DEEPSEEK_OK" ops/agent-control/reports/deepseek_health/latest.json
+
+      - name: Write smoke report
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p ops/agent-control/reports/deepseek_health
+          cat > ops/agent-control/reports/deepseek_health/latest.md <<EOF
+          # OpenClaw DeepSeek Smoke
+
+          - timestamp_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - openclaw_version: ${OPENCLAW_VERSION}
+          - plugin: @openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}
+          - primary_model: deepseek/deepseek-flash
+          - fallback_model: deepseek/deepseek-v4-pro
+          - thinking: max
+          - secret_value_logged: false
+          - run_url: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          EOF
+
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: openclaw-deepseek-${{ github.run_id }}
+          path: ops/agent-control/reports/deepseek_health/
+          if-no-files-found: warn
+          retention-days: 30

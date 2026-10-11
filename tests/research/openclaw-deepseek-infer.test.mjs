@@ -29,61 +29,50 @@ test('builds a bounded DeepSeek local infer invocation', () => {
   assert.ok(invocation.args.includes('max'));
 });
 
-test('preserves and accepts full cache-aware usage totals', () => {
+test('infer usage keeps cache counters as prompt-detail metadata, not additive total components', () => {
   const parsed = parseDeepSeekInferEnvelope(envelope({
-    input: 80,
+    input: 100,
     output: 20,
-    cacheRead: 30,
+    cacheRead: 25,
     cacheWrite: 5,
-    total: 135,
+    total: 120,
   }), { requestedModel: 'deepseek/deepseek-flash' });
 
   assert.deepEqual(parsed.telemetry.usage, {
-    input: 80,
+    input: 100,
     output: 20,
-    total: 135,
-    cacheRead: 30,
+    total: 120,
+    cacheRead: 25,
     cacheWrite: 5,
   });
   assert.equal(parsed.telemetry.cacheSplitInvented, false);
 });
 
-test('keeps partial usage when unknown cache buckets could explain the total', () => {
+test('infer usage preserves partial cache metadata when input + output matches total', () => {
   const parsed = parseDeepSeekInferEnvelope(envelope({
-    input: 80,
+    input: 100,
     output: 20,
-    total: 130,
+    cacheRead: 25,
+    total: 120,
   }), { requestedModel: 'deepseek/deepseek-flash' });
 
   assert.deepEqual(parsed.telemetry.usage, {
-    input: 80,
+    input: 100,
     output: 20,
-    total: 130,
-    cacheRead: null,
+    total: 120,
+    cacheRead: 25,
     cacheWrite: null,
   });
 });
 
-test('rejects impossible partial usage when known components exceed total', () => {
+test('infer usage rejects a provider total inconsistent with input + output', () => {
   const parsed = parseDeepSeekInferEnvelope(envelope({
-    input: 80,
+    input: 100,
     output: 20,
-    cacheRead: 40,
-    total: 100,
+    cacheRead: 25,
+    total: 145,
   }), { requestedModel: 'deepseek/deepseek-flash' });
 
   assert.equal(parsed.telemetry.usage, null);
   assert.equal(parsed.telemetry.usageFidelity, 'NOT_EXPOSED_BY_ENVELOPE');
-});
-
-test('rejects inconsistent full cache-aware usage totals', () => {
-  const parsed = parseDeepSeekInferEnvelope(envelope({
-    input: 80,
-    output: 20,
-    cacheRead: 30,
-    cacheWrite: 5,
-    total: 100,
-  }), { requestedModel: 'deepseek/deepseek-flash' });
-
-  assert.equal(parsed.telemetry.usage, null);
 });

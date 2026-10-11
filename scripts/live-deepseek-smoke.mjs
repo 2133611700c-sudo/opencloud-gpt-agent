@@ -3,7 +3,7 @@ import { performance } from 'node:perf_hooks';
 
 import { runDeepSeekInferSmoke } from '../src/providers/deepseek-smoke-runner.mjs';
 
-const model = process.env.OPENCLAW_DEEPSEEK_MODEL || 'deepseek/deepseek-v4-flash';
+const model = process.env.OPENCLAW_DEEPSEEK_MODEL || 'deepseek/deepseek-flash';
 const expected = 'smoke-ok';
 const started = performance.now();
 

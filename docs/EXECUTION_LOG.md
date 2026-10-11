@@ -4,7 +4,7 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 
 ## 2026-10-11
 
-Earlier verified phase history remains in Git history and PROJECT_STATE.json. Current continuation records the kernel stabilization gates relevant to the 48h Walking Skeleton.
+Earlier verified phase history remains in Git history and PROJECT_STATE.json. Current continuation records the kernel stabilization and Kernel→Research gates relevant to the 48h Walking Skeleton.
 
 ### Kernel regression recovery — terminal failure composition [PASS]
 - Migration 0009 restored descendant cascade and task finalization while preserving active-lease validation and reservation release.
@@ -30,16 +30,36 @@ Earlier verified phase history remains in Git history and PROJECT_STATE.json. Cu
 - Full CI `38167555303`: SUCCESS.
 
 ### Kernel stabilization — canonical cancellation lifecycle [PASS]
-- Writer migration `0013_task_cancellation.sql`, commit `6a992cf70db026ddac6fec0d5eb04735d0d2adcc`.
-- Reviewer diff confirmed exactly one migration plus one focused test; prior SQL/migrations were not rewritten.
-- `cancel_task()` locks nodes deterministically before task/reservations, releases unresolved reservations, clears active leases, moves all nonterminal nodes and task to `CANCELLED`, and returns FALSE on repeated terminal cancellation.
-- Regression test proves active Research reservation -> RELEASED, Research/Data -> CANCELLED, task/node reserved totals -> zero, no post-cancel claim, and no post-cancel reservation.
-- Verification commit `c29998623f775269cd1b02d0c0f4d8bc664bf9db`.
-- Full CI run `38168598358`: SUCCESS. Node tests, all migrations, PostgreSQL kernel assertions, OpenClaw install, DeepSeek/DuckDuckGo plugin installs, and Research config validation passed.
-- Hosted Neon and live DeepSeek remained SKIPPED because Actions secrets are absent; they are not counted as PASS.
+- Migration 0013 adds canonical cancellation with deterministic node→task→reservation locking, reservation release, lease clearing, terminal idempotency and post-cancel claim/reservation prevention.
+- Verification commit `c29998623f775269cd1b02d0c0f4d8bc664bf9db`; full CI `38168598358`: SUCCESS.
+
+### Kernel→Research execution adapter [PASS]
+- Added deterministic/injectable claimed-Research execution adapter: reserve → heartbeat → Research → accounting → fenced completion/failure.
+- Heartbeat loss aborts execution; success fencing rejection cannot be reported as SUCCESS.
+- Verification commit `e6b770746d21968e6a186859e2760babac92f7da`; full CI `38169102637`: SUCCESS.
+
+### PostgreSQL Kernel adapter [PASS]
+- Added JS bridge to canonical SQL heartbeat, budget reservation/release, success/failure fencing and exactly-once model accounting.
+- Verification commit `fa7d82a37256ef4fbf23aefbf6c5a2124897169c`; full CI `38170249463`: SUCCESS.
+
+### Research↔PostgreSQL Kernel bindings [PASS]
+- Added Research execution binding that uses deterministic reservation key, telemetry-gated accounting and canonical fenced completion/failure.
+- Missing usage/cost telemetry fails closed before SUCCESS.
+- Verification commit `bc377db0500cdb7ad9ed35efb952e2fe5bdf7f71`; full CI `38170407768`: SUCCESS.
+
+### Agent-scoped Kernel claim [PASS]
+- Migration 0014 adds `claim_next_node_for_agent(worker, agent, lease)` so a dedicated Research worker cannot claim a Data node.
+- SQL regression proves dependency-blocked Data is not claimable and Research is claimed only by the requested agent scope.
+- Verification commit `1dd0b1a4a399b2eeef7b33e0b93895607bf408cb`; full CI `38170660200`: SUCCESS.
+
+### Agent-scoped PostgreSQL adapter claim [PASS]
+- PostgreSQL adapter now exposes the agent-scoped SQL claim without weakening the existing generic scheduler API.
+- Focused Node regression verifies exact SQL function and parameters.
+- Verification commit `c851faf358c424aeda573498683d3bea2071250e`; full CI `38170808454`: SUCCESS.
 
 ### Current engineering position
-- Local/CI Kernel stabilization gates required before the execution adapter are green through migration 0013.
-- Hosted Neon must be revalidated through migration 0013.
-- Live DeepSeek remains unproven in current V2 because the execution environment does not expose the secret.
-- Next micro-unit: Kernel-to-Research execution adapter, deterministic/injectable path first. No Browser/Vision/Swarm/Judge/Repair expansion before Walking Skeleton PASS.
+- Local/full CI Kernel→Research contract is green through migration 0014.
+- Diff from prior recorded docs HEAD to `c851faf...` is additive and limited to migration 0014, Kernel/Research adapters/bindings, and focused tests; no historical migration was rewritten.
+- Hosted Neon remains unverified after migrations 0009–0014 because Actions has no `DATABASE_URL` secret.
+- Live DeepSeek remains unverified because Actions has no `DEEPSEEK_API_KEY`; skipped is not PASS.
+- Next micro-unit: local PostgreSQL integration harness proving real SQL claim/reservation/accounting/fenced Research completion releases Data using an injected deterministic Research executor.

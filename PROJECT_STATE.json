@@ -13,38 +13,19 @@
   "current_phase": 4,
   "current_phase_name": "Lite Orchestrator",
   "completed_units": [
+    {"unit":"core_postgres_schema","status":"PASS","ci_run_id":38152899381},
+    {"unit":"deterministic_state_machine","status":"PASS","ci_run_id":38153032460},
+    {"unit":"atomic_lease_and_fencing","status":"PASS","ci_run_id":38153301256},
+    {"unit":"budget_reservation_and_circuit_breakers","status":"PASS","ci_run_id":38154703360},
+    {"unit":"application_heartbeat_manager","status":"PASS","ci_run_id":38154875398},
     {
-      "unit": "core_postgres_schema",
-      "status": "PASS",
-      "ci_run_id": 38152899381,
-      "evidence": "PostgreSQL 16 migration applied and SQL invariants passed"
-    },
-    {
-      "unit": "deterministic_state_machine",
-      "status": "PASS",
-      "ci_run_id": 38153032460,
-      "evidence": "Task/node transition tests, Postgres migration, SQL invariants and health checks passed"
-    },
-    {
-      "unit": "atomic_lease_and_fencing",
-      "status": "PASS",
-      "ci_run_id": 38153301256,
-      "evidence": "Atomic claim/reclaim, fresh fencing tokens, valid heartbeat, stale heartbeat rejection, stale completion rejection, and dependency release after parent SUCCESS passed on PostgreSQL 16"
-    },
-    {
-      "unit": "budget_reservation_and_circuit_breakers",
-      "status": "PASS",
-      "ci_run_id": 38154703360,
-      "evidence": "Idempotent fenced cost/token reservation, oversubscription rejection, reconcile/release, terminal-node no-new-reservation, deadline, total-step and max-attempt breakers passed on PostgreSQL 16"
-    },
-    {
-      "unit": "application_heartbeat_manager",
-      "status": "PASS",
-      "ci_run_id": 38154875398,
-      "evidence": "Independent async renew loop aborts on lease loss/renewal error, prevents overlapping renewals, stops cleanly, and avoids false abort during in-flight shutdown; all SQL gates remain green"
+      "unit":"lite_orchestrator_intake",
+      "status":"PASS",
+      "ci_run_id":38155010163,
+      "evidence":"Repeated request_id returns same task; exactly Research and Data nodes exist; Data depends on Research; mismatched reuse fails closed; scheduler exposes Research first"
     }
   ],
-  "phase_3_status": "PASS",
-  "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action": "Phase 4A only: implement idempotent task intake and deterministic Lite DAG creation for Research -> Data/Result. Prove repeated request_id returns the same task, exactly two canonical nodes exist, and Data depends on Research. Do not implement finalizer/cascade until this gate passes."
+  "phase_3_status":"PASS",
+  "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
+  "next_action":"Phase 4B only: implement task finalizer, terminal failure cascade to descendants, deadline/circuit-breaker closure, and no-runnable-node deadlock detection for the Lite DAG. Prove positive completion and failure termination before advancing to DeepSeek."
 }

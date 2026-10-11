@@ -21,7 +21,9 @@ DECLARE
   v_existing RECORD;
   v_research_id UUID;
   v_data_id UUID;
-  v_node_count INTEGER;
+  v_total_node_count INTEGER;
+  v_research_count INTEGER;
+  v_data_count INTEGER;
   v_dep_count INTEGER;
 BEGIN
   IF p_idempotency_key IS NULL OR length(trim(p_idempotency_key)) = 0 THEN
@@ -126,10 +128,21 @@ BEGIN
     v_task_id := v_existing.id;
   END IF;
 
-  SELECT count(*) INTO v_node_count
+  SELECT count(*) INTO v_total_node_count
+  FROM task_nodes n
+  WHERE n.task_id = v_task_id;
+
+  SELECT count(*) INTO v_research_count
   FROM task_nodes n
   WHERE n.task_id = v_task_id
-    AND n.node_key IN ('research', 'data');
+    AND n.node_key = 'research'
+    AND n.agent_id = 'researcher';
+
+  SELECT count(*) INTO v_data_count
+  FROM task_nodes n
+  WHERE n.task_id = v_task_id
+    AND n.node_key = 'data'
+    AND n.agent_id = 'data';
 
   SELECT count(*) INTO v_dep_count
   FROM task_node_dependencies d
@@ -141,7 +154,10 @@ BEGIN
     AND child.node_key = 'data'
     AND parent.node_key = 'research';
 
-  IF v_node_count <> 2 OR v_dep_count <> 1 THEN
+  IF v_total_node_count <> 2
+     OR v_research_count <> 1
+     OR v_data_count <> 1
+     OR v_dep_count <> 1 THEN
     RAISE EXCEPTION 'canonical lite DAG is missing or corrupted for task %', v_task_id;
   END IF;
 

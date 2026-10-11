@@ -9,6 +9,7 @@ import { PassThrough } from 'node:stream';
 import {
   MissingResearchCredentialError,
   ResearchAgentProcessError,
+  ResearchTrustRootError,
   buildResearchChildEnv,
   runResearchAgent,
 } from '../../src/research/research-agent-runner.mjs';
@@ -59,6 +60,27 @@ test('fails before temp config and spawn when DEEPSEEK_API_KEY is missing', asyn
       (error) => error instanceof MissingResearchCredentialError && error.code === 'MISSING_DEEPSEEK_API_KEY');
     assert.equal(spawned, false); assert.deepEqual(readdirSync(root), []);
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('fails before temp config and spawn when isolated OPENCLAW_STATE_DIR is missing or relative', async () => {
+  for (const stateDir of [undefined, 'relative/openclaw-state']) {
+    const root = isolatedRoot(); let spawned = false;
+    try {
+      const env = { DEEPSEEK_API_KEY: 'test-only-key' };
+      if (stateDir !== undefined) env.OPENCLAW_STATE_DIR = stateDir;
+      await assert.rejects(
+        runResearchAgent({
+          request,
+          env,
+          tempRoot: root,
+          spawnImpl: () => { spawned = true; return makeFakeChild(); },
+        }),
+        (error) => error instanceof ResearchTrustRootError && error.code === 'INVALID_OPENCLAW_STATE_DIR',
+      );
+      assert.equal(spawned, false);
+      assert.deepEqual(readdirSync(root), []);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
 });
 
 test('child env preserves operator plugin root and excludes unrelated credentials', () => {

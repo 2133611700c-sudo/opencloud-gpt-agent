@@ -15,10 +15,20 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Added `PROJECT_START_HERE.md` and `PROJECT_STATE.json` in V2 branch.
 - Persisted canonical 14-phase architecture in `docs/01_MASTER_ARCHITECTURE_AND_ROADMAP.md`.
 - Persisted canonical two-day vertical-slice plan in `docs/02_48H_WALKING_SKELETON.md`.
-- Canonical ChatGPT Library mirror exists at `/OpenClaw-V2-Project`.
+- Added this durable execution log.
+- Canonical ChatGPT Library mirror exists at `/OpenClaw-V2-Project` with START_HERE, master roadmap, 48h plan, current state, and execution log.
+
+### Phase 2 — Persistent State + Durable Kernel
+- Added `migrations/0001_core.sql` with tasks, nodes, normalized same-task DAG dependencies, accounting, artifacts, agent/skill registry schemas, approval requests, budget/token invariants, and lease/fencing fields.
+- Updated V2 CI to boot real PostgreSQL 16, apply the migration, and execute SQL invariants.
+- Added SQL tests proving cross-task dependencies are rejected, duplicate idempotency keys are rejected, and budget oversubscription violates the DB invariant.
+- Schema gate passed in GitHub Actions run `38152899381`.
+- Added deterministic Task/Node state machine in `src/kernel/state.mjs` with terminal-state fail-closed rules and explicit retry/approval transitions.
+- Added state-machine unit tests; current-head CI run `38153032460` passed Node tests, PostgreSQL migration, SQL invariants and health checks.
+- Phase 2 core schema + state-machine units: PASS.
 
 ### Current engineering position
-- Current phase: Phase 2 — Persistent State + Durable Kernel.
-- Next implementation unit: Postgres core schema/migration, then deterministic state-transition contracts.
+- Current phase: Phase 3 — Lease, Fencing, Circuit Breakers.
+- Next implementation unit: atomic `SKIP LOCKED` node claim, unique fencing token, independent heartbeat, stale-worker rejection, then bounded budget reservation/reconciliation.
 - External capabilities still to verify before live E2E: hosted PostgreSQL secret, DeepSeek API key, OpenClaw runtime/provider health, GitHub Actions artifact/dispatch permissions.
 - Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before Walking Skeleton acceptance gates pass.

@@ -66,6 +66,27 @@ test('uses reservation fallback and still completes when cost telemetry is absen
   assert.equal(calls[1][1].reason,'MISSING_COST_TELEMETRY');
 });
 
+test('uses reservation fallback when DeepSeek reports zero cost for nonzero usage', async () => {
+  const calls=[];
+  const zeroCost={...research,telemetry:{...research.telemetry,costUsd:0}};
+  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>zeroCost, heartbeatIntervalMs:60_000 });
+  const out=await execute({claim,request:'q'});
+  assert.equal(out.status,'SUCCESS');
+  assert.deepEqual(calls.map(x=>x[0]),['reserve','fallback','complete']);
+  assert.equal(calls[1][1].reason,'ZERO_COST_WITH_NONZERO_USAGE');
+});
+
+test('accepts exact zero cost only when observed total usage is zero', async () => {
+  const calls=[];
+  const zeroUsage={...research,telemetry:{...research.telemetry,usage:{input:0,output:0,cacheRead:0,cacheWrite:0,total:0},costUsd:0}};
+  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0,tokens:0}), runResearch:async()=>zeroUsage, heartbeatIntervalMs:60_000 });
+  const out=await execute({claim,request:'q'});
+  assert.equal(out.status,'SUCCESS');
+  assert.deepEqual(calls.map(x=>x[0]),['reserve','account','complete']);
+  assert.equal(calls[1][1].actualCostUsd,0);
+  assert.equal(calls[1][1].totalTokens,0);
+});
+
 test('uses reservation fallback rather than inventing cache split', async () => {
   const calls=[];
   const partial={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,total:5,cacheRead:null,cacheWrite:null}}};
@@ -79,6 +100,14 @@ test('uses reservation fallback rather than inventing cache split', async () => 
 test('malformed observed telemetry fails closed instead of using fallback', async () => {
   const calls=[];
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>({...research,telemetry:{...research.telemetry,costUsd:-1}}), heartbeatIntervalMs:60_000 });
+  await assert.rejects(()=>execute({claim,request:'q'}),e=>e.code==='COST_TELEMETRY_INVALID');
+  assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);
+});
+
+test('malformed cost telemetry is not masked by missing cache split', async () => {
+  const calls=[];
+  const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,total:5,cacheRead:null,cacheWrite:null},costUsd:-1}};
+  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>invalid, heartbeatIntervalMs:60_000 });
   await assert.rejects(()=>execute({claim,request:'q'}),e=>e.code==='COST_TELEMETRY_INVALID');
   assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);
 });

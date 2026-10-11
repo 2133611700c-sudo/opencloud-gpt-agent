@@ -36,6 +36,13 @@ const requireUsage = (usage) => {
   return usage;
 };
 
+const requireObservedCost = (costUsd) => {
+  if (!Number.isFinite(costUsd) || costUsd < 0) {
+    throw Object.assign(new Error('Research cost telemetry is invalid'), { code: 'COST_TELEMETRY_INVALID' });
+  }
+  return costUsd;
+};
+
 const latencyMsFor = (research) => {
   const value = research?.process?.latencyMs ?? research?.telemetry?.toolSummary?.totalToolTimeMs ?? 0;
   return Number.isSafeInteger(value) && value >= 0 ? value : 0;
@@ -68,9 +75,11 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
         const missingUsage = rawUsage == null;
         const missingCost = rawCostUsd == null;
         const usage = missingUsage ? null : requireUsage(rawUsage);
+        const observedCostUsd = missingCost ? null : requireObservedCost(rawCostUsd);
         const missingCacheSplit = usage != null && (usage.cacheRead == null || usage.cacheWrite == null);
+        const zeroCostWithUsage = usage != null && usage.total > 0 && observedCostUsd === 0;
 
-        if (missingUsage || missingCost || missingCacheSplit) {
+        if (missingUsage || missingCost || missingCacheSplit || zeroCostWithUsage) {
           if (typeof db.recordLlmCallReservationFallback !== 'function') {
             throw Object.assign(new Error('reservation fallback accounting capability is required'), { code: 'ACCOUNTING_FALLBACK_UNAVAILABLE' });
           }
@@ -80,7 +89,9 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
               ? 'MISSING_USAGE_TELEMETRY'
               : missingCost
                 ? 'MISSING_COST_TELEMETRY'
-                : 'MISSING_CACHE_SPLIT_TELEMETRY';
+                : missingCacheSplit
+                  ? 'MISSING_CACHE_SPLIT_TELEMETRY'
+                  : 'ZERO_COST_WITH_NONZERO_USAGE';
           const accounted = await db.recordLlmCallReservationFallback({
             reservationId,
             callKey: reservationKey,
@@ -98,9 +109,6 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           return;
         }
 
-        if (!Number.isFinite(rawCostUsd) || rawCostUsd < 0) {
-          throw Object.assign(new Error('Research cost telemetry is invalid'), { code: 'COST_TELEMETRY_INVALID' });
-        }
         const promptCacheMissTokens = usage.input + usage.cacheWrite;
         const accounted = await db.recordLlmCall({
           reservationId,
@@ -116,7 +124,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           promptCacheMissTokens,
           completionTokens: usage.output,
           totalTokens: usage.total,
-          actualCostUsd: rawCostUsd,
+          actualCostUsd: observedCostUsd,
           latencyMs,
         });
         if (!accounted) throw Object.assign(new Error('model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });

@@ -37,6 +37,11 @@ export function createPostgresKernelAdapter({ query } = {}) {
       return mapClaim(row, workerId);
     },
 
+    async claimNodeForTaskAndAgent({ taskId, workerId, agentId, leaseSeconds = 30 }) {
+      const row = await one(q, 'SELECT * FROM claim_node_for_task_and_agent($1, $2, $3, $4)', [taskId, workerId, agentId, leaseSeconds]);
+      return mapClaim(row, workerId);
+    },
+
     async heartbeat({ nodeId, workerId, leaseToken, leaseSeconds = 30 }) {
       const row = await one(q, 'SELECT heartbeat_node($1, $2, $3, $4) AS accepted', [nodeId, workerId, leaseToken, leaseSeconds]);
       return row?.accepted === true;

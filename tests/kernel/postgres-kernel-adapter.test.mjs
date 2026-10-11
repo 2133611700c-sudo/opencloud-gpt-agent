@@ -26,6 +26,17 @@ test('agent-scoped claim binds worker to requested agent id', async () => {
   assert.deepEqual(db.calls[0].values, ['w', 'researcher', 45]);
 });
 
+test('task-scoped agent claim binds target task, worker and agent exactly', async () => {
+  const db = scripted([{ node_id:'n2', task_id:'task-2', lease_token:'lease-2', agent_id:'data', input_payload:{source:'research'}, attempt:1 }]);
+  const kernel = createPostgresKernelAdapter({ query: db.query });
+  assert.deepEqual(
+    await kernel.claimNodeForTaskAndAgent({ taskId:'task-2', workerId:'data-worker', agentId:'data', leaseSeconds:60 }),
+    { nodeId:'n2', taskId:'task-2', leaseToken:'lease-2', agentId:'data', inputPayload:{source:'research'}, attempt:1, workerId:'data-worker' },
+  );
+  assert.equal(db.calls[0].text, 'SELECT * FROM claim_node_for_task_and_agent($1, $2, $3, $4)');
+  assert.deepEqual(db.calls[0].values, ['task-2', 'data-worker', 'data', 60]);
+});
+
 test('fenced boolean operations fail closed on missing rows', async () => {
   const db = scripted([null, null, null]);
   const kernel = createPostgresKernelAdapter({ query: db.query });

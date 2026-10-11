@@ -60,10 +60,15 @@ test('accepts a sourced DeepSeek research envelope with full usage/cache evidenc
   assert.equal(parsed.telemetry.costUsd, 0.0012);
 });
 
-test('preserves observed cache split and accepts total including cache tokens', () => {
-  const parsed = parse(envelope({ usage: { input: 80, output: 30, cacheRead: 20, cacheWrite: 5, total: 135 } }));
-  assert.deepEqual(parsed.telemetry.usage, { input: 80, output: 30, total: 135, cacheRead: 20, cacheWrite: 5 });
+test('preserves observed cache counters without adding them to total tokens', () => {
+  const parsed = parse(envelope({ usage: { input: 80, output: 30, cacheRead: 20, cacheWrite: 5, total: 110 } }));
+  assert.deepEqual(parsed.telemetry.usage, { input: 80, output: 30, total: 110, cacheRead: 20, cacheWrite: 5 });
   assert.equal(parsed.telemetry.telemetryStatus, 'AVAILABLE_FULL');
+});
+
+test('accepts DeepSeek total=input+output even when cache counters are nonzero', () => {
+  const parsed = parse(envelope({ usage: { input: 100, output: 30, cacheRead: 10, cacheWrite: 0, total: 130 } }));
+  assert.deepEqual(parsed.telemetry.usage, { input: 100, output: 30, total: 130, cacheRead: 10, cacheWrite: 0 });
 });
 
 test('marks usage without cache split as partial instead of inventing zeros', () => {
@@ -82,7 +87,7 @@ test('does not invent usage telemetry when OpenClaw omits it', () => {
 
 test('rejects inconsistent or malformed usage telemetry', () => {
   assert.throws(
-    () => parse(envelope({ usage: { input: 100, output: 30, cacheRead: 10, cacheWrite: 0, total: 130 } })),
+    () => parse(envelope({ usage: { input: 100, output: 30, cacheRead: 10, cacheWrite: 0, total: 140 } })),
     (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'INVALID_TELEMETRY',
   );
   assert.throws(

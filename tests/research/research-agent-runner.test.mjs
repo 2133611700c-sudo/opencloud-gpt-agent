@@ -1,7 +1,7 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { existsSync, mkdtempSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -36,6 +36,9 @@ function makeFakeChild() {
   return child;
 }
 function isolatedRoot() { return mkdtempSync(join(tmpdir(), 'openclaw-v2-runner-test-')); }
+const runnerStateRoot = isolatedRoot();
+after(() => rmSync(runnerStateRoot, { recursive: true, force: true }));
+
 function successfulSpawn(capture, root, envelope = agentEnvelope()) {
   return (executable, args, options) => {
     capture.executable = executable; capture.args = args; capture.options = options;
@@ -50,7 +53,7 @@ function successfulSpawn(capture, root, envelope = agentEnvelope()) {
 }
 const baseEnv = () => ({
   DEEPSEEK_API_KEY: 'test-only-key', PATH: '/usr/bin', HOME: '/home/test',
-  OPENCLAW_STATE_DIR: '/tmp/openclaw-v2-operator-root',
+  OPENCLAW_STATE_DIR: runnerStateRoot,
 });
 
 test('fails before temp config and spawn when DEEPSEEK_API_KEY is missing', async () => {
@@ -83,13 +86,36 @@ test('fails before temp config and spawn when isolated OPENCLAW_STATE_DIR is mis
   }
 });
 
+test('direct runner rejects group/world-accessible trust root before temp config and spawn', async () => {
+  const root = isolatedRoot();
+  const insecureStateRoot = isolatedRoot();
+  let spawned = false;
+  try {
+    chmodSync(insecureStateRoot, 0o755);
+    await assert.rejects(
+      runResearchAgent({
+        request,
+        env: { ...baseEnv(), OPENCLAW_STATE_DIR: insecureStateRoot },
+        tempRoot: root,
+        spawnImpl: () => { spawned = true; return makeFakeChild(); },
+      }),
+      (error) => error instanceof ResearchTrustRootError && error.code === 'INVALID_OPENCLAW_STATE_DIR',
+    );
+    assert.equal(spawned, false);
+    assert.deepEqual(readdirSync(root), []);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(insecureStateRoot, { recursive: true, force: true });
+  }
+});
+
 test('child env preserves operator plugin root and excludes unrelated credentials', () => {
   const env = buildResearchChildEnv({
     ...baseEnv(), DATABASE_URL: 'postgres://must-not-leak', GITHUB_TOKEN: 'must-not-leak', AWS_SECRET_ACCESS_KEY: 'must-not-leak',
   });
   assert.equal(env.PATH, '/usr/bin'); assert.equal(env.HOME, '/home/test');
   assert.equal(env.DEEPSEEK_API_KEY, 'test-only-key');
-  assert.equal(env.OPENCLAW_STATE_DIR, '/tmp/openclaw-v2-operator-root');
+  assert.equal(env.OPENCLAW_STATE_DIR, runnerStateRoot);
   assert.equal(env.OPENCLAW_CONFIG_READONLY, '1'); assert.equal(env.OPENCLAW_EXEC_SHELL_SNAPSHOT, '0');
   assert.equal('OPENCLAW_CONFIG_PATH' in env, false);
   assert.equal('DATABASE_URL' in env, false); assert.equal('GITHUB_TOKEN' in env, false); assert.equal('AWS_SECRET_ACCESS_KEY' in env, false);
@@ -104,7 +130,7 @@ test('runs shell-free with pinned 0600 config and native ephemeral OpenClaw run 
     });
     assert.equal(capture.executable, 'openclaw'); assert.equal(capture.options.shell, false);
     assert.deepEqual(capture.options.stdio, ['pipe', 'pipe', 'pipe']);
-    assert.equal(capture.options.env.OPENCLAW_STATE_DIR, '/tmp/openclaw-v2-operator-root');
+    assert.equal(capture.options.env.OPENCLAW_STATE_DIR, runnerStateRoot);
     assert.equal('DATABASE_URL' in capture.options.env, false);
     assert.equal(capture.args.includes('--state-dir'), false); assert.equal(capture.args.includes('--auth-env-only'), false);
     assert.equal(capture.args[capture.args.indexOf('--code-mode') + 1], 'direct');

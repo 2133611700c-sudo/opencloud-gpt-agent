@@ -9,6 +9,7 @@ import {
   buildResearchOpenClawConfig,
 } from './openclaw-research-runtime.mjs';
 import { parseResearchAgentEnvelope } from './research-agent-envelope.mjs';
+import { isSecureResearchStateDir } from './research-trust-root.mjs';
 
 const SAFE_ENV_KEYS = Object.freeze([
   'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ',
@@ -26,7 +27,7 @@ export class MissingResearchCredentialError extends Error {
 
 export class ResearchTrustRootError extends Error {
   constructor() {
-    super('OPENCLAW_STATE_DIR must be an absolute isolated trust root');
+    super('OPENCLAW_STATE_DIR must be an existing private non-symlink absolute directory');
     this.name = 'ResearchTrustRootError';
     this.code = 'INVALID_OPENCLAW_STATE_DIR';
   }
@@ -88,6 +89,7 @@ export async function runResearchAgent({
 } = {}) {
   const apiKey = env?.DEEPSEEK_API_KEY;
   if (typeof apiKey !== 'string' || apiKey.trim() === '') throw new MissingResearchCredentialError();
+  if (!isSecureResearchStateDir(env?.OPENCLAW_STATE_DIR)) throw new ResearchTrustRootError();
 
   positiveInteger(timeoutMs, 'timeoutMs', 300_000);
   positiveInteger(maxStdoutBytes, 'maxStdoutBytes', 10_000_000);

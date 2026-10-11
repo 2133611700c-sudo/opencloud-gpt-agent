@@ -27,8 +27,16 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Added state-machine unit tests; current-head CI run `38153032460` passed Node tests, PostgreSQL migration, SQL invariants and health checks.
 - Phase 2 core schema + state-machine units: PASS.
 
+### Phase 3 — Lease, Fencing, Circuit Breakers [IN PROGRESS]
+- Added `migrations/0002_lease_fencing.sql` implementing atomic `SKIP LOCKED` claim, unique fencing token per claim/reclaim, heartbeat renewal, fenced SUCCESS completion, and fenced retry requeue.
+- Added `tests/sql/0002_lease_fencing_test.sql` covering active-lease exclusion, heartbeat token validation, expired-lease reclaim, new fencing token, attempt increment, stale heartbeat rejection, stale completion rejection, and release of a dependent node only after parent SUCCESS.
+- First integrated CI run `38153199152` correctly failed on a real PL/pgSQL ambiguity: unqualified `attempt = attempt + 1` conflicted with the function return-column variable.
+- Fixed the defect by qualifying mutable table columns and all fenced predicates.
+- Verification run `38153301256` passed all Node tests, both PostgreSQL migrations, core schema assertions, lease/fencing assertions, and health checks.
+- Atomic lease/fencing DB contract: PASS.
+
 ### Current engineering position
 - Current phase: Phase 3 — Lease, Fencing, Circuit Breakers.
-- Next implementation unit: atomic `SKIP LOCKED` node claim, unique fencing token, independent heartbeat, stale-worker rejection, then bounded budget reservation/reconciliation.
+- Next implementation unit: atomic budget/token reservation + reconciliation, then explicit tests for budget, deadline, total-step and max-attempt circuit breakers; after that, application-level asynchronous heartbeat manager over the proven DB contract.
 - External capabilities still to verify before live E2E: hosted PostgreSQL secret, DeepSeek API key, OpenClaw runtime/provider health, GitHub Actions artifact/dispatch permissions.
 - Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before Walking Skeleton acceptance gates pass.

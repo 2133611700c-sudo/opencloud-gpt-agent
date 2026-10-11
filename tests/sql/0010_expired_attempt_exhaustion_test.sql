@@ -31,7 +31,7 @@ BEGIN
   );
 
   SELECT * INTO v_research FROM claim_next_node('worker-max-attempts', 30);
-  IF NOT FOUND OR v_research.agent_id <> 'research' THEN
+  IF NOT FOUND OR v_research.agent_id <> 'researcher' THEN
     RAISE EXCEPTION 'research node was not claimed';
   END IF;
 

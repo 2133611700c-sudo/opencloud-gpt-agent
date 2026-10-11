@@ -44,7 +44,7 @@ Earlier verified phase history remains in Git history and PROJECT_STATE.json. Cu
 
 ### Research↔PostgreSQL Kernel bindings [PASS]
 - Added Research execution binding that uses deterministic reservation key, telemetry-gated accounting and canonical fenced completion/failure.
-- Missing usage/cost telemetry fails closed before SUCCESS.
+- This entry was later superseded by the verified reservation-fallback repair below: missing provider telemetry is now conservatively accounted instead of terminally failing Research.
 - Verification commit `bc377db0500cdb7ad9ed35efb952e2fe5bdf7f71`; full CI `38170407768`: SUCCESS.
 
 ### Agent-scoped Kernel claim [PASS]
@@ -57,9 +57,46 @@ Earlier verified phase history remains in Git history and PROJECT_STATE.json. Cu
 - Focused Node regression verifies exact SQL function and parameters.
 - Verification commit `c851faf358c424aeda573498683d3bea2071250e`; full CI `38170808454`: SUCCESS.
 
+### Research UUID fencing fixture repair + PostgreSQL integration harness [PASS]
+- Two stale Node-test fixtures still used integer `leaseToken: 1` after the production adapter correctly required UUID fencing tokens.
+- Commit `a5d2210e72cc88250b634aa8d21a74f1d7867107` aligned the fixtures/call key with the real UUID contract.
+- Full CI `38173071765`: SUCCESS, including Node tests, migrations, SQL assertions and `research-postgres-kernel-e2e`.
+- The deterministic PostgreSQL harness proves Research claim → reserve → injected Research → accounting → fenced Research SUCCESS → Data becomes claimable. It is a Kernel integration test, not a live DeepSeek/web Walking Skeleton E2E.
+
+### Research telemetry/accounting contract repair [PASS]
+- Existing SQL `record_llm_call_reservation_fallback()` was wired through the PostgreSQL adapter and Research bindings.
+- Missing usage and/or cost telemetry now charges the full reservation ceiling with explicit `RESERVATION_FALLBACK` basis; malformed observed telemetry still fails closed.
+- Commit `5633a63b26dce6f46c9761fd619fa6ecca111a61`; full CI `38173723528`: SUCCESS.
+
+### Hosted Neon catch-up and Kernel smoke [PASS: direct Neon verification]
+- Isolated `openclaw-v2` Neon branch was verified directly and brought through migrations 0009–0014 semantics.
+- Hosted SQL smoke proved Research → reservation → accounting → fenced Research SUCCESS → Data claim/completion → task finalizer SUCCESS.
+- This direct Neon verification is independent of GitHub Actions; the Actions hosted-Neon step remains conditional on a `DATABASE_URL` secret.
+
+### Hosted reservation-fallback accounting [PASS: direct Neon verification]
+- Direct inspection found hosted Neon missing the historical accounting-fallback function/columns even though later Kernel migrations were present.
+- The fallback schema was first applied and tested on a safety child branch, then applied to `openclaw-v2`.
+- Hosted fallback smoke result: task `SUCCESS`; accounting basis `RESERVATION_FALLBACK`; charged cost `$0.010000`; charged tokens `100`; reservation basis `RESERVATION_FALLBACK`; reservation status `RECONCILED`.
+
+### Canonical accounting-fallback migration ordering [PASS]
+- Repository contained two migrations with prefix `0008`: active-lease hardening and accounting fallback.
+- Historical accounting fallback was moved to canonical idempotent migration `0015_accounting_fallback.sql`; the duplicate `0008_accounting_fallback.sql` path was removed.
+- Commit `c3597f38fbefe65f78a454e91153a9d49f1297c2`; full CI `38175260212`: SUCCESS.
+
+### Hosted accounting-fallback schema gate [PASS]
+- Hosted persistence gate now requires `record_llm_call_reservation_fallback` plus all four accounting/reconciliation basis/note columns, so this schema drift cannot be silently classified healthy when `DATABASE_URL` is configured.
+- Commit `9398529650a8aff401c0223bd02233fd591f7efd`; full CI `38175402188`: SUCCESS.
+- In that run the hosted Neon step was still SKIPPED because Actions has no `DATABASE_URL`; skipped is not a live hosted PASS.
+
+### PROJECT_STATE truth repair [PASS]
+- Removed the stale empty `known_gaps` state and old `c851faf...` continuation point.
+- Recorded current verified head, direct Neon proof, accounting fallback repairs, and the still-open live DeepSeek/web/Data/evidence/phone gaps.
+- Commit `376e30571e56407298e5fddcb86f18654b0271f0`; full CI `38175591266`: SUCCESS.
+
 ### Current engineering position
-- Local/full CI Kernel→Research contract is green through migration 0014.
-- Diff from prior recorded docs HEAD to `c851faf...` is additive and limited to migration 0014, Kernel/Research adapters/bindings, and focused tests; no historical migration was rewritten.
-- Hosted Neon remains unverified after migrations 0009–0014 because Actions has no `DATABASE_URL` secret.
-- Live DeepSeek remains unverified because Actions has no `DEEPSEEK_API_KEY`; skipped is not PASS.
-- Next micro-unit: local PostgreSQL integration harness proving real SQL claim/reservation/accounting/fenced Research completion releases Data using an injected deterministic Research executor.
+- Local/full CI is green through canonical migration 0015 and the PostgreSQL Research integration harness.
+- Hosted Neon `openclaw-v2` is directly verified through the current Kernel schema and reservation-fallback accounting path.
+- GitHub Actions still lacks `DATABASE_URL`, so the conditional hosted schema gate is SKIPPED even though direct Neon verification is PASS.
+- GitHub Actions still lacks `DEEPSEEK_API_KEY`; live DeepSeek smoke and the real Kernel→DeepSeek→web vertical remain unproven.
+- Data/Result runtime, durable evidence bundle, and phone short-result/deep-log path are not built yet.
+- Governance defect still open at this exact point: `SYSTEM.md` describes 12 delivery phases while `docs/01_MASTER_ARCHITECTURE_AND_ROADMAP.md` defines 14. The next micro-unit is to align `SYSTEM.md` to the 14-phase canonical roadmap, then run full CI before production wiring.

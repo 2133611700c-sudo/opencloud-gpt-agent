@@ -115,6 +115,7 @@ export function buildResearchAgentExecInvocation({
       '--config', configPath,
       '--model', model,
       '--auth-env-only',
+      '--code-mode', 'direct',
       '--thinking', 'off',
       '--timeout', String(timeoutSeconds),
       '--json',

@@ -73,6 +73,11 @@ export async function runResearchAgent({
     await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
     await chmod(configPath, 0o600);
 
+    // The signal may have fired while the async filesystem setup above was in flight.
+    if (signal?.aborted) {
+      throw new ResearchAgentProcessError('Research agent aborted during setup', { code: 'ABORTED' });
+    }
+
     const invocation = buildResearchAgentExecInvocation({
       request,
       configPath,
@@ -130,6 +135,11 @@ export async function runResearchAgent({
       }, timeoutMs);
 
       signal?.addEventListener('abort', onAbort, { once: true });
+      // Abort may have happened immediately before or while the listener was attached.
+      if (signal?.aborted) {
+        onAbort();
+        return;
+      }
 
       try {
         child = spawnImpl(invocation.executable, [...invocation.args], {

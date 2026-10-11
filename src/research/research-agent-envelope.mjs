@@ -62,6 +62,9 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
   if (envelope.model !== expectedModel && envelope.model !== requestedModel) {
     fail(`unexpected model: ${String(envelope.model)}`, 'MODEL_MISMATCH');
   }
+  if (envelope.codeModeEngaged !== false) {
+    fail('research run did not prove direct code mode', 'CODE_MODE_NOT_DIRECT');
+  }
   if (typeof envelope.final !== 'string' || envelope.final.trim() === '') {
     fail('OpenClaw agent final output is empty', 'EMPTY_AGENT_FINAL');
   }

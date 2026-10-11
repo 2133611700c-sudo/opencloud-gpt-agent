@@ -35,7 +35,13 @@
       "unit":"canonical_research_runner_and_envelope_consolidation",
       "status":"PASS",
       "ci_run_id":38161523563,
-      "evidence":"One canonical Research runner and one envelope parser remain. Duplicate runner removed. Research execution is shell-free, bounded by timeout/output limits, redacts credentials, requires a dedicated absolute OPENCLAW_STATE_DIR, sanitizes child environment, requires DeepSeek provider/model attestation, direct code mode, web_search evidence and web_fetch evidence for SUCCESS, and validates strict sourced result JSON. Full Node/Postgres/OpenClaw/plugin/config gates passed."
+      "evidence":"One canonical Research runner and one envelope parser remain. Duplicate runner removed. Research execution is shell-free, bounded by timeout/output limits, redacts credentials, sanitizes child environment, requires DeepSeek provider/model attestation, direct code mode, web_search evidence and web_fetch evidence for SUCCESS, and validates strict sourced result JSON. Full Node/Postgres/OpenClaw/plugin/config gates passed."
+    },
+    {
+      "unit":"research_trust_root_fail_closed_gate",
+      "status":"PASS",
+      "ci_run_id":38161772567,
+      "evidence":"Research runner now requires a dedicated absolute OPENCLAW_STATE_DIR before any temp config creation or process spawn. Missing or relative roots fail with typed INVALID_OPENCLAW_STATE_DIR. Tests prove no spawn/temp side effects on rejection. Full Node/Postgres/OpenClaw/DeepSeek-plugin/DuckDuckGo-plugin/config-validation gates remained green."
     }
   ],
   "phase_3_status":"PASS",
@@ -46,7 +52,7 @@
     "hosted_postgres":"LIVE_NEON_PERSISTENCE_E2E_PASS",
     "hosted_postgres_ci_secret":"PENDING_SECURE_GITHUB_ACTIONS_DATABASE_URL_STORAGE",
     "openclaw_deepseek_runtime":"PASS_PINNED_INSTALL_AND_PLUGIN",
-    "openclaw_native_research_runtime":"PASS_CONTRACT_RUNNER_PLUGIN_AND_CONFIG_VALIDATION",
+    "openclaw_native_research_runtime":"PASS_CONTRACT_RUNNER_PLUGIN_CONFIG_AND_TRUST_ROOT",
     "deepseek_live_inference":"PENDING_SECURE_EXECUTION_SECRET_AND_LIVE_SMOKE"
   },
   "hosted_postgres": {
@@ -61,5 +67,5 @@
   "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
   "persistence_note":"Hosted persistence is proven live in Neon on an isolated branch/database. GitHub Actions cannot use it until DATABASE_URL is stored as a repository secret. No database credential or connection string is committed to GitHub or Library.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Build the smallest Kernel-to-Research execution adapter: inspect existing kernel/worker code first, then wire one claimed Research node through heartbeat + budget reservation + canonical runResearchAgent + accounting + fenced complete/fail. Prove it with deterministic tests before any live DeepSeek call or Browser work."
+  "next_action":"Build the smallest Kernel-to-Research execution adapter with an injected runner first: one already-claimed Research lease -> budget reservation -> LeaseHeartbeatManager -> injected Research runner -> exactly-once accounting -> fenced complete/fail/release. Prove call ordering, lease-loss abort, budget refusal, accounting failure and runner failure deterministically before wiring the real runResearchAgent or any Browser work."
 }

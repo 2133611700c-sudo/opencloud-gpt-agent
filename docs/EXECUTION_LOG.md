@@ -31,18 +31,27 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 ### Phase 5 — DeepSeek + Model Accounting [IN PROGRESS]
 - Safe secret-presence run `38155306054` reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`; no secret values were exposed.
 - Hosted persistent Postgres remains BLOCKED until `DATABASE_URL` exists and persistence smoke passes.
-- Live DeepSeek/OpenClaw inference remains BLOCKED until `DEEPSEEK_API_KEY` exists and provider smoke passes.
 - Deterministic model-usage accounting passed in run `38155477561`.
 - Exactly-once model accounting + crash reservation recovery passed in run `38155852410`.
-- Re-verified current official OpenClaw docs before implementing provider integration. The narrow provider/model/auth smoke is `openclaw infer model run --local --model <provider/model> --prompt ... --json`; it does not start an agent turn or load tools. Official DeepSeek provider id is `deepseek`, credential env is `DEEPSEEK_API_KEY`, plugin is `@openclaw/deepseek-provider`.
-- Added `src/providers/openclaw-deepseek-infer.mjs` as a deterministic provider adapter: validates full `deepseek/<model>` refs, builds shell-free argv for local infer, validates JSON capability/transport/provider/model/output, and labels optional usage/cost telemetry without inventing cache split.
-- Added adapter tests for argv isolation, provider/model mismatch, failed envelope, empty output, optional observed telemetry, and malformed telemetry.
-- Initial adapter run `38156200874` failed because malformed usage with one valid field was still accepted as partial telemetry.
-- Tightened parser so any malformed known usage field or inconsistent input/output/total invalidates the whole usage object; no partial financial trust.
-- Verification run `38156265994` passed Node tests, all PostgreSQL migrations/assertions, health, and prior gates.
-- OpenClaw DeepSeek infer adapter contract: PASS. Live DeepSeek remains BLOCKED because `DEEPSEEK_API_KEY` is absent.
+- Re-verified current official OpenClaw docs before provider integration. Narrow provider smoke uses `openclaw infer model run --local`; official provider id is `deepseek`, credential env is `DEEPSEEK_API_KEY`, plugin is `@openclaw/deepseek-provider`.
+- Added deterministic adapter `src/providers/openclaw-deepseek-infer.mjs`. Initial run `38156200874` found overly permissive malformed-usage telemetry handling; parser was tightened to fail closed. Verification run `38156265994`: PASS.
+- Added bounded process runner `src/providers/deepseek-smoke-runner.mjs`: missing-secret fail-fast, `shell:false`, stdout/stderr byte limits, timeout, AbortSignal kill, typed errors, exact secret/sk-token redaction, invalid success fail-closed. Run `38156463925`: PASS with all prior gates green.
+- Added `scripts/live-deepseek-smoke.mjs` for one real provider-level smoke. It accepts only exact `smoke-ok` and emits safe evidence: provider/model/transport, wall latency, output SHA-256 and telemetry fidelity flags; it does not dump prompt/output or credentials.
+- Extended V2 CI to install pinned OpenClaw and official DeepSeek provider before live smoke. First wiring run `38156864987` failed only because version assertion expected bare `2026.9.8`, while the CLI correctly returned `OpenClaw 2026.9.8 (fc23bc8)`.
+- Version gate was fixed to validate the parsed version token and npm install now uses the official `--allow-scripts=openclaw` form.
+- Verification run `38157033206`: PASS. OpenClaw `2026.9.8` installed successfully on Node 24; `@openclaw/deepseek-provider@2026.9.8` installed successfully; 39 Node tests and all PostgreSQL assertions remained green.
+- Live DeepSeek smoke in run `38157033206` was correctly SKIPPED because repository Actions secret `DEEPSEEK_API_KEY` is still absent. No live inference claim is made.
+
+### ECC review lanes selected for the current engineering stage
+- `agentic-engineering`
+- `security-review`
+- `agent-security-hardening`
+- `verification-loop`
+- `postgres-patterns`
+These are being used as independent review/check lanes. They are not described as separate running agents until the real Agent Runtime is implemented.
 
 ### Current engineering position
-- Next unit: executable DeepSeek smoke runner around the proven adapter: fail-fast missing secret, bounded stdout/stderr, timeout/abort, no shell, deterministic mocked-process tests.
-- Live hosted Postgres/DeepSeek smoke remains pending `DATABASE_URL` and `DEEPSEEK_API_KEY`.
-- Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before the Walking Skeleton live research path passes.
+- Next gate only: securely store the user-provided credential as GitHub Actions secret `DEEPSEEK_API_KEY` via an authenticated GitHub browser session, then execute exactly one bounded live provider smoke and inspect safe evidence.
+- GitHub connector itself cannot write repository secrets; browser authentication is required for this external setting.
+- Hosted PostgreSQL remains blocked pending a secure `DATABASE_URL`; Neon plugin was suggested as the preferred hosted Postgres path.
+- Do not advance to Research Agent, browser, vision, swarm, judge, repair or bulk 71/311 migration before the live provider gate passes.

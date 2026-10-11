@@ -24,6 +24,14 @@ export class MissingResearchCredentialError extends Error {
   }
 }
 
+export class ResearchTrustRootError extends Error {
+  constructor() {
+    super('OPENCLAW_STATE_DIR must be an absolute isolated trust root');
+    this.name = 'ResearchTrustRootError';
+    this.code = 'INVALID_OPENCLAW_STATE_DIR';
+  }
+}
+
 export class ResearchAgentProcessError extends Error {
   constructor(message, { code = 'RESEARCH_AGENT_PROCESS_ERROR', exitCode = null, signal = null, cause } = {}) {
     super(message, cause ? { cause } : undefined);
@@ -48,7 +56,7 @@ const researchTimeoutSeconds = (timeoutMs) => {
 const requireStateDir = (env) => {
   const stateDir = env?.OPENCLAW_STATE_DIR;
   if (typeof stateDir !== 'string' || stateDir.trim() === '' || !isAbsolute(stateDir)) {
-    throw new TypeError('OPENCLAW_STATE_DIR must be an absolute isolated trust root');
+    throw new ResearchTrustRootError();
   }
   return stateDir;
 };

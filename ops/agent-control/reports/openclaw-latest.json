@@ -1,19 +1,50 @@
 {
   "schema_version": 1,
-  "task_id": "OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2",
-  "task_type": "virtual_browser_audit",
-  "task_file": "ops/agent-control/tasks/OC-SAMES-RAM3500-LINK-AUDIT-20261004-R2.json",
-  "status": "FAIL",
+  "task_id": "OC-CHATGPT-INTEGRATION-HEARTBEAT",
+  "task_type": "heartbeat",
+  "task_file": "ops/agent-control/tasks/OC-CHATGPT-INTEGRATION-HEARTBEAT.json",
+  "status": "PASS",
   "expected_status": "PASS",
-  "timestamp_utc": "2026-10-05T02:00:24.331Z",
-  "run_id": "37253611954",
-  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/37253611954",
-  "git_sha": "cb19b57d38a196b6e8741d30a8c8fb5c41de8915",
+  "timestamp_utc": "2026-10-11T14:07:56.293Z",
+  "run_id": "38145904311",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/38145904311",
+  "git_sha": "5585e895909da358bc48b59390aa3ee243b0968c",
   "actor": "2133611700c-sudo",
-  "report_file": "ops/agent-control/reports/virtual_browser_audit/20261005T020024Z.md",
-  "artifact_name": "openclaw-37253611954-0",
-  "dedupe_key": "virtual_browser_audit:execution_error",
-  "error": "Error: Command failed: node scripts/openclaw-virtual-browser-audit.mjs\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at checkExecSyncError (node:child_process:916:11)\n    at execFileSync (node:child_process:952:15)\n    at runBrowserAudit (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:237:7)\n    at main (file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:609:21)\n    at file:///home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/scripts/openclaw-task-runner.mjs:719:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)",
-  "evidence_commit_sha": "02ce619303fd684cb385c808f60140afc2a19518",
-  "dispatch_file": ""
+  "report_file": "ops/agent-control/reports/heartbeat/20261011T140756Z.md",
+  "artifact_name": "openclaw-mobile-38145904311",
+  "dedupe_key": "heartbeat:pass",
+  "error": null,
+  "evidence_commit_sha": "71251ecbc9717df5a0cebd8b79c453433afdb018",
+  "dispatch_file": "ops/agent-control/dispatch/20261011-mobile-cloud-heartbeat-r2.json",
+  "dispatch_report_file": "ops/agent-control/reports/dispatch/20261011T140756Z.md",
+  "orchestration_plan_file": "ops/agent-control/reports/orchestration/20261011T140756Z-OC-CHATGPT-INTEGRATION-HEARTBEAT.json",
+  "orchestration_model": {
+    "primary": "deepseek/deepseek-flash",
+    "fallbacks": [
+      "deepseek/deepseek-v4-pro"
+    ],
+    "reasoning_effort": "low",
+    "context_window": 1000000,
+    "max_output_tokens": 384000
+  },
+  "orchestration_agents": [
+    "chief-of-staff",
+    "planner",
+    "agent-evaluator"
+  ],
+  "orchestration_skills": [
+    "agent-harness-construction",
+    "agent-security-hardening",
+    "verification-loop",
+    "agent-self-evaluation",
+    "plan-orchestrate",
+    "team-agent-orchestration",
+    "parallel-execution-optimizer",
+    "agentic-engineering",
+    "repo-scan",
+    "github-ops",
+    "continuous-learning-v2",
+    "skill-comply"
+  ],
+  "orchestration_execution_rule": "PLAN_BUILD_JUDGE"
 }

@@ -47,7 +47,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
-      - name: Apply core PostgreSQL migration
-        run: psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f migrations/0001_core.sql
-      - name: Assert core PostgreSQL invariants
-        run: psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f tests/sql/0001_core_schema_test.sql
+      - name: Apply PostgreSQL migrations
+        run: |
+          set -euo pipefail
+          for migration in migrations/*.sql; do
+            echo "Applying ${migration}"
+            psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f "${migration}"
+          done
+      - name: Run PostgreSQL kernel assertions
+        run: |
+          set -euo pipefail
+          for test_sql in tests/sql/*.sql; do
+            echo "Running ${test_sql}"
+            psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f "${test_sql}"
+          done

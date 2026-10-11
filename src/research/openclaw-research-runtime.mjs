@@ -1,6 +1,6 @@
 import { normalizeResearchRequest } from './research-contract.mjs';
 
-const DEFAULT_MODEL = 'deepseek/deepseek-v4-flash';
+const DEFAULT_MODEL = 'deepseek/deepseek-flash';
 const MODEL_RE = /^deepseek\/[A-Za-z0-9._:-]+$/;
 
 const boundedInteger = (value, field, min, max) => {

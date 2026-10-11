@@ -66,11 +66,21 @@ const claimableCount = async (query, agentId) => {
 const cancelFailedGateTask = async (query, taskId, originalError) => {
   const originalCode = typeof originalError?.code === 'string' ? originalError.code : 'LIVE_GATE_FAILED';
   try {
-    await query(
+    const cleanup = await query(
       'SELECT cancel_task($1,$2,$3::jsonb) AS cancelled',
       [taskId, 'LIVE_GATE_FAILED', JSON.stringify({ gate: 'research-live-kernel', originalCode })],
     );
+    if (cleanup?.rows?.[0]?.cancelled !== true) {
+      throw gateError(
+        `live gate failed with ${originalCode} and task cleanup was rejected`,
+        'LIVE_GATE_CLEANUP_FAILED',
+        { originalCode },
+      );
+    }
   } catch (cleanupError) {
+    if (cleanupError?.code === 'LIVE_GATE_CLEANUP_FAILED' && cleanupError?.originalCode === originalCode) {
+      throw cleanupError;
+    }
     throw gateError(
       `live gate failed with ${originalCode} and task cleanup failed`,
       'LIVE_GATE_CLEANUP_FAILED',

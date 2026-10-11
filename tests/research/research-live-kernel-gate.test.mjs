@@ -27,7 +27,7 @@ const liveResearch = {
   },
 };
 
-const makeQuery = ({ isolated = true, cleanupFails = false } = {}) => {
+const makeQuery = ({ isolated = true, cleanupFails = false, cleanupRejected = false } = {}) => {
   const calls = [];
   let claimChecks = 0;
   const query = async (text, values = []) => {
@@ -42,7 +42,7 @@ const makeQuery = ({ isolated = true, cleanupFails = false } = {}) => {
     if (text.startsWith('SELECT finalize_task')) return { rows: [{ status: 'SUCCESS' }] };
     if (text.startsWith('SELECT cancel_task')) {
       if (cleanupFails) throw new Error('cleanup unavailable');
-      return { rows: [{ cancelled: true }] };
+      return { rows: [{ cancelled: !cleanupRejected }] };
     }
     throw new Error(`unexpected query: ${text}`);
   };
@@ -173,6 +173,18 @@ test('live gate cancels its created task when a post-create Research assertion f
 
 test('live gate surfaces cleanup failure instead of silently leaving poison state', async () => {
   const db = makeQuery({ cleanupFails: true });
+  const incomplete = structuredClone(liveResearch);
+  incomplete.execution.research.telemetry.toolSummary.tools = ['web_search'];
+  await assert.rejects(() => runLiveResearchKernelGate({
+    query: db.query,
+    worker: { runOnce: async () => incomplete },
+    kernel: { claimNextNodeForAgent: async () => null, completeSuccess: async () => false },
+    idempotencyKey: 'live-test-key',
+  }), (error) => error?.code === 'LIVE_GATE_CLEANUP_FAILED' && error?.originalCode === 'LIVE_WEB_TOOLS_NOT_PROVEN');
+});
+
+test('live gate surfaces cleanup rejection instead of treating cancelled=false as success', async () => {
+  const db = makeQuery({ cleanupRejected: true });
   const incomplete = structuredClone(liveResearch);
   incomplete.execution.research.telemetry.toolSummary.tools = ['web_search'];
   await assert.rejects(() => runLiveResearchKernelGate({

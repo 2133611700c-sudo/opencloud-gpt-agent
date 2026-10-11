@@ -14,6 +14,9 @@ on:
         required: false
         type: string
         default: ""
+    secrets:
+      DEEPSEEK_API_KEY:
+        required: false
   workflow_dispatch:
     inputs:
       task_file:
@@ -38,7 +41,7 @@ concurrency:
 jobs:
   cloud-run:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       TASK_FILE: ${{ inputs.task_file || github.event.inputs.task_file }}
       FORCE_RERUN: ${{ (inputs.force_rerun || false) && 'true' || github.event.inputs.force_rerun || 'false' }}
@@ -47,6 +50,8 @@ jobs:
       OPENCLAW_ARTIFACT_NAME: openclaw-mobile-${{ github.run_id }}
       DEDUPE_WINDOW_MINUTES: "15"
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      OPENCLAW_ADVISOR_VERSION: "2026.10.1"
+      DEEPSEEK_PLUGIN_VERSION: "2026.10.1"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -64,13 +69,47 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium
 
-      - name: Verify router
-        run: node --test tests/openclaw-ecc-router.test.mjs tests/openclaw-task-type-sync.test.mjs tests/openclaw-secret-detection.test.mjs
+      - name: Verify orchestration and advisory boundaries
+        run: node --test tests/openclaw-ecc-router.test.mjs tests/openclaw-task-type-sync.test.mjs tests/openclaw-secret-detection.test.mjs tests/openclaw-deepseek-advisor.test.mjs
 
-      - name: Run routed OpenClaw task
+      - name: Detect DeepSeek configuration
+        id: deepseek_config
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${DEEPSEEK_API_KEY:-}" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install isolated OpenClaw advisor runtime
+        if: steps.deepseek_config.outputs.configured == 'true'
+        continue-on-error: true
+        run: npm install --global "openclaw@${OPENCLAW_ADVISOR_VERSION}"
+
+      - name: Install isolated DeepSeek provider
+        if: steps.deepseek_config.outputs.configured == 'true'
+        continue-on-error: true
+        run: openclaw plugins install "@openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}"
+
+      - name: Run bounded DeepSeek planner advisory
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: node scripts/openclaw-deepseek-advisor.mjs plan
+
+      - name: Run routed OpenClaw task without model secret
         id: run_task
         continue-on-error: true
         run: node scripts/openclaw-cloud-orchestrator.mjs
+
+      - name: Run bounded DeepSeek independent judge advisory
+        if: always()
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: node scripts/openclaw-deepseek-advisor.mjs judge
 
       - name: Upload evidence artifact
         if: always()
@@ -134,7 +173,7 @@ jobs:
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
-      - name: Enforce status
+      - name: Enforce deterministic task status
         if: always()
         shell: bash
         run: |

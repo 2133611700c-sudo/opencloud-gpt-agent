@@ -14,7 +14,7 @@
   "artifact_name": "openclaw-mobile-38146963745",
   "dedupe_key": "heartbeat:pass",
   "error": null,
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "5138e72eba1ad7e5f1a0e80d342bf7c6ed60e783",
   "dispatch_file": "ops/agent-control/dispatch/20261011-mobile-cloud-heartbeat-advisory.json",
   "dispatch_report_file": "ops/agent-control/reports/dispatch/20261011T142347Z.md",
   "orchestration_plan_file": "ops/agent-control/reports/orchestration/20261011T142347Z-OC-CHATGPT-INTEGRATION-HEARTBEAT.json",

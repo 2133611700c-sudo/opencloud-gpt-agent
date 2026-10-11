@@ -13,6 +13,8 @@ const requireFn = (value, name) => {
   return value;
 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const requireClaim = (claim) => {
   if (!claim || typeof claim !== 'object') throw new TypeError('claim must be an object');
   for (const field of ['taskId', 'nodeId', 'workerId']) {
@@ -20,8 +22,8 @@ const requireClaim = (claim) => {
       throw new TypeError(`claim.${field} is required`);
     }
   }
-  if (!Number.isSafeInteger(claim.leaseToken) || claim.leaseToken < 1) {
-    throw new TypeError('claim.leaseToken must be a positive safe integer');
+  if (typeof claim.leaseToken !== 'string' || !UUID_RE.test(claim.leaseToken)) {
+    throw new TypeError('claim.leaseToken must be a UUID fencing token');
   }
   if (claim.agentId !== 'researcher') throw new TypeError('claim.agentId must be researcher');
   return claim;

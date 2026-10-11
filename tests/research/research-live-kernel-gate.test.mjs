@@ -14,8 +14,8 @@ const liveResearch = {
         sources: [{ id: 's1', url: 'https://api-docs.deepseek.com/updates/', checkedAt: '2026-10-11T21:00:00Z' }],
         items: [{
           id: 'model-1',
-          title: 'DeepSeek V4 Flash',
-          data: { modelId: 'deepseek-v4-flash', modelVersion: 'DeepSeek-V4-Flash-0731' },
+          title: 'DeepSeek V4.1 Flash',
+          data: { modelId: 'deepseek-flash', modelVersion: 'DeepSeek-V4.1-Flash' },
           sourceIds: ['s1'],
         }],
       },
@@ -90,7 +90,8 @@ test('live Research gate proves required fields from official DeepSeek source, w
   const createCall = db.calls.find((call) => call.text.startsWith('SELECT * FROM create_lite_research_task'));
   assert.ok(createCall);
   assert.equal(createCall.values[0], 'live-test-key');
-  assert.match(createCall.values[1], /deepseek-v4-flash/);
+  assert.match(createCall.values[1], /deepseek-flash/);
+  assert.doesNotMatch(createCall.values[1], /deepseek-v4-flash/);
   assert.deepEqual(JSON.parse(createCall.values[2]).constraints, { requiredDomains: ['api-docs.deepseek.com'] });
   assert.equal(createCall.values[4], 100_000);
   assert.equal(createCall.values[5], 4);
@@ -127,7 +128,7 @@ test('live gate rejects non-official source evidence and cancels its task', asyn
 test('live gate rejects missing required fields even with an official source', async () => {
   const db = makeQuery();
   const incomplete = structuredClone(liveResearch);
-  incomplete.execution.research.result.items[0].data = { modelId: 'deepseek-v4-flash' };
+  incomplete.execution.research.result.items[0].data = { modelId: 'deepseek-flash' };
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
     worker: { runOnce: async () => incomplete },

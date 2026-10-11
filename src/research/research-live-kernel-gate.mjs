@@ -107,7 +107,7 @@ export async function runLiveResearchKernelGate({
   idempotencyKey,
   now = () => new Date(),
   dataWorkerId = 'live-research-gate-data',
-  goal = 'Using official DeepSeek API documentation, identify the current release served by API model id deepseek-v4-flash. Return modelId and modelVersion.',
+  goal = 'Using official DeepSeek API documentation, identify the current release served by API model id deepseek-flash. Return modelId and modelVersion.',
   request = {
     maxResults: 3,
     requiredFields: ['modelId', 'modelVersion'],

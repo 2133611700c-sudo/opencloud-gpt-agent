@@ -12,6 +12,14 @@
   },
   "current_phase": 2,
   "current_phase_name": "Persistent State + Durable Kernel",
+  "completed_units": [
+    {
+      "unit": "core_postgres_schema",
+      "status": "PASS",
+      "ci_run_id": 38152899381,
+      "evidence": "PostgreSQL 16 migration applied and SQL invariants passed"
+    }
+  ],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action": "Implement and test hosted Postgres schema plus durable Kernel contracts. Do not advance to browser, vision, swarm, judge, repair, or bulk 71/311 migration before Walking Skeleton gates pass."
+  "next_action": "Implement deterministic Task/Node state-transition contracts and tests, then proceed to atomic lease/fencing contracts. Do not advance to browser, vision, swarm, judge, repair, or bulk 71/311 migration before Walking Skeleton gates pass."
 }

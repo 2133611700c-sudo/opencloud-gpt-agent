@@ -96,7 +96,7 @@ test('runs shell-free with pinned 0600 config and native ephemeral OpenClaw run 
 test('redacts key material from nonzero process error and removes temp config', async () => {
   const root = isolatedRoot(); const secret = 'test-secret-value'; let configPath; const child = makeFakeChild();
   try {
-    const promise = runResearchAgent({ request, env: { DEEPSEEK_API_KEY: secret }, tempRoot: root,
+    const promise = runResearchAgent({ request, env: { ...baseEnv(), DEEPSEEK_API_KEY: secret }, tempRoot: root,
       spawnImpl: (_exe, args) => { configPath = args[args.indexOf('--config') + 1]; queueMicrotask(() => { child.stderr.end(`auth failed ${secret} and sk-abcdefghijk12345`); child.emit('close', 1, null); }); return child; } });
     await assert.rejects(promise, (error) => {
       assert.ok(error instanceof ResearchAgentProcessError); assert.equal(error.code, 'NONZERO_EXIT');

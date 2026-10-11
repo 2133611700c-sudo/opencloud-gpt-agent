@@ -124,6 +124,26 @@ jobs:
           test "$(stat -c '%a' "$OPENCLAW_CONFIG_PATH")" = "600"
           test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
           openclaw config validate --json
+      - name: Run live Kernel Research vertical when both secrets exist
+        if: steps.prereqs.outputs.database_present == 'true' && steps.prereqs.outputs.deepseek_present == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+          OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          node scripts/live-research-kernel-vertical.mjs 2>&1 | tee artifacts/research-kernel-live.json
+      - name: Upload safe Kernel Research vertical evidence
+        if: always() && steps.prereqs.outputs.database_present == 'true' && steps.prereqs.outputs.deepseek_present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-v2-research-kernel-live
+          path: artifacts/research-kernel-live.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Run one live DeepSeek provider smoke when secret exists
         if: steps.prereqs.outputs.deepseek_present == 'true'
         env:

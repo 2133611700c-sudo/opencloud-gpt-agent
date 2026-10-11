@@ -13,10 +13,25 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - ChatGPT Library mirror: `/OpenClaw-V2-Project`.
 - Future chats must restore from canonical files and current GitHub/CI before modifying anything.
 
-### Phase 2 — Persistent State + Durable Kernel core [LOGIC PASS; HOSTED PERSISTENCE NOT YET VERIFIED]
+### Phase 2 — Persistent State + Durable Kernel core [PASS]
 - Core schema run `38152899381`: PASS on PostgreSQL 16 in GitHub Actions.
 - Deterministic state machine run `38153032460`: PASS.
-- Important: these prove schema/kernel behavior on ephemeral CI PostgreSQL; hosted persistent `DATABASE_URL` still requires live verification.
+- Hosted persistence was then brought live by safely reusing the existing Neon project `little-tree-63040612` without modifying its primary `main` branch.
+- Created isolated Neon branch `openclaw-v2` (`br-odd-forest-a4leyaqj`) and separate database `openclaw_v2`; existing `neondb` remained separate.
+- Applied V2 migrations `0001_core.sql` through `0007_accounting_lock_order.sql` to `openclaw_v2` only.
+- Hosted schema verification returned 9/9 expected core tables and 14/14 expected core functions.
+- Real hosted DB E2E task `947e17d9-0958-4436-a23f-df4eba8b4a38`:
+  - first idempotent intake created task;
+  - exact repeat returned same task with `created=false`;
+  - Research node claimed with fencing token;
+  - heartbeat with exact lease token returned true;
+  - Research completed successfully;
+  - dependent Data node became claimable only after Research success;
+  - Data completed successfully;
+  - `finalize_task` returned `SUCCESS`;
+  - separate follow-up read returned task `SUCCESS`, `current_steps=2`, `successful_nodes=2`, `dependencies=1`, `terminal_reason=ALL_NODES_SUCCEEDED`.
+- No Neon password or connection string is committed to GitHub or Library.
+- GitHub Actions still needs repository secret `DATABASE_URL` before CI can reach this hosted database directly.
 
 ### Phase 3 — Lease, Fencing, Circuit Breakers [PASS]
 - Atomic lease/fencing run `38153301256`: PASS after CI caught and fixed a real PL/pgSQL ambiguity.
@@ -29,8 +44,8 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Phase 4 core gate: PASS.
 
 ### Phase 5 — DeepSeek + Model Accounting [IN PROGRESS]
-- Safe secret-presence run `38155306054` reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`; no secret values were exposed.
-- Hosted persistent Postgres remains BLOCKED until `DATABASE_URL` exists and persistence smoke passes.
+- Safe secret-presence run `38155306054` originally reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`; no secret values were exposed.
+- Hosted PostgreSQL is now independently LIVE in Neon, but the repository Actions secret `DATABASE_URL` is still pending secure storage.
 - Deterministic model-usage accounting passed in run `38155477561`.
 - Exactly-once model accounting + crash reservation recovery passed in run `38155852410`.
 - Re-verified current official OpenClaw docs before provider integration. Narrow provider smoke uses `openclaw infer model run --local`; official provider id is `deepseek`, credential env is `DEEPSEEK_API_KEY`, plugin is `@openclaw/deepseek-provider`.
@@ -51,7 +66,8 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 These are being used as independent review/check lanes. They are not described as separate running agents until the real Agent Runtime is implemented.
 
 ### Current engineering position
-- Next gate only: securely store the user-provided credential as GitHub Actions secret `DEEPSEEK_API_KEY` via an authenticated GitHub browser session, then execute exactly one bounded live provider smoke and inspect safe evidence.
-- GitHub connector itself cannot write repository secrets; browser authentication is required for this external setting.
-- Hosted PostgreSQL remains blocked pending a secure `DATABASE_URL`; Neon plugin was suggested as the preferred hosted Postgres path.
-- Do not advance to Research Agent, browser, vision, swarm, judge, repair or bulk 71/311 migration before the live provider gate passes.
+- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS.
+- Remaining external secret gate: authenticate the GitHub browser profile, then store both `DATABASE_URL` and the user-provided DeepSeek credential as repository Actions secrets without exposing their values.
+- After secrets exist: run CI, require hosted DB presence plus exactly one bounded live DeepSeek provider smoke to PASS, inspect safe evidence artifact, then advance to the real Research Agent/web-search path.
+- GitHub connector itself cannot write repository secrets; browser authentication is required for this setting.
+- Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before the live provider gate passes.

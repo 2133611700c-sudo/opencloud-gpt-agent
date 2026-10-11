@@ -1,7 +1,7 @@
 import { spawn as nodeSpawn } from 'node:child_process';
 import { chmod, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 
 import { redactSensitiveText } from '../providers/deepseek-smoke-runner.mjs';
 import {
@@ -14,9 +14,6 @@ const SAFE_ENV_KEYS = Object.freeze([
   'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ',
   'SSL_CERT_FILE', 'SSL_CERT_DIR', 'NODE_EXTRA_CA_CERTS',
   'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'NO_PROXY',
-  'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_CACHE_HOME',
-  // Operator trust/plugin root. The per-run state remains OpenClaw-owned and ephemeral.
-  'OPENCLAW_STATE_DIR',
 ]);
 
 export class MissingResearchCredentialError extends Error {
@@ -48,12 +45,22 @@ const researchTimeoutSeconds = (timeoutMs) => {
   return Math.max(10, Math.min(295, Math.floor((timeoutMs - 5_000) / 1000)));
 };
 
+const requireStateDir = (env) => {
+  const stateDir = env?.OPENCLAW_STATE_DIR;
+  if (typeof stateDir !== 'string' || stateDir.trim() === '' || !isAbsolute(stateDir)) {
+    throw new TypeError('OPENCLAW_STATE_DIR must be an absolute isolated trust root');
+  }
+  return stateDir;
+};
+
 export function buildResearchChildEnv(env = process.env) {
+  const stateDir = requireStateDir(env);
   const childEnv = {};
   for (const key of SAFE_ENV_KEYS) {
     if (typeof env?.[key] === 'string' && env[key] !== '') childEnv[key] = env[key];
   }
   childEnv.DEEPSEEK_API_KEY = env?.DEEPSEEK_API_KEY;
+  childEnv.OPENCLAW_STATE_DIR = stateDir;
   childEnv.OPENCLAW_CONFIG_READONLY = '1';
   childEnv.OPENCLAW_EXEC_SHELL_SNAPSHOT = '0';
   return Object.freeze(childEnv);
@@ -80,6 +87,8 @@ export async function runResearchAgent({
   if (signal != null && !(signal instanceof AbortSignal)) throw new TypeError('signal must be an AbortSignal');
   if (signal?.aborted) throw new ResearchAgentProcessError('Research agent aborted before start', { code: 'ABORTED' });
 
+  // Fail before any temp file is created if the process would escape the dedicated OpenClaw trust scope.
+  const childEnv = buildResearchChildEnv(env);
   const config = buildResearchOpenClawConfig(configOptions);
   const tempDir = await mkdtemp(join(tempRoot, 'openclaw-v2-research-'));
   const configPath = join(tempDir, 'openclaw.json');
@@ -95,7 +104,6 @@ export async function runResearchAgent({
       model,
       timeoutSeconds: researchTimeoutSeconds(timeoutMs),
     });
-    const childEnv = buildResearchChildEnv(env);
 
     return await new Promise((resolve, reject) => {
       let child;

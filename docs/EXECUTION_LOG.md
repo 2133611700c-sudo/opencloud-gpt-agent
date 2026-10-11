@@ -32,15 +32,17 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Safe secret-presence run `38155306054` reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`; no secret values were exposed.
 - Hosted persistent Postgres remains BLOCKED until `DATABASE_URL` exists and persistence smoke passes.
 - Live DeepSeek/OpenClaw inference remains BLOCKED until `DEEPSEEK_API_KEY` exists and provider smoke passes.
-- Added deterministic model-usage normalization/accounting with cache-hit/cache-miss separation, conservative unclassified-token treatment, exact BigInt micro-USD accounting, and injected versioned rates. Run `38155477561`: PASS.
-- Added `migrations/0006_exactly_once_accounting.sql` and `0007_accounting_lock_order.sql` to atomically reconcile a fenced reservation with a single `llm_accounting` row and to use a consistent DB lock order.
-- Added crash recovery: when an expired lease is reclaimed, unresolved reservations tied to the stale fencing token are released before the new token is issued.
-- Node SUCCESS is rejected while an unresolved reservation exists; retry requeue and terminal failure release unresolved reservations.
-- Added `tests/sql/0006_exactly_once_accounting_test.sql` covering crash-after-reserve recovery, stale-accounting rejection, exactly-once call recording, no double charge on exact retry, contract-collision fail-closed behavior, unresolved-reservation SUCCESS rejection, retry cleanup, and terminal-failure cleanup.
-- Verification run `38155852410` passed all Node tests, all PostgreSQL migrations/assertions, health check, and prior gates.
-- Exactly-once model accounting + reservation recovery contract: PASS.
+- Deterministic model-usage accounting passed in run `38155477561`.
+- Exactly-once model accounting + crash reservation recovery passed in run `38155852410`.
+- Re-verified current official OpenClaw docs before implementing provider integration. The narrow provider/model/auth smoke is `openclaw infer model run --local --model <provider/model> --prompt ... --json`; it does not start an agent turn or load tools. Official DeepSeek provider id is `deepseek`, credential env is `DEEPSEEK_API_KEY`, plugin is `@openclaw/deepseek-provider`.
+- Added `src/providers/openclaw-deepseek-infer.mjs` as a deterministic provider adapter: validates full `deepseek/<model>` refs, builds shell-free argv for local infer, validates JSON capability/transport/provider/model/output, and labels optional usage/cost telemetry without inventing cache split.
+- Added adapter tests for argv isolation, provider/model mismatch, failed envelope, empty output, optional observed telemetry, and malformed telemetry.
+- Initial adapter run `38156200874` failed because malformed usage with one valid field was still accepted as partial telemetry.
+- Tightened parser so any malformed known usage field or inconsistent input/output/total invalidates the whole usage object; no partial financial trust.
+- Verification run `38156265994` passed Node tests, all PostgreSQL migrations/assertions, health, and prior gates.
+- OpenClaw DeepSeek infer adapter contract: PASS. Live DeepSeek remains BLOCKED because `DEEPSEEK_API_KEY` is absent.
 
 ### Current engineering position
-- Next unit: verify current official OpenClaw DeepSeek provider/CLI contract, then implement a deterministic provider-adapter boundary and tests without claiming live inference.
+- Next unit: executable DeepSeek smoke runner around the proven adapter: fail-fast missing secret, bounded stdout/stderr, timeout/abort, no shell, deterministic mocked-process tests.
 - Live hosted Postgres/DeepSeek smoke remains pending `DATABASE_URL` and `DEEPSEEK_API_KEY`.
 - Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before the Walking Skeleton live research path passes.

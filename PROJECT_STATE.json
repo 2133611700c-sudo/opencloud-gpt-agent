@@ -9,7 +9,7 @@
   "current_phase": 6,
   "current_phase_name": "Research Agent + Native Web Search/Fetch",
   "walking_skeleton_gate": "KERNEL_STABILIZATION_IN_PROGRESS",
-  "kernel_regression_status": "PASS_REVALIDATED_AT_bcf26ee0bd9f36fdf48438dc2332598c1f745354",
+  "kernel_regression_status": "PASS_REVALIDATED_AT_a719e00ea7b8b36052923936ecdab08e42c1601c",
   "completed_units": [
     {"unit":"core_postgres_schema","status":"PASS","ci_run_id":38152899381},
     {"unit":"deterministic_state_machine","status":"PASS","ci_run_id":38153032460},
@@ -25,32 +25,22 @@
     {"unit":"pinned_openclaw_deepseek_runtime_wiring","status":"PASS","ci_run_id":38157033206},
     {
       "unit":"hosted_neon_postgres_persistence_and_kernel_smoke",
-      "status":"PASS_HISTORICAL_NEEDS_REVALIDATION_AFTER_0011",
-      "evidence":"Existing Neon project little-tree-63040612 reused via isolated branch br-odd-forest-a4leyaqj named openclaw-v2 and separate database openclaw_v2. Migrations 0001-0007 were applied and a hosted Research->Data DB-only E2E reached SUCCESS. This proof predates migrations 0009-0011 and must be rerun before current hosted PASS is claimed. Main branch was not modified; credentials are not committed."
+      "status":"PASS_HISTORICAL_NEEDS_REVALIDATION_AFTER_0012",
+      "evidence":"Existing Neon project little-tree-63040612 reused via isolated branch br-odd-forest-a4leyaqj named openclaw-v2 and separate database openclaw_v2. Migrations 0001-0007 were applied and a hosted Research->Data DB-only E2E reached SUCCESS. This proof predates migrations 0009-0012 and must be rerun before current hosted PASS is claimed. Main branch was not modified; credentials are not committed."
     },
     {"unit":"research_result_source_contract","status":"PASS","ci_run_id":38159514170},
     {"unit":"research_evidence_timestamp_hardening","status":"PASS","ci_run_id":38159670726},
     {"unit":"native_openclaw_research_runtime_policy","status":"PASS","ci_run_id":38159803006},
     {"unit":"pinned_duckduckgo_plugin_and_official_config_validation","status":"PASS","ci_run_id":38159959702},
     {"unit":"isolated_openclaw_research_trust_scope","status":"PASS","ci_run_id":38160694918},
-    {
-      "unit":"canonical_research_runner_and_envelope_consolidation",
-      "status":"PASS",
-      "ci_run_id":38161523563,
-      "evidence":"One canonical Research runner and one envelope parser remain. Duplicate runner removed. Research execution is shell-free, bounded by timeout/output limits, redacts credentials, sanitizes child environment, requires DeepSeek provider/model attestation, direct code mode, web_search evidence and web_fetch evidence for SUCCESS, and validates strict sourced result JSON. Full Node/Postgres/OpenClaw/plugin/config gates passed."
-    },
-    {
-      "unit":"research_trust_root_fail_closed_gate",
-      "status":"PASS",
-      "ci_run_id":38161772567,
-      "evidence":"Research runner now requires a dedicated absolute OPENCLAW_STATE_DIR before any temp config creation or process spawn. Missing or relative roots fail with typed INVALID_OPENCLAW_STATE_DIR. Tests prove no spawn/temp side effects on rejection. Full Node/Postgres/OpenClaw/DeepSeek-plugin/DuckDuckGo-plugin/config-validation gates remained green."
-    },
+    {"unit":"canonical_research_runner_and_envelope_consolidation","status":"PASS","ci_run_id":38161523563},
+    {"unit":"research_trust_root_fail_closed_gate","status":"PASS","ci_run_id":38161772567},
     {
       "unit":"terminal_failure_composition_regression_repair",
       "status":"PASS",
       "commit":"6c14330b964c65eb826544a02c6eaaaca03df90d",
       "ci_run_id":38165100648,
-      "evidence":"Migration 0009 preserves active lease validation and reservation release while restoring cascade_block_descendants() and finalize_task(). Full CI passed. Hosted Neon and live DeepSeek were skipped and are not counted as PASS."
+      "evidence":"Migration 0009 preserves active lease validation and reservation release while restoring cascade_block_descendants() and finalize_task()."
     },
     {
       "unit":"expired_max_attempt_terminalization",
@@ -58,22 +48,29 @@
       "implementation_commit":"38a29dc15e28a863c205119e14d25a0942430df0",
       "verification_commit":"bb5489750efdd7fa92d43e2326179188c758c86f",
       "ci_run_id":38165702632,
-      "evidence":"Migration 0010 adds system-owned cleanup for expired RUNNING nodes with attempts exhausted. It locks the node first, releases lease reservations, marks the node FAIL_WITH_EVIDENCE with MAX_ATTEMPTS_EXHAUSTED, then finalize_task cascades descendants and terminates the task. Regression test proves no reclaim, Data BLOCKED, reservation RELEASED, and zero reserved totals. First CI failure was a test-only agent_id typo ('research' vs canonical 'researcher'); the migration was unchanged and full CI then passed."
+      "evidence":"Migration 0010 reaps expired RUNNING nodes after max attempts, releases reservations, fails the node, cascades descendants, and terminalizes the task."
     },
     {
       "unit":"expired_max_total_steps_terminalization",
       "status":"PASS",
       "commit":"bcf26ee0bd9f36fdf48438dc2332598c1f745354",
       "ci_run_id":38166064399,
-      "evidence":"Migration 0011 adds system-owned cleanup for expired RUNNING nodes when task current_steps >= max_total_steps and attempts may remain. It preserves migration 0010 attempt-exhaustion precedence, locks each expired node first, releases reservations with MAX_TOTAL_STEPS_EXCEEDED before blocking the abandoned node, then existing finalizer blocks remaining nodes and terminates the task with MAX_TOTAL_STEPS_EXCEEDED. Regression test proves no reclaim, Research/Data BLOCKED, reservation RELEASED, and zero reserved totals. Full CI passed."
+      "evidence":"Migration 0011 releases reservations and blocks expired RUNNING nodes when total-step budget is exhausted, then terminalizes with MAX_TOTAL_STEPS_EXCEEDED."
+    },
+    {
+      "unit":"deadline_terminal_reservation_cleanup",
+      "status":"PASS",
+      "commit":"a719e00ea7b8b36052923936ecdab08e42c1601c",
+      "ci_run_id":38166510250,
+      "evidence":"Migration 0012 terminalizes overdue tasks using canonical node->task->reservation lock ordering. It locks task nodes deterministically, then task, releases all RESERVED leases with DEADLINE_EXCEEDED, blocks nonterminal nodes, and writes terminal task state. Regression test proves active Research reservation becomes RELEASED and task/node reserved totals are zero."
     }
   ],
-  "phase_3_status":"PASS_REVALIDATED_38166064399",
-  "phase_4_status":"PASS_REVALIDATED_38166064399",
+  "phase_3_status":"PASS_REVALIDATED_38166510250",
+  "phase_4_status":"PASS_REVALIDATED_38166510250",
   "phase_5_status":"PARTIAL_EXTERNAL_LIVE_SECRET_GATE_PENDING",
   "phase_6_status":"IN_PROGRESS",
   "live_capabilities": {
-    "hosted_postgres":"NEEDS_REVALIDATION_AFTER_MIGRATION_0011",
+    "hosted_postgres":"NEEDS_REVALIDATION_AFTER_MIGRATION_0012",
     "hosted_postgres_ci_secret":"PENDING_SECURE_GITHUB_ACTIONS_DATABASE_URL_STORAGE",
     "openclaw_deepseek_runtime":"PASS_PINNED_INSTALL_AND_PLUGIN",
     "openclaw_native_research_runtime":"PASS_CONTRACT_RUNNER_PLUGIN_CONFIG_AND_TRUST_ROOT",
@@ -89,7 +86,7 @@
     "credentials_stored_in_repo":false
   },
   "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
-  "persistence_note":"Historical hosted persistence is proven on the isolated Neon branch/database through migrations 0001-0007. Migrations 0009-0011 have not yet been applied/revalidated there. GitHub Actions cannot reach hosted Neon until DATABASE_URL is stored securely. No database credential or connection string is committed to GitHub or Library.",
+  "persistence_note":"Historical hosted persistence is proven on the isolated Neon branch/database through migrations 0001-0007. Migrations 0009-0012 have not yet been applied/revalidated there. GitHub Actions cannot reach hosted Neon until DATABASE_URL is stored securely. No database credential or connection string is committed to GitHub or Library.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Micro-audit only: deadline terminalization with an active RESERVED budget reservation. Prove whether finalize_task releases all reservations before terminal task state. Read-only verdict first; if FAIL, one minimal corrective unit, regression test, full CI, then record. Do not start Kernel-to-Research adapter until remaining kernel stabilization gates are green."
+  "next_action":"Micro-audit only: DAG_DEADLOCK terminalization and unresolved RESERVED budget. Determine whether any realistic effective path can reach DAG_DEADLOCK with unresolved reservations and whether terminalization guarantees zero RESERVED rows. Read-only verdict first; do not manufacture a code fix unless the invariant can actually fail."
 }

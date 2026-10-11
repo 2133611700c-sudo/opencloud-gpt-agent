@@ -50,24 +50,8 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Pinned official `@openclaw/duckduckgo-plugin@2026.9.8` plus actual `openclaw config validate --json` passed in run `38159959702`.
 - Official CLI contract review found `--auth-env-only` cannot be combined with `--config`; this incompatible design was removed before building the next layer.
 - Dedicated `OPENCLAW_STATE_DIR` trust scope, mode-0700 CI setup, and plugins installed inside that scope passed in run `38160694918`.
-- During Research process-runner work CI found and prevented several issues before integration: duplicate runner implementations, an abort-test race, and stale assumptions about where state isolation belongs.
-- Duplicate `openclaw-research-runner.mjs` path was removed. Canonical architecture is now `openclaw-research-runtime.mjs` + `research-agent-runner.mjs` + `research-agent-envelope.mjs`.
-- Canonical runner/envelope consolidation passed full CI run `38161523563`:
-  - shell-free child process;
-  - bounded timeout and stdout/stderr;
-  - AbortSignal kill;
-  - credential redaction;
-  - sanitized child environment excluding unrelated secrets;
-  - provider/model/direct-code-mode attestation;
-  - only `web_search`/`web_fetch` tool evidence accepted;
-  - `SUCCESS` requires `web_fetch` evidence;
-  - strict sourced Research JSON contract;
-  - optional usage telemetry is never invented and malformed telemetry fails closed.
-- Research trust-root fail-closed gate passed full CI run `38161772567`:
-  - `OPENCLAW_STATE_DIR` is mandatory and must be absolute before any temp config or process spawn;
-  - missing/relative roots produce typed `INVALID_OPENCLAW_STATE_DIR`;
-  - negative tests prove zero spawn/temp side effects on rejection;
-  - all existing Node/PostgreSQL/OpenClaw/DeepSeek-plugin/DuckDuckGo-plugin/config-validation gates remained green.
+- Canonical runner/envelope consolidation passed full CI run `38161523563`.
+- Research trust-root fail-closed gate passed full CI run `38161772567`.
 - Hosted-Neon-in-CI and live-DeepSeek steps remain correctly SKIPPED because repository Actions secrets are absent; hosted Neon itself is separately proven live historically.
 
 ### ECC review lanes selected for the current engineering stage
@@ -79,34 +63,34 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 These are independent review/check lanes, not claimed as separate running agents until the real Agent Runtime exists.
 
 ### Current engineering position
-- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS historically through migrations 0001-0007; current hosted state needs revalidation after migrations 0009-0011.
+- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS historically through migrations 0001-0007; current hosted state needs revalidation after migrations 0009-0012.
 - Research contract/runtime/plugin/process/trust boundary: PASS without a live model call.
 - External secrets remain pending for live hosted-CI and live DeepSeek proof.
 - Do not advance to Browser, Vision, Swarm, Judge, Repair, or bulk 71/311 migration yet.
 
 ### Kernel regression recovery — terminal failure composition [PASS]
-- Regression was detected at HEAD `606b59fcac481c392c620f00312d15e9273a94ff`: `0008_active_lease_write_hardening.sql` preserved active-lease validation and reservation release but accidentally removed `cascade_block_descendants(...)` and `finalize_task(...)` from `fail_node_terminal()`.
-- Read-only micro-audit results: `complete_node_success()` PASS, `requeue_node_retry()` PASS, `heartbeat_node()` PASS, `fail_node_terminal()` FAIL.
-- Added only `migrations/0009_fail_node_terminal_composition_fix.sql` in commit `6c14330b964c65eb826544a02c6eaaaca03df90d`; older applied migrations were not rewritten.
-- The effective function now requires `RUNNING` + exact worker + exact fencing token + active `lease_until > NOW()`, releases reservations, writes `FAIL_WITH_EVIDENCE`, cascades descendants, and immediately calls `finalize_task(v_task_id)`.
-- Full CI run `38165100648`: SUCCESS. PostgreSQL migrations and all kernel assertions passed, including the pre-existing Research-failure -> Data-BLOCKED -> task-terminal regression test.
-- Hosted Neon verification and live DeepSeek smoke were SKIPPED in that run because `DATABASE_URL` and `DEEPSEEK_API_KEY` are absent from GitHub Actions; SKIPPED is not PASS.
+- Regression at HEAD `606b59fcac481c392c620f00312d15e9273a94ff`: active-lease hardening accidentally removed descendant cascade and task finalization from `fail_node_terminal()`.
+- Added `migrations/0009_fail_node_terminal_composition_fix.sql` in commit `6c14330b964c65eb826544a02c6eaaaca03df90d`.
+- Full CI run `38165100648`: SUCCESS.
 
 ### Kernel stabilization — expired final attempt [PASS]
-- Read-only audit proved a real dangling state: `claim_next_node()` refuses an expired RUNNING node when `attempt == max_attempts`, while the prior `finalize_task()` kept seeing `v_running > 0` and left the task RUNNING until deadline.
-- Added `migrations/0010_expired_attempt_exhaustion.sql` and `tests/sql/0010_expired_attempt_exhaustion_test.sql` in implementation commit `38a29dc15e28a863c205119e14d25a0942430df0`; no historical migration was rewritten.
-- The new system-owned cleanup locks the exhausted expired node first, releases reservations with `MAX_ATTEMPTS_EXHAUSTED`, marks the node `FAIL_WITH_EVIDENCE`, then existing finalizer behavior cascades descendants and terminates the task.
-- Initial CI run `38165592008` failed only because the new test expected `agent_id='research'` while the canonical Lite DAG uses `agent_id='researcher'`. The migration itself was not changed.
-- Test-only correction commit `bb5489750efdd7fa92d43e2326179188c758c86f` fixed that assertion.
-- Full CI run `38165702632`: SUCCESS. PostgreSQL migration and kernel assertions passed; the test proves no reclaim after final attempt, Research -> `FAIL_WITH_EVIDENCE`, Data -> `BLOCKED`, reservation -> `RELEASED`, and zero task/node reserved totals.
-- Hosted Neon and live DeepSeek remained SKIPPED because repository Actions secrets are absent; they are not counted as PASS.
+- Read-only audit proved dangling RUNNING when expired node had `attempt == max_attempts`.
+- Added migration/test 0010 in implementation commit `38a29dc15e28a863c205119e14d25a0942430df0`.
+- First CI failure was a test-only canonical `agent_id` typo; test-only correction commit `bb5489750efdd7fa92d43e2326179188c758c86f`.
+- Full CI run `38165702632`: SUCCESS; no reclaim, Research FAIL_WITH_EVIDENCE, Data BLOCKED, reservation RELEASED, zero reserved totals.
 
 ### Kernel stabilization — expired total-step exhaustion [PASS]
-- Read-only audit proved another dangling state: when `task.current_steps >= task.max_total_steps`, `claim_next_node()` cannot reclaim an expired RUNNING node. If attempts remained, migration 0010 did not reap it and `finalize_task()` could not enter its max-steps branch because `v_running > 0`.
-- Reviewer also confirmed generic `block_task_nodes()` was insufficient for abandoned RUNNING work because it does not release budget reservations.
-- Added only `migrations/0011_expired_step_exhaustion.sql` and `tests/sql/0011_expired_step_exhaustion_test.sql` in commit `bcf26ee0bd9f36fdf48438dc2332598c1f745354`; historical migrations were not rewritten.
-- Migration 0011 preserves migration 0010 attempt-exhaustion precedence, locks each expired RUNNING node first, releases reservations using `MAX_TOTAL_STEPS_EXCEEDED`, then blocks the abandoned node before normal lifecycle counting.
-- Existing finalizer then blocks remaining PENDING nodes and terminates the task with `FAIL_WITH_EVIDENCE / MAX_TOTAL_STEPS_EXCEEDED`.
-- Full CI run `38166064399`: SUCCESS. Regression test proves no reclaim, Research/Data `BLOCKED`, reservation `RELEASED`, and zero task/node reserved totals.
+- Read-only audit proved dangling RUNNING when `current_steps >= max_total_steps` and attempts remained.
+- Added migration/test 0011 in commit `bcf26ee0bd9f36fdf48438dc2332598c1f745354`.
+- Migration 0011 preserves attempt-exhaustion precedence, releases reservations before blocking expired RUNNING nodes, and terminalizes with `MAX_TOTAL_STEPS_EXCEEDED`.
+- Full CI run `38166064399`: SUCCESS.
+
+### Kernel stabilization — deadline reservation cleanup [PASS]
+- Read-only audit proved overdue tasks could terminalize through `block_task_nodes()` while an existing budget reservation remained `RESERVED`.
+- Reviewer confirmed canonical accounting lock order is `task_node -> task -> budget_reservation`; a naive release after taking the task lock would invert that order.
+- Added only `migrations/0012_deadline_reservation_cleanup.sql` and `tests/sql/0012_deadline_reservation_cleanup_test.sql` in commit `a719e00ea7b8b36052923936ecdab08e42c1601c`.
+- Deadline terminalization now locks all task nodes deterministically, then the task row, then releases every RESERVED lease with reason `DEADLINE_EXCEEDED`, blocks nonterminal nodes, and writes the terminal task state.
+- Deadline handling runs before attempt/step recovery reapers, keeping the task-wide `DEADLINE_EXCEEDED` reason authoritative while preventing reservation leaks.
+- Full CI run `38166510250`: SUCCESS. The regression test proves active Research reservation -> RELEASED, Research/Data -> BLOCKED, and task/node reserved totals -> zero.
 - Hosted Neon and live DeepSeek remained SKIPPED because repository Actions secrets are absent; they are not counted as PASS.
-- Next micro-gate: read-only audit of deadline terminalization while a budget reservation remains `RESERVED`. No code change before PASS/FAIL evidence.
+- Next micro-gate: read-only audit of `DAG_DEADLOCK` terminalization and whether any realistic path can retain unresolved RESERVED budget. No code change unless the invariant can actually fail.

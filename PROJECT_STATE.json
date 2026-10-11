@@ -8,6 +8,8 @@
   "foundation": {"status":"PASS","ci_run_id":38149188562,"ci_conclusion":"success"},
   "current_phase": 6,
   "current_phase_name": "Research Agent + Native Web Search/Fetch",
+  "walking_skeleton_gate": "KERNEL_STABILIZATION_IN_PROGRESS",
+  "kernel_regression_status": "PASS_REVALIDATED_AT_6c14330b964c65eb826544a02c6eaaaca03df90d",
   "completed_units": [
     {"unit":"core_postgres_schema","status":"PASS","ci_run_id":38152899381},
     {"unit":"deterministic_state_machine","status":"PASS","ci_run_id":38153032460},
@@ -23,8 +25,8 @@
     {"unit":"pinned_openclaw_deepseek_runtime_wiring","status":"PASS","ci_run_id":38157033206},
     {
       "unit":"hosted_neon_postgres_persistence_and_kernel_smoke",
-      "status":"PASS",
-      "evidence":"Existing Neon project little-tree-63040612 reused via isolated branch br-odd-forest-a4leyaqj named openclaw-v2 and separate database openclaw_v2. Migrations 0001-0007 applied. 9/9 core tables and 14/14 functions verified. Hosted Research->Data DB-only E2E reached SUCCESS and a separate read confirmed durable state. Main branch was not modified; credentials are not committed."
+      "status":"PASS_HISTORICAL_NEEDS_REVALIDATION_AFTER_0009",
+      "evidence":"Existing Neon project little-tree-63040612 reused via isolated branch br-odd-forest-a4leyaqj named openclaw-v2 and separate database openclaw_v2. Migrations 0001-0007 were applied and a hosted Research->Data DB-only E2E reached SUCCESS. This proof predates migration 0009 and must be rerun before current hosted PASS is claimed. Main branch was not modified; credentials are not committed."
     },
     {"unit":"research_result_source_contract","status":"PASS","ci_run_id":38159514170},
     {"unit":"research_evidence_timestamp_hardening","status":"PASS","ci_run_id":38159670726},
@@ -42,14 +44,21 @@
       "status":"PASS",
       "ci_run_id":38161772567,
       "evidence":"Research runner now requires a dedicated absolute OPENCLAW_STATE_DIR before any temp config creation or process spawn. Missing or relative roots fail with typed INVALID_OPENCLAW_STATE_DIR. Tests prove no spawn/temp side effects on rejection. Full Node/Postgres/OpenClaw/DeepSeek-plugin/DuckDuckGo-plugin/config-validation gates remained green."
+    },
+    {
+      "unit":"terminal_failure_composition_regression_repair",
+      "status":"PASS",
+      "commit":"6c14330b964c65eb826544a02c6eaaaca03df90d",
+      "ci_run_id":38165100648,
+      "evidence":"New migration 0009_fail_node_terminal_composition_fix.sql preserves active lease validation and reservation release while restoring cascade_block_descendants() and finalize_task(). Full CI passed, including PostgreSQL kernel assertions. Hosted Neon and live DeepSeek steps were skipped because repository Actions secrets were absent and are not counted as PASS."
     }
   ],
-  "phase_3_status":"PASS",
-  "phase_4_status":"PASS",
+  "phase_3_status":"PASS_REVALIDATED_38165100648",
+  "phase_4_status":"PASS_REVALIDATED_38165100648",
   "phase_5_status":"PARTIAL_EXTERNAL_LIVE_SECRET_GATE_PENDING",
   "phase_6_status":"IN_PROGRESS",
   "live_capabilities": {
-    "hosted_postgres":"LIVE_NEON_PERSISTENCE_E2E_PASS",
+    "hosted_postgres":"NEEDS_REVALIDATION_AFTER_MIGRATION_0009",
     "hosted_postgres_ci_secret":"PENDING_SECURE_GITHUB_ACTIONS_DATABASE_URL_STORAGE",
     "openclaw_deepseek_runtime":"PASS_PINNED_INSTALL_AND_PLUGIN",
     "openclaw_native_research_runtime":"PASS_CONTRACT_RUNNER_PLUGIN_CONFIG_AND_TRUST_ROOT",
@@ -65,7 +74,7 @@
     "credentials_stored_in_repo":false
   },
   "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
-  "persistence_note":"Hosted persistence is proven live in Neon on an isolated branch/database. GitHub Actions cannot use it until DATABASE_URL is stored as a repository secret. No database credential or connection string is committed to GitHub or Library.",
+  "persistence_note":"Historical hosted persistence is proven on the isolated Neon branch/database through migrations 0001-0007. Migration 0009 has not yet been applied/revalidated there. GitHub Actions cannot reach hosted Neon until DATABASE_URL is stored securely. No database credential or connection string is committed to GitHub or Library.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Build the smallest Kernel-to-Research execution adapter with an injected runner first: one already-claimed Research lease -> budget reservation -> LeaseHeartbeatManager -> injected Research runner -> exactly-once accounting -> fenced complete/fail/release. Prove call ordering, lease-loss abort, budget refusal, accounting failure and runner failure deterministically before wiring the real runResearchAgent or any Browser work."
+  "next_action":"Micro-audit only: expired RUNNING node with attempt == max_attempts. Prove whether claim_next_node/finalize_task can leave it dangling. Read-only verdict first; if FAIL, one minimal corrective unit, regression test, full CI, then record. Do not start Kernel-to-Research adapter until the remaining kernel stabilization gates are green."
 }

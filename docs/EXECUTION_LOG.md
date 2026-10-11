@@ -79,8 +79,17 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 These are independent review/check lanes, not claimed as separate running agents until the real Agent Runtime exists.
 
 ### Current engineering position
-- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS.
+- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS historically through migrations 0001-0007; current hosted state needs revalidation after migration 0009.
 - Research contract/runtime/plugin/process/trust boundary: PASS without a live model call.
-- External secrets remain pending only for live hosted-CI and live DeepSeek proof; they no longer block deterministic implementation work.
-- Next unit: build the smallest Kernel-to-Research execution adapter with an injected runner first: one already-claimed Research lease -> budget reservation -> `LeaseHeartbeatManager` -> injected Research runner -> exactly-once accounting -> fenced complete/fail/release. Prove call ordering, lease-loss abort, budget refusal, accounting failure and runner failure deterministically.
+- External secrets remain pending for live hosted-CI and live DeepSeek proof.
 - Do not advance to Browser, Vision, Swarm, Judge, Repair, or bulk 71/311 migration yet.
+
+### Kernel regression recovery — terminal failure composition [PASS]
+- Regression was detected at HEAD `606b59fcac481c392c620f00312d15e9273a94ff`: `0008_active_lease_write_hardening.sql` preserved active-lease validation and reservation release but accidentally removed `cascade_block_descendants(...)` and `finalize_task(...)` from `fail_node_terminal()`.
+- Read-only micro-audit results: `complete_node_success()` PASS, `requeue_node_retry()` PASS, `heartbeat_node()` PASS, `fail_node_terminal()` FAIL.
+- Added only `migrations/0009_fail_node_terminal_composition_fix.sql` in commit `6c14330b964c65eb826544a02c6eaaaca03df90d`; older applied migrations were not rewritten.
+- The effective function now requires `RUNNING` + exact worker + exact fencing token + active `lease_until > NOW()`, releases reservations, writes `FAIL_WITH_EVIDENCE`, cascades descendants, and immediately calls `finalize_task(v_task_id)`.
+- Full CI run `38165100648`: SUCCESS. PostgreSQL migrations and all kernel assertions passed, including the pre-existing Research-failure -> Data-BLOCKED -> task-terminal regression test.
+- Hosted Neon verification and live DeepSeek smoke were SKIPPED in that run because `DATABASE_URL` and `DEEPSEEK_API_KEY` are absent from GitHub Actions; SKIPPED is not PASS.
+- Phase 3/4 local-CI kernel gates are therefore revalidated at this commit, but hosted Neon still needs migration 0009 + E2E revalidation.
+- Next micro-gate: read-only audit of an expired `RUNNING` node where `attempt == max_attempts`. Determine whether `claim_next_node()` and `finalize_task()` can leave the task dangling. No code change before PASS/FAIL evidence.

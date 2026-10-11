@@ -95,6 +95,30 @@ jobs:
         continue-on-error: true
         run: openclaw plugins install "@openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}"
 
+      - name: Stage pinned audited ECC skill source
+        if: steps.deepseek_config.outputs.configured == 'true'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          PIN=ops/agent-control/ecc/ECC_SOURCE_PIN.v1.json
+          REPO="$(jq -r '.repository' "$PIN")"
+          COMMIT="$(jq -r '.commit' "$PIN")"
+          ROOT="$(jq -r '.skills_root' "$PIN")"
+          EXPECTED="$(jq -r '.expected_skill_count' "$PIN")"
+          DIR="${RUNNER_TEMP}/ecc-source"
+          rm -rf "$DIR"
+          git init -q "$DIR"
+          git -C "$DIR" remote add origin "$REPO"
+          git -C "$DIR" fetch -q --depth 1 origin "$COMMIT"
+          git -C "$DIR" checkout -q --detach FETCH_HEAD
+          ACTUAL_SHA="$(git -C "$DIR" rev-parse HEAD)"
+          [ "$ACTUAL_SHA" = "$COMMIT" ]
+          COUNT="$(find "$DIR/$ROOT" -name SKILL.md -type f | wc -l | tr -d ' ')"
+          [ "$COUNT" = "$EXPECTED" ]
+          echo "ECC_SKILLS_DIR=$DIR/$ROOT" >> "$GITHUB_ENV"
+          echo "ECC_SKILLS_SOURCE_SHA=$ACTUAL_SHA" >> "$GITHUB_ENV"
+
       - name: Run bounded DeepSeek planner advisory
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}

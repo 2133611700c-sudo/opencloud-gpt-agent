@@ -1,6 +1,7 @@
 const STATUS = new Set(['SUCCESS', 'NO_RESULTS', 'NEEDS_BROWSER']);
 const CONFIDENCE = new Set(['LOW', 'MEDIUM', 'HIGH']);
 const BROWSER_REASONS = new Set(['JAVASCRIPT_REQUIRED', 'LOGIN_REQUIRED', 'CAPTCHA', 'ACCESS_DENIED', 'FETCH_FAILED']);
+const ISO_INSTANT_WITH_ZONE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/;
 
 export class ResearchContractError extends Error {
   constructor(message, { code = 'RESEARCH_CONTRACT_INVALID', path = null } = {}) {
@@ -44,8 +45,11 @@ const safeInteger = (value, path, { min = 0, max = Number.MAX_SAFE_INTEGER } = {
 
 const isoInstant = (value, path) => {
   const raw = nonEmptyString(value, path, 64);
+  if (!ISO_INSTANT_WITH_ZONE.test(raw)) {
+    fail(`${path} must be an ISO-8601 timestamp with explicit timezone`, path);
+  }
   const ms = Date.parse(raw);
-  if (!Number.isFinite(ms)) fail(`${path} must be an ISO-8601 timestamp`, path);
+  if (!Number.isFinite(ms)) fail(`${path} must be a valid ISO-8601 timestamp`, path);
   return new Date(ms).toISOString();
 };
 
@@ -107,7 +111,6 @@ export function normalizeResearchResult(input) {
   if (!Array.isArray(root.sources)) fail('result.sources must be an array', 'result.sources');
   if (!Array.isArray(root.items)) fail('result.items must be an array', 'result.items');
 
-  // Dedupe sources by canonical URL and keep the oldest stable source id as the representative.
   const sources = [];
   const sourceByCanonicalUrl = new Map();
   const sourceAlias = new Map();

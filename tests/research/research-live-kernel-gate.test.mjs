@@ -21,7 +21,7 @@ const liveResearch = {
   },
 };
 
-const makeQuery = ({ isolated = true } = {}) => {
+const makeQuery = ({ isolated = true, cleanupFails = false } = {}) => {
   const calls = [];
   let claimChecks = 0;
   const query = async (text, values = []) => {
@@ -34,6 +34,10 @@ const makeQuery = ({ isolated = true } = {}) => {
     if (text.startsWith('SELECT count(*)::int AS accounting_rows')) return { rows: [{ accounting_rows: 1, accounting_basis: 'OBSERVED_USAGE' }] };
     if (text.startsWith("SELECT count(*) FILTER (WHERE status='RESERVED')")) return { rows: [{ unresolved_reservations: 0 }] };
     if (text.startsWith('SELECT finalize_task')) return { rows: [{ status: 'SUCCESS' }] };
+    if (text.startsWith('SELECT cancel_task')) {
+      if (cleanupFails) throw new Error('cleanup unavailable');
+      return { rows: [{ cancelled: true }] };
+    }
     throw new Error(`unexpected query: ${text}`);
   };
   return { query, calls };
@@ -72,6 +76,7 @@ test('live Research gate proves web tools, accounting, Data release and terminal
   assert.equal(workerCalls.length, 1);
   assert.deepEqual(kernelCalls[0][1], { workerId: 'live-research-gate-data', agentId: 'data', leaseSeconds: 30 });
   assert.equal(kernelCalls[1][1].outputData.mode, 'DETERMINISTIC_LIVE_GATE_COMPLETION');
+  assert.equal(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')), false);
 
   const createCall = db.calls.find((call) => call.text.startsWith('SELECT * FROM create_lite_research_task'));
   assert.ok(createCall);
@@ -92,9 +97,10 @@ test('live gate refuses a non-isolated queue before creating or claiming anythin
   }), (error) => error?.code === 'LIVE_QUEUE_NOT_ISOLATED');
   assert.equal(ran, false);
   assert.equal(db.calls.some((call) => call.text.startsWith('SELECT * FROM create_lite_research_task')), false);
+  assert.equal(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')), false);
 });
 
-test('live gate rejects Research SUCCESS without both web_search and web_fetch evidence', async () => {
+test('live gate cancels its created task when a post-create Research assertion fails', async () => {
   const db = makeQuery();
   const incomplete = structuredClone(liveResearch);
   incomplete.execution.research.telemetry.toolSummary.tools = ['web_search'];
@@ -104,4 +110,25 @@ test('live gate rejects Research SUCCESS without both web_search and web_fetch e
     kernel: { claimNextNodeForAgent: async () => null, completeSuccess: async () => false },
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_WEB_TOOLS_NOT_PROVEN');
+
+  const cleanup = db.calls.find((call) => call.text.startsWith('SELECT cancel_task'));
+  assert.ok(cleanup, 'failed live gate must cancel the task it created');
+  assert.equal(cleanup.values[0], 'task-1');
+  assert.equal(cleanup.values[1], 'LIVE_GATE_FAILED');
+  assert.deepEqual(JSON.parse(cleanup.values[2]), {
+    gate: 'research-live-kernel',
+    originalCode: 'LIVE_WEB_TOOLS_NOT_PROVEN',
+  });
+});
+
+test('live gate surfaces cleanup failure instead of silently leaving poison state', async () => {
+  const db = makeQuery({ cleanupFails: true });
+  const incomplete = structuredClone(liveResearch);
+  incomplete.execution.research.telemetry.toolSummary.tools = ['web_search'];
+  await assert.rejects(() => runLiveResearchKernelGate({
+    query: db.query,
+    worker: { runOnce: async () => incomplete },
+    kernel: { claimNextNodeForAgent: async () => null, completeSuccess: async () => false },
+    idempotencyKey: 'live-test-key',
+  }), (error) => error?.code === 'LIVE_GATE_CLEANUP_FAILED' && error?.originalCode === 'LIVE_WEB_TOOLS_NOT_PROVEN');
 });

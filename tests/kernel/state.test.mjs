@@ -27,6 +27,13 @@ test('task lifecycle permits normal execution and terminal completion', () => {
   assert.equal(canTransition('task', 'RUNNING', 'FAIL_WITH_EVIDENCE'), true);
 });
 
+test('task lifecycle permits system terminal failure before or during approval wait', () => {
+  assert.equal(canTransition('task', 'PENDING', 'FAIL_WITH_EVIDENCE'), true);
+  assert.equal(canTransition('task', 'AWAITING_APPROVAL', 'FAIL_WITH_EVIDENCE'), true);
+  assert.equal(canTransition('task', 'PENDING', 'SUCCESS'), false);
+  assert.equal(canTransition('task', 'AWAITING_APPROVAL', 'SUCCESS'), false);
+});
+
 test('node lifecycle permits bounded retry requeue without making failure terminal early', () => {
   assert.equal(canTransition('node', 'RUNNING', 'PENDING'), true);
   assert.equal(canTransition('task', 'RUNNING', 'PENDING'), false);

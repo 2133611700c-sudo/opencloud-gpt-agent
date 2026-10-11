@@ -116,13 +116,18 @@ const normalizeOptionalUsage = (usage) => {
 
   if (observed === 0) return null;
 
-  if (
-    normalized.input !== null
-    && normalized.output !== null
-    && normalized.total !== null
-    && normalized.input + normalized.output !== normalized.total
-  ) {
-    return null;
+  if (normalized.total !== null) {
+    const componentFields = ['input', 'output', 'cacheRead', 'cacheWrite'];
+    const knownComponents = componentFields
+      .map((field) => normalized[field])
+      .filter((value) => value !== null);
+    const knownSum = knownComponents.reduce((sum, value) => sum + value, 0);
+
+    // Partial telemetry may omit one or more cache buckets, so only enforce a
+    // lower bound until every component is observed. With a full split, total
+    // must match exactly.
+    if (!Number.isSafeInteger(knownSum) || knownSum > normalized.total) return null;
+    if (knownComponents.length === componentFields.length && knownSum !== normalized.total) return null;
   }
 
   return Object.freeze(normalized);

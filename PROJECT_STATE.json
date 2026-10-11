@@ -8,8 +8,8 @@
   "foundation": {"status":"PASS","ci_run_id":38149188562,"ci_conclusion":"success"},
   "current_phase": 6,
   "current_phase_name": "Research Agent + Native Web Search/Fetch",
-  "walking_skeleton_gate": "KERNEL_STABILIZATION_PASS_LOCAL_CI_EXTERNAL_LIVE_GATES_PENDING",
-  "kernel_regression_status": "PASS_REVALIDATED_AT_c29998623f775269cd1b02d0c0f4d8bc664bf9db",
+  "walking_skeleton_gate": "KERNEL_RESEARCH_EXECUTION_CONTRACT_PASS_LOCAL_CI_EXTERNAL_LIVE_GATES_PENDING",
+  "kernel_regression_status": "PASS_REVALIDATED_AT_c851faf358c424aeda573498683d3bea2071250e",
   "completed_units": [
     {"unit":"core_postgres_schema","status":"PASS","ci_run_id":38152899381},
     {"unit":"deterministic_state_machine","status":"PASS","ci_run_id":38153032460},
@@ -23,7 +23,7 @@
     {"unit":"openclaw_deepseek_infer_adapter","status":"PASS","ci_run_id":38156265994},
     {"unit":"bounded_deepseek_smoke_process_runner","status":"PASS","ci_run_id":38156463925},
     {"unit":"pinned_openclaw_deepseek_runtime_wiring","status":"PASS","ci_run_id":38157033206},
-    {"unit":"hosted_neon_postgres_persistence_and_kernel_smoke","status":"PASS_HISTORICAL_NEEDS_REVALIDATION_AFTER_0013"},
+    {"unit":"hosted_neon_postgres_persistence_and_kernel_smoke","status":"PASS_HISTORICAL_NEEDS_REVALIDATION_AFTER_0014"},
     {"unit":"research_result_source_contract","status":"PASS","ci_run_id":38159514170},
     {"unit":"research_evidence_timestamp_hardening","status":"PASS","ci_run_id":38159670726},
     {"unit":"native_openclaw_research_runtime_policy","status":"PASS","ci_run_id":38159803006},
@@ -37,15 +37,20 @@
     {"unit":"deadline_terminal_reservation_cleanup","status":"PASS","commit":"a719e00ea7b8b36052923936ecdab08e42c1601c","ci_run_id":38166510250},
     {"unit":"dag_deadlock_reservation_reachability_audit","status":"PASS_SUPPORTED_STATE_CONTRACT"},
     {"unit":"js_sql_state_machine_alignment","status":"PASS","verification_commit":"2c0668a252a9eda7ae382cb4df24f9800f288756","ci_run_id":38167555303},
-    {"unit":"canonical_task_cancellation","status":"PASS","implementation_commit":"6a992cf70db026ddac6fec0d5eb04735d0d2adcc","verification_commit":"c29998623f775269cd1b02d0c0f4d8bc664bf9db","ci_run_id":38168598358,"evidence":"Migration 0013 adds cancel_task with deterministic node->task->reservation locking, releases unresolved reservations, clears active leases, cancels nonterminal nodes/task, is terminal-idempotent, and prevents new claims/reservations. Full PostgreSQL kernel regression suite passed."}
+    {"unit":"canonical_task_cancellation","status":"PASS","verification_commit":"c29998623f775269cd1b02d0c0f4d8bc664bf9db","ci_run_id":38168598358},
+    {"unit":"kernel_to_research_execution_adapter","status":"PASS","verification_commit":"e6b770746d21968e6a186859e2760babac92f7da","ci_run_id":38169102637},
+    {"unit":"postgres_kernel_adapter","status":"PASS","verification_commit":"fa7d82a37256ef4fbf23aefbf6c5a2124897169c","ci_run_id":38170249463},
+    {"unit":"research_postgres_kernel_bindings","status":"PASS","verification_commit":"bc377db0500cdb7ad9ed35efb952e2fe5bdf7f71","ci_run_id":38170407768},
+    {"unit":"agent_scoped_kernel_claim","status":"PASS","verification_commit":"1dd0b1a4a399b2eeef7b33e0b93895607bf408cb","ci_run_id":38170660200},
+    {"unit":"agent_scoped_postgres_adapter_claim","status":"PASS","verification_commit":"c851faf358c424aeda573498683d3bea2071250e","ci_run_id":38170808454}
   ],
   "known_gaps": {},
-  "phase_3_status":"PASS_REVALIDATED_38168598358",
-  "phase_4_status":"PASS_REVALIDATED_38168598358",
+  "phase_3_status":"PASS_REVALIDATED_38170808454",
+  "phase_4_status":"PASS_REVALIDATED_38170808454",
   "phase_5_status":"PARTIAL_EXTERNAL_LIVE_SECRET_GATE_PENDING",
-  "phase_6_status":"IN_PROGRESS",
+  "phase_6_status":"IN_PROGRESS_KERNEL_RESEARCH_CONTRACT_GREEN",
   "live_capabilities": {
-    "hosted_postgres":"NEEDS_REVALIDATION_AFTER_MIGRATION_0013",
+    "hosted_postgres":"NEEDS_REVALIDATION_AFTER_MIGRATION_0014",
     "hosted_postgres_ci_secret":"PENDING_SECURE_GITHUB_ACTIONS_DATABASE_URL_STORAGE",
     "openclaw_deepseek_runtime":"PASS_PINNED_INSTALL_AND_PLUGIN",
     "openclaw_native_research_runtime":"PASS_CONTRACT_RUNNER_PLUGIN_CONFIG_AND_TRUST_ROOT",
@@ -53,7 +58,7 @@
   },
   "hosted_postgres": {"provider":"Neon","project_id":"little-tree-63040612","branch_name":"openclaw-v2","branch_id":"br-odd-forest-a4leyaqj","database_name":"openclaw_v2","main_branch_modified":false,"credentials_stored_in_repo":false},
   "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
-  "persistence_note":"Historical hosted persistence is proven on isolated Neon through migrations 0001-0007. Migrations 0009-0013 require hosted revalidation. GitHub Actions lacks DATABASE_URL and DEEPSEEK_API_KEY, so external live gates remain SKIPPED, not PASS.",
+  "persistence_note":"Local/full CI is green through migration 0014 and the Kernel-to-Research execution contracts. Hosted persistence was historically proven through migrations 0001-0007 only. GitHub Actions lacks DATABASE_URL and DEEPSEEK_API_KEY, so hosted Neon and live DeepSeek gates remain SKIPPED, not PASS.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Build the Kernel-to-Research execution adapter as the next Walking Skeleton micro-unit: claimed Research lease -> reserve -> heartbeat -> injectable Research execution -> exactly-once accounting -> fenced complete/fail. Deterministic mocked contract first, then real OpenClaw/DeepSeek live path only after CI green and secure external prerequisites are available."
+  "next_action":"Build one local PostgreSQL integration harness that uses claim_next_node_for_agent + PostgreSQL adapter + Research execution binding with an injected deterministic Research executor, and proves Research SUCCESS releases Data while accounting/reservations remain consistent."
 }

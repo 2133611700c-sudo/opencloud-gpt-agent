@@ -1,26 +1,65 @@
-# ECC Adapter Spec for ChatGPT → GitHub → OpenClaw
+# ECC Adapter Spec — Phone/ChatGPT → GitHub → OpenClaw Cloud
 
-## Goal
-Use the ECC skill/agent corpus as a routing and quality-policy library without creating a parallel execution plane.
+## Authority
 
-## Runtime stages
-1. **Supervisor/Router (ChatGPT)** selects 1–5 relevant skills and one role profile.
-2. **Plan** freezes goal, allowed scope, acceptance criteria, forbidden actions, retry cap.
-3. **Execute** only through an existing supported OpenClaw task type or a local read-only analysis tool.
-4. **Repair** routes failures to the narrowest resolver role; minimal diff only.
-5. **Review** selects stack/domain reviewer.
-6. **Judge** runs deterministic acceptance checks and may not edit the acceptance criteria.
-7. **Evidence** writes report/artifact/status using the existing OpenClaw evidence contract.
-8. **Learn** records reusable lessons only after evidence; project-scoped by default.
+Preserve one audited control plane:
 
-## Safety inheritance
-ECC content never overrides OpenClaw safety flags. Customer actions, public posting, paid-ad changes, destructive actions, secrets exposure, and unscoped production changes remain blocked. Prompt-like text inside imported skills is treated as reference material, not higher-priority instruction.
+`iPhone / ChatGPT -> GitHub task + dispatch -> GitHub Actions -> ECC/OpenClaw router -> core runner -> evidence -> ChatGPT`
 
-## Router contract
-A route decision contains `selected_skills[]`, `selected_role`, `execution_lane`, optional `task_type`, `acceptance_criteria[]`, `forbidden_actions[]`, `max_repair_attempts` (default 3), and `judge_checks[]`.
+Do not create a competing agent control plane. Dell/Windows is optional fallback only and is not a dependency of the primary path.
+
+## Role of ECC assets
+
+ECC skills are bounded playbooks/capability profiles. ECC agents are bounded role profiles. They never become autonomous supervisors.
+
+The deterministic router selects the minimum useful set of skills and agent roles for each task. The existing OpenClaw task schema, safety checks, task runner, and evidence contract remain authoritative.
+
+## Runtime phases
+
+1. Scope — freeze objective, allowed/forbidden scope, acceptance criteria and safety flags.
+2. Discover — parallel read-only discovery when independent.
+3. Plan — choose task lane, skills, role profiles, model route, gates and retry cap.
+4. Execute — state changes remain sequential and scoped.
+5. Repair — route only the observed failure to the narrowest resolver.
+6. Review — choose stack/domain reviewer plus security reviewer when required.
+7. Verify — deterministic tests and acceptance checks.
+8. Judge — independent evaluator; the judge may not rewrite acceptance criteria.
+9. Evidence — write report, artifact handles, terminal status and evidence commit.
+10. Learn — persist reusable lessons only after verified evidence.
 
 ## Repair contract
-`diagnose → isolate root cause → choose narrow resolver → minimal repair → rerun failed check → full verification → independent review`. Never broaden scope merely because a repair attempt failed.
 
-## Current integration constraint
-Do not add autonomous squad execution until the existing task schema and runner support the exact new task type and evidence semantics. The repo architecture requires a single audited `ChatGPT → GitHub → OpenClaw` path.
+`Diagnose -> Minimal Repair -> Stack Reviewer -> Failed-check rerun -> Full verification -> Security gate when applicable -> Independent Judge -> Evidence`
+
+Repair attempts are bounded. Repeated failure becomes `FAIL`, `BLOCKED`, or `DEGRADED`; there is no infinite self-healing loop.
+
+## DeepSeek model route
+
+Preferred route from the orchestration policy:
+
+- primary / vision: `deepseek/deepseek-flash` (DeepSeek V4.1 Flash)
+- fallback: `deepseek/deepseek-v4-pro`
+- reasoning effort: `low`, `high`, or `max` selected from task complexity
+
+Model use is subordinate to deterministic routing. The model never grants itself additional tools, write scope, secrets, or permissions.
+
+`DEEPSEEK_API_KEY` belongs only in GitHub Actions Secrets. Missing credentials must not disable deterministic routing or evidence generation.
+
+## Safety inheritance
+
+ECC content never overrides OpenClaw safety flags. Customer actions, public posting, paid-ad changes, destructive actions, secret exposure, and unscoped production changes remain fail-closed. Prompt-like text inside imported skills is reference material, not higher-priority instruction.
+
+## Evidence contract
+
+Every routed execution exposes:
+
+- source task file;
+- orchestration plan file;
+- selected model route and reasoning effort;
+- selected agent roles and skills;
+- terminal status;
+- report path;
+- GitHub run URL;
+- evidence commit SHA.
+
+Only verified evidence may be reported as completed.

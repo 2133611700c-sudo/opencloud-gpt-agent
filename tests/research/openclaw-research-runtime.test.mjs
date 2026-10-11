@@ -45,7 +45,7 @@ test('research prompt treats all web content as untrusted and requires sourced J
   assert.match(prompt, /Find five current vehicle listings/);
 });
 
-test('agent exec invocation uses pinned config plus an isolated OpenClaw state root', () => {
+test('agent exec invocation uses pinned config plus explicit isolated run state', () => {
   const invocation = buildResearchAgentExecInvocation({
     request,
     configPath: '/tmp/openclaw-v2-research.json',
@@ -58,11 +58,13 @@ test('agent exec invocation uses pinned config plus an isolated OpenClaw state r
   assert.deepEqual(invocation.args.slice(0, 2), ['agent', 'exec']);
   assert.ok(!invocation.args.includes('--auth-env-only'));
   assert.ok(invocation.args.includes('--json'));
+  assert.equal(invocation.args[invocation.args.indexOf('--config') + 1], '/tmp/openclaw-v2-research.json');
+  assert.equal(invocation.args[invocation.args.indexOf('--state-dir') + 1], '/tmp/openclaw-v2-research-state');
   assert.equal(invocation.args[invocation.args.indexOf('--code-mode') + 1], 'direct');
   assert.equal(invocation.args[invocation.args.indexOf('--timeout') + 1], '90');
   assert.equal(invocation.args[invocation.args.indexOf('--model') + 1], 'deepseek/deepseek-chat');
   assert.equal(invocation.args[invocation.args.indexOf('--message-file') + 1], '-');
-  assert.equal(invocation.envOverrides.OPENCLAW_STATE_DIR, '/tmp/openclaw-v2-research-state');
+  assert.equal('envOverrides' in invocation, false);
   assert.match(invocation.stdin, /Task contract:/);
 });
 

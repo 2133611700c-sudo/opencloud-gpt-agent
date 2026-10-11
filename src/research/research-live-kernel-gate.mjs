@@ -43,26 +43,15 @@ const acceptedEvidenceItems = (result, requiredFields, officialSourceIds) => {
   });
 };
 
-const claimableCount = async (query, agentId) => {
+const activeQueueCount = async (query, agentId) => {
   const result = await query(
-    `SELECT count(*)::int AS claimable_count
+    `SELECT count(*)::int AS active_count
      FROM task_nodes n
-     JOIN tasks t ON t.id=n.task_id
      WHERE n.agent_id=$1
-       AND t.status IN ('PENDING','RUNNING')
-       AND t.deadline_at>NOW()
-       AND t.current_steps<t.max_total_steps
-       AND n.attempt<n.max_attempts
-       AND (n.status='PENDING' OR (n.status='RUNNING' AND n.lease_until IS NOT NULL AND n.lease_until<NOW()))
-       AND NOT EXISTS (
-         SELECT 1 FROM task_node_dependencies d
-         LEFT JOIN task_nodes parent ON parent.task_id=d.task_id AND parent.id=d.parent_node_id
-         WHERE d.task_id=n.task_id AND d.node_id=n.id
-           AND (parent.id IS NULL OR parent.status<>'SUCCESS')
-       )`,
+       AND n.status IN ('PENDING','RUNNING','AWAITING_APPROVAL')`,
     [agentId],
   );
-  return Number(result?.rows?.[0]?.claimable_count ?? 0);
+  return Number(result?.rows?.[0]?.active_count ?? 0);
 };
 
 const cancelFailedGateTask = async (query, taskId, originalError) => {
@@ -127,8 +116,8 @@ export async function runLiveResearchKernelGate({
     throw new TypeError('live gate request.requiredFields must contain at least one non-empty field');
   }
 
-  const existingResearch = await claimableCount(q, 'researcher');
-  const existingData = await claimableCount(q, 'data');
+  const existingResearch = await activeQueueCount(q, 'researcher');
+  const existingData = await activeQueueCount(q, 'data');
   if (existingResearch !== 0 || existingData !== 0) {
     throw gateError(`live gate requires an isolated queue; researcher=${existingResearch}, data=${existingData}`, 'LIVE_QUEUE_NOT_ISOLATED');
   }

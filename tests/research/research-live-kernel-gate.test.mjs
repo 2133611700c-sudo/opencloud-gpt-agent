@@ -29,12 +29,12 @@ const liveResearch = {
 
 const makeQuery = ({ isolated = true, cleanupFails = false, cleanupRejected = false } = {}) => {
   const calls = [];
-  let claimChecks = 0;
+  let isolationChecks = 0;
   const query = async (text, values = []) => {
     calls.push({ text, values });
-    if (text.includes('AS claimable_count')) {
-      claimChecks += 1;
-      return { rows: [{ claimable_count: isolated ? 0 : (claimChecks === 1 ? 1 : 0) }] };
+    if (text.includes('AS active_count')) {
+      isolationChecks += 1;
+      return { rows: [{ active_count: isolated ? 0 : (isolationChecks === 1 ? 1 : 0) }] };
     }
     if (text.startsWith('SELECT * FROM create_lite_research_task')) return { rows: [{ task_id: 'task-1', created: true }] };
     if (text.startsWith('SELECT count(*)::int AS accounting_rows')) return { rows: [{ accounting_rows: 1, accounting_basis: 'OBSERVED_USAGE' }] };
@@ -98,7 +98,7 @@ test('live Research gate proves required fields from official DeepSeek source, w
   assert.equal(createCall.values[6], '2026-10-11T21:10:00.000Z');
 });
 
-test('live gate refuses a non-isolated queue before creating or claiming anything', async () => {
+test('live gate refuses any active Research/Data queue before creating or claiming anything', async () => {
   const db = makeQuery({ isolated: false });
   let ran = false;
   await assert.rejects(() => runLiveResearchKernelGate({
@@ -110,6 +110,10 @@ test('live gate refuses a non-isolated queue before creating or claiming anythin
   assert.equal(ran, false);
   assert.equal(db.calls.some((call) => call.text.startsWith('SELECT * FROM create_lite_research_task')), false);
   assert.equal(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')), false);
+  const isolationQuery = db.calls.find((call) => call.text.includes('AS active_count'));
+  assert.ok(isolationQuery);
+  assert.match(isolationQuery.text, /n\.status IN \('PENDING','RUNNING','AWAITING_APPROVAL'\)/);
+  assert.doesNotMatch(isolationQuery.text, /lease_until/);
 });
 
 test('live gate rejects non-official source evidence and cancels its task', async () => {

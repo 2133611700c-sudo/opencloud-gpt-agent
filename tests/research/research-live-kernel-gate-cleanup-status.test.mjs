@@ -14,7 +14,7 @@ const incompleteResearch = {
         sources: [{ id: 's1', url: 'https://api-docs.deepseek.com/updates/', checkedAt: '2026-10-11T21:00:00Z' }],
         items: [{
           id: 'model-1',
-          data: { modelId: 'deepseek-v4-flash', modelVersion: 'DeepSeek-V4-Flash-0731' },
+          data: { modelId: 'deepseek-flash', modelVersion: 'DeepSeek-V4.1-Flash' },
           sourceIds: ['s1'],
         }],
       },
@@ -27,7 +27,7 @@ const makeQuery = (taskStatus) => {
   const calls = [];
   const query = async (text, values = []) => {
     calls.push({ text, values });
-    if (text.includes('AS claimable_count')) return { rows: [{ claimable_count: 0 }] };
+    if (text.includes('AS active_count')) return { rows: [{ active_count: 0 }] };
     if (text.startsWith('SELECT * FROM create_lite_research_task')) return { rows: [{ task_id: 'task-1', created: true }] };
     if (text.startsWith('SELECT cancel_task')) return { rows: [{ cancelled: false }] };
     if (text.startsWith('SELECT status FROM tasks WHERE id=$1')) return { rows: [{ status: taskStatus }] };

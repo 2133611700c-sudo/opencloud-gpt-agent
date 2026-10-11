@@ -45,11 +45,11 @@ test('research prompt treats all web content as untrusted and requires sourced J
   assert.match(prompt, /Find five current vehicle listings/);
 });
 
-test('agent exec invocation uses pinned config, direct code mode, and native ephemeral state', () => {
+test('agent exec invocation uses pinned config, direct code mode, max DeepSeek reasoning, and native ephemeral state', () => {
   const invocation = buildResearchAgentExecInvocation({
     request,
     configPath: '/tmp/openclaw-v2-research.json',
-    model: 'deepseek/deepseek-chat',
+    model: 'deepseek/deepseek-flash',
     timeoutSeconds: 90,
   });
 
@@ -61,8 +61,10 @@ test('agent exec invocation uses pinned config, direct code mode, and native eph
   assert.ok(invocation.args.includes('--json'));
   assert.equal(invocation.args[invocation.args.indexOf('--config') + 1], '/tmp/openclaw-v2-research.json');
   assert.equal(invocation.args[invocation.args.indexOf('--code-mode') + 1], 'direct');
+  assert.equal(invocation.args[invocation.args.indexOf('--thinking') + 1], 'max');
+  assert.equal(invocation.thinking, 'max');
   assert.equal(invocation.args[invocation.args.indexOf('--timeout') + 1], '90');
-  assert.equal(invocation.args[invocation.args.indexOf('--model') + 1], 'deepseek/deepseek-chat');
+  assert.equal(invocation.args[invocation.args.indexOf('--model') + 1], 'deepseek/deepseek-flash');
   assert.equal(invocation.args[invocation.args.indexOf('--message-file') + 1], '-');
   assert.match(invocation.stdin, /Task contract:/);
 });

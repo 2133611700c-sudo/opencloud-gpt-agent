@@ -65,8 +65,9 @@ jobs:
       max-parallel: 1
       matrix:
         request: ${{ fromJson(needs.prepare.outputs.requests) }}
-    uses: ./.github/workflows/openclaw-task-runner.yml
+    uses: ./.github/workflows/openclaw-mobile-task-runner.yml
     with:
       task_file: ${{ matrix.request.task_file }}
       force_rerun: ${{ matrix.request.force_rerun }}
       dispatch_file: ${{ matrix.request.dispatch_file }}
+    secrets: inherit

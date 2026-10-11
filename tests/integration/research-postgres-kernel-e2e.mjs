@@ -35,7 +35,7 @@ const execute=createResearchKernelExecutor({
   estimateReservation:async()=>({costUsd:0.05,tokens:100}),
   runResearch:async()=>({
     result:{status:'SUCCESS',summary:'deterministic integration result',sources:[{url:'https://example.com',title:'Example'}]},
-    telemetry:{usage:{input:10,output:5,total:15},costUsd:0.01,sessionId:'integration-request'},
+    telemetry:{usage:{input:10,output:5,cacheRead:0,cacheWrite:0,total:15},costUsd:0.01,sessionId:'integration-request'},
     process:{latencyMs:1},
   }),
   heartbeatIntervalMs:60_000,
@@ -47,6 +47,6 @@ assert.ok(dataClaim,'Data must become claimable only after Research SUCCESS');
 assert.equal(dataClaim.taskId,claim.taskId);
 const reserved=execFileSync('psql',[...connection,'-c',`SELECT count(*) FROM budget_reservations WHERE task_id='${claim.taskId}' AND status='RESERVED';`],{encoding:'utf8',env:{...process.env,PGPASSWORD:'openclaw'}}).trim();
 assert.equal(reserved,'0','Research completion must leave zero unresolved reservations');
-const accounting=execFileSync('psql',[...connection,'-c',`SELECT count(*) FROM llm_accounting WHERE task_id='${claim.taskId}';`],{encoding:'utf8',env:{...process.env,PGPASSWORD:'openclaw'}}).trim();
-assert.equal(accounting,'1','Research execution must persist exactly one accounting row');
+const accounting=execFileSync('psql',[...connection,'-c',`SELECT count(*) FROM llm_accounting WHERE task_id='${claim.taskId}' AND accounting_basis='OBSERVED_USAGE';`],{encoding:'utf8',env:{...process.env,PGPASSWORD:'openclaw'}}).trim();
+assert.equal(accounting,'1','Research execution with full cache split must persist exactly one observed accounting row');
 console.log('research postgres kernel e2e: PASS');

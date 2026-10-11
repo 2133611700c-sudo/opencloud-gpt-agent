@@ -28,6 +28,11 @@ const nonNegativeInteger = (value, label) => {
   return value;
 };
 
+const optionalNonNegativeInteger = (value, label) => {
+  if (value == null) return null;
+  return nonNegativeInteger(value, label);
+};
+
 const nonNegativeNumber = (value, label) => {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
     fail(`${label} must be a nonnegative finite number`, 'INVALID_TELEMETRY');
@@ -114,15 +119,22 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
   }
 
   let usage = null;
+  let telemetryStatus = 'NOT_EXPOSED';
   if (envelope.usage != null) {
     const rawUsage = objectOrFail(envelope.usage, 'usage');
     const input = nonNegativeInteger(rawUsage.input, 'usage.input');
     const output = nonNegativeInteger(rawUsage.output, 'usage.output');
     const total = nonNegativeInteger(rawUsage.total, 'usage.total');
-    if (total !== input + output) {
-      fail('usage.total must equal input + output', 'INVALID_TELEMETRY');
+    const cacheRead = optionalNonNegativeInteger(rawUsage.cacheRead, 'usage.cacheRead');
+    const cacheWrite = optionalNonNegativeInteger(rawUsage.cacheWrite, 'usage.cacheWrite');
+    if (total < input + output) {
+      fail('usage.total must not be smaller than input + output', 'INVALID_TELEMETRY');
     }
-    usage = Object.freeze({ input, output, total });
+    if (cacheRead !== null && cacheWrite !== null && total !== input + output + cacheRead + cacheWrite) {
+      fail('usage.total must equal input + output + cacheRead + cacheWrite when cache split is exposed', 'INVALID_TELEMETRY');
+    }
+    usage = Object.freeze({ input, output, total, cacheRead, cacheWrite });
+    telemetryStatus = cacheRead !== null && cacheWrite !== null ? 'AVAILABLE_FULL' : 'AVAILABLE_NO_CACHE_SPLIT';
   }
 
   const costUsd = envelope.costUsd == null ? null : nonNegativeNumber(envelope.costUsd, 'costUsd');
@@ -139,7 +151,7 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
       provider: 'deepseek',
       model: expectedModel,
       usage,
-      telemetryStatus: usage ? 'AVAILABLE' : 'NOT_EXPOSED',
+      telemetryStatus,
       costUsd,
       assistantTurns,
       toolSummary: Object.freeze({

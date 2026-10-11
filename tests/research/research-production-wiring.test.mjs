@@ -28,7 +28,7 @@ const makeQuery = () => {
   return { query, calls };
 };
 
-test('production wiring traverses scoped Postgres claim -> native Research -> accounting -> fenced success', async () => {
+test('production wiring traverses scoped Postgres claim -> native Research -> cache-aware accounting -> fenced success', async () => {
   const db = makeQuery();
   const researchCalls = [];
   const estimateCalls = [];
@@ -44,7 +44,7 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ac
       researchCalls.push(input);
       return {
         result: { status: 'SUCCESS', summary: 'verified', sources: [{ id: 's1', url: 'https://example.com', checkedAt: '2026-10-11T21:00:00Z' }], items: [], needsBrowser: [], confidence: 'HIGH' },
-        telemetry: { usage: { input: 10, output: 5, total: 15 }, costUsd: 0.01, sessionId: 'provider-session-1' },
+        telemetry: { usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, total: 15 }, costUsd: 0.01, sessionId: 'provider-session-1' },
         process: { latencyMs: 9 },
       };
     },
@@ -75,6 +75,8 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ac
   assert.equal(accounting.values[5], 'deepseek');
   assert.equal(accounting.values[6], 'deepseek-flash');
   assert.equal(accounting.values[7], 'pricing-v1');
+  assert.equal(accounting.values[9], 0);
+  assert.equal(accounting.values[10], 10);
 
   const completion = db.calls.find((call) => call.text.startsWith('SELECT complete_node_success'));
   assert.ok(completion);

@@ -19,8 +19,19 @@ const requireUsage = (usage) => {
       throw Object.assign(new Error(`Research usage telemetry ${field} must be a nonnegative safe integer`), { code: 'USAGE_TELEMETRY_INVALID' });
     }
   }
-  if (usage.total !== usage.input + usage.output) {
-    throw Object.assign(new Error('Research usage telemetry total is inconsistent'), { code: 'USAGE_TELEMETRY_INVALID' });
+  for (const field of ['cacheRead', 'cacheWrite']) {
+    if (usage[field] != null && (!Number.isSafeInteger(usage[field]) || usage[field] < 0)) {
+      throw Object.assign(new Error(`Research usage telemetry ${field} must be null or a nonnegative safe integer`), { code: 'USAGE_TELEMETRY_INVALID' });
+    }
+  }
+  if (usage.total < usage.input + usage.output) {
+    throw Object.assign(new Error('Research usage telemetry total is smaller than input + output'), { code: 'USAGE_TELEMETRY_INVALID' });
+  }
+  if (usage.cacheRead != null && usage.cacheWrite != null) {
+    const expected = usage.input + usage.output + usage.cacheRead + usage.cacheWrite;
+    if (!Number.isSafeInteger(expected) || usage.total !== expected) {
+      throw Object.assign(new Error('Research usage telemetry total is inconsistent with cache split'), { code: 'USAGE_TELEMETRY_INVALID' });
+    }
   }
   return usage;
 };
@@ -56,8 +67,10 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
         const latencyMs = latencyMsFor(research);
         const missingUsage = rawUsage == null;
         const missingCost = rawCostUsd == null;
+        const usage = missingUsage ? null : requireUsage(rawUsage);
+        const missingCacheSplit = usage != null && (usage.cacheRead == null || usage.cacheWrite == null);
 
-        if (missingUsage || missingCost) {
+        if (missingUsage || missingCost || missingCacheSplit) {
           if (typeof db.recordLlmCallReservationFallback !== 'function') {
             throw Object.assign(new Error('reservation fallback accounting capability is required'), { code: 'ACCOUNTING_FALLBACK_UNAVAILABLE' });
           }
@@ -65,7 +78,9 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
             ? 'MISSING_USAGE_AND_COST_TELEMETRY'
             : missingUsage
               ? 'MISSING_USAGE_TELEMETRY'
-              : 'MISSING_COST_TELEMETRY';
+              : missingCost
+                ? 'MISSING_COST_TELEMETRY'
+                : 'MISSING_CACHE_SPLIT_TELEMETRY';
           const accounted = await db.recordLlmCallReservationFallback({
             reservationId,
             callKey: reservationKey,
@@ -83,10 +98,10 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           return;
         }
 
-        const usage = requireUsage(rawUsage);
         if (!Number.isFinite(rawCostUsd) || rawCostUsd < 0) {
           throw Object.assign(new Error('Research cost telemetry is invalid'), { code: 'COST_TELEMETRY_INVALID' });
         }
+        const promptCacheMissTokens = usage.input + usage.cacheWrite;
         const accounted = await db.recordLlmCall({
           reservationId,
           callKey: reservationKey,
@@ -97,8 +112,8 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           model: model.replace(/^deepseek\//, ''),
           pricingVersion,
           providerRequestId: research.telemetry.sessionId,
-          promptCacheHitTokens: 0,
-          promptCacheMissTokens: usage.input,
+          promptCacheHitTokens: usage.cacheRead,
+          promptCacheMissTokens,
           completionTokens: usage.output,
           totalTokens: usage.total,
           actualCostUsd: rawCostUsd,

@@ -30,7 +30,7 @@ const envelope = (overrides = {}) => ({
   status: 'ok',
   final: JSON.stringify(researchFinal()),
   payloads: [{ text: 'omitted' }],
-  usage: { input: 100, output: 30, total: 130 },
+  usage: { input: 100, output: 30, cacheRead: 0, cacheWrite: 0, total: 130 },
   costUsd: 0.0012,
   codeModeEngaged: false,
   assistantTurns: 2,
@@ -49,15 +49,27 @@ const parse = (value) => parseResearchAgentEnvelope(JSON.stringify(value), {
   requestedModel: 'deepseek/deepseek-chat',
 });
 
-test('accepts a sourced DeepSeek research envelope with real web tool evidence', () => {
+test('accepts a sourced DeepSeek research envelope with full usage/cache evidence', () => {
   const parsed = parse(envelope());
 
   assert.equal(parsed.result.status, 'SUCCESS');
   assert.equal(parsed.result.sources[0].url, 'https://example.com/listing');
   assert.deepEqual(parsed.telemetry.toolSummary.tools, ['web_search', 'web_fetch']);
-  assert.deepEqual(parsed.telemetry.usage, { input: 100, output: 30, total: 130 });
-  assert.equal(parsed.telemetry.telemetryStatus, 'AVAILABLE');
+  assert.deepEqual(parsed.telemetry.usage, { input: 100, output: 30, total: 130, cacheRead: 0, cacheWrite: 0 });
+  assert.equal(parsed.telemetry.telemetryStatus, 'AVAILABLE_FULL');
   assert.equal(parsed.telemetry.costUsd, 0.0012);
+});
+
+test('preserves observed cache split and accepts total including cache tokens', () => {
+  const parsed = parse(envelope({ usage: { input: 80, output: 30, cacheRead: 20, cacheWrite: 5, total: 135 } }));
+  assert.deepEqual(parsed.telemetry.usage, { input: 80, output: 30, total: 135, cacheRead: 20, cacheWrite: 5 });
+  assert.equal(parsed.telemetry.telemetryStatus, 'AVAILABLE_FULL');
+});
+
+test('marks usage without cache split as partial instead of inventing zeros', () => {
+  const parsed = parse(envelope({ usage: { input: 100, output: 30, total: 130 } }));
+  assert.deepEqual(parsed.telemetry.usage, { input: 100, output: 30, total: 130, cacheRead: null, cacheWrite: null });
+  assert.equal(parsed.telemetry.telemetryStatus, 'AVAILABLE_NO_CACHE_SPLIT');
 });
 
 test('does not invent usage telemetry when OpenClaw omits it', () => {
@@ -70,11 +82,11 @@ test('does not invent usage telemetry when OpenClaw omits it', () => {
 
 test('rejects inconsistent or malformed usage telemetry', () => {
   assert.throws(
-    () => parse(envelope({ usage: { input: 100, output: 30, total: 999 } })),
+    () => parse(envelope({ usage: { input: 100, output: 30, cacheRead: 10, cacheWrite: 0, total: 130 } })),
     (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'INVALID_TELEMETRY',
   );
   assert.throws(
-    () => parse(envelope({ usage: { input: 100, output: -1, total: 99 } })),
+    () => parse(envelope({ usage: { input: 100, output: -1, cacheRead: 0, cacheWrite: 0, total: 99 } })),
     (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'INVALID_TELEMETRY',
   );
 });

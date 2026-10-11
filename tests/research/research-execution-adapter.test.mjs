@@ -4,7 +4,7 @@ import test from 'node:test';
 import { executeClaimedResearchNode } from '../../src/research/research-execution-adapter.mjs';
 
 const claim = Object.freeze({
-  taskId: 'task-1', nodeId: 'node-research', workerId: 'worker-1', leaseToken: 7, agentId: 'researcher',
+  taskId: 'task-1', nodeId: 'node-research', workerId: 'worker-1', leaseToken: '11111111-1111-4111-8111-111111111111', agentId: 'researcher',
 });
 
 const successResearch = Object.freeze({
@@ -43,6 +43,12 @@ test('claimed Research node follows reserve -> run -> account -> fenced success'
 
   assert.equal(result.status, 'SUCCESS');
   assert.deepEqual(events, ['reserve', 'run', 'account', 'complete']);
+});
+
+test('Research claim rejects non-UUID fencing tokens', async () => {
+  await assert.rejects(() => executeClaimedResearchNode({
+    claim: { ...claim, leaseToken: 7 },
+  }), /claim\.leaseToken must be a UUID fencing token/);
 });
 
 test('Research failure is terminalized and unreconciled reservation is released', async () => {

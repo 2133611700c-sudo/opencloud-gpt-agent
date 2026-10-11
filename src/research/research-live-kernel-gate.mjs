@@ -17,14 +17,49 @@ const requireText = (value, name) => {
 
 const FAILED_TERMINAL_TASK_STATUSES = new Set(['FAIL_WITH_EVIDENCE', 'BLOCKED', 'CANCELLED']);
 
-const isOfficialDeepSeekSource = (source) => {
+const normalizeRequiredDomains = (value) => {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new TypeError('live gate request.constraints.requiredDomains must contain at least one domain');
+  }
+  const domains = value.map((domain) => {
+    if (typeof domain !== 'string' || domain.trim() === '') {
+      throw new TypeError('live gate requiredDomains entries must be non-empty hostnames');
+    }
+    const normalized = domain.trim().toLowerCase().replace(/\.$/, '');
+    try {
+      const parsed = new URL(`https://${normalized}`);
+      if (parsed.hostname !== normalized || parsed.pathname !== '/' || parsed.search || parsed.hash || parsed.username || parsed.password || parsed.port) {
+        throw new Error('not a plain hostname');
+      }
+    } catch {
+      throw new TypeError(`invalid live gate required domain: ${domain}`);
+    }
+    return normalized;
+  });
+  return Object.freeze([...new Set(domains)]);
+};
+
+const sourceUrl = (source) => {
   try {
     const url = new URL(source?.url);
-    const host = url.hostname.toLowerCase();
-    return url.protocol === 'https:' && (host === 'deepseek.com' || host.endsWith('.deepseek.com'));
+    return url.protocol === 'https:' ? url : null;
   } catch {
-    return false;
+    return null;
   }
+};
+
+const isOfficialDeepSeekSource = (source) => {
+  const url = sourceUrl(source);
+  if (!url) return false;
+  const host = url.hostname.toLowerCase();
+  return host === 'deepseek.com' || host.endsWith('.deepseek.com');
+};
+
+const isRequiredDomainSource = (source, requiredDomains) => {
+  const url = sourceUrl(source);
+  if (!url) return false;
+  const host = url.hostname.toLowerCase();
+  return requiredDomains.some((domain) => host === domain || host.endsWith(`.${domain}`));
 };
 
 const hasFieldValue = (data, field) => {
@@ -34,12 +69,12 @@ const hasFieldValue = (data, field) => {
   return value !== null && value !== undefined && (typeof value !== 'string' || value.trim() !== '');
 };
 
-const acceptedEvidenceItems = (result, requiredFields, officialSourceIds) => {
+const acceptedEvidenceItems = (result, requiredFields, acceptedSourceIds) => {
   if (!Array.isArray(result?.items)) return [];
   return result.items.filter((item) => {
     if (!requiredFields.every((field) => hasFieldValue(item?.data, field))) return false;
     if (!Array.isArray(item?.sourceIds)) return false;
-    return item.sourceIds.some((sourceId) => officialSourceIds.has(sourceId));
+    return item.sourceIds.some((sourceId) => acceptedSourceIds.has(sourceId));
   });
 };
 
@@ -115,6 +150,7 @@ export async function runLiveResearchKernelGate({
   if (requiredFields.length === 0 || requiredFields.some((field) => typeof field !== 'string' || field.trim() === '')) {
     throw new TypeError('live gate request.requiredFields must contain at least one non-empty field');
   }
+  const requiredDomains = normalizeRequiredDomains(request?.constraints?.requiredDomains);
 
   const existingResearch = await activeQueueCount(q, 'researcher');
   const existingData = await activeQueueCount(q, 'data');
@@ -147,11 +183,18 @@ export async function runLiveResearchKernelGate({
     if (officialSources.length < 1) {
       throw gateError('live Research did not cite an official DeepSeek source', 'LIVE_OFFICIAL_SOURCE_NOT_PROVEN');
     }
-    const officialSourceIds = new Set(officialSources.map((source) => source.id));
-    const acceptedItems = acceptedEvidenceItems(research.result, requiredFields, officialSourceIds);
+    const requiredDomainSources = officialSources.filter((source) => isRequiredDomainSource(source, requiredDomains));
+    if (requiredDomainSources.length < 1) {
+      throw gateError(
+        `live Research did not cite an official source from required domains: ${requiredDomains.join(', ')}`,
+        'LIVE_REQUIRED_DOMAIN_SOURCE_NOT_PROVEN',
+      );
+    }
+    const acceptedSourceIds = new Set(requiredDomainSources.map((source) => source.id));
+    const acceptedItems = acceptedEvidenceItems(research.result, requiredFields, acceptedSourceIds);
     if (acceptedItems.length < 1) {
       throw gateError(
-        `live Research did not prove required fields from an official DeepSeek source: ${requiredFields.join(', ')}`,
+        `live Research did not prove required fields from an accepted DeepSeek source: ${requiredFields.join(', ')}`,
         'LIVE_REQUIRED_FIELDS_NOT_PROVEN',
       );
     }
@@ -197,8 +240,10 @@ export async function runLiveResearchKernelGate({
       research_status: research.result.status,
       source_count: research.result.sources.length,
       official_source_count: officialSources.length,
+      required_domain_source_count: requiredDomainSources.length,
       accepted_item_count: acceptedItems.length,
       required_fields: Object.freeze([...requiredFields]),
+      required_domains: requiredDomains,
       tools: Object.freeze([...tools]),
       model: research.telemetry?.model ?? null,
       accounting_rows: accountingRows,

@@ -8,8 +8,6 @@ on:
 permissions:
   contents: write
   actions: read
-  issues: write
-  pull-requests: write
 
 concurrency:
   group: openclaw-chatgpt-dispatch-${{ github.ref }}
@@ -70,4 +68,3 @@ jobs:
       task_file: ${{ matrix.request.task_file }}
       force_rerun: ${{ matrix.request.force_rerun }}
       dispatch_file: ${{ matrix.request.dispatch_file }}
-    secrets: inherit

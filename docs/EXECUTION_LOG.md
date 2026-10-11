@@ -4,39 +4,36 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 
 ## 2026-10-11
 
-### Phase 1 — Foundation
-- Created clean branch `v2/openclaw-clean-20261011`.
-- Legacy `main` left unchanged by V2 foundation work.
-- Added clean V2 tree, `SYSTEM.md`, health checks, tests and V2 CI.
-- GitHub Actions run `38149188562` completed successfully.
-- Phase 1 gate: PASS.
+### Phase 1 — Foundation [PASS]
+- Clean branch `v2/openclaw-clean-20261011`; legacy `main` frozen.
+- Foundation CI run `38149188562`: PASS.
 
 ### Continuity hardening
-- Added `PROJECT_START_HERE.md` and `PROJECT_STATE.json` in V2 branch.
-- Persisted canonical 14-phase architecture in `docs/01_MASTER_ARCHITECTURE_AND_ROADMAP.md`.
-- Persisted canonical two-day vertical-slice plan in `docs/02_48H_WALKING_SKELETON.md`.
-- Added this durable execution log.
-- Canonical ChatGPT Library mirror exists at `/OpenClaw-V2-Project` with START_HERE, master roadmap, 48h plan, current state, and execution log.
+- GitHub: `PROJECT_START_HERE.md`, `PROJECT_STATE.json`, master 14-phase roadmap, 48h plan, and this execution log.
+- ChatGPT Library mirror: `/OpenClaw-V2-Project`.
+- Future chats must restore from canonical files and current GitHub/CI before modifying anything.
 
-### Phase 2 — Persistent State + Durable Kernel [PASS]
-- Core PostgreSQL schema gate passed in GitHub Actions run `38152899381`.
-- Deterministic Task/Node state-machine gate passed in run `38153032460`.
+### Phase 2 — Persistent State + Durable Kernel core [LOGIC PASS; HOSTED PERSISTENCE NOT YET VERIFIED]
+- Core schema run `38152899381`: PASS on PostgreSQL 16 in GitHub Actions.
+- Deterministic state machine run `38153032460`: PASS.
+- Important: these prove schema/kernel behavior on ephemeral CI PostgreSQL; hosted persistent `DATABASE_URL` still requires live verification.
 
 ### Phase 3 — Lease, Fencing, Circuit Breakers [PASS]
-- Atomic lease/fencing contract passed in run `38153301256` after CI caught and we fixed a real PL/pgSQL ambiguity.
-- Fenced idempotent budget/token reservations, reconcile/release, and hard budget/deadline/step/attempt breakers passed in run `38154703360`.
-- Application async heartbeat manager passed in run `38154875398`; tests cover lease-loss abort, renewal error, non-overlap, clean stop, and stop/in-flight race.
-- Phase 3 gate: PASS.
+- Atomic lease/fencing run `38153301256`: PASS after CI caught and we fixed a real PL/pgSQL ambiguity.
+- Budget/token reservation + deadline/steps/attempt breakers run `38154703360`: PASS.
+- Async heartbeat manager run `38154875398`: PASS.
 
-### Phase 4 — Lite Orchestrator [IN PROGRESS]
-- Added `migrations/0004_lite_orchestrator.sql` with idempotent task intake and deterministic `Research -> Data/Result` DAG creation.
-- Intake validates request contract, returns the same task for exact duplicate `request_id`, rejects reuse of the same idempotency key with a different request contract, and verifies exact canonical DAG shape.
-- Added `tests/sql/0004_lite_orchestrator_test.sql` proving one task only, exactly two canonical nodes, Data->Research dependency, and Research-first scheduler behavior.
-- Verification run `38155010163` passed all Node tests, all PostgreSQL migrations/assertions, and health checks.
-- Phase 4A gate: PASS.
-- Current sub-step 4B: task finalizer, terminal failure cascade, deadline/circuit-breaker closure, and no-runnable-node deadlock detection.
+### Phase 4 — Lite Orchestrator [PASS]
+- Idempotent intake + fixed `Research -> Data/Result` DAG run `38155010163`: PASS.
+- Finalizer/failure cascade/deadline/max-steps/deadlock run `38155170623`: PASS.
+- Phase 4 core gate: PASS.
+
+### Phase 5 — DeepSeek + Model Accounting prerequisites [IN PROGRESS]
+- Before any live model claim, verify `DATABASE_URL` and `DEEPSEEK_API_KEY` secret presence without exposing values.
+- If `DATABASE_URL` exists: run hosted migration + persistence smoke across separate workflow processes.
+- If `DEEPSEEK_API_KEY` exists: run real OpenClaw/DeepSeek provider smoke and record model/usage/latency.
+- If either is absent: record exact blocker; do not describe that capability as live.
 
 ### Current engineering position
-- Current phase: Phase 4 — Lite Orchestrator.
-- Next action: implement and test Phase 4B only; do not advance to DeepSeek until positive completion and failure/deadlock termination gates pass.
-- External capabilities still to verify before live E2E: hosted PostgreSQL secret, DeepSeek API key, OpenClaw runtime/provider health, GitHub Actions artifact/dispatch permissions.
+- Next action: prerequisite secret-presence gate only.
+- Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before the Walking Skeleton live research path passes.

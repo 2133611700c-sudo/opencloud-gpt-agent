@@ -5,27 +5,26 @@
   "active_branch": "v2/openclaw-clean-20261011",
   "legacy_branch": "main",
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
-  "foundation": {
-    "status": "PASS",
-    "ci_run_id": 38149188562,
-    "ci_conclusion": "success"
-  },
-  "current_phase": 4,
-  "current_phase_name": "Lite Orchestrator",
+  "foundation": {"status":"PASS","ci_run_id":38149188562,"ci_conclusion":"success"},
+  "current_phase": 5,
+  "current_phase_name": "DeepSeek + Model Accounting prerequisites",
   "completed_units": [
     {"unit":"core_postgres_schema","status":"PASS","ci_run_id":38152899381},
     {"unit":"deterministic_state_machine","status":"PASS","ci_run_id":38153032460},
     {"unit":"atomic_lease_and_fencing","status":"PASS","ci_run_id":38153301256},
     {"unit":"budget_reservation_and_circuit_breakers","status":"PASS","ci_run_id":38154703360},
     {"unit":"application_heartbeat_manager","status":"PASS","ci_run_id":38154875398},
+    {"unit":"lite_orchestrator_intake","status":"PASS","ci_run_id":38155010163},
     {
-      "unit":"lite_orchestrator_intake",
+      "unit":"lite_orchestrator_finalizer",
       "status":"PASS",
-      "ci_run_id":38155010163,
-      "evidence":"Repeated request_id returns same task; exactly Research and Data nodes exist; Data depends on Research; mismatched reuse fails closed; scheduler exposes Research first"
+      "ci_run_id":38155170623,
+      "evidence":"Positive Research->Data completion, terminal failure cascade, deadline closure, max-step closure, and DAG deadlock termination passed on PostgreSQL 16"
     }
   ],
   "phase_3_status":"PASS",
+  "phase_4_status":"PASS",
+  "persistence_note":"Kernel contracts are verified on ephemeral PostgreSQL 16 in GitHub Actions. Hosted persistent PostgreSQL has NOT yet been verified and remains a required Walking Skeleton gate.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Phase 4B only: implement task finalizer, terminal failure cascade to descendants, deadline/circuit-breaker closure, and no-runnable-node deadlock detection for the Lite DAG. Prove positive completion and failure termination before advancing to DeepSeek."
+  "next_action":"Prerequisite gate only: verify secret presence for DATABASE_URL and DEEPSEEK_API_KEY without exposing values. If present, run hosted-Postgres migration/persistence smoke and then DeepSeek/OpenClaw live smoke. If absent, record exact blocker and do not claim live persistence/model execution."
 }

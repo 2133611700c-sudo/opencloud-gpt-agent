@@ -6,7 +6,7 @@ import {
   parseDeepSeekInferEnvelope,
 } from '../../src/providers/openclaw-deepseek-infer.mjs';
 
-const envelope = (usage) => ({
+const envelope = (usage, overrides = {}) => ({
   ok: true,
   capability: 'model.run',
   transport: 'local',
@@ -15,6 +15,7 @@ const envelope = (usage) => ({
   outputs: [{ text: 'ok' }],
   usage,
   costUsd: 0.01,
+  ...overrides,
 });
 
 test('builds a bounded DeepSeek local infer invocation', () => {
@@ -75,4 +76,29 @@ test('infer usage rejects a provider total inconsistent with input + output', ()
 
   assert.equal(parsed.telemetry.usage, null);
   assert.equal(parsed.telemetry.usageFidelity, 'NOT_EXPOSED_BY_ENVELOPE');
+});
+
+test('infer telemetry does not claim zero cost is observed when usage is nonzero', () => {
+  const parsed = parseDeepSeekInferEnvelope(envelope({
+    input: 100,
+    output: 20,
+    total: 120,
+    cacheRead: 25,
+  }, { costUsd: 0 }), { requestedModel: 'deepseek/deepseek-flash' });
+
+  assert.equal(parsed.telemetry.costUsd, null);
+  assert.equal(parsed.telemetry.costFidelity, 'UNRELIABLE_ZERO_WITH_USAGE');
+});
+
+test('infer telemetry preserves exact zero cost when observed usage is zero', () => {
+  const parsed = parseDeepSeekInferEnvelope(envelope({
+    input: 0,
+    output: 0,
+    total: 0,
+    cacheRead: 0,
+    cacheWrite: 0,
+  }, { costUsd: 0 }), { requestedModel: 'deepseek/deepseek-flash' });
+
+  assert.equal(parsed.telemetry.costUsd, 0);
+  assert.equal(parsed.telemetry.costFidelity, 'OBSERVED');
 });

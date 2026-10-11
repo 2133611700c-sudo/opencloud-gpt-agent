@@ -128,6 +128,10 @@ const normalizeOptionalUsage = (usage) => {
   return Object.freeze(normalized);
 };
 
+const usageHasNonzeroTokens = (usage) => usage !== null
+  && ['input', 'output', 'total', 'cacheRead', 'cacheWrite']
+    .some((field) => Number.isSafeInteger(usage[field]) && usage[field] > 0);
+
 export function parseDeepSeekInferEnvelope(value, { requestedModel } = {}) {
   const envelope = parseEnvelope(value);
   const expectedModel = validateDeepSeekModelRef(requestedModel);
@@ -159,9 +163,18 @@ export function parseDeepSeekInferEnvelope(value, { requestedModel } = {}) {
   }
 
   const usage = normalizeOptionalUsage(envelope.usage);
-  const costUsd = typeof envelope.costUsd === 'number' && Number.isFinite(envelope.costUsd) && envelope.costUsd >= 0
+  const observedCostUsd = typeof envelope.costUsd === 'number'
+    && Number.isFinite(envelope.costUsd)
+    && envelope.costUsd >= 0
     ? envelope.costUsd
     : null;
+  const unreliableZeroCost = observedCostUsd === 0 && usageHasNonzeroTokens(usage);
+  const costUsd = unreliableZeroCost ? null : observedCostUsd;
+  const costFidelity = unreliableZeroCost
+    ? 'UNRELIABLE_ZERO_WITH_USAGE'
+    : costUsd !== null
+      ? 'OBSERVED'
+      : 'NOT_EXPOSED_BY_ENVELOPE';
 
   return Object.freeze({
     provider: 'deepseek',
@@ -173,7 +186,7 @@ export function parseDeepSeekInferEnvelope(value, { requestedModel } = {}) {
       usage,
       costUsd,
       usageFidelity: usage ? 'OBSERVED_PARTIAL_OR_FULL' : 'NOT_EXPOSED_BY_ENVELOPE',
-      costFidelity: costUsd !== null ? 'OBSERVED' : 'NOT_EXPOSED_BY_ENVELOPE',
+      costFidelity,
       cacheSplitInvented: false,
     }),
   });

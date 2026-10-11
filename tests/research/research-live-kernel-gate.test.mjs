@@ -11,7 +11,7 @@ const liveResearch = {
     research: {
       result: {
         status: 'SUCCESS',
-        sources: [{ id: 's1', url: 'https://api-docs.deepseek.com/', checkedAt: '2026-10-11T21:00:00Z' }],
+        sources: [{ id: 's1', url: 'https://api-docs.deepseek.com/updates/', checkedAt: '2026-10-11T21:00:00Z' }],
       },
       telemetry: {
         model: 'deepseek-flash',
@@ -43,7 +43,7 @@ const makeQuery = ({ isolated = true, cleanupFails = false } = {}) => {
   return { query, calls };
 };
 
-test('live Research gate proves web tools, accounting, Data release and terminal SUCCESS', async () => {
+test('live Research gate proves official DeepSeek source, web tools, accounting, Data release and terminal SUCCESS', async () => {
   const db = makeQuery();
   const workerCalls = [];
   const kernelCalls = [];
@@ -68,6 +68,7 @@ test('live Research gate proves web tools, accounting, Data release and terminal
   assert.equal(evidence.task_status, 'SUCCESS');
   assert.equal(evidence.research_status, 'SUCCESS');
   assert.equal(evidence.source_count, 1);
+  assert.equal(evidence.official_source_count, 1);
   assert.deepEqual(evidence.tools, ['web_search', 'web_fetch']);
   assert.equal(evidence.accounting_rows, 1);
   assert.equal(evidence.accounting_basis, 'OBSERVED_USAGE');
@@ -81,6 +82,8 @@ test('live Research gate proves web tools, accounting, Data release and terminal
   const createCall = db.calls.find((call) => call.text.startsWith('SELECT * FROM create_lite_research_task'));
   assert.ok(createCall);
   assert.equal(createCall.values[0], 'live-test-key');
+  assert.match(createCall.values[1], /deepseek-v4-flash/);
+  assert.deepEqual(JSON.parse(createCall.values[2]).constraints, { requiredDomains: ['api-docs.deepseek.com'] });
   assert.equal(createCall.values[4], 100_000);
   assert.equal(createCall.values[5], 4);
   assert.equal(createCall.values[6], '2026-10-11T21:10:00.000Z');
@@ -98,6 +101,19 @@ test('live gate refuses a non-isolated queue before creating or claiming anythin
   assert.equal(ran, false);
   assert.equal(db.calls.some((call) => call.text.startsWith('SELECT * FROM create_lite_research_task')), false);
   assert.equal(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')), false);
+});
+
+test('live gate rejects non-official source evidence and cancels its task', async () => {
+  const db = makeQuery();
+  const untrusted = structuredClone(liveResearch);
+  untrusted.execution.research.result.sources = [{ id: 's1', url: 'https://deepseek.com.example.org/post', checkedAt: '2026-10-11T21:00:00Z' }];
+  await assert.rejects(() => runLiveResearchKernelGate({
+    query: db.query,
+    worker: { runOnce: async () => untrusted },
+    kernel: { claimNextNodeForAgent: async () => null, completeSuccess: async () => false },
+    idempotencyKey: 'live-test-key',
+  }), (error) => error?.code === 'LIVE_OFFICIAL_SOURCE_NOT_PROVEN');
+  assert.ok(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')));
 });
 
 test('live gate cancels its created task when a post-create Research assertion fails', async () => {

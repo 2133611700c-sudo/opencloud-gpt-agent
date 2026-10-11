@@ -15,6 +15,16 @@ const requireText = (value, name) => {
   return value.trim();
 };
 
+const isOfficialDeepSeekSource = (source) => {
+  try {
+    const url = new URL(source?.url);
+    const host = url.hostname.toLowerCase();
+    return url.protocol === 'https:' && (host === 'deepseek.com' || host.endsWith('.deepseek.com'));
+  } catch {
+    return false;
+  }
+};
+
 const claimableCount = async (query, agentId) => {
   const result = await query(
     `SELECT count(*)::int AS claimable_count
@@ -65,11 +75,11 @@ export async function runLiveResearchKernelGate({
   idempotencyKey,
   now = () => new Date(),
   dataWorkerId = 'live-research-gate-data',
-  goal = 'Find the current DeepSeek API model version behind model id deepseek-flash and cite official DeepSeek API documentation.',
+  goal = 'Using official DeepSeek API documentation, identify the current release served by API model id deepseek-v4-flash. Return modelId and modelVersion.',
   request = {
     maxResults: 3,
     requiredFields: ['modelId', 'modelVersion'],
-    constraints: { preferDomains: ['api-docs.deepseek.com', 'deepseek.com'] },
+    constraints: { requiredDomains: ['api-docs.deepseek.com'] },
   },
 } = {}) {
   const q = requireFn(query, 'query');
@@ -107,6 +117,10 @@ export async function runLiveResearchKernelGate({
     }
     if (!Array.isArray(research.result.sources) || research.result.sources.length < 1) {
       throw gateError('live Research SUCCESS has no sources', 'LIVE_RESEARCH_NO_SOURCES');
+    }
+    const officialSources = research.result.sources.filter(isOfficialDeepSeekSource);
+    if (officialSources.length < 1) {
+      throw gateError('live Research did not cite an official DeepSeek source', 'LIVE_OFFICIAL_SOURCE_NOT_PROVEN');
     }
     const tools = research?.telemetry?.toolSummary?.tools;
     if (!Array.isArray(tools) || !tools.includes('web_search') || !tools.includes('web_fetch')) {
@@ -149,6 +163,7 @@ export async function runLiveResearchKernelGate({
       task_status: taskStatus,
       research_status: research.result.status,
       source_count: research.result.sources.length,
+      official_source_count: officialSources.length,
       tools: Object.freeze([...tools]),
       model: research.telemetry?.model ?? null,
       accounting_rows: accountingRows,

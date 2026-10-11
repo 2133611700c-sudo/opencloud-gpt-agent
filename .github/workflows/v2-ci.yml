@@ -15,7 +15,7 @@ permissions:
 jobs:
   foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
@@ -44,6 +44,7 @@ jobs:
       - name: Run health check
         run: npm run health
       - name: Report live prerequisite presence
+        id: prereqs
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
@@ -52,13 +53,17 @@ jobs:
           set -euo pipefail
           if [[ -n "${DATABASE_URL:-}" ]]; then
             echo "LIVE_DATABASE_URL=PRESENT"
+            echo "database_present=true" >> "$GITHUB_OUTPUT"
           else
             echo "LIVE_DATABASE_URL=MISSING"
+            echo "database_present=false" >> "$GITHUB_OUTPUT"
           fi
           if [[ -n "${DEEPSEEK_API_KEY:-}" ]]; then
             echo "LIVE_DEEPSEEK_API_KEY=PRESENT"
+            echo "deepseek_present=true" >> "$GITHUB_OUTPUT"
           else
             echo "LIVE_DEEPSEEK_API_KEY=MISSING"
+            echo "deepseek_present=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Install PostgreSQL client
         run: |
@@ -78,3 +83,37 @@ jobs:
             echo "Running ${test_sql}"
             psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f "${test_sql}"
           done
+
+      - name: Set up supported Node for pinned OpenClaw runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned OpenClaw CLI
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.9.8
+          openclaw --version
+          test "$(openclaw --version | tail -n 1 | tr -d '\r')" = "2026.9.8"
+      - name: Install matching official DeepSeek provider plugin
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/deepseek-provider@2026.9.8
+          openclaw plugins list
+      - name: Run one live DeepSeek provider smoke when secret exists
+        if: steps.prereqs.outputs.deepseek_present == 'true'
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-v4-flash
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          node scripts/live-deepseek-smoke.mjs | tee artifacts/deepseek-live-smoke.json
+      - name: Upload safe DeepSeek smoke evidence
+        if: steps.prereqs.outputs.deepseek_present == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-v2-deepseek-live-smoke
+          path: artifacts/deepseek-live-smoke.json
+          if-no-files-found: error
+          retention-days: 7

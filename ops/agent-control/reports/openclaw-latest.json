@@ -14,7 +14,7 @@
   "artifact_name": "openclaw-mobile-38145650690",
   "dedupe_key": "heartbeat:blocked",
   "error": "task contains a token-like secret",
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "35203d35de8aa7471f39c4e7c4e9f1877c42b180",
   "dispatch_file": "ops/agent-control/dispatch/20261011-mobile-cloud-heartbeat.json",
   "dispatch_report_file": "ops/agent-control/reports/dispatch/20261011T140410Z.md",
   "orchestration_plan_file": "ops/agent-control/reports/orchestration/20261011T140410Z-OC-CHATGPT-INTEGRATION-HEARTBEAT.json",

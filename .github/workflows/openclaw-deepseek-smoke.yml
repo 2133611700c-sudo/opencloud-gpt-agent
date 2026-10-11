@@ -14,7 +14,7 @@ concurrency:
 jobs:
   deepseek-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       OPENCLAW_VERSION: "2026.10.1"
       DEEPSEEK_PLUGIN_VERSION: "2026.10.1"
@@ -28,6 +28,15 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22"
+
+      - name: Initialize isolated OpenClaw state
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="${RUNNER_TEMP}/openclaw-deepseek-state"
+          mkdir -p "$STATE"
+          echo "OPENCLAW_STATE_DIR=$STATE" >> "$GITHUB_ENV"
+          echo "OPENCLAW_CONFIG_PATH=$STATE/openclaw.json" >> "$GITHUB_ENV"
 
       - name: Require DeepSeek secret
         env:
@@ -92,7 +101,7 @@ jobs:
             --code-mode direct \
             --timeout 180 \
             --json | tee "$OUT"
-          jq -e '.ok == true and .provider == "deepseek" and (.toolSummary.calls // 0) >= 1' "$OUT" >/dev/null
+          jq -e '.ok == true and .provider == "deepseek" and (.toolSummary.calls // 0) >= 1 and ((.toolSummary.tools // []) | index("exec") != null)' "$OUT" >/dev/null
           grep -q "TOOL_OK" "$OUT"
           rm -rf "$TMP"
 
@@ -127,6 +136,70 @@ jobs:
           jq -e '.ok == true and .provider == "deepseek"' "$OUT" >/dev/null
           grep -q "RED_SQUARE" "$OUT"
 
+      - name: Stage pinned audited ECC skills for native discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          PIN=ops/agent-control/ecc/ECC_SOURCE_PIN.v1.json
+          REPO="$(jq -r '.repository' "$PIN")"
+          COMMIT="$(jq -r '.commit' "$PIN")"
+          ROOT="$(jq -r '.skills_root' "$PIN")"
+          EXPECTED="$(jq -r '.expected_skill_count' "$PIN")"
+          DIR="${RUNNER_TEMP}/ecc-native-source"
+          rm -rf "$DIR"
+          git init -q "$DIR"
+          git -C "$DIR" remote add origin "$REPO"
+          git -C "$DIR" fetch -q --depth 1 origin "$COMMIT"
+          git -C "$DIR" checkout -q --detach FETCH_HEAD
+          ACTUAL_SHA="$(git -C "$DIR" rev-parse HEAD)"
+          [ "$ACTUAL_SHA" = "$COMMIT" ]
+          COUNT="$(find "$DIR/$ROOT" -name SKILL.md -type f | wc -l | tr -d ' ')"
+          [ "$COUNT" = "$EXPECTED" ]
+          echo "$ACTUAL_SHA" > ops/agent-control/reports/deepseek_health/ecc-source-sha.txt
+          echo "$COUNT" > ops/agent-control/reports/deepseek_health/ecc-skill-count.txt
+          echo "ECC_NATIVE_SKILLS_DIR=$DIR/$ROOT" >> "$GITHUB_ENV"
+
+      - name: Build isolated read-only native skill config
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="$OPENCLAW_CONFIG_PATH"
+          SKILL_CONFIG="${OPENCLAW_STATE_DIR}/skill-smoke.json"
+          if [ -f "$BASE" ]; then cp "$BASE" "$SKILL_CONFIG"; else echo '{}' > "$SKILL_CONFIG"; fi
+          jq \
+            --arg dir "$ECC_NATIVE_SKILLS_DIR" \
+            '.skills.load.extraDirs = [$dir]
+             | .agents.defaults.skills = ["verification-loop", "agent-security-hardening", "plan-orchestrate"]
+             | .tools.allow = ["skills_search", "skills_read"]
+             | .tools.deny = ["exec", "process", "write", "edit", "apply_patch", "browser", "gateway"]' \
+            "$SKILL_CONFIG" > "$SKILL_CONFIG.tmp"
+          mv "$SKILL_CONFIG.tmp" "$SKILL_CONFIG"
+          echo "OPENCLAW_SKILL_SMOKE_CONFIG=$SKILL_CONFIG" >> "$GITHUB_ENV"
+
+      - name: Verify native skills_search and skills_read
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENCLAW_CONFIG_PATH: ${{ env.OPENCLAW_SKILL_SMOKE_CONFIG }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          OUT=ops/agent-control/reports/deepseek_health/native-skills.json
+          openclaw agent exec \
+            "Use skills_search to find the installed verification-loop skill, then use skills_read to read that exact skill. Do not use any other tool. After both calls succeed, reply exactly SKILL_DISCOVERY_OK." \
+            --cwd "$TMP" \
+            --isolated \
+            --auth-env-only \
+            --model deepseek/deepseek-flash \
+            --fallback deepseek/deepseek-v4-pro \
+            --thinking high \
+            --code-mode direct \
+            --timeout 180 \
+            --json | tee "$OUT"
+          jq -e '.ok == true and .provider == "deepseek" and (.toolSummary.calls // 0) >= 2 and ((.toolSummary.tools // []) | index("skills_search") != null) and ((.toolSummary.tools // []) | index("skills_read") != null)' "$OUT" >/dev/null
+          grep -q "SKILL_DISCOVERY_OK" "$OUT"
+          rm -rf "$TMP"
+
       - name: Write smoke report
         if: always()
         shell: bash
@@ -140,7 +213,10 @@ jobs:
           - plugin: @openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}
           - primary_model: deepseek/deepseek-flash
           - fallback_model: deepseek/deepseek-v4-pro
-          - verified_surfaces_requested: catalog, thinking=max, tool-call, vision
+          - verified_surfaces_requested: catalog, thinking=max, exec tool-call, vision, native skills_search, native skills_read
+          - ecc_source: pinned audited commit from ECC_SOURCE_PIN.v1.json
+          - native_skill_allowlist: verification-loop, agent-security-hardening, plan-orchestrate
+          - native_skill_tool_policy: read-only skills_search + skills_read; exec/write/edit/process/browser/gateway denied
           - secret_value_logged: false
           - run_url: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
           EOF

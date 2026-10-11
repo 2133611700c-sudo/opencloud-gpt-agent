@@ -112,24 +112,58 @@ Earlier verified phase history remains in Git history and `PROJECT_STATE.json`. 
 - Added a real acceptance path: hosted task creation → scoped Research claim → production `runResearchAgent` → DeepSeek/OpenClaw → required `web_search` + `web_fetch` evidence → exactly one accounting row → zero unresolved reservations → fenced Research SUCCESS → Data becomes claimable → deterministic gate-only Data completion → finalizer `SUCCESS`.
 - Deterministic Data completion exists only to terminalize this live Research gate and does **not** certify the future Data runtime.
 - Commit `af945990ec4f421f62600b759d38326093ee367b`; full CI `38176693444`: SUCCESS.
-- The live Kernel step was SKIPPED because Actions lacks both required secrets; therefore real DeepSeek/web Kernel vertical remains NOT PROVEN.
+- The live Kernel step was SKIPPED because Actions lacked the required credentials; therefore real DeepSeek/web Kernel vertical remains NOT PROVEN.
 
 ### Hosted PostgreSQL schema verification secret isolation [PASS]
 - Removed `DATABASE_URL` from `psql` argv and removed the rollback write-smoke from hosted schema verification.
 - Hosted verification is now read-only and uses the secret-isolated query transport.
 - Commit `aa6571baa02b06cadc9d098ca67012960dbc9726`; full CI `38176893991`: SUCCESS.
-- Hosted/live conditional steps remained SKIPPED because Actions secrets are absent.
+- Hosted/live conditional steps remained SKIPPED because Actions credentials were absent.
 
 ### PROJECT_STATE sync after Research hardening [PASS]
 - Recorded production Research wiring, secret-isolated DB transport, live Kernel gate and explicit `CODE_PASS_LIVE_SKIPPED` status.
 - `Data/Result runtime` remains blocked by policy until the live Research gate actually passes.
 - Commit `85397dce74fa635b25d8a2b9b1f2a4f6ffa8cb90`; full CI `38177049882`: SUCCESS.
 
+### Live gate poison-state cleanup [PASS]
+- A post-create live-gate failure could leave its own task claimable/running and poison the next queue-isolation precheck.
+- The gate now best-effort calls canonical `cancel_task()` on only its own task before rethrowing, which clears leases and releases unresolved reservations.
+- Commit `f4b7288059b894c4e31c13723ba52f36de9f8b91`; full CI `38177455334`: SUCCESS.
+
+### Bound SQL process-argument isolation [PASS]
+- The `psql` transport was hardened so bound SQL is not carried in process argv, reducing process-list/log exposure of query-bound values.
+- Commit `c1822161700fa73a327cfdcce6a8fe9a7b918acb`; included in full green verification at CI `38178228559`.
+
+### Shared hosted live-gate serialization [PASS]
+- V2 CI serializes hosted live gates against the shared Neon branch and does not cancel an in-progress gate, preventing concurrent queue-isolation races and abrupt cleanup bypass.
+- Commit `cae3c4c16d818eb2bf0f7a1f2231709df1956903`; included in full green verification at CI `38178228559`.
+
+### Official DeepSeek V4.1 model alignment [PASS]
+- Production/live Research model is aligned to official DeepSeek API id `deepseek-flash`, which resolves to DeepSeek-V4.1-Flash.
+- Pricing identity remains `deepseek-v4.1-flash-2026-09-10` for deterministic accounting metadata.
+- Commit `dba9728fc4912f7604a13a653d59610d82d157fe`; included in full green verification at CI `38178228559`.
+
+### Required live Research evidence hardening [PASS]
+- The live gate was tightened to reject incomplete success evidence rather than accepting a nominal Research SUCCESS without all mandatory proof fields.
+- Commit `b02d14974f38d0809e270dd23ae9aadb5bc96152`; included in full green verification at CI `38178228559`.
+
+### DeepSeek V4.1 Flash maximum reasoning [PASS: code/tests]
+- Research invocation was upgraded from `--thinking off` to `--thinking max` while retaining official model id `deepseek/deepseek-flash`.
+- Pinned OpenClaw `2026.9.8` supports direct DeepSeek V4 `max`, mapping it to native DeepSeek `reasoning_effort=max`.
+- Commit `297bbb6f045891188eb47be73bb031f3192c69dd`; full CI `38178228559`: SUCCESS.
+- This proves configuration/runtime compatibility; it does not substitute for a real paid DeepSeek Kernel call.
+
+### PROJECT_STATE sync through max reasoning [PASS]
+- `PROJECT_STATE.json` now records current verified code head, all live-gate hardening, official V4.1-Flash model identity, `thinking=max`, and the still-unproven paid live vertical.
+- Commit `36d513eadad267af768c2dee0b6862370f3fbe05`; full CI `38178475376`: SUCCESS.
+
 ### Current engineering position
-- All deterministic code, Node tests, migrations, SQL assertions, PostgreSQL Research E2E, pinned OpenClaw/plugin installation and config validation are green through CI `38177049882`.
-- Hosted Neon `openclaw-v2` is directly verified through migration 0015 and fallback accounting semantics.
-- A production Research path and real live Kernel acceptance gate now exist.
-- GitHub Actions still lacks `DATABASE_URL` and `DEEPSEEK_API_KEY`; therefore hosted CI verification and live DeepSeek/web Kernel gates are SKIPPED, not PASS.
-- The next allowed action is to configure those two secrets securely and run the existing live Kernel Research gate.
-- Do **not** begin Data runtime, durable evidence, or phone result until the live Research gate returns PASS evidence.
+- Verified code baseline: `297bbb6f045891188eb47be73bb031f3192c69dd`; governance state sync commit: `36d513eadad267af768c2dee0b6862370f3fbe05`.
+- Full CI `38178475376`: SUCCESS for Node tests, migrations, SQL assertions, PostgreSQL Research E2E, pinned OpenClaw installation, DeepSeek/DuckDuckGo plugin installation and config validation.
+- Hosted Neon `openclaw-v2` remains directly verified through migration 0015 and fallback accounting semantics.
+- Research uses official DeepSeek-V4.1-Flash (`deepseek/deepseek-flash`) at `thinking=max`.
+- The production Research path and hardened live Kernel acceptance gate exist, including failure cleanup, queue serialization, web-tool evidence and accounting/fencing checks.
+- Credential-dependent hosted/live GitHub Actions steps are still SKIPPED in current CI and therefore are not counted as live PASS.
+- Real paid DeepSeek + `web_search` + `web_fetch` through the entire hosted Kernel vertical remains the next required gate.
+- Do **not** begin Data runtime, durable evidence, or phone result until that live Research gate returns PASS evidence.
 - 48-Hour Walking Skeleton remains `IN PROGRESS`, not PASS.

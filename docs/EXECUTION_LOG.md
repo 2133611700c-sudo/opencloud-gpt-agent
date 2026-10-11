@@ -20,16 +20,7 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Created isolated Neon branch `openclaw-v2` (`br-odd-forest-a4leyaqj`) and separate database `openclaw_v2`; existing `neondb` remained separate.
 - Applied V2 migrations `0001_core.sql` through `0007_accounting_lock_order.sql` to `openclaw_v2` only.
 - Hosted schema verification returned 9/9 expected core tables and 14/14 expected core functions.
-- Real hosted DB E2E task `947e17d9-0958-4436-a23f-df4eba8b4a38`:
-  - first idempotent intake created task;
-  - exact repeat returned same task with `created=false`;
-  - Research node claimed with fencing token;
-  - heartbeat with exact lease token returned true;
-  - Research completed successfully;
-  - dependent Data node became claimable only after Research success;
-  - Data completed successfully;
-  - `finalize_task` returned `SUCCESS`;
-  - separate follow-up read returned task `SUCCESS`, `current_steps=2`, `successful_nodes=2`, `dependencies=1`, `terminal_reason=ALL_NODES_SUCCEEDED`.
+- Real hosted DB E2E task `947e17d9-0958-4436-a23f-df4eba8b4a38` passed idempotent intake, Research claim/fencing/heartbeat/completion, Data dependency release/completion, finalizer SUCCESS, and a separate persistence read.
 - No Neon password or connection string is committed to GitHub or Library.
 - GitHub Actions still needs repository secret `DATABASE_URL` before CI can reach this hosted database directly.
 
@@ -43,19 +34,37 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Finalizer/failure cascade/deadline/max-steps/deadlock run `38155170623`: PASS.
 - Phase 4 core gate: PASS.
 
-### Phase 5 — DeepSeek + Model Accounting [IN PROGRESS]
+### Phase 5 — DeepSeek + Model Accounting [PARTIAL: external live-secret gate pending]
 - Safe secret-presence run `38155306054` originally reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`; no secret values were exposed.
-- Hosted PostgreSQL is now independently LIVE in Neon, but the repository Actions secret `DATABASE_URL` is still pending secure storage.
 - Deterministic model-usage accounting passed in run `38155477561`.
 - Exactly-once model accounting + crash reservation recovery passed in run `38155852410`.
-- Re-verified current official OpenClaw docs before provider integration. Narrow provider smoke uses `openclaw infer model run --local`; official provider id is `deepseek`, credential env is `DEEPSEEK_API_KEY`, plugin is `@openclaw/deepseek-provider`.
-- Added deterministic adapter `src/providers/openclaw-deepseek-infer.mjs`. Initial run `38156200874` found overly permissive malformed-usage telemetry handling; parser was tightened to fail closed. Verification run `38156265994`: PASS.
-- Added bounded process runner `src/providers/deepseek-smoke-runner.mjs`: missing-secret fail-fast, `shell:false`, stdout/stderr byte limits, timeout, AbortSignal kill, typed errors, exact secret/sk-token redaction, invalid success fail-closed. Run `38156463925`: PASS with all prior gates green.
-- Added `scripts/live-deepseek-smoke.mjs` for one real provider-level smoke. It accepts only exact `smoke-ok` and emits safe evidence: provider/model/transport, wall latency, output SHA-256 and telemetry fidelity flags; it does not dump prompt/output or credentials.
-- Extended V2 CI to install pinned OpenClaw and official DeepSeek provider before live smoke. First wiring run `38156864987` failed only because version assertion expected bare `2026.9.8`, while the CLI correctly returned `OpenClaw 2026.9.8 (fc23bc8)`.
-- Version gate was fixed to validate the parsed version token and npm install now uses the official `--allow-scripts=openclaw` form.
-- Verification run `38157033206`: PASS. OpenClaw `2026.9.8` installed successfully on Node 24; `@openclaw/deepseek-provider@2026.9.8` installed successfully; 39 Node tests and all PostgreSQL assertions remained green.
-- Live DeepSeek smoke in run `38157033206` was correctly SKIPPED because repository Actions secret `DEEPSEEK_API_KEY` is still absent. No live inference claim is made.
+- Added deterministic OpenClaw DeepSeek infer adapter. Initial run `38156200874` found overly permissive malformed-usage telemetry handling; parser was tightened to fail closed. Verification run `38156265994`: PASS.
+- Added bounded process runner `src/providers/deepseek-smoke-runner.mjs`: missing-secret fail-fast, `shell:false`, stdout/stderr byte limits, timeout, AbortSignal kill, typed errors, exact secret/sk-token redaction, invalid success fail-closed. Run `38156463925`: PASS.
+- Pinned OpenClaw `2026.9.8` and official `@openclaw/deepseek-provider@2026.9.8`; wiring run `38157033206`: PASS.
+- Live DeepSeek smoke remains intentionally SKIPPED until the credential is available to the execution runtime. No live inference claim is made.
+
+### Phase 6 — Research Agent + native Web Search/Fetch [IN PROGRESS]
+- Strict research result/source contract passed in run `38159514170`: every accepted item must cite a real source; unknown/unsourced references fail closed; canonical URLs are deduplicated; JS/login/CAPTCHA/access failures escalate as `NEEDS_BROWSER` instead of guessing.
+- Evidence timestamp hardening passed in run `38159670726`: date-only and timezone-less evidence timestamps are rejected; only ISO-8601 instants with timezone are accepted.
+- Native OpenClaw Research runtime policy passed in run `38159803006`: Research is restricted to `web_search` and `web_fetch`, DeepSeek model refs, direct code mode, bounded timeout, strict JSON output, and untrusted-web-content prompt boundary.
+- Pinned official `@openclaw/duckduckgo-plugin@2026.9.8` plus actual `openclaw config validate --json` passed in run `38159959702`.
+- Official CLI contract review found `--auth-env-only` cannot be combined with `--config`; this incompatible design was removed before building the next layer.
+- Dedicated `OPENCLAW_STATE_DIR` trust scope, mode-0700 CI setup, and plugins installed inside that scope passed in run `38160694918`.
+- During Research process-runner work CI found and prevented several issues before integration: duplicate runner implementations, an abort-test race, and stale assumptions about where state isolation belongs.
+- Duplicate `openclaw-research-runner.mjs` path was removed. Canonical architecture is now `openclaw-research-runtime.mjs` + `research-agent-runner.mjs` + `research-agent-envelope.mjs`.
+- Canonical runner/envelope consolidation passed full CI run `38161523563`:
+  - shell-free child process;
+  - bounded timeout and stdout/stderr;
+  - AbortSignal kill;
+  - credential redaction;
+  - sanitized child environment excluding unrelated secrets;
+  - dedicated absolute `OPENCLAW_STATE_DIR` trust root;
+  - provider/model/direct-code-mode attestation;
+  - only `web_search`/`web_fetch` tool evidence accepted;
+  - `SUCCESS` requires `web_fetch` evidence;
+  - strict sourced Research JSON contract;
+  - optional usage telemetry is never invented and malformed telemetry fails closed.
+- Run `38161523563` also kept all PostgreSQL assertions, pinned OpenClaw install, both official plugins, and official config validation green. Hosted-Neon-in-CI and live-DeepSeek steps were correctly SKIPPED because repository Actions secrets are absent.
 
 ### ECC review lanes selected for the current engineering stage
 - `agentic-engineering`
@@ -63,11 +72,11 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - `agent-security-hardening`
 - `verification-loop`
 - `postgres-patterns`
-These are being used as independent review/check lanes. They are not described as separate running agents until the real Agent Runtime is implemented.
+These are independent review/check lanes, not claimed as separate running agents until the real Agent Runtime exists.
 
 ### Current engineering position
 - Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS.
-- Remaining external secret gate: authenticate the GitHub browser profile, then store both `DATABASE_URL` and the user-provided DeepSeek credential as repository Actions secrets without exposing their values.
-- After secrets exist: run CI, require hosted DB presence plus exactly one bounded live DeepSeek provider smoke to PASS, inspect safe evidence artifact, then advance to the real Research Agent/web-search path.
-- GitHub connector itself cannot write repository secrets; browser authentication is required for this setting.
-- Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before the live provider gate passes.
+- Research contract/runtime/plugin/process boundary: PASS without a live model call.
+- External secrets remain pending only for live hosted-CI and live DeepSeek proof; they no longer block deterministic implementation work.
+- Next unit: inspect existing Kernel/worker code, then build the smallest Kernel-to-Research execution adapter that wires one claimed Research node through heartbeat, budget reservation, canonical `runResearchAgent`, accounting, and fenced terminal update. Test deterministically before any live DeepSeek call.
+- Do not advance to Browser, Vision, Swarm, Judge, Repair, or bulk 71/311 migration yet.

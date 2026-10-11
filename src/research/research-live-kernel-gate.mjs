@@ -107,7 +107,7 @@ export async function runLiveResearchKernelGate({
   const researchWorker = requireObject(worker, 'worker');
   const runOnce = requireFn(researchWorker.runOnce?.bind(researchWorker), 'worker.runOnce');
   const db = requireObject(kernel, 'kernel');
-  const claimData = requireFn(db.claimNextNodeForAgent?.bind(db), 'kernel.claimNextNodeForAgent');
+  const claimData = requireFn(db.claimNodeForTaskAndAgent?.bind(db), 'kernel.claimNodeForTaskAndAgent');
   const completeData = requireFn(db.completeSuccess?.bind(db), 'kernel.completeSuccess');
   const key = requireText(idempotencyKey, 'idempotencyKey');
   requireText(dataWorkerId, 'dataWorkerId');
@@ -174,7 +174,7 @@ export async function runLiveResearchKernelGate({
     const unresolvedReservations = Number(reservations?.rows?.[0]?.unresolved_reservations ?? -1);
     if (unresolvedReservations !== 0) throw gateError('live Research left unresolved budget reservation', 'LIVE_RESERVATION_LEAK');
 
-    const dataClaim = await claimData({ workerId: dataWorkerId, agentId: 'data', leaseSeconds: 30 });
+    const dataClaim = await claimData({ taskId, workerId: dataWorkerId, agentId: 'data', leaseSeconds: 30 });
     if (!dataClaim || dataClaim.taskId !== taskId) {
       throw gateError('Data did not become claimable after live Research SUCCESS', 'LIVE_DATA_NOT_RELEASED');
     }

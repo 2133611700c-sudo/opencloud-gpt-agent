@@ -36,7 +36,7 @@ const makeQuery = (taskStatus) => {
   return { query, calls };
 };
 
-const kernel = { claimNextNodeForAgent: async () => null, completeSuccess: async () => false };
+const kernel = { claimNodeForTaskAndAgent: async () => null, completeSuccess: async () => false };
 
 test('live gate treats cancelled=false as cleanup failure while task remains active', async () => {
   const db = makeQuery('RUNNING');

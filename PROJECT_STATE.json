@@ -63,8 +63,19 @@
       "commit":"a719e00ea7b8b36052923936ecdab08e42c1601c",
       "ci_run_id":38166510250,
       "evidence":"Migration 0012 terminalizes overdue tasks using canonical node->task->reservation lock ordering. It locks task nodes deterministically, then task, releases all RESERVED leases with DEADLINE_EXCEEDED, blocks nonterminal nodes, and writes terminal task state. Regression test proves active Research reservation becomes RELEASED and task/node reserved totals are zero."
+    },
+    {
+      "unit":"dag_deadlock_reservation_reachability_audit",
+      "status":"PASS_SUPPORTED_STATE_CONTRACT",
+      "evidence":"DAG_DEADLOCK requires v_running=0. Budget reservations can be created only for an active RUNNING node. Supported exits from RUNNING either reject SUCCESS while RESERVED or release reservations on requeue, terminal failure, reclaim, exhausted attempts, exhausted total steps, or deadline. No supported Kernel transition path to DAG_DEADLOCK with an unresolved RESERVED reservation was found. This does not certify arbitrary externally corrupted SQL state."
     }
   ],
+  "known_gaps": {
+    "cancellation_runtime": {
+      "status":"NOT_IMPLEMENTED",
+      "evidence":"CANCELLED exists in the SQL/JS status vocabulary and transition matrix, but the current V2 tree contains no canonical cancel_task SQL function, cancellation runtime handler/command, or cancellation lifecycle regression test. Reservation cleanup on cancellation is therefore not yet implemented or proven."
+    }
+  },
   "phase_3_status":"PASS_REVALIDATED_38166510250",
   "phase_4_status":"PASS_REVALIDATED_38166510250",
   "phase_5_status":"PARTIAL_EXTERNAL_LIVE_SECRET_GATE_PENDING",
@@ -88,5 +99,5 @@
   "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
   "persistence_note":"Historical hosted persistence is proven on the isolated Neon branch/database through migrations 0001-0007. Migrations 0009-0012 have not yet been applied/revalidated there. GitHub Actions cannot reach hosted Neon until DATABASE_URL is stored securely. No database credential or connection string is committed to GitHub or Library.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Micro-audit only: DAG_DEADLOCK terminalization and unresolved RESERVED budget. Determine whether any realistic effective path can reach DAG_DEADLOCK with unresolved reservations and whether terminalization guarantees zero RESERVED rows. Read-only verdict first; do not manufacture a code fix unless the invariant can actually fail."
+  "next_action":"Micro-audit only: compare the JS state-machine transition matrix in src/kernel/state.mjs with all effective SQL lifecycle transitions after migrations 0009-0012. Produce an exact mismatch list. Read-only verdict first; one canonical-contract correction only after the mismatch set is proven."
 }

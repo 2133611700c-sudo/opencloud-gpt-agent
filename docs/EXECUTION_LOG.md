@@ -93,4 +93,16 @@ These are independent review/check lanes, not claimed as separate running agents
 - Deadline handling runs before attempt/step recovery reapers, keeping the task-wide `DEADLINE_EXCEEDED` reason authoritative while preventing reservation leaks.
 - Full CI run `38166510250`: SUCCESS. The regression test proves active Research reservation -> RELEASED, Research/Data -> BLOCKED, and task/node reserved totals -> zero.
 - Hosted Neon and live DeepSeek remained SKIPPED because repository Actions secrets are absent; they are not counted as PASS.
-- Next micro-gate: read-only audit of `DAG_DEADLOCK` terminalization and whether any realistic path can retain unresolved RESERVED budget. No code change unless the invariant can actually fail.
+
+### Kernel audit — DAG deadlock reservation reachability [PASS: supported-state contract]
+- `DAG_DEADLOCK` is reachable only when `v_running = 0`, `v_pending > 0`, and `v_ready = 0`.
+- A budget reservation can be created only for an active RUNNING node.
+- Supported exits from RUNNING either reject SUCCESS while reservation is unresolved or release reservations on requeue, terminal failure, lease reclaim, max-attempt recovery, max-step recovery, or deadline terminalization.
+- No supported Kernel transition path to `DAG_DEADLOCK` with an unresolved `RESERVED` reservation was found.
+- No code change was made. This verdict does not certify arbitrary externally corrupted SQL state.
+
+### Kernel audit — cancellation lifecycle [NOT IMPLEMENTED / ACCEPTANCE GAP]
+- `CANCELLED` exists in the SQL execution-status enum and the JS task/node transition matrix and is terminal.
+- The current V2 tree contains no canonical `cancel_task` SQL function, no cancellation runtime command/handler, and no cancellation lifecycle regression test.
+- Therefore reservation cleanup on cancellation is neither implemented nor proven. This is not marked PASS and no speculative cleanup migration was added.
+- Next micro-gate: read-only comparison of `src/kernel/state.mjs` against all effective SQL lifecycle transitions after migrations 0009-0012; produce the exact mismatch set before changing either side.

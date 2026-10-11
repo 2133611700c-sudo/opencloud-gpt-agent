@@ -20,7 +20,13 @@
       "unit":"live_prerequisite_presence_check",
       "status":"BLOCKED",
       "ci_run_id":38155306054,
-      "evidence":"CI printed only presence states: LIVE_DATABASE_URL=MISSING and LIVE_DEEPSEEK_API_KEY=MISSING; no secret values were exposed"
+      "evidence":"LIVE_DATABASE_URL=MISSING and LIVE_DEEPSEEK_API_KEY=MISSING; values were not printed"
+    },
+    {
+      "unit":"deterministic_model_usage_accounting",
+      "status":"PASS",
+      "ci_run_id":38155477561,
+      "evidence":"DeepSeek usage normalization, cache hit/miss handling, conservative unclassified-token treatment, injected versioned pricing, exact micro-USD formatting, validation, and all prior kernel/SQL gates passed"
     }
   ],
   "phase_3_status":"PASS",
@@ -31,5 +37,5 @@
   },
   "persistence_note":"Kernel contracts are verified on ephemeral PostgreSQL 16 in GitHub Actions. Hosted persistent PostgreSQL is not live until DATABASE_URL is configured and a persistence smoke passes.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Continue Phase 5 without faking live execution: implement deterministic model-usage accounting and pricing-version contracts with unit tests using injected rates (no hardcoded current market price). After that, live hosted Postgres and DeepSeek smokes remain blocked until secrets are configured."
+  "next_action":"Phase 5 next unit only: implement an atomic, fenced, idempotent model-call accounting transaction that records llm_accounting and reconciles its budget reservation exactly once. Prove retry of the same call_key cannot double-charge and stale lease cannot record/reconcile. Live hosted Postgres and DeepSeek remain blocked until secrets are configured."
 }

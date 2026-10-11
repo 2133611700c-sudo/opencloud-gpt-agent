@@ -12,6 +12,12 @@ const liveResearch = {
       result: {
         status: 'SUCCESS',
         sources: [{ id: 's1', url: 'https://api-docs.deepseek.com/updates/', checkedAt: '2026-10-11T21:00:00Z' }],
+        items: [{
+          id: 'model-1',
+          title: 'DeepSeek V4 Flash',
+          data: { modelId: 'deepseek-v4-flash', modelVersion: 'DeepSeek-V4-Flash-0731' },
+          sourceIds: ['s1'],
+        }],
       },
       telemetry: {
         model: 'deepseek-flash',
@@ -43,7 +49,7 @@ const makeQuery = ({ isolated = true, cleanupFails = false } = {}) => {
   return { query, calls };
 };
 
-test('live Research gate proves official DeepSeek source, web tools, accounting, Data release and terminal SUCCESS', async () => {
+test('live Research gate proves required fields from official DeepSeek source, web tools, accounting, Data release and terminal SUCCESS', async () => {
   const db = makeQuery();
   const workerCalls = [];
   const kernelCalls = [];
@@ -69,6 +75,8 @@ test('live Research gate proves official DeepSeek source, web tools, accounting,
   assert.equal(evidence.research_status, 'SUCCESS');
   assert.equal(evidence.source_count, 1);
   assert.equal(evidence.official_source_count, 1);
+  assert.equal(evidence.accepted_item_count, 1);
+  assert.deepEqual(evidence.required_fields, ['modelId', 'modelVersion']);
   assert.deepEqual(evidence.tools, ['web_search', 'web_fetch']);
   assert.equal(evidence.accounting_rows, 1);
   assert.equal(evidence.accounting_basis, 'OBSERVED_USAGE');
@@ -114,6 +122,32 @@ test('live gate rejects non-official source evidence and cancels its task', asyn
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_OFFICIAL_SOURCE_NOT_PROVEN');
   assert.ok(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')));
+});
+
+test('live gate rejects missing required fields even with an official source', async () => {
+  const db = makeQuery();
+  const incomplete = structuredClone(liveResearch);
+  incomplete.execution.research.result.items[0].data = { modelId: 'deepseek-v4-flash' };
+  await assert.rejects(() => runLiveResearchKernelGate({
+    query: db.query,
+    worker: { runOnce: async () => incomplete },
+    kernel: { claimNextNodeForAgent: async () => null, completeSuccess: async () => false },
+    idempotencyKey: 'live-test-key',
+  }), (error) => error?.code === 'LIVE_REQUIRED_FIELDS_NOT_PROVEN');
+  assert.ok(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')));
+});
+
+test('live gate rejects required-field evidence sourced only from a non-official source', async () => {
+  const db = makeQuery();
+  const mixed = structuredClone(liveResearch);
+  mixed.execution.research.result.sources.push({ id: 's2', url: 'https://example.org/model', checkedAt: '2026-10-11T21:00:00Z' });
+  mixed.execution.research.result.items[0].sourceIds = ['s2'];
+  await assert.rejects(() => runLiveResearchKernelGate({
+    query: db.query,
+    worker: { runOnce: async () => mixed },
+    kernel: { claimNextNodeForAgent: async () => null, completeSuccess: async () => false },
+    idempotencyKey: 'live-test-key',
+  }), (error) => error?.code === 'LIVE_REQUIRED_FIELDS_NOT_PROVEN');
 });
 
 test('live gate cancels its created task when a post-create Research assertion fails', async () => {

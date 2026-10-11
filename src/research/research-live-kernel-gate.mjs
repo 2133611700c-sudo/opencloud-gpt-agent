@@ -25,6 +25,22 @@ const isOfficialDeepSeekSource = (source) => {
   }
 };
 
+const hasFieldValue = (data, field) => {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  if (!Object.prototype.hasOwnProperty.call(data, field)) return false;
+  const value = data[field];
+  return value !== null && value !== undefined && (typeof value !== 'string' || value.trim() !== '');
+};
+
+const acceptedEvidenceItems = (result, requiredFields, officialSourceIds) => {
+  if (!Array.isArray(result?.items)) return [];
+  return result.items.filter((item) => {
+    if (!requiredFields.every((field) => hasFieldValue(item?.data, field))) return false;
+    if (!Array.isArray(item?.sourceIds)) return false;
+    return item.sourceIds.some((sourceId) => officialSourceIds.has(sourceId));
+  });
+};
+
 const claimableCount = async (query, agentId) => {
   const result = await query(
     `SELECT count(*)::int AS claimable_count
@@ -90,6 +106,10 @@ export async function runLiveResearchKernelGate({
   const completeData = requireFn(db.completeSuccess?.bind(db), 'kernel.completeSuccess');
   const key = requireText(idempotencyKey, 'idempotencyKey');
   requireText(dataWorkerId, 'dataWorkerId');
+  const requiredFields = Array.isArray(request?.requiredFields) ? [...request.requiredFields] : [];
+  if (requiredFields.length === 0 || requiredFields.some((field) => typeof field !== 'string' || field.trim() === '')) {
+    throw new TypeError('live gate request.requiredFields must contain at least one non-empty field');
+  }
 
   const existingResearch = await claimableCount(q, 'researcher');
   const existingData = await claimableCount(q, 'data');
@@ -121,6 +141,14 @@ export async function runLiveResearchKernelGate({
     const officialSources = research.result.sources.filter(isOfficialDeepSeekSource);
     if (officialSources.length < 1) {
       throw gateError('live Research did not cite an official DeepSeek source', 'LIVE_OFFICIAL_SOURCE_NOT_PROVEN');
+    }
+    const officialSourceIds = new Set(officialSources.map((source) => source.id));
+    const acceptedItems = acceptedEvidenceItems(research.result, requiredFields, officialSourceIds);
+    if (acceptedItems.length < 1) {
+      throw gateError(
+        `live Research did not prove required fields from an official DeepSeek source: ${requiredFields.join(', ')}`,
+        'LIVE_REQUIRED_FIELDS_NOT_PROVEN',
+      );
     }
     const tools = research?.telemetry?.toolSummary?.tools;
     if (!Array.isArray(tools) || !tools.includes('web_search') || !tools.includes('web_fetch')) {
@@ -164,6 +192,8 @@ export async function runLiveResearchKernelGate({
       research_status: research.result.status,
       source_count: research.result.sources.length,
       official_source_count: officialSources.length,
+      accepted_item_count: acceptedItems.length,
+      required_fields: Object.freeze([...requiredFields]),
       tools: Object.freeze([...tools]),
       model: research.telemetry?.model ?? null,
       accounting_rows: accountingRows,

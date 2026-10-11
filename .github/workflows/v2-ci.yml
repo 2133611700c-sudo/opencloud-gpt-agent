@@ -91,9 +91,11 @@ jobs:
       - name: Install pinned OpenClaw CLI
         run: |
           set -euo pipefail
-          npm install -g openclaw@2026.9.8
-          openclaw --version
-          test "$(openclaw --version | tail -n 1 | tr -d '\r')" = "2026.9.8"
+          npm install -g openclaw@2026.9.8 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          echo "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.9.8"
       - name: Install matching official DeepSeek provider plugin
         run: |
           set -euo pipefail

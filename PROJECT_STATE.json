@@ -19,20 +19,21 @@
     {"unit":"live_prerequisite_presence_check","status":"BLOCKED","ci_run_id":38155306054,"evidence":"LIVE_DATABASE_URL=MISSING and LIVE_DEEPSEEK_API_KEY=MISSING; values were not printed"},
     {"unit":"deterministic_model_usage_accounting","status":"PASS","ci_run_id":38155477561},
     {"unit":"exactly_once_model_accounting","status":"PASS","ci_run_id":38155852410},
+    {"unit":"openclaw_deepseek_infer_adapter","status":"PASS","ci_run_id":38156265994},
     {
-      "unit":"openclaw_deepseek_infer_adapter",
+      "unit":"bounded_deepseek_smoke_process_runner",
       "status":"PASS",
-      "ci_run_id":38156265994,
-      "evidence":"Adapter uses official local `openclaw infer model run --local --model deepseek/... --prompt ... --thinking ... --json` contract. It validates provider/model/transport/capability, nonempty output, argv isolation, and never invents missing/malformed usage/cache/cost telemetry. Initial run 38156200874 caught permissive malformed-usage handling; fix made usage fail-closed and verification passed."
+      "ci_run_id":38156463925,
+      "evidence":"Missing-key fail-fast before spawn; shell=false argv execution; bounded stdout/stderr; timeout and AbortSignal kill; typed process errors; secret/sk-token redaction; invalid success envelope fail-closed; all previous kernel and PostgreSQL gates remained green"
     }
   ],
   "phase_3_status":"PASS",
   "phase_4_status":"PASS",
   "live_capabilities": {
     "hosted_postgres":"BLOCKED_MISSING_DATABASE_URL",
-    "deepseek":"BLOCKED_MISSING_DEEPSEEK_API_KEY"
+    "deepseek":"SECRET_PROVIDED_IN_CHAT_PENDING_SECURE_GITHUB_ACTIONS_STORAGE_AND_LIVE_SMOKE"
   },
   "persistence_note":"Kernel contracts are verified on ephemeral PostgreSQL 16 in GitHub Actions. Hosted persistent PostgreSQL is not live until DATABASE_URL is configured and a persistence smoke passes.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Phase 5 next unit only: implement the executable DeepSeek smoke runner around the proven adapter with fail-fast DEEPSEEK_API_KEY check, timeout/abort, stdout size bound, stderr redaction, and deterministic mocked process tests. Do not claim live inference until the secret exists and a real smoke passes. Hosted Postgres also remains blocked until DATABASE_URL is configured."
+  "next_action":"Securely store the user-provided DeepSeek credential as GitHub Actions secret DEEPSEEK_API_KEY via authenticated GitHub session, then run exactly one real OpenClaw DeepSeek provider smoke through the proven runner and record model/latency/observed telemetry without exposing the credential. In parallel, prepare only the live-smoke CI wiring; do not advance to Research Agent until this gate passes. Hosted Postgres remains blocked until DATABASE_URL is configured."
 }

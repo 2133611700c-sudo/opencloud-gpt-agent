@@ -35,7 +35,6 @@ export function buildResearchOpenClawConfig({
 
   return Object.freeze({
     tools: Object.freeze({
-      // Least privilege: no x_search, runtime, filesystem, UI/browser, sessions or automation tools.
       allow: Object.freeze(['web_search', 'web_fetch']),
       web: Object.freeze({
         search: Object.freeze({
@@ -53,9 +52,7 @@ export function buildResearchOpenClawConfig({
           cacheTtlMinutes: 0,
           maxRedirects: 3,
           readability: true,
-          ssrfPolicy: Object.freeze({
-            dangerouslyAllowPrivateNetwork: false,
-          }),
+          ssrfPolicy: Object.freeze({ dangerouslyAllowPrivateNetwork: false }),
         }),
       }),
     }),
@@ -63,10 +60,7 @@ export function buildResearchOpenClawConfig({
       entries: Object.freeze({
         duckduckgo: Object.freeze({
           config: Object.freeze({
-            webSearch: Object.freeze({
-              region: 'us-en',
-              safeSearch: 'moderate',
-            }),
+            webSearch: Object.freeze({ region: 'us-en', safeSearch: 'moderate' }),
           }),
         }),
       }),
@@ -102,12 +96,10 @@ export function buildResearchPrompt(rawRequest) {
 export function buildResearchAgentExecInvocation({
   request,
   configPath,
-  stateDir,
   model = DEFAULT_MODEL,
   timeoutSeconds = 120,
 } = {}) {
   absolutePath(configPath, 'configPath');
-  absolutePath(stateDir, 'stateDir');
   if (typeof model !== 'string' || !MODEL_RE.test(model)) {
     throw new TypeError('model must be a deepseek/<model> reference');
   }
@@ -121,7 +113,6 @@ export function buildResearchAgentExecInvocation({
       'exec',
       '--message-file', '-',
       '--config', configPath,
-      '--state-dir', stateDir,
       '--model', model,
       '--code-mode', 'direct',
       '--thinking', 'off',
@@ -131,6 +122,5 @@ export function buildResearchAgentExecInvocation({
     stdin: prompt,
     model,
     timeoutSeconds,
-    stateDir,
   });
 }

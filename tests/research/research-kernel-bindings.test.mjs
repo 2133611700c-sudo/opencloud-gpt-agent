@@ -21,7 +21,7 @@ const kernelWithCalls = (calls) => ({
   releaseReservation: async (x)=>(calls.push(['release',x]),1),
 });
 
-test('binds full observed cache-aware usage and completion to one fence', async () => {
+test('binds full observed DeepSeek usage and completion to one fence', async () => {
   const calls=[];
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>research, heartbeatIntervalMs:60_000 });
   const out=await execute({claim,request:'q'});
@@ -35,16 +35,28 @@ test('binds full observed cache-aware usage and completion to one fence', async 
   assert.equal(calls[1][1].actualCostUsd,0.01);
 });
 
-test('records observed cache hits instead of inventing zero cache usage', async () => {
+test('classifies DeepSeek cache hit and miss without double-counting prompt tokens', async () => {
   const calls=[];
-  const cached={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:7,cacheWrite:1,total:13}}};
+  const cached={...research,telemetry:{...research.telemetry,usage:{input:10,output:2,cacheRead:7,cacheWrite:1,total:12}}};
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>cached, heartbeatIntervalMs:60_000 });
   await execute({claim,request:'q'});
   const accounting=calls.find(x=>x[0]==='account')[1];
   assert.equal(accounting.promptCacheHitTokens,7);
-  assert.equal(accounting.promptCacheMissTokens,4);
+  assert.equal(accounting.promptCacheMissTokens,3);
   assert.equal(accounting.completionTokens,2);
-  assert.equal(accounting.totalTokens,13);
+  assert.equal(accounting.totalTokens,12);
+  assert.equal(accounting.promptCacheHitTokens + accounting.promptCacheMissTokens + accounting.completionTokens, accounting.totalTokens);
+});
+
+test('does not require cacheWrite when cacheRead is observed for DeepSeek', async () => {
+  const calls=[];
+  const cached={...research,telemetry:{...research.telemetry,usage:{input:10,output:2,cacheRead:7,cacheWrite:null,total:12}}};
+  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>cached, heartbeatIntervalMs:60_000 });
+  await execute({claim,request:'q'});
+  assert.deepEqual(calls.map(x=>x[0]),['reserve','account','complete']);
+  const accounting=calls.find(x=>x[0]==='account')[1];
+  assert.equal(accounting.promptCacheHitTokens,7);
+  assert.equal(accounting.promptCacheMissTokens,3);
 });
 
 test('uses reservation fallback and still completes when usage telemetry is absent', async () => {
@@ -87,14 +99,14 @@ test('accepts exact zero cost only when observed total usage is zero', async () 
   assert.equal(calls[1][1].totalTokens,0);
 });
 
-test('uses reservation fallback rather than inventing cache split', async () => {
+test('uses reservation fallback when cacheRead telemetry is missing', async () => {
   const calls=[];
   const partial={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,total:5,cacheRead:null,cacheWrite:null}}};
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>partial, heartbeatIntervalMs:60_000 });
   const out=await execute({claim,request:'q'});
   assert.equal(out.status,'SUCCESS');
   assert.deepEqual(calls.map(x=>x[0]),['reserve','fallback','complete']);
-  assert.equal(calls[1][1].reason,'MISSING_CACHE_SPLIT_TELEMETRY');
+  assert.equal(calls[1][1].reason,'MISSING_CACHE_READ_TELEMETRY');
 });
 
 test('malformed observed telemetry fails closed instead of using fallback', async () => {
@@ -104,7 +116,7 @@ test('malformed observed telemetry fails closed instead of using fallback', asyn
   assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);
 });
 
-test('malformed cost telemetry is not masked by missing cache split', async () => {
+test('malformed cost telemetry is not masked by missing cacheRead', async () => {
   const calls=[];
   const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,total:5,cacheRead:null,cacheWrite:null},costUsd:-1}};
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>invalid, heartbeatIntervalMs:60_000 });
@@ -112,9 +124,17 @@ test('malformed cost telemetry is not masked by missing cache split', async () =
   assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);
 });
 
-test('inconsistent cache-aware totals fail closed', async () => {
+test('inconsistent total fails closed', async () => {
   const calls=[];
-  const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:7,cacheWrite:1,total:5}}};
+  const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:1,cacheWrite:0,total:6}}};
+  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>invalid, heartbeatIntervalMs:60_000 });
+  await assert.rejects(()=>execute({claim,request:'q'}),e=>e.code==='USAGE_TELEMETRY_INVALID');
+  assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);
+});
+
+test('cacheRead greater than input fails closed', async () => {
+  const calls=[];
+  const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:4,cacheWrite:0,total:5}}};
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>invalid, heartbeatIntervalMs:60_000 });
   await assert.rejects(()=>execute({claim,request:'q'}),e=>e.code==='USAGE_TELEMETRY_INVALID');
   assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);

@@ -43,6 +43,23 @@ jobs:
         run: npm test
       - name: Run health check
         run: npm run health
+      - name: Report live prerequisite presence
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${DATABASE_URL:-}" ]]; then
+            echo "LIVE_DATABASE_URL=PRESENT"
+          else
+            echo "LIVE_DATABASE_URL=MISSING"
+          fi
+          if [[ -n "${DEEPSEEK_API_KEY:-}" ]]; then
+            echo "LIVE_DEEPSEEK_API_KEY=PRESENT"
+          else
+            echo "LIVE_DEEPSEEK_API_KEY=MISSING"
+          fi
       - name: Install PostgreSQL client
         run: |
           sudo apt-get update

@@ -9,6 +9,7 @@ import { PassThrough } from 'node:stream';
 import {
   MissingResearchCredentialError,
   ResearchAgentProcessError,
+  buildResearchChildEnv,
   runResearchAgent,
 } from '../../src/research/research-agent-runner.mjs';
 
@@ -38,6 +39,7 @@ const agentEnvelope = (overrides = {}) => ({
   usage: { input: 100, output: 30, total: 130 },
   costUsd: 0.001,
   assistantTurns: 2,
+  codeModeEngaged: false,
   toolSummary: { calls: 2, tools: ['web_search', 'web_fetch'], totalToolTimeMs: 50 },
   model: 'deepseek-flash',
   provider: 'deepseek',
@@ -111,13 +113,44 @@ test('fails before temp config and spawn when DEEPSEEK_API_KEY is missing', asyn
   }
 });
 
-test('runs OpenClaw shell-free with 0600 temp config, stdin prompt, and cleanup', async () => {
+test('child env is allowlisted and excludes unrelated credentials', () => {
+  const env = buildResearchChildEnv({
+    PATH: '/usr/bin',
+    HOME: '/home/test',
+    DEEPSEEK_API_KEY: 'test-only-key',
+    DATABASE_URL: 'postgres://must-not-leak',
+    GITHUB_TOKEN: 'must-not-leak',
+    AWS_SECRET_ACCESS_KEY: 'must-not-leak',
+  }, {
+    stateDir: '/tmp/openclaw-v2-state',
+    configPath: '/tmp/openclaw-v2-config.json',
+  });
+
+  assert.equal(env.PATH, '/usr/bin');
+  assert.equal(env.HOME, '/home/test');
+  assert.equal(env.DEEPSEEK_API_KEY, 'test-only-key');
+  assert.equal(env.OPENCLAW_STATE_DIR, '/tmp/openclaw-v2-state');
+  assert.equal(env.OPENCLAW_CONFIG_PATH, '/tmp/openclaw-v2-config.json');
+  assert.equal(env.OPENCLAW_CONFIG_READONLY, '1');
+  assert.equal(env.OPENCLAW_EXEC_SHELL_SNAPSHOT, '0');
+  assert.equal('DATABASE_URL' in env, false);
+  assert.equal('GITHUB_TOKEN' in env, false);
+  assert.equal('AWS_SECRET_ACCESS_KEY' in env, false);
+});
+
+test('runs OpenClaw shell-free with 0600 temp config, isolated state, stdin prompt, and cleanup', async () => {
   const root = isolatedRoot();
   const capture = {};
   try {
     const result = await runResearchAgent({
       request,
-      env: { DEEPSEEK_API_KEY: 'test-only-key', SAFE: '1' },
+      stateDir: root,
+      env: {
+        DEEPSEEK_API_KEY: 'test-only-key',
+        PATH: '/usr/bin',
+        HOME: '/home/test',
+        DATABASE_URL: 'must-not-leak',
+      },
       tempRoot: root,
       spawnImpl: successfulSpawn(capture, root),
     });
@@ -126,7 +159,10 @@ test('runs OpenClaw shell-free with 0600 temp config, stdin prompt, and cleanup'
     assert.equal(capture.options.shell, false);
     assert.deepEqual(capture.options.stdio, ['pipe', 'pipe', 'pipe']);
     assert.equal(capture.options.env.DEEPSEEK_API_KEY, 'test-only-key');
+    assert.equal(capture.options.env.OPENCLAW_STATE_DIR, root);
     assert.equal(capture.options.env.OPENCLAW_CONFIG_READONLY, '1');
+    assert.equal(capture.options.env.OPENCLAW_EXEC_SHELL_SNAPSHOT, '0');
+    assert.equal('DATABASE_URL' in capture.options.env, false);
     assert.equal(capture.configMode, 0o600);
     assert.ok(capture.rootEntriesDuringSpawn.length === 1);
     assert.match(capture.stdin, /Find five current listings/);
@@ -149,6 +185,7 @@ test('redacts key material from nonzero process error and removes temp config', 
   try {
     const promise = runResearchAgent({
       request,
+      stateDir: root,
       env: { DEEPSEEK_API_KEY: secret },
       tempRoot: root,
       spawnImpl: (_exe, args) => {
@@ -176,12 +213,34 @@ test('redacts key material from nonzero process error and removes temp config', 
   }
 });
 
-test('kills child on stdout limit and cleans temp state', async () => {
+test('maps OpenClaw exit code 2 to AGENT_TIMEOUT', async () => {
   const root = isolatedRoot();
   const child = makeFakeChild();
   try {
     const promise = runResearchAgent({
       request,
+      stateDir: root,
+      env: { DEEPSEEK_API_KEY: 'test-only-key' },
+      tempRoot: root,
+      spawnImpl: () => {
+        queueMicrotask(() => child.emit('close', 2, null));
+        return child;
+      },
+    });
+    await assert.rejects(promise, (error) => error.code === 'AGENT_TIMEOUT');
+    assert.deepEqual(readdirSync(root), []);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('kills child on stdout limit and cleans temp config', async () => {
+  const root = isolatedRoot();
+  const child = makeFakeChild();
+  try {
+    const promise = runResearchAgent({
+      request,
+      stateDir: root,
       env: { DEEPSEEK_API_KEY: 'test-only-key' },
       tempRoot: root,
       maxStdoutBytes: 10,
@@ -205,6 +264,7 @@ test('kills child on timeout and AbortSignal', async () => {
     await assert.rejects(
       runResearchAgent({
         request,
+        stateDir: root1,
         env: { DEEPSEEK_API_KEY: 'test-only-key' },
         tempRoot: root1,
         timeoutMs: 10,
@@ -224,6 +284,7 @@ test('kills child on timeout and AbortSignal', async () => {
   try {
     const promise = runResearchAgent({
       request,
+      stateDir: root2,
       env: { DEEPSEEK_API_KEY: 'test-only-key' },
       tempRoot: root2,
       signal: controller.signal,
@@ -245,6 +306,7 @@ test('zero exit still fails closed on invalid Research envelope', async () => {
     await assert.rejects(
       runResearchAgent({
         request,
+        stateDir: root,
         env: { DEEPSEEK_API_KEY: 'test-only-key' },
         tempRoot: root,
         spawnImpl: successfulSpawn(capture, root, agentEnvelope({

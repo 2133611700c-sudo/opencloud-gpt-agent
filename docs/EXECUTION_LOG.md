@@ -32,12 +32,15 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Safe secret-presence run `38155306054` reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`; no secret values were exposed.
 - Hosted persistent Postgres remains BLOCKED until `DATABASE_URL` exists and persistence smoke passes.
 - Live DeepSeek/OpenClaw inference remains BLOCKED until `DEEPSEEK_API_KEY` exists and provider smoke passes.
-- Added `src/accounting/model-usage.mjs`: strict DeepSeek usage normalization; cache-hit/cache-miss separation; unclassified prompt tokens conservatively treated as miss; exact BigInt micro-USD accounting; prices supplied as versioned runtime input, not hardcoded.
-- Added model-accounting tests covering explicit/implicit cache-miss handling, deterministic cost calculation, conservative rounding, invalid totals/cache counts, invalid pricing contracts, and exact USD formatting.
-- Verification run `38155477561` passed all Node tests, every PostgreSQL migration/assertion, health check, and safe secret-presence report.
-- Deterministic model-usage accounting contract: PASS.
+- Added deterministic model-usage normalization/accounting with cache-hit/cache-miss separation, conservative unclassified-token treatment, exact BigInt micro-USD accounting, and injected versioned rates. Run `38155477561`: PASS.
+- Added `migrations/0006_exactly_once_accounting.sql` and `0007_accounting_lock_order.sql` to atomically reconcile a fenced reservation with a single `llm_accounting` row and to use a consistent DB lock order.
+- Added crash recovery: when an expired lease is reclaimed, unresolved reservations tied to the stale fencing token are released before the new token is issued.
+- Node SUCCESS is rejected while an unresolved reservation exists; retry requeue and terminal failure release unresolved reservations.
+- Added `tests/sql/0006_exactly_once_accounting_test.sql` covering crash-after-reserve recovery, stale-accounting rejection, exactly-once call recording, no double charge on exact retry, contract-collision fail-closed behavior, unresolved-reservation SUCCESS rejection, retry cleanup, and terminal-failure cleanup.
+- Verification run `38155852410` passed all Node tests, all PostgreSQL migrations/assertions, health check, and prior gates.
+- Exactly-once model accounting + reservation recovery contract: PASS.
 
 ### Current engineering position
-- Next unit: atomic exactly-once model-call accounting transaction in PostgreSQL: fenced lease verification + reservation reconciliation + `llm_accounting` insert in one transaction; repeated same `call_key` must not double-charge.
-- Live hosted Postgres/DeepSeek smoke remains pending secrets.
+- Next unit: verify current official OpenClaw DeepSeek provider/CLI contract, then implement a deterministic provider-adapter boundary and tests without claiming live inference.
+- Live hosted Postgres/DeepSeek smoke remains pending `DATABASE_URL` and `DEEPSEEK_API_KEY`.
 - Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before the Walking Skeleton live research path passes.

@@ -79,7 +79,7 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 These are independent review/check lanes, not claimed as separate running agents until the real Agent Runtime exists.
 
 ### Current engineering position
-- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS historically through migrations 0001-0007; current hosted state needs revalidation after migrations 0009-0010.
+- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS historically through migrations 0001-0007; current hosted state needs revalidation after migrations 0009-0011.
 - Research contract/runtime/plugin/process/trust boundary: PASS without a live model call.
 - External secrets remain pending for live hosted-CI and live DeepSeek proof.
 - Do not advance to Browser, Vision, Swarm, Judge, Repair, or bulk 71/311 migration yet.
@@ -100,4 +100,13 @@ These are independent review/check lanes, not claimed as separate running agents
 - Test-only correction commit `bb5489750efdd7fa92d43e2326179188c758c86f` fixed that assertion.
 - Full CI run `38165702632`: SUCCESS. PostgreSQL migration and kernel assertions passed; the test proves no reclaim after final attempt, Research -> `FAIL_WITH_EVIDENCE`, Data -> `BLOCKED`, reservation -> `RELEASED`, and zero task/node reserved totals.
 - Hosted Neon and live DeepSeek remained SKIPPED because repository Actions secrets are absent; they are not counted as PASS.
-- Next micro-gate: read-only audit of expired `RUNNING` node when `task.current_steps >= task.max_total_steps`. No code change before PASS/FAIL evidence.
+
+### Kernel stabilization — expired total-step exhaustion [PASS]
+- Read-only audit proved another dangling state: when `task.current_steps >= task.max_total_steps`, `claim_next_node()` cannot reclaim an expired RUNNING node. If attempts remained, migration 0010 did not reap it and `finalize_task()` could not enter its max-steps branch because `v_running > 0`.
+- Reviewer also confirmed generic `block_task_nodes()` was insufficient for abandoned RUNNING work because it does not release budget reservations.
+- Added only `migrations/0011_expired_step_exhaustion.sql` and `tests/sql/0011_expired_step_exhaustion_test.sql` in commit `bcf26ee0bd9f36fdf48438dc2332598c1f745354`; historical migrations were not rewritten.
+- Migration 0011 preserves migration 0010 attempt-exhaustion precedence, locks each expired RUNNING node first, releases reservations using `MAX_TOTAL_STEPS_EXCEEDED`, then blocks the abandoned node before normal lifecycle counting.
+- Existing finalizer then blocks remaining PENDING nodes and terminates the task with `FAIL_WITH_EVIDENCE / MAX_TOTAL_STEPS_EXCEEDED`.
+- Full CI run `38166064399`: SUCCESS. Regression test proves no reclaim, Research/Data `BLOCKED`, reservation `RELEASED`, and zero task/node reserved totals.
+- Hosted Neon and live DeepSeek remained SKIPPED because repository Actions secrets are absent; they are not counted as PASS.
+- Next micro-gate: read-only audit of deadline terminalization while a budget reservation remains `RESERVED`. No code change before PASS/FAIL evidence.

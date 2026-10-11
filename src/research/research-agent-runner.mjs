@@ -1,7 +1,7 @@
 import { spawn as nodeSpawn } from 'node:child_process';
-import { chmod, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 
 import { redactSensitiveText } from '../providers/deepseek-smoke-runner.mjs';
 import {
@@ -9,6 +9,23 @@ import {
   buildResearchOpenClawConfig,
 } from './openclaw-research-runtime.mjs';
 import { parseResearchAgentEnvelope } from './research-agent-envelope.mjs';
+
+const SAFE_ENV_KEYS = Object.freeze([
+  'PATH',
+  'HOME',
+  'TMPDIR',
+  'TMP',
+  'TEMP',
+  'LANG',
+  'LC_ALL',
+  'LC_CTYPE',
+  'SSL_CERT_FILE',
+  'SSL_CERT_DIR',
+  'NODE_EXTRA_CA_CERTS',
+  'HTTPS_PROXY',
+  'HTTP_PROXY',
+  'NO_PROXY',
+]);
 
 export class MissingResearchCredentialError extends Error {
   constructor() {
@@ -36,11 +53,33 @@ const positiveInteger = (value, field, max = Number.MAX_SAFE_INTEGER) => {
 
 const researchTimeoutSeconds = (timeoutMs) => Math.max(10, Math.min(300, Math.ceil(timeoutMs / 1000)));
 
+const resolveStateDir = (stateDir, env) => {
+  const resolved = stateDir ?? env?.OPENCLAW_STATE_DIR;
+  if (typeof resolved !== 'string' || resolved.trim() === '' || !isAbsolute(resolved)) {
+    throw new TypeError('stateDir must be an absolute path or OPENCLAW_STATE_DIR must be set');
+  }
+  return resolved;
+};
+
+export function buildResearchChildEnv(env, { stateDir, configPath } = {}) {
+  const childEnv = {};
+  for (const key of SAFE_ENV_KEYS) {
+    if (typeof env?.[key] === 'string' && env[key] !== '') childEnv[key] = env[key];
+  }
+  childEnv.DEEPSEEK_API_KEY = env.DEEPSEEK_API_KEY;
+  childEnv.OPENCLAW_STATE_DIR = stateDir;
+  childEnv.OPENCLAW_CONFIG_PATH = configPath;
+  childEnv.OPENCLAW_CONFIG_READONLY = '1';
+  childEnv.OPENCLAW_EXEC_SHELL_SNAPSHOT = '0';
+  return Object.freeze(childEnv);
+}
+
 export async function runResearchAgent({
   request,
   model = 'deepseek/deepseek-flash',
   configOptions = {},
   env = process.env,
+  stateDir,
   timeoutMs = 120_000,
   maxStdoutBytes = 2_000_000,
   maxStderrBytes = 200_000,
@@ -63,17 +102,16 @@ export async function runResearchAgent({
     throw new ResearchAgentProcessError('Research agent aborted before start', { code: 'ABORTED' });
   }
 
+  const trustedStateDir = resolveStateDir(stateDir, env);
   const config = buildResearchOpenClawConfig(configOptions);
   const tempDir = await mkdtemp(join(tempRoot, 'openclaw-v2-research-'));
   const configPath = join(tempDir, 'openclaw.json');
-  const stateDir = join(tempDir, 'state');
 
   try {
-    await mkdir(stateDir, { mode: 0o700 });
     await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
     await chmod(configPath, 0o600);
 
-    // The signal may have fired while the async filesystem setup above was in flight.
+    // The signal may have fired while async filesystem setup was in flight.
     if (signal?.aborted) {
       throw new ResearchAgentProcessError('Research agent aborted during setup', { code: 'ABORTED' });
     }
@@ -81,9 +119,13 @@ export async function runResearchAgent({
     const invocation = buildResearchAgentExecInvocation({
       request,
       configPath,
-      stateDir,
+      stateDir: trustedStateDir,
       model,
       timeoutSeconds: researchTimeoutSeconds(timeoutMs),
+    });
+    const childEnv = buildResearchChildEnv(env, {
+      stateDir: trustedStateDir,
+      configPath,
     });
 
     return await new Promise((resolve, reject) => {
@@ -135,7 +177,6 @@ export async function runResearchAgent({
       }, timeoutMs);
 
       signal?.addEventListener('abort', onAbort, { once: true });
-      // Abort may have happened immediately before or while the listener was attached.
       if (signal?.aborted) {
         onAbort();
         return;
@@ -144,12 +185,7 @@ export async function runResearchAgent({
       try {
         child = spawnImpl(invocation.executable, [...invocation.args], {
           shell: false,
-          env: {
-            ...env,
-            ...invocation.envOverrides,
-            OPENCLAW_CONFIG_PATH: configPath,
-            OPENCLAW_CONFIG_READONLY: '1',
-          },
+          env: childEnv,
           stdio: ['pipe', 'pipe', 'pipe'],
         });
       } catch (error) {
@@ -221,7 +257,11 @@ export async function runResearchAgent({
           const detail = (stderr || redactSensitiveText(stdout, [apiKey]) || 'no process detail').trim();
           finishReject(new ResearchAgentProcessError(
             `OpenClaw Research exited nonzero: ${detail}`,
-            { code: 'NONZERO_EXIT', exitCode, signal: exitSignal },
+            {
+              code: exitCode === 2 ? 'AGENT_TIMEOUT' : 'NONZERO_EXIT',
+              exitCode,
+              signal: exitSignal,
+            },
           ));
           return;
         }

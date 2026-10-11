@@ -15,6 +15,7 @@ import {
   buildDeepSeekAdvisoryPrompt,
   deepseekAdvisoryModel,
   parseDeepSeekAdvisoryText,
+  selectAdvisorSkillNames,
   shouldRunDeepSeekAdvisory,
 } from "./lib/openclaw-deepseek-advisor-lib.mjs";
 
@@ -32,6 +33,23 @@ fs.mkdirSync(outDir, { recursive: true });
 const outFile = path.join(outDir, `${mode}.json`);
 const relativeOutFile = path.relative(repoRoot, outFile).replace(/\\/g, "/");
 
+function loadSelectedSkillExcerpts() {
+  const root = String(process.env.ECC_SKILLS_DIR || "").trim();
+  if (!root) return [];
+  const realRoot = fs.existsSync(root) ? fs.realpathSync(root) : "";
+  if (!realRoot) return [];
+  const excerpts = [];
+  for (const name of selectAdvisorSkillNames(plan, 8)) {
+    if (!/^[a-z0-9-]+$/.test(name)) continue;
+    const candidate = path.resolve(realRoot, name, "SKILL.md");
+    if (!candidate.startsWith(`${realRoot}${path.sep}`) || !fs.existsSync(candidate)) continue;
+    const content = fs.readFileSync(candidate, "utf8");
+    excerpts.push({ name, content: content.slice(0, 8000) });
+  }
+  return excerpts;
+}
+
+const skillExcerpts = loadSelectedSkillExcerpts();
 let latest = null;
 let reportExcerpt = "";
 if (mode === "judge" && fs.existsSync(path.resolve(repoRoot, latestReportFile))) {
@@ -49,6 +67,8 @@ const base = {
   model: deepseekAdvisoryModel,
   reasoning_effort: plan.model_route.reasoning_effort,
   orchestration_plan: plan,
+  selected_skill_names: selectAdvisorSkillNames(plan, 8),
+  loaded_skill_names: skillExcerpts.map((entry) => entry.name),
   generated_at: new Date().toISOString(),
   source_task_file: sourceTaskFile,
 };
@@ -63,10 +83,12 @@ function finish(payload) {
       judge_file: relativeOutFile,
       judge_status: payload.status,
       judge_verdict: payload.advisory?.verdict || null,
+      selected_skill_names: base.selected_skill_names,
+      loaded_skill_names: base.loaded_skill_names,
     };
     writeJson(latestReportFile, current);
   }
-  console.log(JSON.stringify({ status: payload.status, mode, file: relativeOutFile, verdict: payload.advisory?.verdict || null }));
+  console.log(JSON.stringify({ status: payload.status, mode, file: relativeOutFile, verdict: payload.advisory?.verdict || null, loaded_skills: base.loaded_skill_names }));
 }
 
 if (!shouldRunDeepSeekAdvisory(task, plan)) {
@@ -79,7 +101,7 @@ if (!String(process.env.DEEPSEEK_API_KEY || "").trim()) {
   process.exit(0);
 }
 
-const prompt = buildDeepSeekAdvisoryPrompt({ mode, task, plan, latest, reportExcerpt });
+const prompt = buildDeepSeekAdvisoryPrompt({ mode, task, plan, latest, reportExcerpt, skillExcerpts });
 let envelope;
 try {
   const stdout = execFileSync(

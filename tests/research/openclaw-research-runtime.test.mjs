@@ -45,11 +45,10 @@ test('research prompt treats all web content as untrusted and requires sourced J
   assert.match(prompt, /Find five current vehicle listings/);
 });
 
-test('agent exec invocation uses pinned config plus explicit isolated run state', () => {
+test('agent exec invocation uses pinned config, direct code mode, and bounded DeepSeek model', () => {
   const invocation = buildResearchAgentExecInvocation({
     request,
     configPath: '/tmp/openclaw-v2-research.json',
-    stateDir: '/tmp/openclaw-v2-research-state',
     model: 'deepseek/deepseek-chat',
     timeoutSeconds: 90,
   });
@@ -57,34 +56,28 @@ test('agent exec invocation uses pinned config plus explicit isolated run state'
   assert.equal(invocation.executable, 'openclaw');
   assert.deepEqual(invocation.args.slice(0, 2), ['agent', 'exec']);
   assert.ok(!invocation.args.includes('--auth-env-only'));
+  assert.ok(!invocation.args.includes('--state-dir'));
   assert.ok(invocation.args.includes('--json'));
   assert.equal(invocation.args[invocation.args.indexOf('--config') + 1], '/tmp/openclaw-v2-research.json');
-  assert.equal(invocation.args[invocation.args.indexOf('--state-dir') + 1], '/tmp/openclaw-v2-research-state');
   assert.equal(invocation.args[invocation.args.indexOf('--code-mode') + 1], 'direct');
   assert.equal(invocation.args[invocation.args.indexOf('--timeout') + 1], '90');
   assert.equal(invocation.args[invocation.args.indexOf('--model') + 1], 'deepseek/deepseek-chat');
   assert.equal(invocation.args[invocation.args.indexOf('--message-file') + 1], '-');
-  assert.equal('envOverrides' in invocation, false);
   assert.match(invocation.stdin, /Task contract:/);
 });
 
-test('agent exec invocation rejects non-DeepSeek model refs and non-absolute isolation paths', () => {
+test('agent exec invocation rejects non-DeepSeek model refs and non-absolute config paths', () => {
   assert.throws(
     () => buildResearchAgentExecInvocation({
       request,
       configPath: '/tmp/config.json',
-      stateDir: '/tmp/state',
       model: 'openai/gpt-6',
     }),
     /deepseek/,
   );
   assert.throws(
-    () => buildResearchAgentExecInvocation({ request, configPath: 'config.json', stateDir: '/tmp/state' }),
+    () => buildResearchAgentExecInvocation({ request, configPath: 'config.json' }),
     /configPath/,
-  );
-  assert.throws(
-    () => buildResearchAgentExecInvocation({ request, configPath: '/tmp/config.json', stateDir: 'state' }),
-    /stateDir/,
   );
 });
 
@@ -93,7 +86,6 @@ test('agent exec timeout and web limits fail closed outside bounds', () => {
     () => buildResearchAgentExecInvocation({
       request,
       configPath: '/tmp/config.json',
-      stateDir: '/tmp/state',
       timeoutSeconds: 301,
     }),
     /timeoutSeconds/,

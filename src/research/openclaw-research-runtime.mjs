@@ -121,6 +121,7 @@ export function buildResearchAgentExecInvocation({
       'exec',
       '--message-file', '-',
       '--config', configPath,
+      '--state-dir', stateDir,
       '--model', model,
       '--code-mode', 'direct',
       '--thinking', 'off',
@@ -131,6 +132,5 @@ export function buildResearchAgentExecInvocation({
     model,
     timeoutSeconds,
     stateDir,
-    envOverrides: Object.freeze({ OPENCLAW_STATE_DIR: stateDir }),
   });
 }

@@ -32,6 +32,7 @@ const envelope = (overrides = {}) => ({
   payloads: [{ text: 'omitted' }],
   usage: { input: 100, output: 30, total: 130 },
   costUsd: 0.0012,
+  codeModeEngaged: false,
   assistantTurns: 2,
   toolSummary: {
     calls: 3,
@@ -66,6 +67,19 @@ test('rejects provider or model mismatch', () => {
   assert.throws(
     () => parse(envelope({ model: 'deepseek-reasoner' })),
     (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'MODEL_MISMATCH',
+  );
+});
+
+test('rejects code mode engagement or missing direct-mode evidence', () => {
+  assert.throws(
+    () => parse(envelope({ codeModeEngaged: true })),
+    (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'CODE_MODE_NOT_DIRECT',
+  );
+  const missing = envelope();
+  delete missing.codeModeEngaged;
+  assert.throws(
+    () => parse(missing),
+    (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'CODE_MODE_NOT_DIRECT',
   );
 });
 

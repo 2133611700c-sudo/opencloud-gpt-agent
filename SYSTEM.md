@@ -1,6 +1,6 @@
 # OpenClaw V2 — Canonical System Specification
 
-This file is the single architectural source of truth for V2.
+This file is the single architectural source of truth for V2. The canonical delivery-phase numbering is the 14-phase sequence in this specification and is mirrored with detailed exit criteria in `docs/01_MASTER_ARCHITECTURE_AND_ROADMAP.md`. If phase numbering or scope ever differs, this file and the master roadmap must be corrected in the same verified change before implementation continues.
 
 ## 1. Mission
 
@@ -150,19 +150,25 @@ Selected metadata alone is never proof of execution.
 
 `main` and legacy branches remain frozen as rollback material while V2 is built. V2 is promoted only after battle-test E2E PASS. Legacy deletion happens only after production cutover and rollback verification.
 
-## 13. Delivery phases
+## 13. Delivery phases — canonical 14-phase sequence
 
-1. Foundation — clean branch, minimal tree, canonical spec, CI, health check.
-2. System Kernel — task ids/state, checkpoints, retries, cancellation, budgets, permissions, concurrency, idempotency.
-3. Capability Registry — tools/providers/APIs plus all 71 agent templates and 311 skill entries with runtime readiness states.
-4. Model Runtime — official DeepSeek provider, live model discovery, isolated role sessions, fallback policy based on measured tests.
-5. Perception — images/screenshots/PDF/scans/documents/CSV/JSON/downloads into structured, provenance-bearing data.
-6. Internet + Browser + API — search/fetch/browser escalation, JS sites, click/type/forms/pagination/downloads/sessions/network/errors, approved API adapters.
-7. Agent Runtime — real native isolated agent sessions, dynamic specialists, tool policies.
-8. Skill Runtime — deterministic discovery/selection/loading/provenance for the 311-skill catalog.
-9. Orchestrator + Planner — goal decomposition, execution DAG, dependencies, parallelism, synthesis scheduling.
-10. Data + Review + Repair + Judge — normalization/dedup/conflict handling, bounded repair, retest, independent acceptance gate.
-11. Evidence + Phone Control — durable reports/artifacts/status and GitHub Mobile-visible terminal notification path.
-12. Battle Tests + Cutover + Legacy Cleanup — real scenarios, security/failure/resume tests, production promotion, rollback check, then remove legacy.
+1. **V2 Foundation** — clean branch, minimal project tree, canonical spec, CI, health gate; no legacy runtime dependency.
+2. **Persistent State + Durable Kernel** — hosted PostgreSQL, task/node/dependency/accounting/artifact/registry state, deterministic lifecycle, idempotency, checkpoints.
+3. **Lease, Fencing, Circuit Breakers** — atomic claims, lease/heartbeat/stale-worker recovery, attempts/steps/token/cost/deadline limits, atomic reservation/reconciliation.
+4. **Lite Orchestrator** — minimal deterministic `Research -> Data/Result` DAG, dependency resolver, descendant blocking, task finalizer, deadlock detection.
+5. **DeepSeek + Model Accounting** — real DeepSeek through target OpenClaw runtime, isolated sessions, token/cache/latency/pricing accounting linked to task/node.
+6. **First Real Research Agent + Web Skill** — one isolated Research Agent using real `web_search`/`web_fetch`, structured sourced output, and full Kernel traversal.
+7. **Artifact + Evidence Layer** — durable task/result/source/accounting/trace/error artifacts that survive runner termination.
+8. **Phone UX** — terminal status, concise result, cost, next action, and deep-log link suitable for iPhone/GitHub Mobile.
+9. **Perception Layer** — images/screenshots/PDF/scans/downloads through MIME detection, extraction, vision/OCR fallback, structured data, and provenance.
+10. **Browser Runtime** — isolated browser navigation, snapshots, clicks, typing, pagination, screenshots, downloads, sessions, network/error evidence, with search -> fetch -> browser escalation.
+11. **Agent Runtime + Skill Runtime + Sandbox** — native isolated subagents, dynamic skill loading with id/version/hash provenance, bounded tools, sandboxed code execution, incremental specialist enablement.
+12. **Full DAG / Parallelism / Repair / Judge** — branching DAG, bounded concurrency, justified subagents/Swarm, synthesis/conflict handling, failure classification, bounded repair/retest, independent Judge.
+13. **Capability Scale-Out** — certify remaining agent and skill catalog entries through schema, availability, security, deterministic and integration tests before READY.
+14. **Production Cutover + Legacy Deletion** — complete battle suite, production promotion, rollback proof, archive, then approved legacy removal.
 
 Every phase has the rule: build -> deterministic tests -> live test where relevant -> evidence -> PASS -> next phase.
+
+## 14. Phase exit authority
+
+Detailed phase exit criteria live in `docs/01_MASTER_ARCHITECTURE_AND_ROADMAP.md`, but they may not redefine or renumber the 14 canonical phases above. `PROJECT_STATE.json` records the currently verified phase/gates; `docs/EXECUTION_LOG.md` records chronological proof. Neither file may claim PASS for a live gate that was skipped or not directly evidenced.

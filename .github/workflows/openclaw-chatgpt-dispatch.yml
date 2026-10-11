@@ -68,3 +68,5 @@ jobs:
       task_file: ${{ matrix.request.task_file }}
       force_rerun: ${{ matrix.request.force_rerun }}
       dispatch_file: ${{ matrix.request.dispatch_file }}
+    secrets:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}

@@ -34,9 +34,13 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Fixed the defect by qualifying mutable table columns and all fenced predicates.
 - Verification run `38153301256` passed all Node tests, both PostgreSQL migrations, core schema assertions, lease/fencing assertions, and health checks.
 - Atomic lease/fencing DB contract: PASS.
+- Added `migrations/0003_budget_reservations.sql` with fenced, idempotent budget/token reservations plus transactional reconcile/release operations.
+- Added `tests/sql/0003_budget_circuit_breakers_test.sql` proving stale-token reservation rejection, duplicate reservation idempotency, cost/token oversubscription rejection, actual-usage reconciliation, unused-reservation release, no new reservation after terminal node, and hard deadline/total-step/max-attempt claim stops.
+- Verification run `38154703360` passed all Node tests, all PostgreSQL migrations, all kernel SQL assertions and health checks.
+- Budget reservation + hard circuit-breaker DB contract: PASS.
 
 ### Current engineering position
 - Current phase: Phase 3 — Lease, Fencing, Circuit Breakers.
-- Next implementation unit: atomic budget/token reservation + reconciliation, then explicit tests for budget, deadline, total-step and max-attempt circuit breakers; after that, application-level asynchronous heartbeat manager over the proven DB contract.
+- Next implementation unit: application-level asynchronous heartbeat manager over the proven `heartbeat_node` fencing contract. It must renew independently of long external calls, abort the worker's operation immediately on lost lease/renewal error, avoid overlapping renewals, and stop cleanly.
 - External capabilities still to verify before live E2E: hosted PostgreSQL secret, DeepSeek API key, OpenClaw runtime/provider health, GitHub Actions artifact/dispatch permissions.
-- Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before Walking Skeleton acceptance gates pass.
+- Do not advance to Lite Orchestrator, browser, vision, swarm, judge, repair or bulk 71/311 migration until the current heartbeat gate passes.

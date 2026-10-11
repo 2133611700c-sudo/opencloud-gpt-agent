@@ -10,10 +10,24 @@ const requireText = (value, name) => {
   return value;
 };
 
-const requireUsage = (research) => {
-  const usage = research?.telemetry?.usage;
-  if (!usage) throw Object.assign(new Error('Research usage telemetry is required for accounting'), { code: 'USAGE_TELEMETRY_REQUIRED' });
+const requireUsage = (usage) => {
+  if (!usage || typeof usage !== 'object') {
+    throw Object.assign(new Error('Research usage telemetry is invalid'), { code: 'USAGE_TELEMETRY_INVALID' });
+  }
+  for (const field of ['input', 'output', 'total']) {
+    if (!Number.isSafeInteger(usage[field]) || usage[field] < 0) {
+      throw Object.assign(new Error(`Research usage telemetry ${field} must be a nonnegative safe integer`), { code: 'USAGE_TELEMETRY_INVALID' });
+    }
+  }
+  if (usage.total !== usage.input + usage.output) {
+    throw Object.assign(new Error('Research usage telemetry total is inconsistent'), { code: 'USAGE_TELEMETRY_INVALID' });
+  }
   return usage;
+};
+
+const latencyMsFor = (research) => {
+  const value = research?.process?.latencyMs ?? research?.telemetry?.toolSummary?.totalToolTimeMs ?? 0;
+  return Number.isSafeInteger(value) && value >= 0 ? value : 0;
 };
 
 export function createResearchKernelExecutor({ kernel, runResearch, pricingVersion, estimateReservation, heartbeatIntervalMs = 10_000 } = {}) {
@@ -37,10 +51,41 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
       heartbeat: () => db.heartbeat({ nodeId: claim.nodeId, workerId: claim.workerId, leaseToken: claim.leaseToken }),
       runResearch: ({ request: input, signal }) => runResearch({ request: input, model, signal }),
       accountUsage: async ({ reservationId, research }) => {
-        const usage = requireUsage(research);
-        const actualCostUsd = research.telemetry.costUsd;
-        if (!Number.isFinite(actualCostUsd) || actualCostUsd < 0) {
-          throw Object.assign(new Error('Research cost telemetry is required for accounting'), { code: 'COST_TELEMETRY_REQUIRED' });
+        const rawUsage = research?.telemetry?.usage;
+        const rawCostUsd = research?.telemetry?.costUsd;
+        const latencyMs = latencyMsFor(research);
+        const missingUsage = rawUsage == null;
+        const missingCost = rawCostUsd == null;
+
+        if (missingUsage || missingCost) {
+          if (typeof db.recordLlmCallReservationFallback !== 'function') {
+            throw Object.assign(new Error('reservation fallback accounting capability is required'), { code: 'ACCOUNTING_FALLBACK_UNAVAILABLE' });
+          }
+          const reason = missingUsage && missingCost
+            ? 'MISSING_USAGE_AND_COST_TELEMETRY'
+            : missingUsage
+              ? 'MISSING_USAGE_TELEMETRY'
+              : 'MISSING_COST_TELEMETRY';
+          const accounted = await db.recordLlmCallReservationFallback({
+            reservationId,
+            callKey: reservationKey,
+            nodeId: claim.nodeId,
+            workerId: claim.workerId,
+            leaseToken: claim.leaseToken,
+            provider: 'deepseek',
+            model: model.replace(/^deepseek\//, ''),
+            pricingVersion,
+            providerRequestId: research?.telemetry?.sessionId ?? null,
+            latencyMs,
+            reason,
+          });
+          if (!accounted) throw Object.assign(new Error('fallback model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
+          return;
+        }
+
+        const usage = requireUsage(rawUsage);
+        if (!Number.isFinite(rawCostUsd) || rawCostUsd < 0) {
+          throw Object.assign(new Error('Research cost telemetry is invalid'), { code: 'COST_TELEMETRY_INVALID' });
         }
         const accounted = await db.recordLlmCall({
           reservationId,
@@ -56,8 +101,8 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           promptCacheMissTokens: usage.input,
           completionTokens: usage.output,
           totalTokens: usage.total,
-          actualCostUsd,
-          latencyMs: research.process?.latencyMs ?? research.telemetry.toolSummary?.totalToolTimeMs ?? 0,
+          actualCostUsd: rawCostUsd,
+          latencyMs,
         });
         if (!accounted) throw Object.assign(new Error('model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
       },

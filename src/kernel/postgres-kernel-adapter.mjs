@@ -18,6 +18,11 @@ const mapClaim = (row, workerId) => row ? Object.freeze({
   workerId,
 }) : null;
 
+const mapAccounting = (row) => row ? Object.freeze({
+  accountingId: row.accounting_id,
+  created: row.created === true,
+}) : null;
+
 export function createPostgresKernelAdapter({ query } = {}) {
   const q = requireQuery(query);
 
@@ -59,7 +64,12 @@ export function createPostgresKernelAdapter({ query } = {}) {
 
     async recordLlmCall({ reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId = null, promptCacheHitTokens = 0, promptCacheMissTokens, completionTokens, totalTokens, actualCostUsd, latencyMs }) {
       const row = await one(q, 'SELECT * FROM record_llm_call($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)', [reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId, promptCacheHitTokens, promptCacheMissTokens, completionTokens, totalTokens, actualCostUsd, latencyMs]);
-      return row ? Object.freeze({ accountingId: row.accounting_id, created: row.created === true }) : null;
+      return mapAccounting(row);
+    },
+
+    async recordLlmCallReservationFallback({ reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId = null, latencyMs, reason }) {
+      const row = await one(q, 'SELECT * FROM record_llm_call_reservation_fallback($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)', [reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId, latencyMs, reason]);
+      return mapAccounting(row);
     },
   });
 }

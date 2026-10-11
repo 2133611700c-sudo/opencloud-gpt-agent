@@ -43,6 +43,19 @@ test('reservation and accounting preserve exact identifiers', async () => {
   assert.equal(await kernel.releaseReservation({ taskId:'t', nodeId:'n', leaseToken:'l', reason:'ABORT' }), 1);
 });
 
+test('reservation fallback accounting uses canonical SQL function and identifiers', async () => {
+  const db = scripted([{ accounting_id:'a-fallback', created:true }]);
+  const kernel = createPostgresKernelAdapter({ query: db.query });
+  const result = await kernel.recordLlmCallReservationFallback({
+    reservationId:'r', callKey:'call', nodeId:'n', workerId:'w', leaseToken:'l',
+    provider:'deepseek', model:'m', pricingVersion:'v', providerRequestId:'request-1',
+    latencyMs:50, reason:'MISSING_USAGE_TELEMETRY',
+  });
+  assert.deepEqual(result, { accountingId:'a-fallback', created:true });
+  assert.equal(db.calls[0].text, 'SELECT * FROM record_llm_call_reservation_fallback($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)');
+  assert.deepEqual(db.calls[0].values, ['r','call','n','w','l','deepseek','m','v','request-1',50,'MISSING_USAGE_TELEMETRY']);
+});
+
 test('constructor rejects missing query capability', () => {
   assert.throws(() => createPostgresKernelAdapter(), TypeError);
 });

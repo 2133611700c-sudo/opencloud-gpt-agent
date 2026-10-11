@@ -113,12 +113,16 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
     fail('SUCCESS research run did not use web_fetch', 'NO_WEB_FETCH_EVIDENCE');
   }
 
-  const usage = objectOrFail(envelope.usage, 'usage');
-  const input = nonNegativeInteger(usage.input, 'usage.input');
-  const output = nonNegativeInteger(usage.output, 'usage.output');
-  const total = nonNegativeInteger(usage.total, 'usage.total');
-  if (total < input + output) {
-    fail('usage.total is smaller than input + output', 'INVALID_TELEMETRY');
+  let usage = null;
+  if (envelope.usage != null) {
+    const rawUsage = objectOrFail(envelope.usage, 'usage');
+    const input = nonNegativeInteger(rawUsage.input, 'usage.input');
+    const output = nonNegativeInteger(rawUsage.output, 'usage.output');
+    const total = nonNegativeInteger(rawUsage.total, 'usage.total');
+    if (total !== input + output) {
+      fail('usage.total must equal input + output', 'INVALID_TELEMETRY');
+    }
+    usage = Object.freeze({ input, output, total });
   }
 
   const costUsd = envelope.costUsd == null ? null : nonNegativeNumber(envelope.costUsd, 'costUsd');
@@ -134,7 +138,8 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
     telemetry: Object.freeze({
       provider: 'deepseek',
       model: expectedModel,
-      usage: Object.freeze({ input, output, total }),
+      usage,
+      telemetryStatus: usage ? 'AVAILABLE' : 'NOT_EXPOSED',
       costUsd,
       assistantTurns,
       toolSummary: Object.freeze({

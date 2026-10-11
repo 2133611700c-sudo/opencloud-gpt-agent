@@ -1,5 +1,3 @@
-import { isAbsolute } from 'node:path';
-
 import { createPostgresKernelAdapter } from '../kernel/postgres-kernel-adapter.mjs';
 import {
   MissingResearchCredentialError,
@@ -7,6 +5,7 @@ import {
   runResearchAgent,
 } from './research-agent-runner.mjs';
 import { createResearchKernelExecutor } from './research-kernel-bindings.mjs';
+import { isSecureResearchStateDir } from './research-trust-root.mjs';
 import { createResearchWorker } from './research-worker.mjs';
 
 export const DEFAULT_PRODUCTION_RESEARCH_MODEL = 'deepseek/deepseek-flash';
@@ -33,7 +32,7 @@ const preflightNativeResearchRuntime = ({ runResearchImpl, env }) => {
   if (typeof env?.DEEPSEEK_API_KEY !== 'string' || env.DEEPSEEK_API_KEY.trim() === '') {
     throw new MissingResearchCredentialError();
   }
-  if (typeof env?.OPENCLAW_STATE_DIR !== 'string' || env.OPENCLAW_STATE_DIR.trim() === '' || !isAbsolute(env.OPENCLAW_STATE_DIR)) {
+  if (!isSecureResearchStateDir(env?.OPENCLAW_STATE_DIR)) {
     throw new ResearchTrustRootError();
   }
 };

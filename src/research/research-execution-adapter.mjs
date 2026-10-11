@@ -50,11 +50,6 @@ export async function executeClaimedResearchNode({
   const fail = requireFn(failTerminal, 'failTerminal');
   const release = requireFn(releaseReservation, 'releaseReservation');
 
-  const reservationId = await reserve(lease);
-  if (typeof reservationId !== 'string' || reservationId.trim() === '') {
-    throw new ResearchExecutionAdapterError('budget reservation was rejected', { code: 'RESERVATION_REJECTED' });
-  }
-
   const abortController = new AbortController();
   const heartbeatManager = new LeaseHeartbeatManager({
     intervalMs: heartbeatIntervalMs,
@@ -62,11 +57,18 @@ export async function executeClaimedResearchNode({
     renew: () => renew(lease),
   });
 
+  let reservationId = null;
   let accounted = false;
   let terminalized = false;
   heartbeatManager.start();
 
   try {
+    reservationId = await reserve(lease);
+    if (typeof reservationId !== 'string' || reservationId.trim() === '') {
+      throw new ResearchExecutionAdapterError('budget reservation was rejected', { code: 'RESERVATION_REJECTED' });
+    }
+    if (heartbeatManager.failure) throw heartbeatManager.failure;
+
     const research = await run({ request, signal: heartbeatManager.signal, claim: lease });
     if (heartbeatManager.failure) throw heartbeatManager.failure;
 
@@ -99,9 +101,9 @@ export async function executeClaimedResearchNode({
     throw error;
   } finally {
     await heartbeatManager.stop();
-    // Accounting normally reconciles/releases the reservation. On any path that
-    // did not reach accounting, explicitly release under the original fence.
-    if (!accounted) {
+    // Accounting normally reconciles/releases the reservation. Only release when
+    // reservation acquisition actually succeeded and accounting did not run.
+    if (!accounted && typeof reservationId === 'string' && reservationId.trim() !== '') {
       try { await release({ claim: lease, reservationId, reason: 'RESEARCH_EXECUTION_ABORTED' }); }
       catch { /* cleanup is best-effort; durable finalizers remain authoritative */ }
     }

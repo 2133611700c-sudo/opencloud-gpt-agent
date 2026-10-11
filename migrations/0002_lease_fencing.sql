@@ -66,23 +66,23 @@ BEGIN
 
   v_token := gen_random_uuid();
 
-  UPDATE tasks
-  SET status = CASE WHEN status = 'PENDING' THEN 'RUNNING' ELSE status END,
-      current_steps = current_steps + 1,
+  UPDATE tasks AS t
+  SET status = CASE WHEN t.status = 'PENDING' THEN 'RUNNING' ELSE t.status END,
+      current_steps = t.current_steps + 1,
       updated_at = NOW()
-  WHERE id = v_node.task_id;
+  WHERE t.id = v_node.task_id;
 
-  UPDATE task_nodes
+  UPDATE task_nodes AS n
   SET status = 'RUNNING',
       lease_owner = p_worker_id,
       lease_token = v_token,
       lease_acquired_at = NOW(),
       lease_until = NOW() + make_interval(secs => p_lease_seconds),
       heartbeat_at = NOW(),
-      attempt = attempt + 1,
-      started_at = COALESCE(started_at, NOW()),
+      attempt = n.attempt + 1,
+      started_at = COALESCE(n.started_at, NOW()),
       updated_at = NOW()
-  WHERE id = v_node.id;
+  WHERE n.id = v_node.id;
 
   RETURN QUERY
   SELECT
@@ -111,15 +111,15 @@ BEGIN
     RAISE EXCEPTION 'lease seconds must be between 5 and 3600';
   END IF;
 
-  UPDATE task_nodes
+  UPDATE task_nodes AS n
   SET heartbeat_at = NOW(),
       lease_until = NOW() + make_interval(secs => p_lease_seconds),
       updated_at = NOW()
-  WHERE id = p_node_id
-    AND status = 'RUNNING'
-    AND lease_owner = p_worker_id
-    AND lease_token = p_lease_token
-  RETURNING id INTO v_updated;
+  WHERE n.id = p_node_id
+    AND n.status = 'RUNNING'
+    AND n.lease_owner = p_worker_id
+    AND n.lease_token = p_lease_token
+  RETURNING n.id INTO v_updated;
 
   RETURN v_updated IS NOT NULL;
 END;
@@ -137,18 +137,18 @@ AS $$
 DECLARE
   v_updated UUID;
 BEGIN
-  UPDATE task_nodes
+  UPDATE task_nodes AS n
   SET status = 'SUCCESS',
       output_data = COALESCE(p_output_data, '{}'::jsonb),
       lease_until = NULL,
       heartbeat_at = NOW(),
       finished_at = NOW(),
       updated_at = NOW()
-  WHERE id = p_node_id
-    AND status = 'RUNNING'
-    AND lease_owner = p_worker_id
-    AND lease_token = p_lease_token
-  RETURNING id INTO v_updated;
+  WHERE n.id = p_node_id
+    AND n.status = 'RUNNING'
+    AND n.lease_owner = p_worker_id
+    AND n.lease_token = p_lease_token
+  RETURNING n.id INTO v_updated;
 
   RETURN v_updated IS NOT NULL;
 END;
@@ -166,7 +166,7 @@ AS $$
 DECLARE
   v_updated UUID;
 BEGIN
-  UPDATE task_nodes
+  UPDATE task_nodes AS n
   SET status = 'PENDING',
       last_error = COALESCE(p_error, '{}'::jsonb),
       lease_owner = NULL,
@@ -175,12 +175,12 @@ BEGIN
       lease_until = NULL,
       heartbeat_at = NULL,
       updated_at = NOW()
-  WHERE id = p_node_id
-    AND status = 'RUNNING'
-    AND lease_owner = p_worker_id
-    AND lease_token = p_lease_token
-    AND attempt < max_attempts
-  RETURNING id INTO v_updated;
+  WHERE n.id = p_node_id
+    AND n.status = 'RUNNING'
+    AND n.lease_owner = p_worker_id
+    AND n.lease_token = p_lease_token
+    AND n.attempt < n.max_attempts
+  RETURNING n.id INTO v_updated;
 
   RETURN v_updated IS NOT NULL;
 END;

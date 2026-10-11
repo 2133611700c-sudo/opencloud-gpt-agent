@@ -97,7 +97,6 @@ export async function runResearchAgent({
   if (signal != null && !(signal instanceof AbortSignal)) throw new TypeError('signal must be an AbortSignal');
   if (signal?.aborted) throw new ResearchAgentProcessError('Research agent aborted before start', { code: 'ABORTED' });
 
-  // Fail before any temp file is created if the process would escape the dedicated OpenClaw trust scope.
   const childEnv = buildResearchChildEnv(env);
   const config = buildResearchOpenClawConfig(configOptions);
   const tempDir = await mkdtemp(join(tempRoot, 'openclaw-v2-research-'));
@@ -141,6 +140,13 @@ export async function runResearchAgent({
       };
       const killChild = () => {
         try { if (child && !child.killed) child.kill('SIGKILL'); } catch { /* best effort */ }
+      };
+      const rejectTransport = (message, code, error) => {
+        killChild();
+        finishReject(new ResearchAgentProcessError(
+          `${message}: ${redactSensitiveText(error?.message, [apiKey])}`,
+          { code, cause: error },
+        ));
       };
       const onAbort = () => {
         killChild();
@@ -191,21 +197,12 @@ export async function runResearchAgent({
         }
         stderrChunks.push(buffer);
       });
-      child.on('error', (error) => finishReject(new ResearchAgentProcessError(
-        `OpenClaw Research process error: ${redactSensitiveText(error?.message, [apiKey])}`,
-        { code: 'SPAWN_FAILED', cause: error },
-      )));
-      child.stdin?.on('error', (error) => finishReject(new ResearchAgentProcessError(
-        `OpenClaw Research stdin error: ${redactSensitiveText(error?.message, [apiKey])}`,
-        { code: 'STDIN_FAILED', cause: error },
-      )));
+      child.on('error', (error) => rejectTransport('OpenClaw Research process error', 'SPAWN_FAILED', error));
+      child.stdin?.on('error', (error) => rejectTransport('OpenClaw Research stdin error', 'STDIN_FAILED', error));
 
       try { child.stdin?.end(invocation.stdin); }
       catch (error) {
-        finishReject(new ResearchAgentProcessError(
-          `Failed to send Research prompt: ${redactSensitiveText(error?.message, [apiKey])}`,
-          { code: 'STDIN_FAILED', cause: error },
-        ));
+        rejectTransport('Failed to send Research prompt', 'STDIN_FAILED', error);
         return;
       }
 

@@ -29,14 +29,15 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Phase 4 core gate: PASS.
 
 ### Phase 5 — DeepSeek + Model Accounting [IN PROGRESS]
-- Existing V2 CI was extended with a safe secret-presence report that prints only PRESENT/MISSING.
-- Verification run `38155306054` reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`.
-- Therefore hosted persistent Postgres is BLOCKED until `DATABASE_URL` exists and persistence smoke passes.
-- Therefore live DeepSeek/OpenClaw inference is BLOCKED until `DEEPSEEK_API_KEY` exists and provider smoke passes.
-- No secret value was exposed and neither blocked capability is described as live.
-- While blocked, Phase 5 may continue only with deterministic local contracts/tests such as usage parsing, accounting and pricing-version logic; no fake live model/provider claim.
+- Safe secret-presence run `38155306054` reported `LIVE_DATABASE_URL=MISSING` and `LIVE_DEEPSEEK_API_KEY=MISSING`; no secret values were exposed.
+- Hosted persistent Postgres remains BLOCKED until `DATABASE_URL` exists and persistence smoke passes.
+- Live DeepSeek/OpenClaw inference remains BLOCKED until `DEEPSEEK_API_KEY` exists and provider smoke passes.
+- Added `src/accounting/model-usage.mjs`: strict DeepSeek usage normalization; cache-hit/cache-miss separation; unclassified prompt tokens conservatively treated as miss; exact BigInt micro-USD accounting; prices supplied as versioned runtime input, not hardcoded.
+- Added model-accounting tests covering explicit/implicit cache-miss handling, deterministic cost calculation, conservative rounding, invalid totals/cache counts, invalid pricing contracts, and exact USD formatting.
+- Verification run `38155477561` passed all Node tests, every PostgreSQL migration/assertion, health check, and safe secret-presence report.
+- Deterministic model-usage accounting contract: PASS.
 
 ### Current engineering position
-- Next action: implement deterministic model-usage accounting with injected pricing rates/version and tests; do not hardcode time-sensitive current pricing.
+- Next unit: atomic exactly-once model-call accounting transaction in PostgreSQL: fenced lease verification + reservation reconciliation + `llm_accounting` insert in one transaction; repeated same `call_key` must not double-charge.
 - Live hosted Postgres/DeepSeek smoke remains pending secrets.
 - Do not advance to browser, vision, swarm, judge, repair or bulk 71/311 migration before the Walking Skeleton live research path passes.

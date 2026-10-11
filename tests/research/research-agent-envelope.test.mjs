@@ -56,7 +56,27 @@ test('accepts a sourced DeepSeek research envelope with real web tool evidence',
   assert.equal(parsed.result.sources[0].url, 'https://example.com/listing');
   assert.deepEqual(parsed.telemetry.toolSummary.tools, ['web_search', 'web_fetch']);
   assert.deepEqual(parsed.telemetry.usage, { input: 100, output: 30, total: 130 });
+  assert.equal(parsed.telemetry.telemetryStatus, 'AVAILABLE');
   assert.equal(parsed.telemetry.costUsd, 0.0012);
+});
+
+test('does not invent usage telemetry when OpenClaw omits it', () => {
+  const value = envelope();
+  delete value.usage;
+  const parsed = parse(value);
+  assert.equal(parsed.telemetry.usage, null);
+  assert.equal(parsed.telemetry.telemetryStatus, 'NOT_EXPOSED');
+});
+
+test('rejects inconsistent or malformed usage telemetry', () => {
+  assert.throws(
+    () => parse(envelope({ usage: { input: 100, output: 30, total: 999 } })),
+    (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'INVALID_TELEMETRY',
+  );
+  assert.throws(
+    () => parse(envelope({ usage: { input: 100, output: -1, total: 99 } })),
+    (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'INVALID_TELEMETRY',
+  );
 });
 
 test('rejects provider or model mismatch', () => {

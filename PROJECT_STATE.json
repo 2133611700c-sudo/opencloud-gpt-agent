@@ -20,20 +20,23 @@
     {"unit":"deterministic_model_usage_accounting","status":"PASS","ci_run_id":38155477561},
     {"unit":"exactly_once_model_accounting","status":"PASS","ci_run_id":38155852410},
     {"unit":"openclaw_deepseek_infer_adapter","status":"PASS","ci_run_id":38156265994},
+    {"unit":"bounded_deepseek_smoke_process_runner","status":"PASS","ci_run_id":38156463925},
     {
-      "unit":"bounded_deepseek_smoke_process_runner",
+      "unit":"pinned_openclaw_deepseek_runtime_wiring",
       "status":"PASS",
-      "ci_run_id":38156463925,
-      "evidence":"Missing-key fail-fast before spawn; shell=false argv execution; bounded stdout/stderr; timeout and AbortSignal kill; typed process errors; secret/sk-token redaction; invalid success envelope fail-closed; all previous kernel and PostgreSQL gates remained green"
+      "ci_run_id":38157033206,
+      "evidence":"OpenClaw 2026.9.8 installed on Node 24 and version token verified; official @openclaw/deepseek-provider@2026.9.8 installed successfully; 39 Node tests and all PostgreSQL kernel assertions remained green. Live provider call was correctly skipped because DEEPSEEK_API_KEY was not yet stored in GitHub Actions secrets. Previous run 38156864987 exposed only an overly strict version-string assertion, which was fixed without weakening the version pin."
     }
   ],
   "phase_3_status":"PASS",
   "phase_4_status":"PASS",
   "live_capabilities": {
     "hosted_postgres":"BLOCKED_MISSING_DATABASE_URL",
+    "openclaw_deepseek_runtime":"PASS_PINNED_INSTALL_AND_PLUGIN",
     "deepseek":"SECRET_PROVIDED_IN_CHAT_PENDING_SECURE_GITHUB_ACTIONS_STORAGE_AND_LIVE_SMOKE"
   },
+  "selected_ecc_review_lanes":["agentic-engineering","security-review","agent-security-hardening","verification-loop","postgres-patterns"],
   "persistence_note":"Kernel contracts are verified on ephemeral PostgreSQL 16 in GitHub Actions. Hosted persistent PostgreSQL is not live until DATABASE_URL is configured and a persistence smoke passes.",
   "48h_target":"Hosted Postgres -> Kernel -> Lite DAG -> DeepSeek/OpenClaw -> web search/fetch -> accounting -> evidence -> phone result",
-  "next_action":"Securely store the user-provided DeepSeek credential as GitHub Actions secret DEEPSEEK_API_KEY via authenticated GitHub session, then run exactly one real OpenClaw DeepSeek provider smoke through the proven runner and record model/latency/observed telemetry without exposing the credential. In parallel, prepare only the live-smoke CI wiring; do not advance to Research Agent until this gate passes. Hosted Postgres remains blocked until DATABASE_URL is configured."
+  "next_action":"Secret gate only: after an authenticated GitHub browser profile is available, store the user-provided credential as repository Actions secret DEEPSEEK_API_KEY without exposing it, then trigger exactly one real bounded DeepSeek smoke and inspect the safe artifact. Do not advance to Research Agent until this live provider gate passes. In parallel, hosted Postgres remains blocked until Neon/Supabase or another DATABASE_URL is securely configured."
 }

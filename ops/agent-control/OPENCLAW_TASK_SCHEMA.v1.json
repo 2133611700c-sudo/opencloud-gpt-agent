@@ -28,11 +28,7 @@
         "outreach_draft",
         "outreach_send_approved",
         "codex_delegate",
-        "repo_audit",
-        "repo_patch",
-        "supabase_check",
-        "synthetic_lead_check",
-        "regression_check"
+        "repo_patch"
       ]
     },
     "requested_by": {

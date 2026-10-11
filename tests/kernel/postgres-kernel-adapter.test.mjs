@@ -18,6 +18,14 @@ test('claim maps SQL row into canonical lease claim', async () => {
   assert.deepEqual(db.calls[0].values, ['w', 30]);
 });
 
+test('agent-scoped claim binds worker to requested agent id', async () => {
+  const db = scripted([{ node_id:'n', task_id:'t', lease_token:'l', agent_id:'researcher', input_payload:{q:'x'}, attempt:1 }]);
+  const kernel = createPostgresKernelAdapter({ query: db.query });
+  assert.deepEqual(await kernel.claimNextNodeForAgent({ workerId:'w', agentId:'researcher', leaseSeconds:45 }), { nodeId:'n', taskId:'t', leaseToken:'l', agentId:'researcher', inputPayload:{q:'x'}, attempt:1, workerId:'w' });
+  assert.equal(db.calls[0].text, 'SELECT * FROM claim_next_node_for_agent($1, $2, $3)');
+  assert.deepEqual(db.calls[0].values, ['w', 'researcher', 45]);
+});
+
 test('fenced boolean operations fail closed on missing rows', async () => {
   const db = scripted([null, null, null]);
   const kernel = createPostgresKernelAdapter({ query: db.query });

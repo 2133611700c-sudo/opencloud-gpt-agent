@@ -1,5 +1,9 @@
 BEGIN;
 
+-- Canonical repair migration for the historical duplicate 0008 prefix.
+-- Some hosted installations advanced past 0008 with active-lease hardening
+-- present but accounting fallback absent. Keep this migration idempotent so
+-- both fresh and already-repaired databases converge on the same schema.
 ALTER TABLE llm_accounting
   ADD COLUMN IF NOT EXISTS accounting_basis VARCHAR(32) NOT NULL DEFAULT 'OBSERVED_USAGE',
   ADD COLUMN IF NOT EXISTS accounting_note VARCHAR(256);
@@ -27,13 +31,6 @@ BEGIN
   END IF;
 END $$;
 
--- Fail-closed accounting path for a paid model turn whose provider envelope does not
--- expose trustworthy token usage. We do NOT label the reservation ceiling as observed
--- provider usage. Instead, the row is explicitly marked RESERVATION_FALLBACK and the
--- full reserved cost/token ceiling is charged to preserve hard-budget invariants.
--- Conservative charged tokens are encoded as cache-miss tokens because that is the
--- highest-cost prompt classification in the existing accounting schema; consumers MUST
--- inspect accounting_basis before treating token fields as observed provider telemetry.
 CREATE OR REPLACE FUNCTION record_llm_call_reservation_fallback(
   p_reservation_id UUID,
   p_call_key VARCHAR(160),

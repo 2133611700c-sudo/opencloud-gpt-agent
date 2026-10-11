@@ -45,7 +45,7 @@ test('research prompt treats all web content as untrusted and requires sourced J
   assert.match(prompt, /Find five current vehicle listings/);
 });
 
-test('agent exec invocation is bounded, environment-auth-only and shell-free argv data', () => {
+test('agent exec invocation is bounded, environment-auth-only and disables code mode explicitly', () => {
   const invocation = buildResearchAgentExecInvocation({
     request,
     configPath: '/tmp/openclaw-v2-research.json',
@@ -57,6 +57,7 @@ test('agent exec invocation is bounded, environment-auth-only and shell-free arg
   assert.deepEqual(invocation.args.slice(0, 2), ['agent', 'exec']);
   assert.ok(invocation.args.includes('--auth-env-only'));
   assert.ok(invocation.args.includes('--json'));
+  assert.equal(invocation.args[invocation.args.indexOf('--code-mode') + 1], 'direct');
   assert.equal(invocation.args[invocation.args.indexOf('--timeout') + 1], '90');
   assert.equal(invocation.args[invocation.args.indexOf('--model') + 1], 'deepseek/deepseek-chat');
   assert.equal(invocation.args[invocation.args.indexOf('--message-file') + 1], '-');

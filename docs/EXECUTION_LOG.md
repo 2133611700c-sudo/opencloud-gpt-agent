@@ -68,7 +68,7 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
   - missing/relative roots produce typed `INVALID_OPENCLAW_STATE_DIR`;
   - negative tests prove zero spawn/temp side effects on rejection;
   - all existing Node/PostgreSQL/OpenClaw/DeepSeek-plugin/DuckDuckGo-plugin/config-validation gates remained green.
-- Hosted-Neon-in-CI and live-DeepSeek steps remain correctly SKIPPED because repository Actions secrets are absent; hosted Neon itself is separately proven live.
+- Hosted-Neon-in-CI and live-DeepSeek steps remain correctly SKIPPED because repository Actions secrets are absent; hosted Neon itself is separately proven live historically.
 
 ### ECC review lanes selected for the current engineering stage
 - `agentic-engineering`
@@ -79,7 +79,7 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 These are independent review/check lanes, not claimed as separate running agents until the real Agent Runtime exists.
 
 ### Current engineering position
-- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS historically through migrations 0001-0007; current hosted state needs revalidation after migration 0009.
+- Hosted PostgreSQL persistence and DB-only Lite DAG E2E: PASS historically through migrations 0001-0007; current hosted state needs revalidation after migrations 0009-0010.
 - Research contract/runtime/plugin/process/trust boundary: PASS without a live model call.
 - External secrets remain pending for live hosted-CI and live DeepSeek proof.
 - Do not advance to Browser, Vision, Swarm, Judge, Repair, or bulk 71/311 migration yet.
@@ -91,5 +91,13 @@ These are independent review/check lanes, not claimed as separate running agents
 - The effective function now requires `RUNNING` + exact worker + exact fencing token + active `lease_until > NOW()`, releases reservations, writes `FAIL_WITH_EVIDENCE`, cascades descendants, and immediately calls `finalize_task(v_task_id)`.
 - Full CI run `38165100648`: SUCCESS. PostgreSQL migrations and all kernel assertions passed, including the pre-existing Research-failure -> Data-BLOCKED -> task-terminal regression test.
 - Hosted Neon verification and live DeepSeek smoke were SKIPPED in that run because `DATABASE_URL` and `DEEPSEEK_API_KEY` are absent from GitHub Actions; SKIPPED is not PASS.
-- Phase 3/4 local-CI kernel gates are therefore revalidated at this commit, but hosted Neon still needs migration 0009 + E2E revalidation.
-- Next micro-gate: read-only audit of an expired `RUNNING` node where `attempt == max_attempts`. Determine whether `claim_next_node()` and `finalize_task()` can leave the task dangling. No code change before PASS/FAIL evidence.
+
+### Kernel stabilization — expired final attempt [PASS]
+- Read-only audit proved a real dangling state: `claim_next_node()` refuses an expired RUNNING node when `attempt == max_attempts`, while the prior `finalize_task()` kept seeing `v_running > 0` and left the task RUNNING until deadline.
+- Added `migrations/0010_expired_attempt_exhaustion.sql` and `tests/sql/0010_expired_attempt_exhaustion_test.sql` in implementation commit `38a29dc15e28a863c205119e14d25a0942430df0`; no historical migration was rewritten.
+- The new system-owned cleanup locks the exhausted expired node first, releases reservations with `MAX_ATTEMPTS_EXHAUSTED`, marks the node `FAIL_WITH_EVIDENCE`, then existing finalizer behavior cascades descendants and terminates the task.
+- Initial CI run `38165592008` failed only because the new test expected `agent_id='research'` while the canonical Lite DAG uses `agent_id='researcher'`. The migration itself was not changed.
+- Test-only correction commit `bb5489750efdd7fa92d43e2326179188c758c86f` fixed that assertion.
+- Full CI run `38165702632`: SUCCESS. PostgreSQL migration and kernel assertions passed; the test proves no reclaim after final attempt, Research -> `FAIL_WITH_EVIDENCE`, Data -> `BLOCKED`, reservation -> `RELEASED`, and zero task/node reserved totals.
+- Hosted Neon and live DeepSeek remained SKIPPED because repository Actions secrets are absent; they are not counted as PASS.
+- Next micro-gate: read-only audit of expired `RUNNING` node when `task.current_steps >= task.max_total_steps`. No code change before PASS/FAIL evidence.

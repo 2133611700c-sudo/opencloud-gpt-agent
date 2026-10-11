@@ -10,6 +10,15 @@ const requireText = (value, name) => {
   return value;
 };
 
+const requireEstimate = (estimate) => {
+  if (!estimate || !Number.isFinite(estimate.costUsd) || estimate.costUsd < 0 || !Number.isSafeInteger(estimate.tokens) || estimate.tokens < 0) {
+    throw Object.assign(new TypeError('estimateReservation must return nonnegative costUsd and tokens'), {
+      code: 'INVALID_RESERVATION_ESTIMATE',
+    });
+  }
+  return estimate;
+};
+
 const requireUsage = (usage) => {
   if (!usage || typeof usage !== 'object') {
     throw Object.assign(new Error('Research usage telemetry is invalid'), { code: 'USAGE_TELEMETRY_INVALID' });
@@ -52,17 +61,23 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
   requireText(pricingVersion, 'pricingVersion');
 
   return async function execute({ claim, request, model = 'deepseek/deepseek-flash' } = {}) {
-    const estimate = await estimateReservation({ claim, request, model });
-    if (!estimate || !Number.isFinite(estimate.costUsd) || estimate.costUsd < 0 || !Number.isSafeInteger(estimate.tokens) || estimate.tokens < 0) {
-      throw new TypeError('estimateReservation must return nonnegative costUsd and tokens');
-    }
     const reservationKey = `research:${claim.taskId}:${claim.nodeId}:${claim.leaseToken}`;
 
     return executeClaimedResearchNode({
       claim,
       request,
       heartbeatIntervalMs,
-      reservation: () => db.reserve({ reservationKey, nodeId: claim.nodeId, workerId: claim.workerId, leaseToken: claim.leaseToken, reservedCostUsd: estimate.costUsd, reservedTokens: estimate.tokens }),
+      reservation: async () => {
+        const estimate = requireEstimate(await estimateReservation({ claim, request, model }));
+        return db.reserve({
+          reservationKey,
+          nodeId: claim.nodeId,
+          workerId: claim.workerId,
+          leaseToken: claim.leaseToken,
+          reservedCostUsd: estimate.costUsd,
+          reservedTokens: estimate.tokens,
+        });
+      },
       heartbeat: () => db.heartbeat({ nodeId: claim.nodeId, workerId: claim.workerId, leaseToken: claim.leaseToken }),
       runResearch: ({ request: input, signal }) => runResearch({ request: input, model, signal }),
       accountUsage: async ({ reservationId, research }) => {

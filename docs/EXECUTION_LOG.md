@@ -27,20 +27,27 @@ Purpose: durable chronological handoff between chats and engineering sessions. U
 - Added state-machine unit tests; current-head CI run `38153032460` passed Node tests, PostgreSQL migration, SQL invariants and health checks.
 - Phase 2 core schema + state-machine units: PASS.
 
-### Phase 3 — Lease, Fencing, Circuit Breakers [IN PROGRESS]
+### Phase 3 — Lease, Fencing, Circuit Breakers [PASS]
 - Added `migrations/0002_lease_fencing.sql` implementing atomic `SKIP LOCKED` claim, unique fencing token per claim/reclaim, heartbeat renewal, fenced SUCCESS completion, and fenced retry requeue.
 - Added `tests/sql/0002_lease_fencing_test.sql` covering active-lease exclusion, heartbeat token validation, expired-lease reclaim, new fencing token, attempt increment, stale heartbeat rejection, stale completion rejection, and release of a dependent node only after parent SUCCESS.
 - First integrated CI run `38153199152` correctly failed on a real PL/pgSQL ambiguity: unqualified `attempt = attempt + 1` conflicted with the function return-column variable.
 - Fixed the defect by qualifying mutable table columns and all fenced predicates.
-- Verification run `38153301256` passed all Node tests, both PostgreSQL migrations, core schema assertions, lease/fencing assertions, and health checks.
-- Atomic lease/fencing DB contract: PASS.
-- Added `migrations/0003_budget_reservations.sql` with fenced, idempotent budget/token reservations plus transactional reconcile/release operations.
-- Added `tests/sql/0003_budget_circuit_breakers_test.sql` proving stale-token reservation rejection, duplicate reservation idempotency, cost/token oversubscription rejection, actual-usage reconciliation, unused-reservation release, no new reservation after terminal node, and hard deadline/total-step/max-attempt claim stops.
-- Verification run `38154703360` passed all Node tests, all PostgreSQL migrations, all kernel SQL assertions and health checks.
-- Budget reservation + hard circuit-breaker DB contract: PASS.
+- Verification run `38153301256` passed all Node tests, PostgreSQL migrations, core schema assertions, lease/fencing assertions, and health checks.
+- Added `migrations/0003_budget_reservations.sql` with fenced, idempotent cost/token reservations and transactional reconcile/release operations.
+- Added `tests/sql/0003_budget_circuit_breakers_test.sql` proving stale-token rejection, duplicate reservation idempotency, cost/token oversubscription rejection, reconcile/release correctness, no reservation after terminal node, and hard deadline/total-step/max-attempt stops.
+- Verification run `38154703360` passed all migrations and kernel SQL assertions.
+- Added `src/kernel/heartbeat.mjs` with an independent asynchronous renewal loop and explicit abort semantics.
+- Added heartbeat tests for lease-loss abort, renewal exception wrapping, non-overlapping renewals, clean shutdown, stop/in-flight-renewal race, and duplicate start rejection.
+- Verification run `38154875398` passed Node tests, all PostgreSQL migrations/assertions, and health checks.
+- Phase 3 gate: PASS.
+
+### Phase 4 — Lite Orchestrator [IN PROGRESS]
+- Current sub-step 4A: idempotent intake + deterministic `Research -> Data/Result` DAG creation only.
+- Gate requirements: repeated request ID returns the same task, exactly two canonical nodes exist, and Data depends on Research.
+- Finalizer/failure cascade/deadlock logic is intentionally deferred until sub-step 4A passes.
 
 ### Current engineering position
-- Current phase: Phase 3 — Lease, Fencing, Circuit Breakers.
-- Next implementation unit: application-level asynchronous heartbeat manager over the proven `heartbeat_node` fencing contract. It must renew independently of long external calls, abort the worker's operation immediately on lost lease/renewal error, avoid overlapping renewals, and stop cleanly.
+- Current phase: Phase 4 — Lite Orchestrator.
+- Next action: implement and test Phase 4A only.
 - External capabilities still to verify before live E2E: hosted PostgreSQL secret, DeepSeek API key, OpenClaw runtime/provider health, GitHub Actions artifact/dispatch permissions.
-- Do not advance to Lite Orchestrator, browser, vision, swarm, judge, repair or bulk 71/311 migration until the current heartbeat gate passes.
+- Do not advance to DeepSeek, browser, vision, swarm, judge, repair or bulk 71/311 migration until Lite Orchestrator gates pass.

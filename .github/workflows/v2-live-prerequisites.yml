@@ -1,0 +1,47 @@
+name: OpenClaw V2 Live Prerequisites
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'v2/**'
+    paths:
+      - '.github/workflows/v2-live-prerequisites.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prerequisites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+    steps:
+      - name: Check required V2 live secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+
+          if [[ -z "${DATABASE_URL:-}" ]]; then
+            echo "- DATABASE_URL: MISSING" >> "$GITHUB_STEP_SUMMARY"
+            missing=1
+          else
+            echo "- DATABASE_URL: PRESENT" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [[ -z "${DEEPSEEK_API_KEY:-}" ]]; then
+            echo "- DEEPSEEK_API_KEY: MISSING" >> "$GITHUB_STEP_SUMMARY"
+            missing=1
+          else
+            echo "- DEEPSEEK_API_KEY: PRESENT" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [[ "$missing" -ne 0 ]]; then
+            echo "Live prerequisite gate is blocked. No secret values were printed." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "Live prerequisite gate passed. Secret values were not printed." >> "$GITHUB_STEP_SUMMARY"

@@ -27,8 +27,8 @@ export function buildResearchOpenClawConfig({
 
   return Object.freeze({
     tools: Object.freeze({
-      // Deliberately excludes runtime, filesystem, UI/browser, sessions and automation tools.
-      allow: Object.freeze(['group:web']),
+      // Least privilege: no x_search, runtime, filesystem, UI/browser, sessions or automation tools.
+      allow: Object.freeze(['web_search', 'web_fetch']),
       web: Object.freeze({
         search: Object.freeze({
           enabled: true,

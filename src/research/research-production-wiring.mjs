@@ -100,6 +100,7 @@ export function createProductionResearchWorker({
 
   return Object.freeze({
     runOnce: worker.runOnce,
+    runTask: worker.runTask,
     model,
     workerId,
   });

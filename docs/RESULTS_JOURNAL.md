@@ -451,3 +451,105 @@ During the recorder/tooling pass, two unintended temporary repository-file write
 ### Route decision
 
 Continue exactly with `REAL_PAID_RESEARCH_E2E`. Do not detour into production Data, evidence features, phone UX, browser/Vision/PDF, full agent/skill scale-out or broad refactors. The next status promotion is allowed only after the real paid provider + real web tools + hosted Kernel vertical executes and durable accounting/fencing/terminal evidence is inspected.
+
+---
+
+## JRNL-2026-10-12-006 — Hosted lease parity complete and real Research acceptance #1 proven
+
+**Checkpoint time:** 2026-10-12 13:54 America/Chicago  
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified branch HEAD before this checkpoint:** `24fd5a023b0652254dd693999a6a11049765116a`  
+**Latest full CI:** `38292953226` — `SUCCESS`  
+**Latest hosted lease-parity implementation:** `aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f` — migration `0019_active_lease_write_parity.sql`, CI `38287719014` SUCCESS
+
+### CORRECTION to the prior live-gate route state
+
+Earlier governance kept acceptance #1 and native web-tool execution at `NOT_PROVEN` because the hosted task tables did not persist the OpenClaw tool-summary telemetry and the task had zero `artifacts` rows. A fresh audit recovered independent runtime execution metadata from the exact Vercel sandbox that ran the paid gate and correlated it to the hosted task by timestamp and fail-closed gate semantics.
+
+That evidence changes the truth of acceptance #1. It does **not** change the truth of mandatory durable Evidence item #14, which remains `NOT_BUILT`.
+
+### Real paid runtime execution evidence
+
+Vercel sandbox metadata preserves the real paid execution session:
+
+- sandbox name: `openclaw2-live-runtime`;
+- session: `sbx_cuMMQpe4KuCfXsGYJmfa0e1RJokT`;
+- tag/purpose: `real-paid-research-e2e`;
+- command: `cmd_1cb90e24ee6c42f8b219a97fe9d8`;
+- command started at epoch `1791825931121` = `2026-10-12T17:25:31.121Z`;
+- command: `node scripts/live-research-kernel-vertical.mjs` with the pinned OpenClaw runtime/state setup;
+- command exit code: `0`;
+- duration: `24603 ms`.
+
+The script is fail-closed: any gate error sets process exit code `1`. The invoked `runLiveResearchKernelGate()` specifically rejects success unless all of the following are true in the same execution:
+
+- Research worker executed the exact task and returned `SUCCESS`;
+- at least one official DeepSeek source exists;
+- at least one official source matches required domain `api-docs.deepseek.com`;
+- at least one result item proves all required fields from an accepted source;
+- OpenClaw telemetry contains **both** `web_search` and `web_fetch`;
+- exactly one `llm_accounting` row exists;
+- zero unresolved `RESERVED` reservations remain;
+- Data becomes claimable only after Research `SUCCESS`;
+- deterministic gate-only Data completion succeeds;
+- final task status is `SUCCESS`.
+
+Therefore an exit code `0` from this exact command is direct runtime proof that the real web-tool checks passed; it is not equivalent to a model merely returning source-looking URLs.
+
+### Hosted Neon correlation
+
+The hosted task created by that command is:
+
+`eae6daf8-e086-43a5-aea9-b6ec879ce65a`
+
+Direct hosted facts:
+
+- idempotency key: `ci-live-research-33c78eb7-fbc0-418f-9ecb-26319675315b`;
+- created: `2026-10-12T17:25:31.276Z`, only ~155 ms after the preserved gate command began;
+- terminal: `2026-10-12T17:25:55.712Z`;
+- task status: `SUCCESS`;
+- terminal reason: `ALL_NODES_SUCCEEDED`;
+- Research node: `SUCCESS`;
+- Data node: `SUCCESS`, mode `DETERMINISTIC_LIVE_GATE_COMPLETION`;
+- official sources persisted from `api-docs.deepseek.com`;
+- structured fields persisted: `modelId=deepseek-flash`, `modelVersion=DeepSeek-V4.1-Flash`;
+- `llm_accounting` rows: exactly `1`;
+- accounting basis: `OBSERVED_USAGE`;
+- cache hit tokens: `11008`;
+- cache miss tokens: `4615`;
+- completion tokens: `663`;
+- total tokens: `16286`;
+- cost: `$0.002246`;
+- task reserved tokens/cost after reconciliation: `0 / 0`;
+- artifacts for this task: `0`.
+
+### Hosted lease parity added after the live run
+
+Migration `0019_active_lease_write_parity.sql` subsequently restored the missing active-lease guard on both `complete_node_success()` and `requeue_node_retry()`.
+
+Direct child verification + hosted application proved that an expired worker can no longer complete or requeue before reclaim. Post-test hosted state was clean: `0` active tasks, `0` RUNNING nodes, `0` unresolved reservations.
+
+**0019 result: `PASS_HOSTED`.**
+
+### Updated 48h truth
+
+- Hosted PostgreSQL/migrations: **PASS_HOSTED**.
+- Lease/fencing/heartbeat/deadline/write parity: **PASS_HOSTED**.
+- Real DeepSeek/OpenClaw inference: **PASS_LIVE**.
+- Real native `web_search` + `web_fetch`: **PASS_LIVE**.
+- Structured Research output with official required-domain sources: **PASS_LIVE**.
+- Paid accounting/reconciliation linkage: **PASS_LIVE**.
+- Acceptance #1 positive real Research E2E -> terminal `SUCCESS`: **PASS_LIVE**.
+- Production Data/Result validation/dedup/normalization: **NOT_BUILT**.
+- Durable Evidence bundle/artifact: **NOT_BUILT**.
+- Phone short result + deep-log link: **NOT_BUILT**.
+- User/GitHub dispatch workflow: **NOT_BUILT**.
+- Permanent CI credential plumbing remains **NOT_PROVEN**; latest GitHub Actions live/hosted conditional steps are still `SKIPPED` because repository secrets are unavailable there.
+
+### Route decision
+
+The Research gate is now closed. Production Data is no longer blocked by acceptance #1.
+
+**Next allowed implementation step:** build only the production Data/Result runtime required by 48h item #12: schema validation -> normalization -> dedupe -> required-field enforcement -> source integrity -> deterministic structured output, with focused tests and full CI.
+
+Do not start Evidence, phone UX, GitHub intake/dispatch, browser/Vision/PDF, full agent/skill scale-out or broad architecture refactors until the production Data gate is independently `PASS_CODE_CI`.

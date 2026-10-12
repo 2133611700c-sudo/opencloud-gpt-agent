@@ -35,6 +35,15 @@ export function buildResearchOpenClawConfig({
   boundedInteger(fetchMaxChars, 'fetchMaxChars', 1_000, 50_000);
 
   return Object.freeze({
+    agents: Object.freeze({
+      defaults: Object.freeze({
+        model: Object.freeze({
+          primary: DEFAULT_MODEL,
+          fallbacks: Object.freeze([]),
+        }),
+        utilityModel: '',
+      }),
+    }),
     tools: Object.freeze({
       allow: Object.freeze(['web_search', 'web_fetch']),
       web: Object.freeze({

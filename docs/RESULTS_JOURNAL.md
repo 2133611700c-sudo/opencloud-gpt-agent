@@ -127,3 +127,60 @@ Do not start:
 ### Continuation sentence for a new chat
 
 > Read `START_HERE.md`, then the 48h plan, then `PROJECT_STATE.json`, then this checkpoint. Verify HEAD/CI and hosted Neon before writing. Current route is hosted migration 0018 parity -> real live Research E2E -> Data only after live PASS.
+
+---
+
+## JRNL-2026-10-12-002 — Execution control plane established
+
+**Checkpoint time:** 2026-10-12 America/Chicago  
+**Branch:** `v2/openclaw-clean-20261011`  
+**Router:** `START_HERE.md` commit `719b9b1032f1951b8d5d749fc0bff79324b15b45` — CI `38244471179` SUCCESS  
+**Independent journal bootstrap:** commit `8eba98fb5fdbd35c3c4ad1ef1049cfcaf4657a80` — CI `38244721760` SUCCESS  
+**Machine state synchronization:** commit `189a222ff870bb7ef4b9d0fbed9cebc29f1c7b9b` — CI `38244985395` SUCCESS  
+**Router truth enforcement:** commit `c7deec97870a6eb6cb529a969902bb4d02d7af59` — CI `38245212289` SUCCESS
+
+### Result
+
+The project now has a durable execution control plane instead of relying on chat memory or the last defect discussed.
+
+`START_HERE.md` defines the mandatory boot order, authority rules, route-selection algorithm, multi-lane roles, pre-write Route Card, write discipline, evidence labels, journal policy, and recovery test for a new chat.
+
+`PROJECT_STATE.json` is now schema v2 and carries the current 15-item 48h scope map, 9 acceptance gates, verified code baseline, hosted-state facts, current route, explicit gaps, recent innovations, and forbidden detours.
+
+`docs/RESULTS_JOURNAL.md` is the independent append-only route-level record. Detailed commit history remains in `docs/EXECUTION_LOG.md` and Git.
+
+The existing first CI step `npm run validate:foundation` now also enforces the route map. It requires the router/state/journal/48h artifacts, validates the 15/9 maps and canonical evidence labels, and prevents Walking Skeleton PASS while mapped gates remain unfinished. It also preserves the rule that Data/evidence/phone remain blocked until acceptance gate #1 is `PASS_LIVE`.
+
+### Positive evidence
+
+- Router commit: `PASS_CODE_CI`.
+- Journal bootstrap: `PASS_CODE_CI`.
+- State synchronization: `PASS_CODE_CI`.
+- Route-map validator: `PASS_CODE_CI`.
+- Every one of the four governance commits ran the full existing V2 CI, not a docs-only shortcut.
+- CI continues to distinguish conditional external work correctly: hosted Neon and live DeepSeek steps remain `SKIPPED` when their Actions prerequisites are absent.
+
+### Negative evidence preserved
+
+This control-plane work did **not** change technical gate truth:
+
+- hosted migration 0018 remains `DRIFT` until directly deployed and tested;
+- real paid DeepSeek/OpenClaw remains `NOT_PROVEN`;
+- real `web_search`/`web_fetch` remains `NOT_PROVEN`;
+- production Data runtime remains `NOT_BUILT`;
+- durable evidence remains `NOT_BUILT`;
+- phone/deep-log remains `NOT_BUILT`.
+
+No governance commit is allowed to turn any of those into PASS.
+
+### Route decision
+
+Governance construction is complete enough for the current 48h phase. Do not spend more time polishing the router unless the validator itself exposes a real defect.
+
+**Next allowed gate:** hosted Neon migration 0018 parity.
+
+Execution route:
+
+`temporary Neon child -> apply exact 0018 -> expired-deadline heartbeat behavioral regression -> PASS -> apply exact 0018 to openclaw-v2 -> hosted re-check/cleanliness -> journal checkpoint -> real live Research E2E`
+
+Production Data remains forbidden until the real Research vertical is `PASS_LIVE`.

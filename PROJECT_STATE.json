@@ -1,74 +1,24 @@
 {
   "schema_version": 2,
   "project": "OpenClaw V2",
-  "updated_at": "2026-10-12T09:56:00-05:00",
+  "updated_at": "2026-10-12",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "e6c94a0c71ce361d1c42e670373f989affed5d53",
-  "verified_code_head": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
-  "verified_ci_run_id": 38266307217,
+  "verified_head": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
+  "verified_code_head": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
+  "verified_ci_run_id": 38287719014,
   "verified_ci_conclusion": "success",
-  "governance_checkpoint_parent": "8eba98fb5fdbd35c3c4ad1ef1049cfcaf4657a80",
-  "governance_checkpoint_ci": {
-    "router_commit": "719b9b1032f1951b8d5d749fc0bff79324b15b45",
-    "router_ci_run_id": 38244471179,
-    "router_ci_conclusion": "success",
-    "journal_commit": "8eba98fb5fdbd35c3c4ad1ef1049cfcaf4657a80",
-    "journal_ci_run_id": 38244721760,
-    "journal_ci_conclusion": "success",
-    "state_sync_commit": "189a222ff870bb7ef4b9d0fbed9cebc29f1c7b9b",
-    "state_sync_ci_run_id": 38244985395,
-    "state_sync_ci_conclusion": "success",
-    "route_validator_commit": "c7deec97870a6eb6cb529a969902bb4d02d7af59",
-    "route_validator_ci_run_id": 38245212289,
-    "route_validator_ci_conclusion": "success",
-    "control_plane_checkpoint_commit": "042bcb3fe0791fcf70a884927fe55cfb750e9976",
-    "control_plane_checkpoint_ci_run_id": 38245503457,
-    "control_plane_checkpoint_ci_conclusion": "success",
-    "handoff_checkpoint_commit": "9883010f98379873b9bf73e0bd1ecbeabb552796",
-    "handoff_checkpoint_ci_run_id": 38248010816,
-    "handoff_checkpoint_ci_conclusion": "success",
-    "hosted_0018_journal_commit": "f72af1376d7baf972de36320370d4afd65acc151",
-    "hosted_0018_journal_ci_run_id": 38249580113,
-    "hosted_0018_journal_ci_conclusion": "success",
-    "research_model_repair_commit": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
-    "research_model_repair_ci_run_id": 38262169004,
-    "research_model_repair_ci_conclusion": "success",
-    "research_model_journal_commit": "e6c94a0c71ce361d1c42e670373f989affed5d53",
-    "research_model_journal_ci_run_id": 38266307217,
-    "research_model_journal_ci_conclusion": "success"
-  },
-  "handoff_snapshot": {
-    "checked_at": "2026-10-12T09:56:00-05:00",
-    "verified_governance_head": "e6c94a0c71ce361d1c42e670373f989affed5d53",
-    "verified_governance_ci_run_id": 38266307217,
-    "verified_code_head": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
-    "verified_code_ci_run_id": 38262169004,
-    "hosted_neon_direct_check": {
-      "active_tasks": 0,
-      "running_nodes": 0,
-      "unresolved_reservations": 0,
-      "heartbeat_deadline_guard_0018_present": true,
-      "expired_deadline_heartbeat_returns_false": true,
-      "expired_deadline_lease_unchanged": true,
-      "expired_deadline_heartbeat_timestamp_unchanged": true
-    },
-    "next_gate": "REAL_PAID_RESEARCH_E2E",
-    "then": "PRODUCTION_DATA_RESULT_RUNTIME",
-    "data_gate": "BLOCKED_UNTIL_ACCEPTANCE_01_PASS_LIVE"
-  },
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
   "results_journal": "docs/RESULTS_JOURNAL.md",
   "architecture_source": "SYSTEM.md",
   "master_roadmap": "docs/01_MASTER_ARCHITECTURE_AND_ROADMAP.md",
   "detailed_execution_history": "docs/EXECUTION_LOG.md",
-  "previous_detailed_state_blob_sha": "e10d13ec696150e718cb4dc635040b5c7442be1d",
   "legacy_branch": "main",
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38266307217,
+    "ci_run_id": 38287719014,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
@@ -91,14 +41,14 @@
     "03_idempotent_request_intake": "PASS_CODE_CI",
     "04_atomic_lease_unique_fencing": "PASS_HOSTED",
     "05_heartbeat_stale_worker_recovery": "PASS_HOSTED",
-    "06_attempt_step_budget_deadline_breakers": "PASS_CODE_CI_HOSTED_DEADLINE_HEARTBEAT_PARITY_PASS_HOSTED",
+    "06_attempt_step_budget_deadline_breakers": "PASS_HOSTED",
     "07_atomic_budget_reservation_reconciliation": "PASS_HOSTED",
-    "08_lite_dag_research_to_data": "PASS_CODE_CI_GATE_ONLY_DATA_NOT_PRODUCTION_DATA_RUNTIME",
-    "09_real_deepseek_openclaw": "NOT_PROVEN",
+    "08_lite_dag_research_to_data": "PASS_CODE_CI_GATE_ONLY_DATA_NOT_PRODUCTION_RUNTIME",
+    "09_real_deepseek_openclaw": "PASS_LIVE",
     "10_real_native_web_search_fetch": "NOT_PROVEN",
-    "11_structured_research_sources": "PASS_CODE_CI_LIVE_INTERNET_PROOF_PENDING",
+    "11_structured_research_sources": "PASS_LIVE",
     "12_data_result_validation_dedupe_normalization": "NOT_BUILT",
-    "13_llm_accounting": "PASS_HOSTED_PAID_LIVE_LINKAGE_PENDING",
+    "13_llm_accounting": "PASS_LIVE",
     "14_durable_evidence_artifacts": "NOT_BUILT",
     "15_phone_short_result_deep_log": "NOT_BUILT"
   },
@@ -111,148 +61,75 @@
     "06_data_blocked_until_research_success": "PASS_CODE_CI",
     "07_research_failure_blocks_descendants_and_terminates": "PASS_CODE_CI",
     "08_deadline_terminalization": "PASS_HOSTED",
-    "09_reservation_actual_release_invariant": "PASS_HOSTED_PAID_LIVE_LINKAGE_PENDING"
+    "09_reservation_actual_release_invariant": "PASS_LIVE"
   },
-  "latest_verified_innovations": [
-    {
-      "commit": "015713e0fa4357d353def39ead9b0e2871fde572",
-      "result": "PASS_CODE_CI",
-      "change": "Research SUCCESS rejects unresolved OpenClaw tool failure; invocation alone is not accepted as successful web evidence."
-    },
-    {
-      "commit": "e98c92018e9a9f7662a0fc87600c2d4652378a4e",
-      "result": "PASS_CODE_CI",
-      "change": "Research worker supports task-scoped claim."
-    },
-    {
-      "commit": "b0da03a44b4246e5669c0a764ac8e0c29981b5f1",
-      "result": "PASS_CODE_CI",
-      "change": "Production Research composition exposes task-scoped runTask(taskId)."
-    },
-    {
-      "commit": "fccd2b4ae7adf3fee264c0102ce1f8b27ee77f99",
-      "result": "PASS_CODE_CI",
-      "change": "Live Research gate uses task-scoped Research claim, closing the agent-wide TOCTOU claim race."
-    },
-    {
-      "commit": "19938a3c43b589423deebf45564fd6159ba76a2b",
-      "result": "PASS_CODE_CI",
-      "change": "Research refuses stored credential state instead of silently trusting it."
-    },
-    {
-      "commit": "dadb8e2a70a05bb2d33f6c90655c560eebc4d3f7",
-      "result": "PASS_CODE_CI",
-      "change": "Stored authentication evidence is verified semantically."
-    },
-    {
-      "commit": "99ab9de84075b5517aa420ad7fe412f18939b88a",
-      "result": "PASS_CODE_CI",
-      "change": "Semantic DeepSeek authentication probe added."
-    },
-    {
-      "commit": "56571085ca0a87c29046e28031d0a3f115f5cd8f",
-      "result": "PASS_CODE_CI",
-      "change": "Durable Research claim is gated on semantic authentication preflight."
-    },
-    {
-      "commit": "b23a2c85e82bbccd3fa631bc8fbc4cf58f087bf5",
-      "result": "PASS_CODE_CI",
-      "change": "Semantic auth probe child environment is isolated from ambient secrets."
-    },
-    {
-      "commit": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
-      "result": "PASS_HOSTED",
-      "change": "Migration 0018 makes task deadline a hard heartbeat breaker; the exact repository function body passed on child br-wandering-fire-a4vhwmd6 and hosted openclaw-v2. Expired-deadline heartbeat returned false without changing lease_until or heartbeat_at; hosted cleanup returned 0 active tasks, 0 RUNNING nodes and 0 unresolved reservations."
-    },
-    {
-      "commit": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
-      "result": "PASS_CODE_CI",
-      "change": "Research OpenClaw config now pins deepseek/deepseek-flash as the primary model with no fallback. Pre-fix Unknown model behavior was reproduced on pinned OpenClaw 2026.9.8; post-fix provider-resolution probe reached the DeepSeek authentication boundary instead. Full CI 38262169004 passed 172/172 tests plus migrations, SQL/kernel E2E and pinned plugin/config validation. Paid inference remains NOT_PROVEN."
-    }
-  ],
   "hosted_postgres": {
     "provider": "Neon",
     "project_id": "little-tree-63040612",
     "branch_name": "openclaw-v2",
     "branch_id": "br-odd-forest-a4leyaqj",
     "database_name": "openclaw_v2",
-    "main_branch_modified": false,
-    "credentials_stored_in_repo": false,
+    "status": "PASS_HOSTED",
     "direct_check": {
-      "checked_at": "2026-10-12T09:42:00-05:00",
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
-      "task_scoped_claim_present": true,
-      "agent_scoped_reclaim_cleanup_present": true,
-      "task_scoped_reclaim_cleanup_present": true,
-      "accounting_fallback_present": true,
       "heartbeat_deadline_guard_0018_present": true,
-      "expired_deadline_heartbeat_returns_false": true,
-      "expired_deadline_lease_unchanged": true,
-      "expired_deadline_heartbeat_timestamp_unchanged": true,
+      "complete_node_success_active_lease_guard_0019_present": true,
+      "requeue_node_retry_active_lease_guard_0019_present": true,
       "verification_child_branch_id": "br-wandering-fire-a4vhwmd6"
-    },
-    "status": "PASS_HOSTED"
+    }
   },
   "live_capabilities": {
     "openclaw_version": "2026.9.8",
     "deepseek_model": "deepseek/deepseek-flash",
     "deepseek_release": "DeepSeek-V4.1-Flash",
     "thinking": "max",
-    "production_research_path": "PASS_CODE_CI",
-    "task_scoped_live_research_claim": "PASS_CODE_CI",
-    "semantic_auth_preflight": "PASS_CODE_CI",
-    "research_primary_model_pin": "PASS_CODE_CI",
-    "provider_transport_resolution_probe": "PASS_CODE_CI_REACHED_DEEPSEEK_AUTH_BOUNDARY_WITH_INVALID_TEST_KEY",
-    "live_kernel_research_gate": "IMPLEMENTED_NOT_PROVEN",
-    "deepseek_paid_inference": "NOT_PROVEN",
-    "live_web_search_fetch": "NOT_PROVEN"
+    "deepseek_paid_inference": "PASS_LIVE",
+    "paid_live_accounting_linkage": "PASS_LIVE",
+    "structured_research_with_official_sources": "PASS_LIVE",
+    "live_web_search_fetch": "NOT_PROVEN",
+    "live_kernel_research_gate": "NOT_PROVEN",
+    "paid_live_task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
+    "paid_live_task_status": "SUCCESS",
+    "paid_live_accounting": {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "pricing_version": "deepseek-v4.1-flash-2026-09-10",
+      "accounting_basis": "OBSERVED_USAGE",
+      "prompt_cache_hit_tokens": 11008,
+      "prompt_cache_miss_tokens": 4615,
+      "completion_tokens": 663,
+      "total_tokens": 16286,
+      "cost_usd": 0.002246
+    },
+    "paid_live_artifacts_count": 0,
+    "proof_limit": "Paid inference/accounting and structured official sources are directly evidenced in hosted Neon, but actual web_search + web_fetch telemetry is not durably persisted; acceptance #1 remains NOT_PROVEN."
   },
-  "known_gaps": {
-    "live_deepseek_kernel_vertical": "NOT_PROVEN",
-    "live_web_search_fetch_kernel_vertical": "NOT_PROVEN",
-    "data_result_runtime": "NOT_BUILT_DO_NOT_START_BEFORE_LIVE_RESEARCH_PASS",
-    "durable_evidence_bundle": "NOT_BUILT",
-    "phone_result_and_deep_log": "NOT_BUILT",
-    "github_actions_database_url": "MISSING_IN_CI_38262169004_SO_HOSTED_ACTIONS_STEP_SKIPPED_DESPITE_DIRECT_PASS_HOSTED; HOSTED_ACTIONS_STEP_ALSO_SKIPPED_IN_CI_38266307217",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38262169004_SO_LIVE_GATES_SKIPPED; LIVE_GATES_ALSO_SKIPPED_IN_CI_38266307217"
-  },
-  "completed_units": [
+  "latest_verified_innovations": [
     {
-      "unit": "durable_kernel_lifecycle_fencing_breakers_budget_lite_dag",
-      "status": "PASS_CODE_CI_AND_SELECTED_HOSTED_PROOF",
-      "details": "See docs/EXECUTION_LOG.md and Git history for per-commit evidence."
+      "commit": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
+      "result": "PASS_HOSTED",
+      "change": "Migration 0019 restored active-lease parity for complete_node_success and requeue_node_retry; expired workers cannot complete or requeue before reclaim. Child verification, full CI 38287719014, hosted application and final clean-state check passed."
     },
     {
-      "unit": "hosted_neon_kernel_accounting_scoped_claims_through_0018",
-      "status": "PASS_HOSTED"
-    },
-    {
-      "unit": "production_research_runtime_contract_security_accounting_task_scoped_claim",
-      "status": "PASS_CODE_CI"
-    },
-    {
-      "unit": "migration_0018_deadline_heartbeat_guard",
-      "status": "PASS_HOSTED"
-    },
-    {
-      "unit": "research_model_resolution_primary_pin",
-      "status": "PASS_CODE_CI"
-    },
-    {
-      "unit": "real_paid_deepseek_web_kernel_vertical",
-      "status": "NOT_PROVEN"
+      "commit": "5dc127f8c1346c2be8e432284254047c64680753",
+      "result": "PASS_LIVE",
+      "change": "Real paid DeepSeek Research execution reached hosted terminal SUCCESS with linked observed accounting; durable web-tool telemetry still needs a proving rerun."
     }
   ],
-  "selected_review_lanes": [
-    "investigator_read_only",
-    "db_concurrency_read_only",
-    "security_provider_read_only",
-    "single_implementation_writer",
-    "independent_verification",
-    "recorder_navigator"
-  ],
+  "known_gaps": {
+    "full_research_e2e_with_durable_web_tool_evidence": "NOT_PROVEN",
+    "data_result_runtime": "NOT_BUILT",
+    "durable_evidence_bundle": "NOT_BUILT",
+    "phone_result_and_deep_log": "NOT_BUILT",
+    "github_user_task_dispatch_workflow": "NOT_BUILT",
+    "permanent_secret_store": "NOT_PROVEN",
+    "github_actions_database_url": "MISSING_IN_CI_38287719014_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38287719014_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
+    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
+  },
   "forbidden_until_live_research_pass": [
     "production_data_result_runtime",
     "durable_evidence_feature_layer",
@@ -264,7 +141,7 @@
     "broad_architecture_refactors",
     "speculative_hardening_not_on_current_gate"
   ],
-  "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> Data runtime -> durable evidence -> phone result",
-  "next_action": "Execute the already-built real paid Kernel Research vertical against hosted openclaw-v2 using DeepSeek-V4.1-Flash at thinking=max with real web_search and successful web_fetch, required-domain provenance, accounting/reservation/fencing and terminal state evidence. Mark acceptance #1 PASS_LIVE only after direct proof. Do not start production Data before PASS_LIVE.",
-  "continuation_rule": "Read START_HERE.md first, then docs/02_48H_WALKING_SKELETON.md, then PROJECT_STATE.json, then the latest docs/RESULTS_JOURNAL.md checkpoint, then current HEAD/CI and direct hosted/live reality before any write. Use docs/EXECUTION_LOG.md for detailed history; its older SYSTEM-first continuation sentence is superseded by START_HERE.md."
+  "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
+  "next_action": "Execute one real paid hosted Research rerun that durably proves actual web_search and web_fetch telemetry, required official-domain provenance, exactly one accounting row, zero unresolved reservations, Research SUCCESS and terminal task SUCCESS. Do not start production Data until acceptance #1 becomes PASS_LIVE.",
+  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/CI -> direct hosted Neon reality before any write. One micro-step at a time; no Data/evidence/phone work until acceptance #1 PASS_LIVE."
 }

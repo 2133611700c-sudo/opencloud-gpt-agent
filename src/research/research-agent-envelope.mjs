@@ -76,6 +76,12 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
 
   const toolSummary = objectOrFail(envelope.toolSummary, 'toolSummary');
   const toolCalls = nonNegativeInteger(toolSummary.calls, 'toolSummary.calls');
+  const toolFailures = toolSummary.failures == null
+    ? 0
+    : nonNegativeInteger(toolSummary.failures, 'toolSummary.failures');
+  if (toolFailures > toolCalls) {
+    fail('toolSummary.failures cannot exceed toolSummary.calls', 'INVALID_TOOL_EVIDENCE');
+  }
   if (!Array.isArray(toolSummary.tools)) {
     fail('toolSummary.tools must be an array', 'INVALID_TOOL_EVIDENCE');
   }
@@ -97,6 +103,25 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
     fail('research run did not use web_search', 'NO_WEB_SEARCH_EVIDENCE');
   }
 
+  let unresolvedError = null;
+  if (toolSummary.unresolvedError != null) {
+    const rawUnresolved = objectOrFail(toolSummary.unresolvedError, 'toolSummary.unresolvedError');
+    if (typeof rawUnresolved.toolName !== 'string' || rawUnresolved.toolName.trim() === '') {
+      fail('toolSummary.unresolvedError.toolName must be a non-empty string', 'INVALID_TOOL_EVIDENCE');
+    }
+    const toolName = rawUnresolved.toolName.trim();
+    if (!tools.includes(toolName)) {
+      fail('toolSummary.unresolvedError references a tool absent from toolSummary.tools', 'INVALID_TOOL_EVIDENCE');
+    }
+    if (!ALLOWED_RESEARCH_TOOLS.has(toolName)) {
+      fail(`research run has unresolved failure for disallowed tool: ${toolName}`, 'DISALLOWED_TOOL_USED');
+    }
+    if (toolFailures < 1) {
+      fail('toolSummary.unresolvedError requires toolSummary.failures >= 1', 'INVALID_TOOL_EVIDENCE');
+    }
+    unresolvedError = Object.freeze({ toolName });
+  }
+
   let rawResult;
   try {
     rawResult = JSON.parse(envelope.final);
@@ -116,6 +141,9 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
 
   if (result.status === 'SUCCESS' && !tools.includes('web_fetch')) {
     fail('SUCCESS research run did not use web_fetch', 'NO_WEB_FETCH_EVIDENCE');
+  }
+  if (result.status === 'SUCCESS' && unresolvedError) {
+    fail(`SUCCESS research run has unresolved tool failure: ${unresolvedError.toolName}`, 'UNRESOLVED_WEB_TOOL_FAILURE');
   }
 
   let usage = null;
@@ -154,6 +182,8 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
       toolSummary: Object.freeze({
         calls: toolCalls,
         tools: Object.freeze(tools),
+        failures: toolFailures,
+        unresolvedError,
         totalToolTimeMs,
       }),
       sessionId: typeof envelope.sessionId === 'string' && envelope.sessionId.trim()

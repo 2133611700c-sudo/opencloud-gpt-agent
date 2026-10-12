@@ -140,7 +140,7 @@ export async function runLiveResearchKernelGate({
 } = {}) {
   const q = requireFn(query, 'query');
   const researchWorker = requireObject(worker, 'worker');
-  const runOnce = requireFn(researchWorker.runOnce?.bind(researchWorker), 'worker.runOnce');
+  const runTask = requireFn(researchWorker.runTask?.bind(researchWorker), 'worker.runTask');
   const db = requireObject(kernel, 'kernel');
   const claimData = requireFn(db.claimNodeForTaskAndAgent?.bind(db), 'kernel.claimNodeForTaskAndAgent');
   const completeData = requireFn(db.completeSuccess?.bind(db), 'kernel.completeSuccess');
@@ -168,7 +168,7 @@ export async function runLiveResearchKernelGate({
     taskId = created?.rows?.[0]?.task_id;
     if (typeof taskId !== 'string' || taskId === '') throw gateError('live gate task creation failed', 'LIVE_TASK_CREATE_FAILED');
 
-    const execution = await runOnce();
+    const execution = await runTask(taskId);
     if (execution?.status !== 'EXECUTED' || execution?.claim?.taskId !== taskId) {
       throw gateError('Research worker did not execute the live gate task', 'LIVE_RESEARCH_CLAIM_MISMATCH');
     }

@@ -52,11 +52,11 @@ const makeQuery = ({ isolated = true, cleanupFails = false, cleanupRejected = fa
 const noDataClaim = async () => null;
 const incompleteKernel = () => ({ claimNodeForTaskAndAgent: noDataClaim, completeSuccess: async () => false });
 
-test('live Research gate proves required fields from official DeepSeek source, web tools, accounting, task-scoped Data release and terminal SUCCESS', async () => {
+test('live Research gate proves required fields from official DeepSeek source, web tools, accounting, task-scoped Research/Data release and terminal SUCCESS', async () => {
   const db = makeQuery();
   const workerCalls = [];
   const kernelCalls = [];
-  const worker = { runOnce: async () => (workerCalls.push('run'), liveResearch) };
+  const worker = { runTask: async (taskId) => (workerCalls.push(taskId), liveResearch) };
   const kernel = {
     claimNodeForTaskAndAgent: async (input) => {
       kernelCalls.push(['claim', input]);
@@ -78,14 +78,16 @@ test('live Research gate proves required fields from official DeepSeek source, w
   assert.equal(evidence.research_status, 'SUCCESS');
   assert.equal(evidence.source_count, 1);
   assert.equal(evidence.official_source_count, 1);
+  assert.equal(evidence.required_domain_source_count, 1);
   assert.equal(evidence.accepted_item_count, 1);
   assert.deepEqual(evidence.required_fields, ['modelId', 'modelVersion']);
+  assert.deepEqual(evidence.required_domains, ['api-docs.deepseek.com']);
   assert.deepEqual(evidence.tools, ['web_search', 'web_fetch']);
   assert.equal(evidence.accounting_rows, 1);
   assert.equal(evidence.accounting_basis, 'OBSERVED_USAGE');
   assert.equal(evidence.unresolved_reservations, 0);
   assert.equal(evidence.data_mode, 'DETERMINISTIC_LIVE_GATE_COMPLETION');
-  assert.equal(workerCalls.length, 1);
+  assert.deepEqual(workerCalls, ['task-1']);
   assert.deepEqual(kernelCalls[0][1], { taskId: 'task-1', workerId: 'live-research-gate-data', agentId: 'data', leaseSeconds: 30 });
   assert.equal(kernelCalls[1][1].outputData.mode, 'DETERMINISTIC_LIVE_GATE_COMPLETION');
   assert.equal(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')), false);
@@ -101,12 +103,21 @@ test('live Research gate proves required fields from official DeepSeek source, w
   assert.equal(createCall.values[6], '2026-10-11T21:10:00.000Z');
 });
 
+test('live gate requires the task-scoped Research worker interface instead of falling back to runOnce', async () => {
+  await assert.rejects(() => runLiveResearchKernelGate({
+    query: async () => ({ rows: [] }),
+    worker: { runOnce: async () => liveResearch },
+    kernel: incompleteKernel(),
+    idempotencyKey: 'live-test-key',
+  }), /worker\.runTask must be a function/);
+});
+
 test('live gate refuses any active Research/Data queue before creating or claiming anything', async () => {
   const db = makeQuery({ isolated: false });
   let ran = false;
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => { ran = true; return liveResearch; } },
+    worker: { runTask: async () => { ran = true; return liveResearch; } },
     kernel: incompleteKernel(),
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_QUEUE_NOT_ISOLATED');
@@ -125,10 +136,23 @@ test('live gate rejects non-official source evidence and cancels its task', asyn
   untrusted.execution.research.result.sources = [{ id: 's1', url: 'https://deepseek.com.example.org/post', checkedAt: '2026-10-11T21:00:00Z' }];
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => untrusted },
+    worker: { runTask: async () => untrusted },
     kernel: incompleteKernel(),
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_OFFICIAL_SOURCE_NOT_PROVEN');
+  assert.ok(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')));
+});
+
+test('live gate rejects official DeepSeek evidence outside requiredDomains', async () => {
+  const db = makeQuery();
+  const wrongDomain = structuredClone(liveResearch);
+  wrongDomain.execution.research.result.sources = [{ id: 's1', url: 'https://www.deepseek.com/post', checkedAt: '2026-10-11T21:00:00Z' }];
+  await assert.rejects(() => runLiveResearchKernelGate({
+    query: db.query,
+    worker: { runTask: async () => wrongDomain },
+    kernel: incompleteKernel(),
+    idempotencyKey: 'live-test-key',
+  }), (error) => error?.code === 'LIVE_REQUIRED_DOMAIN_SOURCE_NOT_PROVEN');
   assert.ok(db.calls.some((call) => call.text.startsWith('SELECT cancel_task')));
 });
 
@@ -138,7 +162,7 @@ test('live gate rejects missing required fields even with an official source', a
   incomplete.execution.research.result.items[0].data = { modelId: 'deepseek-flash' };
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => incomplete },
+    worker: { runTask: async () => incomplete },
     kernel: incompleteKernel(),
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_REQUIRED_FIELDS_NOT_PROVEN');
@@ -152,7 +176,7 @@ test('live gate rejects required-field evidence sourced only from a non-official
   mixed.execution.research.result.items[0].sourceIds = ['s2'];
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => mixed },
+    worker: { runTask: async () => mixed },
     kernel: incompleteKernel(),
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_REQUIRED_FIELDS_NOT_PROVEN');
@@ -164,7 +188,7 @@ test('live gate cancels its created task when a post-create Research assertion f
   incomplete.execution.research.telemetry.toolSummary.tools = ['web_search'];
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => incomplete },
+    worker: { runTask: async () => incomplete },
     kernel: incompleteKernel(),
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_WEB_TOOLS_NOT_PROVEN');
@@ -185,7 +209,7 @@ test('live gate surfaces cleanup failure instead of silently leaving poison stat
   incomplete.execution.research.telemetry.toolSummary.tools = ['web_search'];
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => incomplete },
+    worker: { runTask: async () => incomplete },
     kernel: incompleteKernel(),
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_GATE_CLEANUP_FAILED' && error?.originalCode === 'LIVE_WEB_TOOLS_NOT_PROVEN');
@@ -197,7 +221,7 @@ test('live gate surfaces cleanup rejection instead of treating cancelled=false a
   incomplete.execution.research.telemetry.toolSummary.tools = ['web_search'];
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => incomplete },
+    worker: { runTask: async () => incomplete },
     kernel: incompleteKernel(),
     idempotencyKey: 'live-test-key',
   }), (error) => error?.code === 'LIVE_GATE_CLEANUP_FAILED' && error?.originalCode === 'LIVE_WEB_TOOLS_NOT_PROVEN');

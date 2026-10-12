@@ -290,3 +290,77 @@ Do not spend the next session on governance polish, generalized hardening, Data,
 ### Continuation sentence for a new chat
 
 > Treat repository truth as authoritative, not chat memory. Read `START_HERE.md` -> full 48h plan -> `PROJECT_STATE.json` -> latest `RESULTS_JOURNAL` -> current HEAD/CI -> direct Neon reality. Use independent reviewer/DB/security lanes and one implementation writer. Current allowed route is hosted 0018 parity -> real paid Research E2E -> Data only after acceptance #1 is `PASS_LIVE`. Never promote `SKIPPED`, mock, local, or code-only evidence to hosted/live PASS.
+
+---
+
+## JRNL-2026-10-12-004 — Hosted migration 0018 parity proven
+
+**Checkpoint time:** 2026-10-12 07:25 America/Chicago  
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified repository HEAD before hosted work:** `9883010f98379873b9bf73e0bd1ecbeabb552796`  
+**Latest full CI before this checkpoint:** `38248010816` — `SUCCESS`  
+**Technical migration baseline:** `d51879dfe91ca0b72b94ed31f4b1584f7df7cf30` — migration `0018_deadline_heartbeat_guard.sql`
+
+### Child-branch verification
+
+A fresh child could not be created because the Neon project was already at its branch limit. No hosted write was performed at that point. An existing clean verification child was identified instead:
+
+- branch: `openclaw-v2-0018-verify-20261012`;
+- branch id: `br-wandering-fire-a4vhwmd6`;
+- parent: hosted `openclaw-v2` / `br-odd-forest-a4leyaqj`;
+- pre-test state: `0` active tasks, `0` RUNNING nodes, `0` unresolved `RESERVED` reservations;
+- full 0018 heartbeat guard was absent before application.
+
+The exact repository `heartbeat_node` function body from migration 0018 was applied transactionally. The expired-deadline regression then created a task already past `deadline_at`, with a still-`RUNNING` node and a valid unexpired lease/fencing token.
+
+Direct result:
+
+- `heartbeat_node(...)` returned `false`;
+- `lease_until` was unchanged;
+- `heartbeat_at` was unchanged;
+- the test task/node state was not mutated by the rejected heartbeat;
+- cleanup returned the child to `0` active tasks / `0` RUNNING nodes / `0` unresolved reservations;
+- the full active-lease + parent-task-status + deadline guard was present after migration.
+
+This is a behavioral proof, not merely schema-existence proof.
+
+### Hosted application and direct proof
+
+Immediately before the hosted write, Git HEAD was re-read and remained `9883010f98379873b9bf73e0bd1ecbeabb552796`; no parallel writer delta was present.
+
+The same repository function body was then applied to hosted `openclaw-v2 / openclaw_v2` and the same expired-deadline regression was executed directly there.
+
+Hosted result:
+
+- `heartbeat_node(...)` returned `false` after the parent task deadline;
+- `lease_until` was byte-for-byte timestamp-equal before and after the rejected heartbeat;
+- `heartbeat_at` was unchanged;
+- post-test cleanup: active tasks `0`, RUNNING nodes `0`, unresolved `RESERVED` reservations `0`;
+- full 0018 guard is now present in hosted `heartbeat_node`.
+
+**Gate result: `PASS_HOSTED` for HOSTED MIGRATION 0018 PARITY.**
+
+### Truth that remains open
+
+This hosted PASS does not promote the external Research gate:
+
+- real paid DeepSeek/OpenClaw: `NOT_PROVEN`;
+- real native `web_search` + successful `web_fetch`: `NOT_PROVEN`;
+- acceptance #1 positive real Research E2E: `NOT_PROVEN`;
+- production Data runtime: `NOT_BUILT` and still blocked;
+- durable evidence layer: `NOT_BUILT`;
+- phone/deep-log result: `NOT_BUILT`.
+
+The latest GitHub CI still had hosted/live credential-dependent steps `SKIPPED`; those skips remain non-PASS even though hosted 0018 was proven directly outside that Actions step.
+
+### Route decision
+
+The next allowed gate is now exactly:
+
+`REAL_PAID_RESEARCH_E2E`
+
+Required vertical:
+
+`hosted PostgreSQL -> task-scoped Research claim -> reservation -> OpenClaw 2026.9.8 -> deepseek/deepseek-flash / DeepSeek-V4.1-Flash thinking=max -> real web_search -> successful real web_fetch -> required-domain provenance -> structured Research result -> accounting/reconciliation -> fencing completion -> Data dependency release -> terminal task result`
+
+Production Data remains forbidden until acceptance #1 is directly proven `PASS_LIVE`.

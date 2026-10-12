@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "project": "OpenClaw V2",
-  "updated_at": "2026-10-12T07:10:00-05:00",
+  "updated_at": "2026-10-12T07:25:00-05:00",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "042bcb3fe0791fcf70a884927fe55cfb750e9976",
+  "verified_head": "9883010f98379873b9bf73e0bd1ecbeabb552796",
   "verified_code_head": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
-  "verified_ci_run_id": 38245503457,
+  "verified_ci_run_id": 38248010816,
   "verified_ci_conclusion": "success",
   "governance_checkpoint_parent": "8eba98fb5fdbd35c3c4ad1ef1049cfcaf4657a80",
   "governance_checkpoint_ci": {
@@ -24,22 +24,28 @@
     "route_validator_ci_conclusion": "success",
     "control_plane_checkpoint_commit": "042bcb3fe0791fcf70a884927fe55cfb750e9976",
     "control_plane_checkpoint_ci_run_id": 38245503457,
-    "control_plane_checkpoint_ci_conclusion": "success"
+    "control_plane_checkpoint_ci_conclusion": "success",
+    "handoff_checkpoint_commit": "9883010f98379873b9bf73e0bd1ecbeabb552796",
+    "handoff_checkpoint_ci_run_id": 38248010816,
+    "handoff_checkpoint_ci_conclusion": "success"
   },
   "handoff_snapshot": {
-    "checked_at": "2026-10-12T07:10:00-05:00",
-    "verified_governance_head": "042bcb3fe0791fcf70a884927fe55cfb750e9976",
-    "verified_governance_ci_run_id": 38245503457,
+    "checked_at": "2026-10-12T07:25:00-05:00",
+    "verified_governance_head": "9883010f98379873b9bf73e0bd1ecbeabb552796",
+    "verified_governance_ci_run_id": 38248010816,
     "verified_code_head": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
     "verified_code_ci_run_id": 38241601260,
     "hosted_neon_direct_check": {
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
-      "heartbeat_deadline_guard_0018_present": false
+      "heartbeat_deadline_guard_0018_present": true,
+      "expired_deadline_heartbeat_returns_false": true,
+      "expired_deadline_lease_unchanged": true,
+      "expired_deadline_heartbeat_timestamp_unchanged": true
     },
-    "next_gate": "HOSTED_0018_PARITY",
-    "then": "REAL_PAID_RESEARCH_E2E",
+    "next_gate": "REAL_PAID_RESEARCH_E2E",
+    "then": "PRODUCTION_DATA_RESULT_RUNTIME",
     "data_gate": "BLOCKED_UNTIL_ACCEPTANCE_01_PASS_LIVE"
   },
   "operational_router": "START_HERE.md",
@@ -53,13 +59,13 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38245503457,
+    "ci_run_id": 38248010816,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
   "current_phase_name": "First Real Research Agent + Web Skill",
   "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "HOSTED_0018_PARITY_THEN_LIVE_RESEARCH_THEN_DATA",
+  "route_id": "REAL_PAID_RESEARCH_E2E_THEN_DATA",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -71,12 +77,12 @@
     "BLOCKED"
   ],
   "scope_map_48h": {
-    "01_hosted_postgres_and_migrations": "DRIFT_HOSTED_HEARTBEAT_MISSING_0018_DEADLINE_GUARD",
+    "01_hosted_postgres_and_migrations": "PASS_HOSTED",
     "02_durable_state_machine": "PASS_CODE_CI",
     "03_idempotent_request_intake": "PASS_CODE_CI",
     "04_atomic_lease_unique_fencing": "PASS_HOSTED",
-    "05_heartbeat_stale_worker_recovery": "DRIFT_LOCAL_CI_PASS_HOSTED_0018_PENDING",
-    "06_attempt_step_budget_deadline_breakers": "PASS_CODE_CI_HOSTED_DEADLINE_HEARTBEAT_PARITY_PENDING",
+    "05_heartbeat_stale_worker_recovery": "PASS_HOSTED",
+    "06_attempt_step_budget_deadline_breakers": "PASS_CODE_CI_HOSTED_DEADLINE_HEARTBEAT_PARITY_PASS_HOSTED",
     "07_atomic_budget_reservation_reconciliation": "PASS_HOSTED",
     "08_lite_dag_research_to_data": "PASS_CODE_CI_GATE_ONLY_DATA_NOT_PRODUCTION_DATA_RUNTIME",
     "09_real_deepseek_openclaw": "NOT_PROVEN",
@@ -95,7 +101,7 @@
     "05_budget_terminal_zero_further_model_calls": "PASS_CODE_CI",
     "06_data_blocked_until_research_success": "PASS_CODE_CI",
     "07_research_failure_blocks_descendants_and_terminates": "PASS_CODE_CI",
-    "08_deadline_terminalization": "DRIFT_LOCAL_CI_PASS_HOSTED_HEARTBEAT_0018_PENDING",
+    "08_deadline_terminalization": "PASS_HOSTED",
     "09_reservation_actual_release_invariant": "PASS_HOSTED_PAID_LIVE_LINKAGE_PENDING"
   },
   "latest_verified_innovations": [
@@ -146,8 +152,8 @@
     },
     {
       "commit": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
-      "result": "PASS_CODE_CI_HOSTED_DRIFT",
-      "change": "Migration 0018 makes task deadline a hard heartbeat breaker; direct hosted check at handoff confirms openclaw-v2 still lacks this guard."
+      "result": "PASS_HOSTED",
+      "change": "Migration 0018 makes task deadline a hard heartbeat breaker; the exact repository function body passed on child br-wandering-fire-a4vhwmd6 and hosted openclaw-v2. Expired-deadline heartbeat returned false without changing lease_until or heartbeat_at; hosted cleanup returned 0 active tasks, 0 RUNNING nodes and 0 unresolved reservations."
     }
   ],
   "hosted_postgres": {
@@ -159,7 +165,7 @@
     "main_branch_modified": false,
     "credentials_stored_in_repo": false,
     "direct_check": {
-      "checked_at": "2026-10-12T07:10:00-05:00",
+      "checked_at": "2026-10-12T07:25:00-05:00",
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
@@ -167,9 +173,13 @@
       "agent_scoped_reclaim_cleanup_present": true,
       "task_scoped_reclaim_cleanup_present": true,
       "accounting_fallback_present": true,
-      "heartbeat_deadline_guard_0018_present": false
+      "heartbeat_deadline_guard_0018_present": true,
+      "expired_deadline_heartbeat_returns_false": true,
+      "expired_deadline_lease_unchanged": true,
+      "expired_deadline_heartbeat_timestamp_unchanged": true,
+      "verification_child_branch_id": "br-wandering-fire-a4vhwmd6"
     },
-    "status": "DRIFT_REPOSITORY_0018_AHEAD_OF_HOSTED"
+    "status": "PASS_HOSTED"
   },
   "live_capabilities": {
     "openclaw_version": "2026.9.8",
@@ -184,13 +194,12 @@
     "live_web_search_fetch": "NOT_PROVEN"
   },
   "known_gaps": {
-    "hosted_migration_0018": "DRIFT_HEARTBEAT_DEADLINE_GUARD_NOT_DEPLOYED",
     "live_deepseek_kernel_vertical": "NOT_PROVEN",
     "live_web_search_fetch_kernel_vertical": "NOT_PROVEN",
     "data_result_runtime": "NOT_BUILT_DO_NOT_START_BEFORE_LIVE_RESEARCH_PASS",
     "durable_evidence_bundle": "NOT_BUILT",
     "phone_result_and_deep_log": "NOT_BUILT",
-    "github_actions_database_url": "UNAVAILABLE_TO_RUN_SO_HOSTED_GATE_SKIPPED_IN_VERIFIED_CI",
+    "github_actions_database_url": "UNAVAILABLE_SO_HOSTED_CI_STEP_REMAINS_SKIPPED_DESPITE_DIRECT_PASS_HOSTED",
     "github_actions_deepseek_api_key": "UNAVAILABLE_TO_RUN_SO_LIVE_GATES_SKIPPED_IN_VERIFIED_CI"
   },
   "completed_units": [
@@ -200,7 +209,7 @@
       "details": "See docs/EXECUTION_LOG.md and Git history for per-commit evidence."
     },
     {
-      "unit": "hosted_neon_kernel_accounting_scoped_claims_through_pre_0018_state",
+      "unit": "hosted_neon_kernel_accounting_scoped_claims_through_0018",
       "status": "PASS_HOSTED"
     },
     {
@@ -209,7 +218,7 @@
     },
     {
       "unit": "migration_0018_deadline_heartbeat_guard",
-      "status": "PASS_CODE_CI_HOSTED_DRIFT"
+      "status": "PASS_HOSTED"
     },
     {
       "unit": "real_paid_deepseek_web_kernel_vertical",
@@ -236,6 +245,6 @@
     "speculative_hardening_not_on_current_gate"
   ],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> Data runtime -> durable evidence -> phone result",
-  "next_action": "Verify migration 0018 on a temporary Neon child branch with the expired-deadline heartbeat regression; if PASS, apply the same additive heartbeat_node migration to hosted openclaw-v2, re-check hosted cleanliness and deadline behavior, append a journal checkpoint, then execute the real paid Kernel Research vertical. Do not start Data before PASS_LIVE.",
-  "continuation_rule": "Read START_HERE.md first, then docs/02_48H_WALKING_SKELETON.md, then PROJECT_STATE.json, then the latest docs/RESULTS_JOURNAL.md checkpoint, then current HEAD/CI and direct hosted reality before any write. Use docs/EXECUTION_LOG.md for detailed history; its older SYSTEM-first continuation sentence is superseded by START_HERE.md."
+  "next_action": "Execute the already-built real paid Kernel Research vertical against hosted openclaw-v2 using DeepSeek-V4.1-Flash at thinking=max with real web_search and successful web_fetch, required-domain provenance, accounting/reservation/fencing and terminal state evidence. Mark acceptance #1 PASS_LIVE only after direct proof. Do not start production Data before PASS_LIVE.",
+  "continuation_rule": "Read START_HERE.md first, then docs/02_48H_WALKING_SKELETON.md, then PROJECT_STATE.json, then the latest docs/RESULTS_JOURNAL.md checkpoint, then current HEAD/CI and direct hosted/live reality before any write. Use docs/EXECUTION_LOG.md for detailed history; its older SYSTEM-first continuation sentence is superseded by START_HERE.md."
 }

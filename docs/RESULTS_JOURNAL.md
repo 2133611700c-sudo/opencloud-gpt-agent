@@ -364,3 +364,90 @@ Required vertical:
 `hosted PostgreSQL -> task-scoped Research claim -> reservation -> OpenClaw 2026.9.8 -> deepseek/deepseek-flash / DeepSeek-V4.1-Flash thinking=max -> real web_search -> successful real web_fetch -> required-domain provenance -> structured Research result -> accounting/reconciliation -> fencing completion -> Data dependency release -> terminal task result`
 
 Production Data remains forbidden until acceptance #1 is directly proven `PASS_LIVE`.
+
+---
+
+## JRNL-2026-10-12-005 — Research primary-model resolution defect repaired
+
+**Checkpoint time:** 2026-10-12 09:42 America/Chicago
+**Branch:** `v2/openclaw-clean-20261011`
+**Implementation commit:** `d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e`
+**Full CI:** `38262169004` — `SUCCESS`
+**Current 48h phase:** Phase 6 — First Real Research Agent + Web Skill
+**Next mandatory gate:** `REAL_PAID_RESEARCH_E2E`
+
+### Lane A — plan / investigator
+
+The 48h plan and route were re-read before implementation. The earliest unproven dependency remains acceptance #1: real paid Research E2E. Production Data, durable evidence feature work and phone UX remain blocked until that gate is `PASS_LIVE`.
+
+A concrete defect was reproduced on the exact live Research path with pinned OpenClaw `2026.9.8`: the generated Research config allowed the DeepSeek plugin and the invocation requested `deepseek/deepseek-flash`, but the config did not pin that model as the agent primary. The runtime failed before provider authentication with `Unknown model: deepseek/deepseek-flash`.
+
+### Lane B — independent provider/runtime falsification
+
+The installed official `@openclaw/deepseek-provider@2026.9.8` manifest was inspected independently. It exposes DeepSeek models through the provider catalog. Testing multiple model names without a primary-model pin reproduced the same model-resolution failure, which falsified the hypothesis that the problem was only the alias spelling or the user credential.
+
+A temporary config with `agents.defaults.model.primary = deepseek/deepseek-flash`, no fallbacks and empty utility model was then validated. With an intentionally invalid test credential, OpenClaw no longer failed with `Unknown model`; it reached `api.deepseek.com` and failed at the expected HTTP 401 authentication boundary. This proves runtime/provider model resolution, not paid inference.
+
+### Lane C — implementation
+
+Smallest coherent repair only:
+
+- `src/research/openclaw-research-runtime.mjs` now pins `deepseek/deepseek-flash` as the Research agent primary model;
+- model fallbacks are empty;
+- utility model is disabled for this bounded Research scope;
+- regression assertions were added to `tests/research/openclaw-research-runtime.test.mjs`.
+
+No Data, evidence, phone, browser, Vision or broad orchestration work was added.
+
+### Lane D — independent verification
+
+Evidence after the repair:
+
+- targeted Research runtime tests: PASS;
+- full Node suite: `172/172` PASS;
+- foundation/route-map validation: PASS;
+- local PostgreSQL migrations `0001..0018`: PASS;
+- SQL/kernel assertions: PASS;
+- PostgreSQL Research execution E2E: PASS;
+- pinned OpenClaw `2026.9.8` install: PASS;
+- official DeepSeek provider plugin `2026.9.8`: PASS;
+- official DuckDuckGo plugin `2026.9.8`: PASS;
+- Research credential isolation: PASS;
+- generated Research config validation: PASS;
+- post-fix external provider-resolution probe: reached DeepSeek authentication boundary instead of model-resolution failure.
+
+Full GitHub Actions run `38262169004` completed `SUCCESS`.
+
+### Negative evidence preserved
+
+The same CI run reported both external prerequisites absent in the Actions context:
+
+- `DATABASE_URL`: MISSING;
+- `DEEPSEEK_API_KEY`: MISSING.
+
+Therefore the hosted persistence Actions step and the real Kernel Research/DeepSeek steps were `SKIPPED`. Per project truth rules, those skips are not PASS.
+
+A fresh direct hosted Neon read-only check after the implementation showed:
+
+- active tasks: `0`;
+- RUNNING nodes: `0`;
+- unresolved RESERVED reservations: `0`.
+
+The hosted database remains clean.
+
+### Gate truth
+
+- Research model-resolution defect: **PASS_CODE_CI**;
+- hosted PostgreSQL through migration 0018: **PASS_HOSTED**;
+- real paid DeepSeek inference: **NOT_PROVEN**;
+- real `web_search` + successful `web_fetch`: **NOT_PROVEN**;
+- acceptance #1 positive Research E2E: **NOT_PROVEN**;
+- production Data runtime: **NOT_BUILT / BLOCKED** until acceptance #1 is `PASS_LIVE`.
+
+### Recorder recovery note
+
+During the recorder/tooling pass, two unintended temporary repository-file writes were created by an incorrect tool selection. They were not treated as project work. The branch head was re-read immediately and force-with-lease was used with the exact expected accidental head to restore `v2/openclaw-clean-20261011` to `d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e`. A follow-up branch read confirmed the restoration. This is now an explicit negative practice: never use a write-shaped connector call for discovery or probing; discover the exact read/write schema first, and re-read HEAD after any unexpected tool result.
+
+### Route decision
+
+Continue exactly with `REAL_PAID_RESEARCH_E2E`. Do not detour into production Data, evidence features, phone UX, browser/Vision/PDF, full agent/skill scale-out or broad refactors. The next status promotion is allowed only after the real paid provider + real web tools + hosted Kernel vertical executes and durable accounting/fencing/terminal evidence is inspected.

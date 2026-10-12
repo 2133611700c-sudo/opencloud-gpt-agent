@@ -167,3 +167,169 @@ Earlier verified phase history remains in Git history and `PROJECT_STATE.json`. 
 - Real paid DeepSeek + `web_search` + `web_fetch` through the entire hosted Kernel vertical remains the next required gate.
 - Do **not** begin Data runtime, durable evidence, or phone result until that live Research gate returns PASS evidence.
 - 48-Hour Walking Skeleton remains `IN PROGRESS`, not PASS.
+
+## 2026-10-12
+
+### Canonical engineering protocol from accumulated V2 experience [NORMATIVE — APPLY TO ALL FUTURE BUILDS]
+
+This section is a durable handoff rule for every future chat, agent, reviewer, repair session and new subsystem. It is derived from verified positive and negative experience while hardening the Kernel→Research vertical. It is not optional guidance: future work should follow it unless a later verified governance change explicitly supersedes it.
+
+#### 1. Truth model: never confuse evidence levels
+- `PASS` means the exact required behavior was executed and directly evidenced.
+- `CODE PASS` or deterministic/local test PASS does **not** equal hosted/live PASS.
+- `SKIPPED` is never PASS. Conditional CI steps that did not run prove nothing about the external system.
+- Distinguish at least: unit/contract PASS, SQL/kernel PASS, local PostgreSQL E2E PASS, pinned-runtime/plugin PASS, hosted-DB PASS, paid/provider live PASS, full acceptance PASS.
+- A mock or injected Research result proves orchestration mechanics only; it does not prove DeepSeek, web tools, hosted state, pricing, or external evidence.
+- `PROJECT_STATE.json` and this log must state gaps explicitly. Never use an empty `known_gaps` or a generic GREEN label to hide unexecuted live gates.
+
+#### 2. Multi-lane operating model
+Use independent lanes, but only one write owner for the same code zone at a time.
+1. **Investigator/reviewer lane — read-only:** identify an invariant violation, reproduce it, compare implementation with official/pinned contracts.
+2. **Independent specialist lane — read-only:** DB/security/provider/concurrency reviewer tries to falsify the first diagnosis and searches for side effects.
+3. **Implementation lane — single writer:** makes the smallest coherent change only after the defect and intended invariant are clear.
+4. **Verification lane — independent evidence:** CI, SQL assertions, hosted DB checks and live acceptance prove or reject the change.
+- Read-only lanes may run in parallel. Two writers must not modify the same code zone concurrently.
+- Before moving a branch ref, re-read HEAD and use expected-SHA/force-with-lease semantics. If HEAD moved, never overwrite; review/rebase onto the new verified baseline.
+
+#### 3. Atomic change discipline
+- One confirmed defect or one tightly coupled invariant repair per commit.
+- After every commit: full CI → GREEN → only then start the next write.
+- Do not mix runtime code, unrelated migrations and governance cleanup in one commit.
+- Do not update governance files while a runtime/security commit is still unverified.
+- When a reviewer discovers a second issue while CI is running, record it as the next micro-step; do not stack it into the in-flight commit.
+
+#### 4. Build order for every new subsystem
+Use the same order everywhere:
+1. Define immutable input/output contract and acceptance criteria.
+2. Define state transitions, ownership, idempotency, fencing and cleanup semantics.
+3. Define threat model and secret/tool authority boundaries.
+4. Build the smallest end-to-end vertical slice.
+5. Add negative-path tests before scale-out.
+6. Prove local/kernel behavior.
+7. Prove pinned real runtime/plugin compatibility.
+8. Prove hosted persistence/schema behavior when relevant.
+9. Prove the real external/provider path.
+10. Preserve evidence and only then mark the gate PASS.
+11. Scale to more agents/skills/features only after the vertical slice is real.
+
+#### 5. Preflight before claim or irreversible work
+- Validate credentials, trust root, config, model/tool availability and other runtime prerequisites **before** claiming a durable node whenever the failure is independent of that node's work.
+- Invalid payload discovered after claim must be terminalized immediately through the same fencing token; never leave it RUNNING for stale recovery by accident.
+- A preflight failure must cause zero durable claim, zero budget reservation and zero paid provider call.
+- Re-check mutable security prerequisites immediately before each durable claim, not only at process construction.
+
+#### 6. Claims, concurrency, leases and fencing
+- Isolation prechecks are advisory; DB-level/task-scoped claim predicates are authoritative.
+- Prefer `taskId + agentId` scoped claims when a workflow must operate only on its own task. A global/agent-wide claim after an isolation check still has a TOCTOU race.
+- Every state mutation after claim must carry the active fencing token. A stale token must never mutate node/task/accounting state.
+- `heartbeatInterval` must be strictly shorter than lease duration.
+- Stale reclaim must release reservations owned by the old lease before issuing a new fencing token.
+- Derived/scoped SQL functions must preserve all lifecycle side effects of the canonical function; copying claim logic without cleanup semantics is a regression risk.
+
+#### 7. Budget and accounting invariants
+- Use reserve → actual/reconcile → release as one lifecycle. No terminal task may retain unresolved reservations.
+- Missing telemetry must never be silently treated as observed usage. Use explicit conservative fallback accounting with a named basis/reason.
+- Malformed observed telemetry fails closed.
+- Provider token semantics must come from official provider docs/source, not assumptions. For DeepSeek, prompt/input already contains cache-hit/cache-miss; cache counters are subsets, not extra tokens.
+- Exactly-once accounting keys must include durable task/node/fencing identity where required.
+- Zero cost with nonzero billable usage is suspicious unless the provider contract explicitly proves it; do not accept false zero-cost accounting as observed truth.
+
+#### 8. External tool evidence: invocation is not success
+- Seeing `web_search`/`web_fetch` in a tool list is insufficient.
+- Unresolved tool failure means the required evidence path did not succeed, even if the tool was invoked.
+- A later successful retry may resolve a previous transient failure; judge the provider/runtime's unresolved-error semantics rather than blindly rejecting any historical failure.
+- Required domains must be enforced structurally. An official vendor domain is not automatically equivalent to the exact `requiredDomains` constraint.
+- Source URL, checked timestamp, provenance and tool success must all be verifiable for acceptance-critical Research output.
+
+#### 9. Native-first + pinned-contract rule
+- Use native OpenClaw/provider behavior instead of reimplementing it when the pinned runtime already supplies the primitive.
+- Verify behavior against the **pinned version actually running in CI/production**, not only today's documentation.
+- Use canonical current model IDs, not temporary legacy aliases, in acceptance gates.
+- “Strongest model” means model + supported reasoning configuration + correct tool/runtime integration + accounting/evidence; changing only the model name is not enough.
+
+#### 10. Security and secret handling
+- Secrets must not appear in Git history, argv, logs, evidence artifacts or broad child environments.
+- Child processes receive a strict allowlist of environment variables, not `{...process.env}` with one key deleted.
+- DB credentials belong in secret-isolated transport/env, never command-line arguments.
+- Trust roots must be absolute, existing directories, non-symlink and private (`0700` or equivalently no group/world access).
+- Distinguish provider-managed metadata from actual credentials semantically. Do not classify a legitimate state database as secret merely because the file exists.
+- Conversely, a CI-only credential check is not enough: production preflight must enforce the security invariant before claim.
+- Malformed/unreadable security evidence fails closed.
+
+#### 11. Hosted database and migration protocol
+- Migration numbers are unique and monotonic; duplicate prefixes are forbidden.
+- Before changing the working hosted branch, test additive/schema changes on a child verification branch when provider capabilities allow it.
+- Test behavior, not only object existence. A function-count/schema check is necessary but not sufficient.
+- Preserve a pre-migration backup branch when snapshots are unavailable.
+- After applying to the working branch, re-check function/schema contract and operational cleanliness: active tasks, running leases, stale leases and unresolved reservations.
+- Local migration PASS does not prove hosted schema is current; direct hosted drift verification is required.
+
+#### 12. Failure cleanup must be state-aware
+- A failed live gate must clean up only its own task and release its own leases/reservations.
+- Cleanup return `false` is not automatically an error: first read terminal state. It may mean another canonical path already terminalized the task.
+- If state remains active after cleanup refusal, surface `CLEANUP_FAILED`; do not hide poison state behind the original exception.
+- Preserve the original failure when cleanup has already completed correctly.
+- Cleanup itself must be idempotent and fenced/canonical.
+
+#### 13. Mandatory verification ladder
+Every important new component should climb this ladder as applicable:
+1. unit/input validation;
+2. negative/fail-closed regression;
+3. adapter/contract test;
+4. migration/schema assertion;
+5. local PostgreSQL/kernel E2E;
+6. pinned OpenClaw/provider/plugin install and config validation;
+7. hosted DB verification;
+8. real paid/provider/tool execution;
+9. terminal state/accounting/evidence verification;
+10. durable artifact/journal update.
+A lower rung never substitutes for an unexecuted higher rung.
+
+#### 14. Positive patterns to repeat
+- Small commits followed by complete CI caught regressions early and kept diagnosis local.
+- Expected-SHA branch updates prevented one writer from overwriting another.
+- Independent reviewer lanes caught over-strict cleanup logic, task-claim races, cache-accounting errors, stale-reservation leaks and false tool-success evidence before scale-out.
+- Temporary Neon branches + behavioral SQL tests exposed hosted drift safely before production-branch migration.
+- Fail-closed preflight before claim prevented durable poison state.
+- Explicit accounting fallback preserved cost safety without fabricating observed telemetry.
+- Direct comparison with official DeepSeek/OpenClaw source resolved ambiguous semantics correctly.
+
+#### 15. Negative patterns that must not be repeated
+- Do not call skipped CI gates PASS.
+- Do not use mocks as evidence of a live provider/web vertical.
+- Do not rely on queue isolation checks when a task-scoped DB claim can enforce ownership atomically.
+- Do not copy canonical SQL claim functions and omit stale-lease reservation cleanup.
+- Do not allow heartbeat >= lease duration.
+- Do not leave invalid claimed work RUNNING until stale timeout.
+- Do not assume cache token fields add to prompt tokens without checking provider semantics.
+- Do not equate “tool was called” with “tool succeeded.”
+- Do not accept any official vendor domain when the request requires a narrower domain.
+- Do not pass full ambient process environments to probes/tools.
+- Do not treat the existence of provider state files as credential proof; inspect semantics.
+- Do not put a security invariant only in CI if production runtime can bypass it.
+- Do not create duplicate migration numbers.
+- Do not let `PROJECT_STATE`/execution log lag materially behind verified runtime reality.
+- Do not scale to Data/evidence/phone/full agent catalog before the current real vertical gate passes.
+
+#### 16. Definition of Done for a new capability
+A capability is not READY until all applicable answers are YES:
+- Is the contract explicit and versioned/pinned where external?
+- Are ownership/idempotency/fencing/cleanup defined?
+- Are positive and negative tests present?
+- Is secret authority minimized?
+- Can it fail without leaving poisoned durable state?
+- Are budget/accounting semantics correct?
+- Is external evidence success verified, not inferred?
+- Has hosted state/schema been checked if used?
+- Has the real provider/tool path executed if required?
+- Are terminal state, reservations, accounting and artifacts consistent afterward?
+- Is the evidence durable and safe to expose?
+- Does `PROJECT_STATE`/journal truthfully distinguish PASS, SKIPPED and NOT PROVEN?
+
+#### 17. Default continuation rule for future chats/agents
+- Start by reading `SYSTEM.md`, `PROJECT_STATE.json`, this execution log and the current branch HEAD/CI before writing.
+- Treat this protocol as the default engineering method for every new OpenClaw V2 build.
+- First ask: “Which invariant is unproven or violated?” — not “What feature can we add next?”
+- Use reviewer lanes to challenge the plan before implementation.
+- Make the smallest fix that restores the invariant, prove it through the verification ladder, record the result, then continue.
+- A RED gate is useful evidence and must be diagnosed, not bypassed. A GREEN gate is meaningful only for the exact layer it actually executed.

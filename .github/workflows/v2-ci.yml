@@ -40,6 +40,17 @@ jobs:
       PGPASSWORD: openclaw
     steps:
       - uses: actions/checkout@v4
+      - name: Verify OpenClaw GitHub machine identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -f state=success \
+            -f context=openclaw-v2-machine-identity \
+            -f description='OpenClaw V2 workflow repository write access verified'
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

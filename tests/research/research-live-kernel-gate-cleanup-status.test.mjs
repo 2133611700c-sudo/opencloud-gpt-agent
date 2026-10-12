@@ -42,7 +42,7 @@ test('live gate treats cancelled=false as cleanup failure while task remains act
   const db = makeQuery('RUNNING');
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => incompleteResearch },
+    worker: { runTask: async () => incompleteResearch },
     kernel,
     idempotencyKey: 'cleanup-active-test',
   }), (error) => error?.code === 'LIVE_GATE_CLEANUP_FAILED'
@@ -55,7 +55,7 @@ test('live gate preserves original failure when task was already terminalized by
   const db = makeQuery('FAIL_WITH_EVIDENCE');
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
-    worker: { runOnce: async () => incompleteResearch },
+    worker: { runTask: async () => incompleteResearch },
     kernel,
     idempotencyKey: 'cleanup-terminal-test',
   }), (error) => error?.code === 'LIVE_WEB_TOOLS_NOT_PROVEN');

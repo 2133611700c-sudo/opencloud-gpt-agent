@@ -43,7 +43,7 @@ test('live gate rejects official DeepSeek evidence outside request.requiredDomai
 
   await assert.rejects(() => runLiveResearchKernelGate({
     query,
-    worker: { runOnce: async () => researchFrom('https://www.deepseek.com/news') },
+    worker: { runTask: async () => researchFrom('https://www.deepseek.com/news') },
     kernel,
     idempotencyKey: 'required-domain-proof-test',
   }), (error) => error?.code === 'LIVE_REQUIRED_DOMAIN_SOURCE_NOT_PROVEN');
@@ -57,7 +57,7 @@ test('live gate rejects malformed requiredDomains before touching the queue', as
   let queried = false;
   await assert.rejects(() => runLiveResearchKernelGate({
     query: async () => { queried = true; return { rows: [] }; },
-    worker: { runOnce: async () => researchFrom('https://api-docs.deepseek.com/updates/') },
+    worker: { runTask: async () => researchFrom('https://api-docs.deepseek.com/updates/') },
     kernel,
     idempotencyKey: 'invalid-required-domain-test',
     request: {

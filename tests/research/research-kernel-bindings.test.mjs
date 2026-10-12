@@ -37,26 +37,26 @@ test('binds full observed DeepSeek usage and completion to one fence', async () 
 
 test('classifies DeepSeek cache hit and miss without double-counting prompt tokens', async () => {
   const calls=[];
-  const cached={...research,telemetry:{...research.telemetry,usage:{input:10,output:2,cacheRead:7,cacheWrite:1,total:12}}};
+  const cached={...research,telemetry:{...research.telemetry,usage:{input:10,output:2,cacheRead:7,cacheWrite:1,total:20}}};
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>cached, heartbeatIntervalMs:60_000 });
   await execute({claim,request:'q'});
   const accounting=calls.find(x=>x[0]==='account')[1];
   assert.equal(accounting.promptCacheHitTokens,7);
-  assert.equal(accounting.promptCacheMissTokens,3);
+  assert.equal(accounting.promptCacheMissTokens,11);
   assert.equal(accounting.completionTokens,2);
-  assert.equal(accounting.totalTokens,12);
+  assert.equal(accounting.totalTokens,20);
   assert.equal(accounting.promptCacheHitTokens + accounting.promptCacheMissTokens + accounting.completionTokens, accounting.totalTokens);
 });
 
 test('does not require cacheWrite when cacheRead is observed for DeepSeek', async () => {
   const calls=[];
-  const cached={...research,telemetry:{...research.telemetry,usage:{input:10,output:2,cacheRead:7,cacheWrite:null,total:12}}};
+  const cached={...research,telemetry:{...research.telemetry,usage:{input:10,output:2,cacheRead:7,cacheWrite:null,total:19}}};
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>cached, heartbeatIntervalMs:60_000 });
   await execute({claim,request:'q'});
   assert.deepEqual(calls.map(x=>x[0]),['reserve','account','complete']);
   const accounting=calls.find(x=>x[0]==='account')[1];
   assert.equal(accounting.promptCacheHitTokens,7);
-  assert.equal(accounting.promptCacheMissTokens,3);
+  assert.equal(accounting.promptCacheMissTokens,10);
 });
 
 test('uses reservation fallback and still completes when usage telemetry is absent', async () => {
@@ -126,16 +126,20 @@ test('malformed cost telemetry is not masked by missing cacheRead', async () => 
 
 test('inconsistent total fails closed', async () => {
   const calls=[];
-  const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:1,cacheWrite:0,total:6}}};
+  const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:1,cacheWrite:0,total:7}}};
   const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>invalid, heartbeatIntervalMs:60_000 });
   await assert.rejects(()=>execute({claim,request:'q'}),e=>e.code==='USAGE_TELEMETRY_INVALID');
   assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);
 });
 
-test('cacheRead greater than input fails closed', async () => {
+test('accepts cacheRead greater than uncached input because OpenClaw reports separate buckets', async () => {
   const calls=[];
-  const invalid={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:4,cacheWrite:0,total:5}}};
-  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>invalid, heartbeatIntervalMs:60_000 });
-  await assert.rejects(()=>execute({claim,request:'q'}),e=>e.code==='USAGE_TELEMETRY_INVALID');
-  assert.deepEqual(calls.map(x=>x[0]),['reserve','fail','release']);
+  const cached={...research,telemetry:{...research.telemetry,usage:{input:3,output:2,cacheRead:4,cacheWrite:0,total:9}}};
+  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>cached, heartbeatIntervalMs:60_000 });
+  await execute({claim,request:'q'});
+  const accounting=calls.find(x=>x[0]==='account')[1];
+  assert.equal(accounting.promptCacheHitTokens,4);
+  assert.equal(accounting.promptCacheMissTokens,3);
+  assert.equal(accounting.completionTokens,2);
+  assert.equal(accounting.totalTokens,9);
 });

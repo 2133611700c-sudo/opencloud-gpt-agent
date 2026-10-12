@@ -33,11 +33,9 @@ const requireUsage = (usage) => {
       throw Object.assign(new Error(`Research usage telemetry ${field} must be null or a nonnegative safe integer`), { code: 'USAGE_TELEMETRY_INVALID' });
     }
   }
-  if (usage.total !== usage.input + usage.output) {
-    throw Object.assign(new Error('Research usage telemetry total must equal input + output'), { code: 'USAGE_TELEMETRY_INVALID' });
-  }
-  if (usage.cacheRead != null && usage.cacheRead > usage.input) {
-    throw Object.assign(new Error('Research cacheRead cannot exceed input tokens'), { code: 'USAGE_TELEMETRY_INVALID' });
+  const expectedTotal = usage.input + usage.output + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
+  if (usage.total !== expectedTotal) {
+    throw Object.assign(new Error('Research usage telemetry total must equal input + output + cacheRead + cacheWrite'), { code: 'USAGE_TELEMETRY_INVALID' });
   }
   return usage;
 };
@@ -122,7 +120,10 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
         }
 
         const promptCacheHitTokens = usage.cacheRead;
-        const promptCacheMissTokens = usage.input - promptCacheHitTokens;
+        // OpenClaw reports uncached input, cache reads, and cache writes as separate buckets.
+        // The kernel schema has hit/miss prompt buckets, so cache writes are conservatively
+        // classified with misses while observed provider cost remains authoritative.
+        const promptCacheMissTokens = usage.input + (usage.cacheWrite ?? 0);
         const accounted = await db.recordLlmCall({
           reservationId,
           callKey: reservationKey,

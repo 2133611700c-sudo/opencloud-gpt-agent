@@ -3,6 +3,11 @@ const requireFn = (value, name) => {
   return value;
 };
 
+const requireText = (value, name) => {
+  if (typeof value !== 'string' || value.trim() === '') throw new TypeError(`${name} is required`);
+  return value.trim();
+};
+
 const toResearchRequest = (payload) => {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
     throw Object.assign(new Error('Research node input_payload must be an object'), { code: 'INVALID_RESEARCH_NODE_INPUT' });
@@ -37,30 +42,48 @@ const terminalizeInvalidInput = async ({ failTerminal, lease, error }) => {
 
 export function createResearchWorker({ kernel, executeResearch, workerId, leaseSeconds = 30 } = {}) {
   if (!kernel || typeof kernel !== 'object') throw new TypeError('kernel must be an object');
-  const claim = requireFn(kernel.claimNextNodeForAgent?.bind(kernel), 'kernel.claimNextNodeForAgent');
+  const claimAny = requireFn(kernel.claimNextNodeForAgent?.bind(kernel), 'kernel.claimNextNodeForAgent');
+  const claimTask = typeof kernel.claimNodeForTaskAndAgent === 'function'
+    ? kernel.claimNodeForTaskAndAgent.bind(kernel)
+    : null;
   const failTerminal = requireFn(kernel.failTerminal?.bind(kernel), 'kernel.failTerminal');
   const execute = requireFn(executeResearch, 'executeResearch');
-  if (typeof workerId !== 'string' || workerId.trim() === '') throw new TypeError('workerId is required');
+  const normalizedWorkerId = requireText(workerId, 'workerId');
   if (!Number.isSafeInteger(leaseSeconds) || leaseSeconds < 5 || leaseSeconds > 3600) {
     throw new RangeError('leaseSeconds must be an integer between 5 and 3600');
   }
 
+  const executeLease = async (lease) => {
+    if (!lease) return Object.freeze({ status: 'IDLE' });
+    if (lease.agentId !== 'researcher') {
+      throw Object.assign(new Error('agent-scoped claim returned a non-research node'), { code: 'AGENT_SCOPE_VIOLATION' });
+    }
+    let request;
+    try {
+      request = toResearchRequest(lease.inputPayload);
+    } catch (error) {
+      await terminalizeInvalidInput({ failTerminal, lease, error });
+      throw error;
+    }
+    const execution = await execute({ claim: lease, request });
+    return Object.freeze({ status: 'EXECUTED', claim: lease, execution });
+  };
+
   return Object.freeze({
     async runOnce() {
-      const lease = await claim({ workerId, agentId: 'researcher', leaseSeconds });
-      if (!lease) return Object.freeze({ status: 'IDLE' });
-      if (lease.agentId !== 'researcher') {
-        throw Object.assign(new Error('agent-scoped claim returned a non-research node'), { code: 'AGENT_SCOPE_VIOLATION' });
-      }
-      let request;
-      try {
-        request = toResearchRequest(lease.inputPayload);
-      } catch (error) {
-        await terminalizeInvalidInput({ failTerminal, lease, error });
-        throw error;
-      }
-      const execution = await execute({ claim: lease, request });
-      return Object.freeze({ status: 'EXECUTED', claim: lease, execution });
+      const lease = await claimAny({ workerId: normalizedWorkerId, agentId: 'researcher', leaseSeconds });
+      return executeLease(lease);
+    },
+    async runTask(taskId) {
+      const normalizedTaskId = requireText(taskId, 'taskId');
+      if (!claimTask) throw new TypeError('kernel.claimNodeForTaskAndAgent must be a function');
+      const lease = await claimTask({
+        taskId: normalizedTaskId,
+        workerId: normalizedWorkerId,
+        agentId: 'researcher',
+        leaseSeconds,
+      });
+      return executeLease(lease);
     },
   });
 }

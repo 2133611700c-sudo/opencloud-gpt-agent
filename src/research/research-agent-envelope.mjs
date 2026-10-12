@@ -155,8 +155,9 @@ export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
     const total = nonNegativeInteger(rawUsage.total, 'usage.total');
     const cacheRead = optionalNonNegativeInteger(rawUsage.cacheRead, 'usage.cacheRead');
     const cacheWrite = optionalNonNegativeInteger(rawUsage.cacheWrite, 'usage.cacheWrite');
-    if (total !== input + output) {
-      fail('usage.total must equal input + output', 'INVALID_TELEMETRY');
+    const expectedTotal = input + output + (cacheRead ?? 0) + (cacheWrite ?? 0);
+    if (total !== expectedTotal) {
+      fail('usage.total must equal input + output + cacheRead + cacheWrite', 'INVALID_TELEMETRY');
     }
     usage = Object.freeze({ input, output, total, cacheRead, cacheWrite });
     telemetryStatus = cacheRead !== null && cacheWrite !== null ? 'AVAILABLE_FULL' : 'AVAILABLE_NO_CACHE_SPLIT';

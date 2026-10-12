@@ -111,6 +111,10 @@ jobs:
           set -euo pipefail
           openclaw plugins install @openclaw/duckduckgo-plugin@2026.9.8
           openclaw plugins list | grep -i duckduckgo
+      - name: Verify Research credential scope stayed clean after plugin install
+        run: |
+          set -euo pipefail
+          node --input-type=module -e "import { isSecureResearchStateDir } from './src/research/research-trust-root.mjs'; if (!isSecureResearchStateDir(process.env.OPENCLAW_STATE_DIR)) throw new Error('OpenClaw Research state contains stored credentials or unsafe state');"
       - name: Validate generated Research OpenClaw config
         env:
           OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research.json

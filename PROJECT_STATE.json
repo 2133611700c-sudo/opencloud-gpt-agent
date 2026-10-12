@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "project": "OpenClaw V2",
-  "updated_at": "2026-10-12T06:36:00-05:00",
+  "updated_at": "2026-10-12T07:10:00-05:00",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
+  "verified_head": "042bcb3fe0791fcf70a884927fe55cfb750e9976",
   "verified_code_head": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
-  "verified_ci_run_id": 38241601260,
+  "verified_ci_run_id": 38245503457,
   "verified_ci_conclusion": "success",
   "governance_checkpoint_parent": "8eba98fb5fdbd35c3c4ad1ef1049cfcaf4657a80",
   "governance_checkpoint_ci": {
@@ -15,7 +15,32 @@
     "router_ci_conclusion": "success",
     "journal_commit": "8eba98fb5fdbd35c3c4ad1ef1049cfcaf4657a80",
     "journal_ci_run_id": 38244721760,
-    "journal_ci_conclusion": "success"
+    "journal_ci_conclusion": "success",
+    "state_sync_commit": "189a222ff870bb7ef4b9d0fbed9cebc29f1c7b9b",
+    "state_sync_ci_run_id": 38244985395,
+    "state_sync_ci_conclusion": "success",
+    "route_validator_commit": "c7deec97870a6eb6cb529a969902bb4d02d7af59",
+    "route_validator_ci_run_id": 38245212289,
+    "route_validator_ci_conclusion": "success",
+    "control_plane_checkpoint_commit": "042bcb3fe0791fcf70a884927fe55cfb750e9976",
+    "control_plane_checkpoint_ci_run_id": 38245503457,
+    "control_plane_checkpoint_ci_conclusion": "success"
+  },
+  "handoff_snapshot": {
+    "checked_at": "2026-10-12T07:10:00-05:00",
+    "verified_governance_head": "042bcb3fe0791fcf70a884927fe55cfb750e9976",
+    "verified_governance_ci_run_id": 38245503457,
+    "verified_code_head": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
+    "verified_code_ci_run_id": 38241601260,
+    "hosted_neon_direct_check": {
+      "active_tasks": 0,
+      "running_nodes": 0,
+      "unresolved_reservations": 0,
+      "heartbeat_deadline_guard_0018_present": false
+    },
+    "next_gate": "HOSTED_0018_PARITY",
+    "then": "REAL_PAID_RESEARCH_E2E",
+    "data_gate": "BLOCKED_UNTIL_ACCEPTANCE_01_PASS_LIVE"
   },
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -28,7 +53,7 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38241601260,
+    "ci_run_id": 38245503457,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
@@ -122,7 +147,7 @@
     {
       "commit": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
       "result": "PASS_CODE_CI_HOSTED_DRIFT",
-      "change": "Migration 0018 makes task deadline a hard heartbeat breaker; hosted openclaw-v2 has not yet received this migration."
+      "change": "Migration 0018 makes task deadline a hard heartbeat breaker; direct hosted check at handoff confirms openclaw-v2 still lacks this guard."
     }
   ],
   "hosted_postgres": {
@@ -134,6 +159,7 @@
     "main_branch_modified": false,
     "credentials_stored_in_repo": false,
     "direct_check": {
+      "checked_at": "2026-10-12T07:10:00-05:00",
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
@@ -211,5 +237,5 @@
   ],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> Data runtime -> durable evidence -> phone result",
   "next_action": "Verify migration 0018 on a temporary Neon child branch with the expired-deadline heartbeat regression; if PASS, apply the same additive heartbeat_node migration to hosted openclaw-v2, re-check hosted cleanliness and deadline behavior, append a journal checkpoint, then execute the real paid Kernel Research vertical. Do not start Data before PASS_LIVE.",
-  "continuation_rule": "Read START_HERE.md, then the 48h plan, then this state, then the latest RESULTS_JOURNAL checkpoint, then current HEAD/CI and hosted reality before any write."
+  "continuation_rule": "Read START_HERE.md first, then docs/02_48H_WALKING_SKELETON.md, then PROJECT_STATE.json, then the latest docs/RESULTS_JOURNAL.md checkpoint, then current HEAD/CI and direct hosted reality before any write. Use docs/EXECUTION_LOG.md for detailed history; its older SYSTEM-first continuation sentence is superseded by START_HERE.md."
 }

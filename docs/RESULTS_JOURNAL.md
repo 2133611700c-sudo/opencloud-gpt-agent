@@ -184,3 +184,109 @@ Execution route:
 `temporary Neon child -> apply exact 0018 -> expired-deadline heartbeat behavioral regression -> PASS -> apply exact 0018 to openclaw-v2 -> hosted re-check/cleanliness -> journal checkpoint -> real live Research E2E`
 
 Production Data remains forbidden until the real Research vertical is `PASS_LIVE`.
+
+---
+
+## JRNL-2026-10-12-003 — New-chat handoff verification and operating doctrine
+
+**Checkpoint time:** 2026-10-12 07:10 America/Chicago  
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified governance HEAD before this checkpoint:** `042bcb3fe0791fcf70a884927fe55cfb750e9976`  
+**Full CI:** `38245503457` — `SUCCESS`  
+**Verified technical code baseline:** `d51879dfe91ca0b72b94ed31f4b1584f7df7cf30`  
+**Technical baseline CI:** `38241601260` — `SUCCESS`  
+**Walking Skeleton:** `IN_PROGRESS`
+
+### Fresh hosted reality at handoff
+
+A direct read-only Neon check against `openclaw-v2 / openclaw_v2` at this checkpoint returned:
+
+- active tasks: `0`;
+- RUNNING nodes: `0`;
+- unresolved `RESERVED` reservations: `0`;
+- migration 0018 deadline guard inside hosted `heartbeat_node`: **absent**.
+
+Therefore the hosted state is clean but still in **DRIFT** relative to repository migration `0018_deadline_heartbeat_guard.sql`.
+
+### Exact route from this checkpoint
+
+Do not restart broad defect hunting and do not jump to Data.
+
+The next allowed route is exactly:
+
+1. Create/use a temporary Neon child of `openclaw-v2`.
+2. Apply the exact repository migration `0018_deadline_heartbeat_guard.sql` there.
+3. Run the behavioral expired-deadline heartbeat regression: heartbeat after task deadline must return `false` and must not extend `lease_until`.
+4. Confirm temp-branch cleanliness and no reservation/lease corruption.
+5. If PASS, apply the same additive migration to hosted `openclaw-v2` using the provider-safe migration path.
+6. Re-run direct hosted behavior + cleanliness checks.
+7. Append a hosted-parity journal checkpoint.
+8. Execute the real paid Kernel Research vertical: hosted task -> task-scoped Research claim -> DeepSeek-V4.1-Flash `thinking=max` -> real `web_search` + successful `web_fetch` -> required-domain source provenance -> accounting/reservation/fencing -> terminal task state.
+9. Mark acceptance #1 `PASS_LIVE` only if that real path actually executes and evidence is complete.
+10. Only then start production Data/Result runtime.
+
+### Agent operating model — mandatory
+
+Use independent lanes, with one writer only:
+
+- **Lane A — Investigator/reviewer, read-only:** reproduce the exact current-gate defect or unproven invariant.
+- **Lane B — Independent specialist, read-only:** DB/concurrency/security/provider specialist tries to falsify Lane A and checks side effects.
+- **Lane C — Implementation, single writer:** smallest coherent fix only after A+B agree on the invariant.
+- **Lane D — Verification, independent:** unit/negative tests -> SQL/kernel -> local PG E2E -> pinned OpenClaw/plugins -> hosted -> paid live as applicable.
+- **Lane E — Recorder/navigator:** update `PROJECT_STATE.json` and this journal only after evidence exists.
+
+Read-only lanes may run in parallel. Two writers must never edit the same code/schema zone concurrently. Before every write, re-read HEAD and use expected-SHA/lease semantics. If HEAD moved, review the delta first; never overwrite another lane.
+
+### Positive experience to repeat
+
+- One defect/invariant per commit + full CI kept regressions local and diagnosable.
+- Independent reviewers caught bad cleanup assumptions, task-claim TOCTOU races, cache-token accounting mistakes, stale reservation leaks and false tool-success evidence.
+- Task-scoped DB claims are stronger than queue-isolation prechecks.
+- Temporary Neon branches + behavioral SQL tests are the safe pattern before hosted schema changes.
+- Fail-closed preflight before a durable claim prevents poisoned state.
+- Conservative reservation-fallback accounting is safer than inventing provider telemetry.
+- Official/pinned DeepSeek and OpenClaw contracts must decide ambiguous semantics, not assumptions.
+- A tool appearing in telemetry is not success; unresolved tool failure must fail the Research acceptance path.
+- `SKIPPED` is useful evidence of non-execution, never PASS.
+
+### Negative experience that must not be repeated
+
+- Do not call a local/mock/code PASS a hosted/live PASS.
+- Do not continue writing while the previous commit CI is still RED or incomplete.
+- Do not use an agent-wide claim where task ownership can be enforced atomically in SQL.
+- Do not copy scoped claim SQL and forget stale-lease reservation cleanup.
+- Do not allow heartbeat interval >= lease duration.
+- Do not leave invalid claimed work RUNNING for stale recovery when it can be terminalized immediately under the active fence.
+- Do not add cache hit/miss counters on top of DeepSeek prompt tokens; they are subsets of prompt/input.
+- Do not trust `costUsd=0` with nonzero usage without a provider contract proving it.
+- Do not accept vendor-domain evidence when `requiredDomains` asks for a narrower host.
+- Do not pass ambient process secrets to probes/children.
+- Do not infer credential validity from the existence of auth/state files; verify semantics.
+- Do not create duplicate migration numbers.
+- Do not let journals/state materially lag behind the verified branch reality.
+- Do not activate full 71 agents / 311 skills before the mandatory vertical slice is real.
+
+### Boot order for the next chat
+
+The new chat must follow this order before any write:
+
+1. `START_HERE.md`.
+2. `docs/02_48H_WALKING_SKELETON.md` completely.
+3. `PROJECT_STATE.json`.
+4. The **latest** entry in `docs/RESULTS_JOURNAL.md` (this checkpoint or a later one).
+5. Current branch HEAD and exact latest CI job/step results.
+6. Direct hosted Neon drift/cleanliness check because the next gate is hosted.
+7. Only then `SYSTEM.md` and the 14-phase master roadmap for architecture context.
+8. Use `docs/EXECUTION_LOG.md` for detailed history and the canonical engineering protocol. Its older SYSTEM-first continuation sentence is superseded by `START_HERE.md`.
+
+Before writing, the new chat must be able to state: exact 48h goal; current verified technical baseline; current HEAD/CI; statuses of 15 scope items and 9 acceptance gates; hosted state; one next allowed step; and forbidden detours.
+
+### Route decision
+
+**Next gate remains hosted migration 0018 parity.**
+
+Do not spend the next session on governance polish, generalized hardening, Data, evidence UI, phone UX, browser/Vision/PDF, or catalog scale-out unless a reproduced defect on the 0018/live-Research path requires it.
+
+### Continuation sentence for a new chat
+
+> Treat repository truth as authoritative, not chat memory. Read `START_HERE.md` -> full 48h plan -> `PROJECT_STATE.json` -> latest `RESULTS_JOURNAL` -> current HEAD/CI -> direct Neon reality. Use independent reviewer/DB/security lanes and one implementation writer. Current allowed route is hosted 0018 parity -> real paid Research E2E -> Data only after acceptance #1 is `PASS_LIVE`. Never promote `SKIPPED`, mock, local, or code-only evidence to hosted/live PASS.

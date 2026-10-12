@@ -1,8 +1,14 @@
 import { spawn } from 'node:child_process';
+import { isAbsolute } from 'node:path';
 
 const AUTH_ARGS = Object.freeze(['models', 'auth', 'list', '--provider', 'deepseek', '--json']);
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_MAX_OUTPUT_BYTES = 1_048_576;
+const SAFE_AUTH_ENV_KEYS = Object.freeze([
+  'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ',
+  'SSL_CERT_FILE', 'SSL_CERT_DIR', 'NODE_EXTRA_CA_CERTS',
+  'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'NO_PROXY',
+]);
 
 export class ResearchAuthScopeError extends Error {
   constructor(message, { code = 'RESEARCH_AUTH_SCOPE_ERROR' } = {}) {
@@ -18,8 +24,15 @@ const fail = (message, code) => {
 
 export function buildResearchAuthProbeEnv(env = process.env) {
   if (!env || typeof env !== 'object') throw new TypeError('env must be an object');
-  const childEnv = { ...env };
-  delete childEnv.DEEPSEEK_API_KEY;
+  const stateDir = env.OPENCLAW_STATE_DIR;
+  if (typeof stateDir !== 'string' || stateDir.trim() === '' || !isAbsolute(stateDir)) {
+    throw new TypeError('OPENCLAW_STATE_DIR must be an absolute path for the auth probe');
+  }
+  const childEnv = {};
+  for (const key of SAFE_AUTH_ENV_KEYS) {
+    if (typeof env[key] === 'string' && env[key] !== '') childEnv[key] = env[key];
+  }
+  childEnv.OPENCLAW_STATE_DIR = stateDir;
   return childEnv;
 }
 
@@ -84,16 +97,22 @@ export function runOpenClawAuthProbe({
       }));
     };
 
+    let childEnv;
     try {
+      childEnv = buildResearchAuthProbeEnv(env);
       child = spawnImpl('openclaw', AUTH_ARGS, {
-        env: buildResearchAuthProbeEnv(env),
+        env: childEnv,
         stdio: ['ignore', 'pipe', 'pipe'],
         windowsHide: true,
       });
-    } catch {
-      settleReject(new ResearchAuthScopeError('failed to start OpenClaw auth profile check', {
-        code: 'AUTH_SCOPE_CHECK_FAILED',
-      }));
+    } catch (error) {
+      if (error instanceof TypeError) {
+        settleReject(error);
+      } else {
+        settleReject(new ResearchAuthScopeError('failed to start OpenClaw auth profile check', {
+          code: 'AUTH_SCOPE_CHECK_FAILED',
+        }));
+      }
       return;
     }
 
@@ -150,7 +169,7 @@ export async function verifyNoStoredDeepSeekAuth({
   try {
     result = await runCommand({ env });
   } catch (error) {
-    if (error instanceof ResearchAuthScopeError) throw error;
+    if (error instanceof ResearchAuthScopeError || error instanceof TypeError) throw error;
     throw new ResearchAuthScopeError('OpenClaw DeepSeek auth profile check failed', {
       code: 'AUTH_SCOPE_CHECK_FAILED',
     });

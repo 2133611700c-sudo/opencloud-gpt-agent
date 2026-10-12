@@ -41,15 +41,33 @@ test('rejects malformed or ambiguous auth-list output', () => {
   }
 });
 
-test('auth probe child env omits the paid DeepSeek key', () => {
+test('auth probe child env is an allowlist and excludes every ambient credential/config surface', () => {
   const childEnv = buildResearchAuthProbeEnv({
     PATH: '/usr/bin',
+    HOME: '/tmp/home',
     OPENCLAW_STATE_DIR: '/tmp/state',
     DEEPSEEK_API_KEY: 'must-not-propagate',
+    OPENAI_API_KEY: 'must-not-propagate',
+    AWS_SECRET_ACCESS_KEY: 'must-not-propagate',
+    DATABASE_URL: 'must-not-propagate',
+    OPENCLAW_CONFIG_PATH: '/tmp/untrusted-config.json',
   });
-  assert.equal(childEnv.DEEPSEEK_API_KEY, undefined);
-  assert.equal(childEnv.OPENCLAW_STATE_DIR, '/tmp/state');
-  assert.equal(childEnv.PATH, '/usr/bin');
+  assert.deepEqual(childEnv, {
+    PATH: '/usr/bin',
+    HOME: '/tmp/home',
+    OPENCLAW_STATE_DIR: '/tmp/state',
+  });
+});
+
+test('auth probe refuses to fall back to an ambient/default OpenClaw state root', () => {
+  assert.throws(
+    () => buildResearchAuthProbeEnv({ PATH: '/usr/bin' }),
+    /OPENCLAW_STATE_DIR must be an absolute path/,
+  );
+  assert.throws(
+    () => buildResearchAuthProbeEnv({ PATH: '/usr/bin', OPENCLAW_STATE_DIR: 'relative/state' }),
+    /OPENCLAW_STATE_DIR must be an absolute path/,
+  );
 });
 
 const fakeChild = () => {
@@ -66,7 +84,7 @@ const fakeChild = () => {
   return child;
 };
 
-test('runs the exact official OpenClaw stored-auth query without exposing the API key', async () => {
+test('runs the exact official OpenClaw stored-auth query without exposing ambient secrets', async () => {
   const child = fakeChild();
   let invocation = null;
   const spawnImpl = (executable, args, options) => {
@@ -81,19 +99,28 @@ test('runs the exact official OpenClaw stored-auth query without exposing the AP
   };
 
   const result = await runOpenClawAuthProbe({
-    env: { PATH: '/usr/bin', DEEPSEEK_API_KEY: 'must-not-propagate' },
+    env: {
+      PATH: '/usr/bin',
+      OPENCLAW_STATE_DIR: '/tmp/state',
+      DEEPSEEK_API_KEY: 'must-not-propagate',
+      OPENAI_API_KEY: 'must-not-propagate',
+    },
     spawnImpl,
   });
   assert.match(result.stdout, /"profiles":\[\]/);
   assert.equal(invocation.executable, 'openclaw');
   assert.deepEqual(invocation.args, [...RESEARCH_AUTH_PROBE_ARGS]);
-  assert.equal(invocation.options.env.DEEPSEEK_API_KEY, undefined);
+  assert.deepEqual(invocation.options.env, {
+    PATH: '/usr/bin',
+    OPENCLAW_STATE_DIR: '/tmp/state',
+  });
   assert.equal(invocation.options.stdio[0], 'ignore');
 });
 
 test('verifyNoStoredDeepSeekAuth fails closed when the command layer fails', async () => {
   await assert.rejects(
     () => verifyNoStoredDeepSeekAuth({
+      env: { OPENCLAW_STATE_DIR: '/tmp/state' },
       runCommand: async () => { throw new Error('transport failed'); },
     }),
     (error) => error instanceof ResearchAuthScopeError && error.code === 'AUTH_SCOPE_CHECK_FAILED',

@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "project": "OpenClaw V2",
-  "updated_at": "2026-10-12T07:25:00-05:00",
+  "updated_at": "2026-10-12T09:56:00-05:00",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "9883010f98379873b9bf73e0bd1ecbeabb552796",
-  "verified_code_head": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
-  "verified_ci_run_id": 38248010816,
+  "verified_head": "e6c94a0c71ce361d1c42e670373f989affed5d53",
+  "verified_code_head": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
+  "verified_ci_run_id": 38266307217,
   "verified_ci_conclusion": "success",
   "governance_checkpoint_parent": "8eba98fb5fdbd35c3c4ad1ef1049cfcaf4657a80",
   "governance_checkpoint_ci": {
@@ -27,14 +27,23 @@
     "control_plane_checkpoint_ci_conclusion": "success",
     "handoff_checkpoint_commit": "9883010f98379873b9bf73e0bd1ecbeabb552796",
     "handoff_checkpoint_ci_run_id": 38248010816,
-    "handoff_checkpoint_ci_conclusion": "success"
+    "handoff_checkpoint_ci_conclusion": "success",
+    "hosted_0018_journal_commit": "f72af1376d7baf972de36320370d4afd65acc151",
+    "hosted_0018_journal_ci_run_id": 38249580113,
+    "hosted_0018_journal_ci_conclusion": "success",
+    "research_model_repair_commit": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
+    "research_model_repair_ci_run_id": 38262169004,
+    "research_model_repair_ci_conclusion": "success",
+    "research_model_journal_commit": "e6c94a0c71ce361d1c42e670373f989affed5d53",
+    "research_model_journal_ci_run_id": 38266307217,
+    "research_model_journal_ci_conclusion": "success"
   },
   "handoff_snapshot": {
-    "checked_at": "2026-10-12T07:25:00-05:00",
-    "verified_governance_head": "9883010f98379873b9bf73e0bd1ecbeabb552796",
-    "verified_governance_ci_run_id": 38248010816,
-    "verified_code_head": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
-    "verified_code_ci_run_id": 38241601260,
+    "checked_at": "2026-10-12T09:56:00-05:00",
+    "verified_governance_head": "e6c94a0c71ce361d1c42e670373f989affed5d53",
+    "verified_governance_ci_run_id": 38266307217,
+    "verified_code_head": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
+    "verified_code_ci_run_id": 38262169004,
     "hosted_neon_direct_check": {
       "active_tasks": 0,
       "running_nodes": 0,
@@ -59,7 +68,7 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38248010816,
+    "ci_run_id": 38266307217,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
@@ -154,6 +163,11 @@
       "commit": "d51879dfe91ca0b72b94ed31f4b1584f7df7cf30",
       "result": "PASS_HOSTED",
       "change": "Migration 0018 makes task deadline a hard heartbeat breaker; the exact repository function body passed on child br-wandering-fire-a4vhwmd6 and hosted openclaw-v2. Expired-deadline heartbeat returned false without changing lease_until or heartbeat_at; hosted cleanup returned 0 active tasks, 0 RUNNING nodes and 0 unresolved reservations."
+    },
+    {
+      "commit": "d1a64b91b15ba5f9c65d96a1535d91a3637c0e1e",
+      "result": "PASS_CODE_CI",
+      "change": "Research OpenClaw config now pins deepseek/deepseek-flash as the primary model with no fallback. Pre-fix Unknown model behavior was reproduced on pinned OpenClaw 2026.9.8; post-fix provider-resolution probe reached the DeepSeek authentication boundary instead. Full CI 38262169004 passed 172/172 tests plus migrations, SQL/kernel E2E and pinned plugin/config validation. Paid inference remains NOT_PROVEN."
     }
   ],
   "hosted_postgres": {
@@ -165,7 +179,7 @@
     "main_branch_modified": false,
     "credentials_stored_in_repo": false,
     "direct_check": {
-      "checked_at": "2026-10-12T07:25:00-05:00",
+      "checked_at": "2026-10-12T09:42:00-05:00",
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
@@ -189,6 +203,8 @@
     "production_research_path": "PASS_CODE_CI",
     "task_scoped_live_research_claim": "PASS_CODE_CI",
     "semantic_auth_preflight": "PASS_CODE_CI",
+    "research_primary_model_pin": "PASS_CODE_CI",
+    "provider_transport_resolution_probe": "PASS_CODE_CI_REACHED_DEEPSEEK_AUTH_BOUNDARY_WITH_INVALID_TEST_KEY",
     "live_kernel_research_gate": "IMPLEMENTED_NOT_PROVEN",
     "deepseek_paid_inference": "NOT_PROVEN",
     "live_web_search_fetch": "NOT_PROVEN"
@@ -199,8 +215,8 @@
     "data_result_runtime": "NOT_BUILT_DO_NOT_START_BEFORE_LIVE_RESEARCH_PASS",
     "durable_evidence_bundle": "NOT_BUILT",
     "phone_result_and_deep_log": "NOT_BUILT",
-    "github_actions_database_url": "UNAVAILABLE_SO_HOSTED_CI_STEP_REMAINS_SKIPPED_DESPITE_DIRECT_PASS_HOSTED",
-    "github_actions_deepseek_api_key": "UNAVAILABLE_TO_RUN_SO_LIVE_GATES_SKIPPED_IN_VERIFIED_CI"
+    "github_actions_database_url": "MISSING_IN_CI_38262169004_SO_HOSTED_ACTIONS_STEP_SKIPPED_DESPITE_DIRECT_PASS_HOSTED; HOSTED_ACTIONS_STEP_ALSO_SKIPPED_IN_CI_38266307217",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38262169004_SO_LIVE_GATES_SKIPPED; LIVE_GATES_ALSO_SKIPPED_IN_CI_38266307217"
   },
   "completed_units": [
     {
@@ -219,6 +235,10 @@
     {
       "unit": "migration_0018_deadline_heartbeat_guard",
       "status": "PASS_HOSTED"
+    },
+    {
+      "unit": "research_model_resolution_primary_pin",
+      "status": "PASS_CODE_CI"
     },
     {
       "unit": "real_paid_deepseek_web_kernel_vertical",

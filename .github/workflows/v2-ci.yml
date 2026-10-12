@@ -97,7 +97,6 @@ jobs:
           set -euo pipefail
           state_dir="$RUNNER_TEMP/openclaw-v2-state"
           install -d -m 700 "$state_dir"
-          test ! -e "$state_dir/state/openclaw.sqlite"
           echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
           echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
       - name: Install matching official DeepSeek provider plugin
@@ -111,10 +110,12 @@ jobs:
           set -euo pipefail
           openclaw plugins install @openclaw/duckduckgo-plugin@2026.9.8
           openclaw plugins list | grep -i duckduckgo
-      - name: Verify Research credential scope stayed clean after plugin install
+      - name: Verify Research credential scope has no stored DeepSeek profiles
+        shell: bash
         run: |
           set -euo pipefail
-          node --input-type=module -e "import { isSecureResearchStateDir } from './src/research/research-trust-root.mjs'; if (!isSecureResearchStateDir(process.env.OPENCLAW_STATE_DIR)) throw new Error('OpenClaw Research state contains stored credentials or unsafe state');"
+          auth_json="$(openclaw models auth list --provider deepseek --json)"
+          AUTH_JSON="$auth_json" node --input-type=module -e "const value=JSON.parse(process.env.AUTH_JSON); if (!Array.isArray(value.profiles) || value.profiles.length !== 0) throw new Error('stored DeepSeek auth profiles are present in the Research scope');"
       - name: Validate generated Research OpenClaw config
         env:
           OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research.json

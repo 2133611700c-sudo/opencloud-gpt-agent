@@ -9,8 +9,7 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: write-all
 
 # Hosted Neon is shared state. Serialize all V2 CI runs so two live gates can
 # never pass the isolation pre-check concurrently and claim each other's task.

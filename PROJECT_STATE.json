@@ -4,9 +4,9 @@
   "updated_at": "2026-10-12",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
+  "verified_head": "2b75359a4bebd262540071733f87cf705259677b",
   "verified_code_head": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
-  "verified_ci_run_id": 38287719014,
+  "verified_ci_run_id": 38295293595,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,13 +18,13 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38287719014,
+    "ci_run_id": 38295293595,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
-  "current_phase_name": "First Real Research Agent + Web Skill",
+  "current_phase_name": "First Real Research Agent + Web Skill — PASS_LIVE; 48h Data/Result gate next",
   "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "REAL_PAID_RESEARCH_E2E_THEN_DATA",
+  "route_id": "PRODUCTION_DATA_THEN_EVIDENCE",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -45,7 +45,7 @@
     "07_atomic_budget_reservation_reconciliation": "PASS_HOSTED",
     "08_lite_dag_research_to_data": "PASS_CODE_CI_GATE_ONLY_DATA_NOT_PRODUCTION_RUNTIME",
     "09_real_deepseek_openclaw": "PASS_LIVE",
-    "10_real_native_web_search_fetch": "NOT_PROVEN",
+    "10_real_native_web_search_fetch": "PASS_LIVE",
     "11_structured_research_sources": "PASS_LIVE",
     "12_data_result_validation_dedupe_normalization": "NOT_BUILT",
     "13_llm_accounting": "PASS_LIVE",
@@ -53,7 +53,7 @@
     "15_phone_short_result_deep_log": "NOT_BUILT"
   },
   "acceptance_map": {
-    "01_positive_real_research_e2e_success": "NOT_PROVEN",
+    "01_positive_real_research_e2e_success": "PASS_LIVE",
     "02_duplicate_dispatch_one_task": "PASS_CODE_CI",
     "03_worker_crash_safe_continuation": "PASS_CODE_CI",
     "04_stale_fencing_token_zero_mutations": "PASS_HOSTED",
@@ -88,8 +88,8 @@
     "deepseek_paid_inference": "PASS_LIVE",
     "paid_live_accounting_linkage": "PASS_LIVE",
     "structured_research_with_official_sources": "PASS_LIVE",
-    "live_web_search_fetch": "NOT_PROVEN",
-    "live_kernel_research_gate": "NOT_PROVEN",
+    "live_web_search_fetch": "PASS_LIVE",
+    "live_kernel_research_gate": "PASS_LIVE",
     "paid_live_task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
     "paid_live_task_status": "SUCCESS",
     "paid_live_accounting": {
@@ -104,9 +104,14 @@
       "cost_usd": 0.002246
     },
     "paid_live_artifacts_count": 0,
-    "proof_limit": "Paid inference/accounting and structured official sources are directly evidenced in hosted Neon, but actual web_search + web_fetch telemetry is not durably persisted; acceptance #1 remains NOT_PROVEN."
+    "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows."
   },
   "latest_verified_innovations": [
+    {
+      "commit": "2b75359a4bebd262540071733f87cf705259677b",
+      "result": "PASS_CODE_CI",
+      "change": "Independent journal correction records acceptance #1 as PASS_LIVE from preserved fail-closed Vercel gate execution metadata correlated to hosted Neon; full CI 38295293595 succeeded."
+    },
     {
       "commit": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
       "result": "PASS_HOSTED",
@@ -115,33 +120,22 @@
     {
       "commit": "5dc127f8c1346c2be8e432284254047c64680753",
       "result": "PASS_LIVE",
-      "change": "Real paid DeepSeek Research execution reached hosted terminal SUCCESS with linked observed accounting; durable web-tool telemetry still needs a proving rerun."
+      "change": "Real paid DeepSeek/OpenClaw Research execution reached hosted terminal SUCCESS with web_search + web_fetch gate checks, official required-domain provenance and linked observed accounting."
     }
   ],
   "known_gaps": {
-    "full_research_e2e_with_durable_web_tool_evidence": "NOT_PROVEN",
     "data_result_runtime": "NOT_BUILT",
     "durable_evidence_bundle": "NOT_BUILT",
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38287719014_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38287719014_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38295293595_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38295293595_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
     "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
   },
-  "forbidden_until_live_research_pass": [
-    "production_data_result_runtime",
-    "durable_evidence_feature_layer",
-    "phone_ux",
-    "browser_runtime",
-    "vision_ocr_pdf",
-    "full_71_agent_scaleout",
-    "full_311_skill_scaleout",
-    "broad_architecture_refactors",
-    "speculative_hardening_not_on_current_gate"
-  ],
+  "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "Execute one real paid hosted Research rerun that durably proves actual web_search and web_fetch telemetry, required official-domain provenance, exactly one accounting row, zero unresolved reservations, Research SUCCESS and terminal task SUCCESS. Do not start production Data until acceptance #1 becomes PASS_LIVE.",
-  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/CI -> direct hosted Neon reality before any write. One micro-step at a time; no Data/evidence/phone work until acceptance #1 PASS_LIVE."
+  "next_action": "Build only the production Data/Result runtime required by 48h item #12: deterministic schema validation, normalization, deduplication, required-field enforcement, source integrity and deterministic structured output. Run focused tests and full CI. Do not start Evidence, phone UX or GitHub dispatch until Data is PASS_CODE_CI.",
+  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/CI -> direct hosted Neon reality before any write. One gate at a time; production Data is now the next allowed implementation gate."
 }

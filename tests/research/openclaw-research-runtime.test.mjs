@@ -20,6 +20,7 @@ test('research config exposes only web_search and web_fetch and disables private
   assert.equal(config.agents.defaults.model.primary, 'deepseek/deepseek-flash');
   assert.deepEqual(config.agents.defaults.model.fallbacks, []);
   assert.equal(config.agents.defaults.utilityModel, '');
+  assert.equal(config.tools.toolSearch, false);
   assert.deepEqual(config.tools.allow, ['web_search', 'web_fetch']);
   assert.equal(config.tools.web.search.provider, 'duckduckgo');
   assert.equal(config.tools.web.search.cacheTtlMinutes, 0);

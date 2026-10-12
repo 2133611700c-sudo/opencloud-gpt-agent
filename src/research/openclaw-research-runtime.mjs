@@ -45,6 +45,7 @@ export function buildResearchOpenClawConfig({
       }),
     }),
     tools: Object.freeze({
+      toolSearch: false,
       allow: Object.freeze(['web_search', 'web_fetch']),
       web: Object.freeze({
         search: Object.freeze({

@@ -4,6 +4,7 @@ import {
   ResearchTrustRootError,
   runResearchAgent,
 } from './research-agent-runner.mjs';
+import { verifyNoStoredDeepSeekAuth } from './research-auth-scope.mjs';
 import { createResearchKernelExecutor } from './research-kernel-bindings.mjs';
 import { isSecureResearchStateDir } from './research-trust-root.mjs';
 import { createResearchWorker } from './research-worker.mjs';
@@ -28,13 +29,14 @@ const requireInteger = (value, name, min, max) => {
 };
 
 const preflightNativeResearchRuntime = ({ runResearchImpl, env }) => {
-  if (runResearchImpl !== runResearchAgent) return;
+  if (runResearchImpl !== runResearchAgent) return false;
   if (typeof env?.DEEPSEEK_API_KEY !== 'string' || env.DEEPSEEK_API_KEY.trim() === '') {
     throw new MissingResearchCredentialError();
   }
   if (!isSecureResearchStateDir(env?.OPENCLAW_STATE_DIR)) {
     throw new ResearchTrustRootError();
   }
+  return true;
 };
 
 /**
@@ -55,10 +57,12 @@ export function createProductionResearchWorker({
   researchEnv = process.env,
   researchConfigOptions = {},
   runResearchImpl = runResearchAgent,
+  verifyAuthScopeImpl = verifyNoStoredDeepSeekAuth,
 } = {}) {
   requireFn(query, 'query');
   requireFn(estimateReservation, 'estimateReservation');
   requireFn(runResearchImpl, 'runResearchImpl');
+  requireFn(verifyAuthScopeImpl, 'verifyAuthScopeImpl');
   requireText(workerId, 'workerId');
   requireText(pricingVersion, 'pricingVersion');
   if (typeof model !== 'string' || !/^deepseek\/[A-Za-z0-9._:-]+$/.test(model)) {
@@ -76,8 +80,9 @@ export function createProductionResearchWorker({
   }
 
   // Do not claim/fail a durable node merely because the live runtime is misconfigured.
-  // Native credential/trust-root prerequisites are validated before worker construction.
-  preflightNativeResearchRuntime({ runResearchImpl, env: researchEnv });
+  // Static credential/trust-root prerequisites are validated before worker construction;
+  // stored-auth state is rechecked immediately before every durable claim.
+  const usesNativeResearch = preflightNativeResearchRuntime({ runResearchImpl, env: researchEnv });
 
   const kernel = createPostgresKernelAdapter({ query });
   const executeKernelResearch = createResearchKernelExecutor({
@@ -97,10 +102,19 @@ export function createProductionResearchWorker({
 
   const executeResearch = ({ claim, request }) => executeKernelResearch({ claim, request, model });
   const worker = createResearchWorker({ kernel, executeResearch, workerId, leaseSeconds });
+  const verifyBeforeClaim = async () => {
+    if (usesNativeResearch) await verifyAuthScopeImpl({ env: researchEnv });
+  };
 
   return Object.freeze({
-    runOnce: worker.runOnce,
-    runTask: worker.runTask,
+    runOnce: async () => {
+      await verifyBeforeClaim();
+      return worker.runOnce();
+    },
+    runTask: async (taskId) => {
+      await verifyBeforeClaim();
+      return worker.runTask(taskId);
+    },
     model,
     workerId,
   });

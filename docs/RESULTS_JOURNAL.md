@@ -593,3 +593,59 @@ Investigator/skeptic agreement: two new transformer/test files; finite plain JSO
 Verification: focused Data tests -> full Node suite -> full exact GitHub CI. Then hand off to D3; no automatic conversational pause is required when the next authorized gate is clear and the previous evidence is accepted.
 
 Do not build Evidence, phone UX or dispatch until D4 proves complete production Data. Do not detour into browser/Vision/OCR/PDF, broad refactors, full 71-agent/311-skill activation or unneeded Research redesign. Authorized credential preparation is separate and cannot advance a functional gate or convert `SKIPPED` to PASS.
+
+---
+
+## JRNL-2026-10-13-002 — D2 normalization/dedupe independently verified
+
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified implementation HEAD before this checkpoint:** `9205d4b2d839b70927e174a09a2f85a7e6606357`  
+**Parent governance baseline:** `97049ec12970de14401a23508c317619d25ee040`, exact full CI `38325184980` `SUCCESS`  
+**Exact D2 full CI:** `38325890102` — `SUCCESS`  
+**Independently inspected CI job:** `115064339732` — completed `success`, no failed steps
+
+### Route Card and implementation
+
+48h parent: scope #12 Data/Result validation/dedup/normalization. D1 was already `PASS_CODE_CI`; the observed gap was absence of the production deterministic transformer.
+
+Invariant: valid Research SUCCESS input produces deterministic canonical Data output; duplicates are removed using full normalized record content and provenance; required-field values and source linkage remain valid; no LLM call occurs.
+
+The sole Data writer added only:
+
+- `src/data/data-transformer.mjs`;
+- `tests/data/data-transformer.test.mjs`.
+
+The transformer rejects non-finite/non-plain/non-JSON input, cycles, sparse/extra array properties, accessors and unsupported hidden properties before lossy cloning. It normalizes declared contract strings and URL representation while preserving data strings/keys/array order and URL query/fragment semantics. Source/item duplicates use the whole normalized record except id, including provenance; minimum-codepoint ids choose stable representatives. References are aliased/remapped/unique/sorted and source/item ordering is stable. False/zero, valid record extras, unused sources and differing provenance are retained. The implementation imports only the D1 contract and performs no database mutation or provider/tool call.
+
+### Actual parallel agent handoffs and verification
+
+- `data_investigator` and `data_skeptic` compared canonicalization, provenance and JSON-boundary semantics before the writer was assigned.
+- `root` handed the agreed invariant and exact governance baseline to sole writer `data_implementer`.
+- The writer returned the two-file implementation and focused D1+D2 evidence: `29` executed cases (`8` D1 + `21` D2), all passed.
+- `root` reviewed source/tests and ran the full suite with `node --test --test-isolation=none --test-concurrency=1` over an explicit `34`-file list: `201` passed, `0` failed, `0` skipped; foundation/health checks passed. These are executed case totals, not file-wrapper counts.
+- `data_skeptic` independently executed `140` assertions, including `100` seeded input permutations, and reported no invariant violation.
+- `root` published implementation `9205d4b2d839b70927e174a09a2f85a7e6606357` using the exact expected parent HEAD. `data_readonly_review` independently read the published files and exact CI job/steps before receiving recorder GO.
+- `verification_engineer` is assigned the next real PostgreSQL integration lane; its future D3 execution is not claimed as completed here.
+
+Reviewed file fingerprints:
+
+- transformer SHA256: `b94e1d56209593c64a4f0e6f85fc6079329836363974eb889bdf001416dbcf09`;
+- tests SHA256: `0d73d5f8c894ef74137077125ccb44fb625a8defac107030c16cc9ebe42bfc68`.
+
+**D2 result: `PASS_CODE_CI`.** D1 remains `PASS_CODE_CI`; D3 is `NOT_BUILT`; D4 and complete scope #12 remain `NOT_PROVEN`.
+
+### Negative evidence and external limits
+
+Exact D2 CI succeeded for checkout, machine identity, foundation, Node tests, health, migrations, SQL assertions, PostgreSQL Research E2E, pinned OpenClaw/DeepSeek/DuckDuckGo installation, credential-scope check and configuration validation. Five conditional steps were `SKIPPED`: hosted Neon persistence, live Kernel Research, its upload, live DeepSeek smoke and its upload. These are not hosted/live proof.
+
+No new hosted mutation or paid call was made for D2. The last fresh hosted read-only inspection remains `2026-10-12T23:57:30.163Z` with clean counts; this checkpoint does not invent a newer hosted check. Existing Research `PASS_LIVE` retains its earlier evidence. Durable Evidence/phone/dispatch remain `NOT_BUILT`.
+
+Root additionally verified that GitHub Actions secret public-key access returned HTTP `403`, `Resource not accessible by integration`, and branch-protection API access returned HTTP `403` despite network access. These configuration actions are `BLOCKED` by integration permissions; permanent machine credential plumbing remains `NOT_PROVEN`. No key/password/connection value is recorded or requested again. The infrastructure blocker does not invalidate D2 or divert the next Data code gate into browser login.
+
+### Route decision
+
+**Next functional gate: D3 Data Kernel runtime only.**
+
+D3 Route Card: scope #8/#12; acceptance #4/#6/#7. Claim only the assigned Data agent/task. Read the successful Research parent from the same dependency/task under an active lease/fencing token and parent task deadline; obtain required fields from the authoritative immutable task request. Execute production Data, maintain heartbeat, stop on ownership loss, use fenced success/failure and preserve cleanup/finalization. No LLM call.
+
+Verification: unit/negative adapter tests -> real ephemeral PostgreSQL E2E -> full exact GitHub CI. Managed ephemeral PostgreSQL is local integration evidence, not hosted Neon. Do not start D4 until D3 is accepted; Evidence/Phone/Dispatch feature work waits until complete Data #12 passes. No Research redesign, browser/Vision/PDF expansion, broad refactor or catalog activation.

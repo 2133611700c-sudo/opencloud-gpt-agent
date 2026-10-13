@@ -333,3 +333,15 @@ A capability is not READY until all applicable answers are YES:
 - Use reviewer lanes to challenge the plan before implementation.
 - Make the smallest fix that restores the invariant, prove it through the verification ladder, record the result, then continue.
 - A RED gate is useful evidence and must be diagnosed, not bypassed. A GREEN gate is meaningful only for the exact layer it actually executed.
+
+
+## 2026-10-13
+
+### D2 production Data normalization/deduplication [PASS_CODE_CI]
+
+- Implementation: `9205d4b2d839b70927e174a09a2f85a7e6606357`; exact full CI `38325890102` `SUCCESS`, independently inspected job `115064339732` completed success without failed steps.
+- Added `src/data/data-transformer.mjs` and `tests/data/data-transformer.test.mjs` only. Finite plain JSON boundary, declared-field normalization, provenance-sensitive duplicate identity, minimum-codepoint representatives, source alias remapping and stable ordering are verified; no LLM call or database mutation.
+- Actual handoff: investigator/skeptic agreement -> root -> sole `data_implementer` -> root full review/verification -> independent `data_skeptic` checks -> exact CI -> recorder. Focused D1+D2 cases `29/29`; full explicit 34-file local run `201` passed, zero failed/skipped; independent assertions `140`, including `100` seeded permutations. Details/fingerprints live in journal `JRNL-2026-10-13-002`.
+- All five credential-dependent hosted/live/upload CI steps were `SKIPPED`. No new paid/hosted proof is inferred; previous hosted inspection timestamp and Research live proof remain historical.
+- GitHub secret-public-key and branch-protection configuration API actions returned HTTP 403 and remain `BLOCKED`; continuous machine credentials are `NOT_PROVEN`. These access limits do not derail deterministic Data development.
+- Complete Data scope #12 remains `NOT_PROVEN`; D3 fenced Data Kernel runtime is next, followed by D4 production vertical. Evidence/phone/dispatch remain unbuilt. Use `START_HERE.md` boot order and `docs/03_48H_EXECUTION_GATES.md`; the older SYSTEM-first protocol sentence above remains superseded.

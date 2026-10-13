@@ -4,9 +4,9 @@
   "updated_at": "2026-10-13",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "8c3ec70172d8c136b29a5dda853190af447e3908",
-  "verified_code_head": "fbbf05d7d7a016805353924b06732d0bacf39b81",
-  "verified_ci_run_id": 38323842573,
+  "verified_head": "9205d4b2d839b70927e174a09a2f85a7e6606357",
+  "verified_code_head": "9205d4b2d839b70927e174a09a2f85a7e6606357",
+  "verified_ci_run_id": 38325890102,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,11 +18,11 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38323842573,
+    "ci_run_id": 38325890102,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
-  "current_phase_name": "First Real Research Agent + Web Skill — PASS_LIVE; production Data D1 PASS_CODE_CI, D2 next",
+  "current_phase_name": "First Real Research Agent + Web Skill — PASS_LIVE; production Data D1/D2 PASS_CODE_CI, D3 next",
   "walking_skeleton_gate": "IN_PROGRESS",
   "route_id": "PRODUCTION_DATA_THEN_EVIDENCE",
   "truth_labels": [
@@ -112,6 +112,16 @@
   },
   "latest_verified_innovations": [
     {
+      "commit": "9205d4b2d839b70927e174a09a2f85a7e6606357",
+      "result": "PASS_CODE_CI",
+      "change": "D2 finite plain JSON normalization/dedupe with provenance-sensitive record identity, minimum codepoint representatives and stable remapped references. Exact full CI 38325890102 succeeded; complete Data scope #12 remains NOT_PROVEN."
+    },
+    {
+      "commit": "97049ec12970de14401a23508c317619d25ee040",
+      "result": "PASS_CODE_CI",
+      "change": "D1/state/journal reconciliation and remaining execution-gate route published; exact full CI 38325184980 succeeded. Hosted/live conditional steps remained SKIPPED."
+    },
+    {
       "commit": "8c3ec70172d8c136b29a5dda853190af447e3908",
       "result": "PASS_CODE_CI",
       "change": "Historical ChatGPT project archive is readable; exact archive CI 38323842573 succeeded. Archive completeness limits are explicit; current GitHub/CI remains authoritative."
@@ -143,18 +153,18 @@
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38323842573_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38323842573_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38325890102_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38325890102_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
     "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
   },
   "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "D2 only: implement deterministic production Data normalization and deduplication preserving required-field values, stable ordering and source integrity with no LLM calls. Focused unit tests -> full Node suite -> full exact GitHub CI. After D2 PASS_CODE_CI continue D3 and D4 sequentially; Evidence, phone UX and GitHub dispatch feature work wait until complete production Data PASS_CODE_CI.",
-  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. Read docs/03_48H_EXECUTION_GATES.md for the remaining gated route. One feature gate at a time; D1 is complete and D2 is next.",
+  "next_action": "D3 only: build a data-agent-scoped Kernel runtime that reads the successful Research parent belonging to the same task/node dependency under an active fence and task deadline. Obtain required fields from the authoritative immutable task request. Transform with production Data and use heartbeat/fenced completion or terminal failure with cleanup/finalization; no LLM calls. Verify unit/negative tests -> real PostgreSQL E2E -> full exact GitHub CI. Complete Data scope #12 remains NOT_PROVEN until D4; Evidence, phone UX and dispatch wait.",
+  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. Follow docs/03_48H_EXECUTION_GATES.md one feature gate at a time. D1/D2 are PASS_CODE_CI; D3 is next. Keep external SKIPPED and infrastructure access blockers separate from proven code/live history.",
   "scope_notes_48h": {
     "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
-    "12_data_result_validation_dedupe_normalization": "D1 contract is PASS_CODE_CI; normalization/dedupe, Data Kernel runtime and production Data vertical remain unproven."
+    "12_data_result_validation_dedupe_normalization": "D1 validation contract and D2 deterministic normalization/deduplication are PASS_CODE_CI. D3 Data Kernel runtime is NOT_BUILT and D4 production Data vertical is NOT_PROVEN; complete scope #12 remains NOT_PROVEN."
   },
   "data_subgates": {
     "D1_contract": {
@@ -163,7 +173,26 @@
       "ci_run_id": 38302547362
     },
     "D2_normalization_dedupe": {
-      "status": "NOT_BUILT"
+      "status": "PASS_CODE_CI",
+      "commit": "9205d4b2d839b70927e174a09a2f85a7e6606357",
+      "ci_run_id": 38325890102,
+      "files": [
+        "src/data/data-transformer.mjs",
+        "tests/data/data-transformer.test.mjs"
+      ],
+      "focused_cases": {
+        "data_contract": 8,
+        "data_transformer": 21,
+        "total": 29
+      },
+      "independent_review": {
+        "agent": "data_skeptic",
+        "assertions": 140,
+        "seeded_permutations": 100
+      },
+      "source_sha256": "b94e1d56209593c64a4f0e6f85fc6079329836363974eb889bdf001416dbcf09",
+      "tests_sha256": "0d73d5f8c894ef74137077125ccb44fb625a8defac107030c16cc9ebe42bfc68",
+      "note": "Pure deterministic finite-plain-JSON transformer; no LLM call or database mutation. Required values, source provenance and stable representative/reference ordering preserved."
     },
     "D3_kernel_runtime": {
       "status": "NOT_BUILT"
@@ -172,16 +201,31 @@
       "status": "NOT_PROVEN"
     }
   },
-  "evidence_scope_note": "Lane hosted_inspector performed a fresh read-only hosted check at 2026-10-12T23:57:30.163Z: zero active tasks, RUNNING nodes, unresolved reservations and artifacts; deployed active-lease guards inspected. Previously proven Research/behavioral hosted gates retain their historical evidence. This reconciliation performs no new paid run or hosted mutation; exact archive CI 38323842573 hosted/live conditional steps remain SKIPPED.",
+  "evidence_scope_note": "Exact D2 full CI 38325890102 succeeded with no failed steps; five hosted/live/upload conditional steps were SKIPPED. Local/root and independent reviewer evidence prove D2 only. No new paid run or hosted mutation occurred. The last hosted read-only check remains 2026-10-12T23:57:30.163Z; earlier Research PASS_LIVE and hosted behavioral gates retain their recorded evidence.",
   "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
   "execution_lanes": {
     "coordinator_and_publisher": "root",
     "investigator": "data_investigator",
     "independent_specialist": "data_skeptic",
-    "data_writer": "data_implementer (assigned when D2 begins)",
+    "data_writer": "data_implementer (D2 executed; sole assigned Data writer)",
     "verifier": "verification_engineer",
     "hosted_inspector": "hosted_inspector",
     "recorder": "data_readonly_review",
-    "note": "Named actual coordinator/review/verification/inspection/recorder lanes. Future data_implementer is not yet execution proof. Seven available concurrency slots are capacity, not seven permanently active agents or distinct model certifications."
+    "note": "Actual D2 investigator/skeptic/writer/coordinator/verifier/recorder handoffs are recorded in the journal. Seven concurrency slots are capacity, not seven permanently active agents or distinct model certifications."
+  },
+  "infrastructure_access_blockers": {
+    "github_actions_secret_public_key": {
+      "status": "BLOCKED",
+      "http_status": 403,
+      "reason": "Resource not accessible by integration",
+      "verified_by": "root",
+      "note": "Authorization from the user does not grant the installed integration missing API permissions; no credential values are recorded."
+    },
+    "github_branch_protection_api": {
+      "status": "BLOCKED",
+      "http_status": 403,
+      "verified_by": "root",
+      "note": "Observed integration access denial. Protection remains unconfigured; this does not block the next Data code gate."
+    }
   }
 }

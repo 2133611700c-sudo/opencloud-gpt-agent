@@ -4,9 +4,9 @@
   "updated_at": "2026-10-13",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "9205d4b2d839b70927e174a09a2f85a7e6606357",
-  "verified_code_head": "9205d4b2d839b70927e174a09a2f85a7e6606357",
-  "verified_ci_run_id": 38325890102,
+  "verified_head": "35900bc5ac499a7c3c0d787c71a40935b3dbf3fa",
+  "verified_code_head": "35900bc5ac499a7c3c0d787c71a40935b3dbf3fa",
+  "verified_ci_run_id": 38391284569,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,11 +18,11 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38325890102,
+    "ci_run_id": 38391284569,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
-  "current_phase_name": "First Real Research Agent + Web Skill — PASS_LIVE; production Data D1/D2 PASS_CODE_CI, D3 next",
+  "current_phase_name": "First Real Research Agent + Web Skill — PASS_LIVE; production Data D1/D2/D3 PASS_CODE_CI, D4 next",
   "walking_skeleton_gate": "IN_PROGRESS",
   "route_id": "PRODUCTION_DATA_THEN_EVIDENCE",
   "truth_labels": [
@@ -78,10 +78,11 @@
       "complete_node_success_active_lease_guard_0019_present": true,
       "requeue_node_retry_active_lease_guard_0019_present": true,
       "verification_child_branch_id": "br-wandering-fire-a4vhwmd6",
-      "observed_at": "2026-10-12T23:57:30.163Z",
+      "observed_at": "2026-10-13T11:36:55.060Z",
       "total_artifacts": 0,
       "fail_node_terminal_active_lease_guard_present": true,
-      "check_scope": "Fresh read-only hosted counts and deployed guard inspection; no new behavioral write test or paid call. Verification child id retains historical provenance."
+      "check_scope": "Fresh hosted read-only counts at observed_at only; guard booleans and verification child id retain earlier inspection/behavioral provenance. No new hosted mutation, behavioral write test or paid provider execution.",
+      "guard_inspection_observed_at": "2026-10-12T23:57:30.163Z"
     }
   },
   "live_capabilities": {
@@ -111,6 +112,16 @@
     "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows."
   },
   "latest_verified_innovations": [
+    {
+      "commit": "35900bc5ac499a7c3c0d787c71a40935b3dbf3fa",
+      "result": "PASS_CODE_CI",
+      "change": "D3 production Data worker/adapter and real PostgreSQL E2E proved scoped ownership, guarded dependency/request authority, active-fence/deadline writes, terminalization and zero Data spend. Exact full CI 38391284569 succeeded, including new Data E2E."
+    },
+    {
+      "commit": "897ec28c38ac6fd66ecb0e732676a86a56997e72",
+      "result": "PASS_CODE_CI",
+      "change": "D2 accepted state/journal/log checkpoint published; exact full CI 38326462023 succeeded. Five hosted/live/upload conditional steps remained SKIPPED."
+    },
     {
       "commit": "9205d4b2d839b70927e174a09a2f85a7e6606357",
       "result": "PASS_CODE_CI",
@@ -148,23 +159,24 @@
     }
   ],
   "known_gaps": {
-    "data_result_runtime": "NOT_BUILT",
+    "data_result_runtime": "NOT_PROVEN",
     "durable_evidence_bundle": "NOT_BUILT",
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38325890102_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38325890102_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38391284569_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38391284569_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
-    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
+    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING",
+    "data_result_runtime_note": "D3 production Kernel runtime is PASS_CODE_CI; D4 production vertical and complete scope #12 remain NOT_PROVEN."
   },
   "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "D3 only: build a data-agent-scoped Kernel runtime that reads the successful Research parent belonging to the same task/node dependency under an active fence and task deadline. Obtain required fields from the authoritative immutable task request. Transform with production Data and use heartbeat/fenced completion or terminal failure with cleanup/finalization; no LLM calls. Verify unit/negative tests -> real PostgreSQL E2E -> full exact GitHub CI. Complete Data scope #12 remains NOT_PROVEN until D4; Evidence, phone UX and dispatch wait.",
-  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. Follow docs/03_48H_EXECUTION_GATES.md one feature gate at a time. D1/D2 are PASS_CODE_CI; D3 is next. Keep external SKIPPED and infrastructure access blockers separate from proven code/live history.",
+  "next_action": "D4 only: prove production Research structured output through the actual Data worker/transformer, persist schema-valid canonical deduplicated sourced Data, and verify authoritative task terminalization. Replace gate-only deterministic Data completion in the production proof path. Run focused/negative checks and full exact GitHub CI; check hosted/live layers directly when used. Keep complete #12 NOT_PROVEN until D4 acceptance; Evidence/phone/dispatch feature work waits. Preserve runtime pin, existing Research proof and infrastructure permission limits.",
+  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. Follow docs/03_48H_EXECUTION_GATES.md one feature gate at a time. D1/D2/D3 are PASS_CODE_CI; D4 is next. External SKIPPED remains non-proof and overall Walking Skeleton remains IN_PROGRESS.",
   "scope_notes_48h": {
     "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
-    "12_data_result_validation_dedupe_normalization": "D1 validation contract and D2 deterministic normalization/deduplication are PASS_CODE_CI. D3 Data Kernel runtime is NOT_BUILT and D4 production Data vertical is NOT_PROVEN; complete scope #12 remains NOT_PROVEN."
+    "12_data_result_validation_dedupe_normalization": "D1 validation, D2 deterministic transformer and D3 fenced Data Kernel runtime are PASS_CODE_CI. D4 production vertical and complete scope #12 remain NOT_PROVEN."
   },
   "data_subgates": {
     "D1_contract": {
@@ -195,23 +207,46 @@
       "note": "Pure deterministic finite-plain-JSON transformer; no LLM call or database mutation. Required values, source provenance and stable representative/reference ordering preserved."
     },
     "D3_kernel_runtime": {
-      "status": "NOT_BUILT"
+      "status": "PASS_CODE_CI",
+      "commit": "35900bc5ac499a7c3c0d787c71a40935b3dbf3fa",
+      "ci_run_id": 38391284569,
+      "ci_job_id": 115275425642,
+      "files": [
+        "src/data/data-worker.mjs",
+        "src/data/postgres-data-adapter.mjs",
+        "tests/data/data-worker.test.mjs",
+        "tests/data/postgres-data-adapter.test.mjs",
+        "tests/integration/data-postgres-kernel-e2e.mjs",
+        ".github/workflows/v2-ci.yml"
+      ],
+      "local_verification": {
+        "full_unit_cases_passed": 222,
+        "focused_data_cases_passed": 50,
+        "independent_assertions": 81,
+        "postgres_major_version": 16,
+        "migrations_applied": 19,
+        "sql_assertion_files_passed": 16,
+        "research_postgres_exit_code": 0,
+        "data_postgres_session_id": 75514,
+        "data_postgres_exit_code": 0
+      },
+      "note": "Data-only scoped claims, same-task successful Research dependency, authoritative task request fields, active-fence/deadline guarded input, heartbeat/fenced completion/failure, separate node/task status and sanitized errors. Local/CI PostgreSQL integration; no LLM call or hosted mutation."
     },
     "D4_production_vertical": {
       "status": "NOT_PROVEN"
     }
   },
-  "evidence_scope_note": "Exact D2 full CI 38325890102 succeeded with no failed steps; five hosted/live/upload conditional steps were SKIPPED. Local/root and independent reviewer evidence prove D2 only. No new paid run or hosted mutation occurred. The last hosted read-only check remains 2026-10-12T23:57:30.163Z; earlier Research PASS_LIVE and hosted behavioral gates retain their recorded evidence.",
+  "evidence_scope_note": "Exact D3 full CI 38391284569 succeeded, including PostgreSQL Data execution E2E, with five hosted/live/upload conditional steps SKIPPED. D3 is PASS_CODE_CI only; D4 and complete #12 remain NOT_PROVEN. Local PostgreSQL16 and isolated fixture Research results do not prove hosted/live execution. Fresh hosted counts at 2026-10-13T11:36:55.060Z are 0 active tasks/0 RUNNING nodes/0 unresolved reservations/0 artifacts; previous guard/Research live evidence retains its historical provenance.",
   "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
   "execution_lanes": {
     "coordinator_and_publisher": "root",
     "investigator": "data_investigator",
     "independent_specialist": "data_skeptic",
-    "data_writer": "data_implementer (D2 executed; sole assigned Data writer)",
-    "verifier": "verification_engineer",
+    "data_writer": "root (sole D3 feature writer/reviewer after quota interruption)",
+    "verifier": "verification_engineer (read-only full unit/foundation/health/review)",
     "hosted_inspector": "hosted_inspector",
     "recorder": "data_readonly_review",
-    "note": "Actual D2 investigator/skeptic/writer/coordinator/verifier/recorder handoffs are recorded in the journal. Seven concurrency slots are capacity, not seven permanently active agents or distinct model certifications."
+    "note": "Root owned all final D3 source edits, Docker/PostgreSQL execution and publication. After quota interruption data_skeptic separately resumed final D3 review: 81 independent assertions and 50 focused Data cases with matching final fingerprints. verification_engineer remained read-only for the full unit/foundation/health/review lane and performed no Docker operation. Actual roles do not imply distinct model identities or all-catalog readiness."
   },
   "infrastructure_access_blockers": {
     "github_actions_secret_public_key": {
@@ -226,6 +261,32 @@
       "http_status": 403,
       "verified_by": "root",
       "note": "Observed integration access denial. Protection remains unconfigured; this does not block the next Data code gate."
+    }
+  },
+  "execution_recovery": {
+    "d3": {
+      "interrupted_agents": [
+        "data_implementer",
+        "data_skeptic"
+      ],
+      "error": "AGENT_USAGE_LIMIT",
+      "classification": "Agent quota/infrastructure failure, not a reproduced code failure",
+      "owner_after_interruption": "root (sole feature writer/final source edits, Docker/PostgreSQL operator and publisher)",
+      "local_files_survived": true,
+      "verified_checkpoint_before_publication": "897ec28c38ac6fd66ecb0e732676a86a56997e72",
+      "resumed_independent_review": {
+        "agent": "data_skeptic",
+        "completed": true,
+        "assertions": 81,
+        "focused_data_cases": 50,
+        "final_fingerprint_match": true
+      }
+    },
+    "local_postgres": {
+      "responsible_lane": "root",
+      "aborted_action": "Initial stalled/aborted filesystem Docker socket permission request; no verifier Docker operation executed",
+      "recovery": "Root used authorized network-only Docker28.4, created isolated PostgreSQL16 container, applied migrations/SQL and ran Research/Data PostgreSQL integration. verification_engineer remained read-only for unit/foundation/health/review.",
+      "scope": "Local integration, not hosted Neon"
     }
   }
 }

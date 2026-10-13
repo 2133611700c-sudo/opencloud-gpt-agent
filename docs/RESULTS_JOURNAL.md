@@ -649,3 +649,75 @@ Root additionally verified that GitHub Actions secret public-key access returned
 D3 Route Card: scope #8/#12; acceptance #4/#6/#7. Claim only the assigned Data agent/task. Read the successful Research parent from the same dependency/task under an active lease/fencing token and parent task deadline; obtain required fields from the authoritative immutable task request. Execute production Data, maintain heartbeat, stop on ownership loss, use fenced success/failure and preserve cleanup/finalization. No LLM call.
 
 Verification: unit/negative adapter tests -> real ephemeral PostgreSQL E2E -> full exact GitHub CI. Managed ephemeral PostgreSQL is local integration evidence, not hosted Neon. Do not start D4 until D3 is accepted; Evidence/Phone/Dispatch feature work waits until complete Data #12 passes. No Research redesign, browser/Vision/PDF expansion, broad refactor or catalog activation.
+
+---
+
+## JRNL-2026-10-13-003 — D3 fenced Data Kernel runtime verified
+
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified implementation HEAD before this checkpoint:** `35900bc5ac499a7c3c0d787c71a40935b3dbf3fa`  
+**Parent accepted D2 checkpoint:** `897ec28c38ac6fd66ecb0e732676a86a56997e72`, exact full CI `38326462023` `SUCCESS`  
+**Exact D3 full CI:** `38391284569` — `SUCCESS`  
+**Independently inspected CI job:** `115275425642` — completed `success`, no failed steps
+
+### D3 Route Card and actual implementation
+
+48h parents: scope #8/#12. Acceptance: #4 stale fencing, #6 dependency, #7 failure cascade. D2 was already `PASS_CODE_CI`; the observed gap was absence of the production Data Kernel worker and guarded dependency-input adapter.
+
+The six-file change adds:
+
+- `src/data/data-worker.mjs`;
+- `src/data/postgres-data-adapter.mjs`;
+- `tests/data/data-worker.test.mjs`;
+- `tests/data/postgres-data-adapter.test.mjs`;
+- `tests/integration/data-postgres-kernel-e2e.mjs`;
+- one Data PostgreSQL E2E step in `.github/workflows/v2-ci.yml`.
+
+No migration, new model/tool, Research redesign or secret-management change is included.
+
+The worker claims only Data and supports exact task-scoped claims. It validates owner/task/UUID fence, renews before input and completion, stops mutations on heartbeat/ownership loss, transforms synchronously and validates output before fenced success. The adapter reads exactly one successful Research parent in the same dependency/task under a RUNNING Data node, correct agent/node/source binding, owner/token, unexpired lease and active task deadline. Required fields come from `tasks.request_payload`; malformed types remain visible to validation, while nullish fields retain the existing empty-requirements compatibility rule.
+
+Validation/runtime failures use canonical fenced terminalization with sanitized error metadata. Rejected/uncertain failure persistence is surfaced. After accepted node completion the worker reports `nodeStatus` separately from authoritative finalized `taskStatus`: a deadline/cancellation race or finalizer error cannot downgrade an already successful node. Heartbeat timers stop before finalization. Data has no accounting/reservation API and makes no LLM call.
+
+### Actual agent handoffs and recovery
+
+The initial `data_implementer` and `data_skeptic` lanes encountered `AGENT_USAGE_LIMIT`. Root explicitly interrupted them and assumed sole D3 feature writer/final-review ownership. These were quota/infrastructure failures, not code-test failures. A brief execution-tool outage did not lose the six local files or overwrite the verified checkpoint.
+
+`verification_engineer` performed no Docker operation. The initial filesystem Docker-socket permission request stalled/aborted; `root` used the authorized network-only Docker 28.4 path, created the isolated PostgreSQL 16 container, applied migrations/SQL and ran both PostgreSQL E2E checks. The verifier's final responsibility was read-only full unit/foundation/health/review. Docker availability itself was never called hosted proof. The recorder did not duplicate operations.
+
+Real handoffs were: agreed investigator/skeptic contract -> initial writer -> root takeover/final source edits -> resumed independent specialist review and verifier read-only checks -> root Docker/SQL/PostgreSQL execution and publication/exact CI -> independent recorder inspection. `data_skeptic` separately resumed the final D3 review after the quota interruption and completed `81` independent assertions plus `50` focused Data cases with matching final source/test fingerprints. This was an actual completed specialist review, independent of root's feature/Docker/publication ownership. Existing D2 independent `140`-assertion/`100`-permutation proof remains intact; that in-memory harness is preserved in tool transcript only and is finite representative fuzz, not exhaustive proof.
+
+### Verification evidence
+
+- Full meaningful local Node suite: `222/222` passed, zero failures.
+- Focused Data cases: `50/50` passed.
+- Independent specialist assertions: `81` passed, as reported to root.
+- Isolated PostgreSQL `16`: all `19` migrations applied, `16` SQL assertion files passed.
+- Existing Research PostgreSQL E2E: exit `0`.
+- Data PostgreSQL E2E: session `75514`, exit `0`.
+- Exact full CI `38391284569`: all code steps succeeded, including new `Run PostgreSQL Data execution E2E` step `14`; independent job inspection found no failed steps.
+
+The Data PostgreSQL harness checks dependency blocking, guarded task/owner/token reads, authoritative required fields, malformed payload/requirements, wrong or absent source dependency, real persisted transform/dedupe output, sanitized runtime/validation failure, stale/expired fencing and safe reclaim, deadline before execution and after node completion, upstream failure cascade, repeated invocation returning IDLE, and zero Data accounting/reservations/tokens/cost. It uses isolated `openclaw_v2_test` and fixture Research output; it is not a paid provider/web test.
+
+**D3 result: `PASS_CODE_CI`.** D1/D2 remain `PASS_CODE_CI`. D4 and complete scope #12 remain `NOT_PROVEN`; overall Walking Skeleton remains `IN_PROGRESS`.
+
+### Hosted observations and negative evidence
+
+Fresh direct read-only Neon counts at `2026-10-13T11:36:55.060Z`:
+
+- active tasks: `0`;
+- RUNNING nodes: `0`;
+- unresolved RESERVED reservations: `0`;
+- artifacts total: `0`.
+
+These are count observations, not a new hosted behavioral write test. Earlier deployed-guard/child-verification and Research live facts retain their own historical provenance. No hosted write or paid call was made for D3.
+
+Five exact-CI conditional steps remained `SKIPPED`: hosted Neon persistence, live Kernel Research, its upload, live DeepSeek smoke and its upload. No skip is promoted to `PASS_HOSTED`/`PASS_LIVE`. Permanent CI credential plumbing remains `NOT_PROVEN`; recorded GitHub configuration API HTTP 403 permission blockers remain separate. Evidence, phone and real user/GitHub dispatch remain `NOT_BUILT`.
+
+### Route decision
+
+**Next functional gate: D4 production Data vertical only.**
+
+Prove actual production Research structured output -> actual Data worker/transformer -> persisted validated normalized/deduped sourced result -> Data SUCCESS -> authoritative task terminalization. Existing deterministic live-gate completion is not production Data proof. Preserve the pinned Research runtime and previously verified live run; use existing structured results where appropriate, with fixture/local evidence labelled precisely. Focused/negative checks -> full exact GitHub CI; direct hosted/live proof when that layer executes.
+
+Do not start Evidence/Phone/Dispatch before D4 acceptance closes complete scope #12. No browser/Vision/PDF/catalog scale-out, unrelated refactor or redundant paid Research experiment.

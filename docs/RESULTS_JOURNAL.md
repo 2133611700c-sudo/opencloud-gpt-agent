@@ -553,3 +553,43 @@ The Research gate is now closed. Production Data is no longer blocked by accepta
 **Next allowed implementation step:** build only the production Data/Result runtime required by 48h item #12: schema validation -> normalization -> dedupe -> required-field enforcement -> source integrity -> deterministic structured output, with focused tests and full CI.
 
 Do not start Evidence, phone UX, GitHub intake/dispatch, browser/Vision/PDF, full agent/skill scale-out or broad architecture refactors until the production Data gate is independently `PASS_CODE_CI`.
+
+---
+
+## JRNL-2026-10-13-001 — D1 checkpoint reconciled and remaining 48h execution route defined
+
+**Reviewed branch:** `v2/openclaw-clean-20261011`  
+**Verified HEAD before this checkpoint:** `8c3ec70172d8c136b29a5dda853190af447e3908`  
+**Exact latest full CI:** `38323842573` — `SUCCESS`  
+**Latest implementation baseline:** `fbbf05d7d7a016805353924b06732d0bacf39b81` — D1 production Data contract, exact full CI `38302547362` `SUCCESS`
+
+### Reconciliation and positive evidence
+
+The complete delta from the recorded checkpoint through the reviewed HEAD was examined. D1 adds `src/data/data-contract.mjs` and `tests/data/data-contract.test.mjs`: schema v1, Research SUCCESS input, required-field validation including valid false/zero, source presence/unique identifiers and valid source references. Its exact full CI passed. **D1 result: `PASS_CODE_CI`.** This closes the contract subgate only. Focused local verification also executed all eight D1 cases with `node --test --test-isolation=none tests/data/data-contract.test.mjs`; this is local evidence, not a replacement for exact CI. Full-suite file-wrapper counts are not treated as assertion counts.
+
+The archive `docs/handoff/CHATGPT_PROJECT_ARCHIVE.md` exists and was read completely. It preserves available historical context, states its completeness limits and correctly distinguishes gate-only Data from production Data. It is a reference; current HEAD/exact CI/hosted/live facts remain authoritative.
+
+The state map now uses canonical `PASS_CODE_CI` for scope #8 with the gate-only Data limitation in a separate note. Scope #12 is `NOT_PROVEN` overall with D1 `PASS_CODE_CI`; D2 normalization/dedupe and D3 runtime are `NOT_BUILT`, D4 vertical is `NOT_PROVEN`.
+
+### Negative evidence and retained proof limits
+
+- Exact archive CI hosted/live credential-dependent steps remained `SKIPPED`; no skipped step was promoted to PASS.
+- `hosted_inspector` performed a fresh direct read-only hosted inspection at `2026-10-12T23:57:30.163Z`: active tasks `0`, RUNNING nodes `0`, unresolved reservations `0`, artifacts total `0`; deployed complete/requeue/fail active-lease guards inspected. No hosted mutation, new behavioral write test or paid call occurred. Existing hosted behavioral facts and Research `PASS_LIVE` retain their earlier evidence.
+- Complete production Data runtime remains `NOT_PROVEN`.
+- Durable Evidence, phone result/deep log and real user/GitHub dispatch remain `NOT_BUILT`.
+- Permanent machine credential plumbing remains `NOT_PROVEN`; branch protection and least-privilege workflow work remain open.
+- The archive is not a literal complete ChatGPT Project/transcript/attachment export.
+
+### Execution handoffs and recording
+
+`docs/03_48H_EXECUTION_GATES.md` defines entry/exit evidence for D2/D3/D4, E1/E2, P1, I1/I2, B1 and G1/G2. Actual assigned lanes are `root` coordinator/publisher, `data_investigator`, `data_skeptic`, `verification_engineer`, `hosted_inspector` and `data_readonly_review` recorder. The intended `data_implementer` is the sole future Data writer; no implementation execution is claimed yet. Agents exchange exact-SHA findings and run/task IDs; catalog roles are never counted as executed agents. Seven available slots are concurrency capacity, not seven always-active agents or separate specialist-model proof. Read-only reviewers work in parallel, feature zones have one writer, and Lane E is the sole shared state/journal writer. Observations and pending/negative work are recorded without premature gate promotion; accepted state advances after independent exact verification.
+
+### Route decision
+
+**Next functional gate: D2 normalization + dedupe only.** Invariant: the same valid Research SUCCESS input produces deterministic canonical sourced Data output; duplicates are removed deterministically without losing required fields or source integrity; no LLM call occurs.
+
+Investigator/skeptic agreement: two new transformer/test files; finite plain JSON; normalize declared contract strings only; preserve data strings/keys/array order and URL queries/fragments; compare full normalized source/item records except id including provenance; stable minimum-codepoint representative; alias/remap/unique/sort references and sources/items sorted by id. No implementation or PASS is pre-announced.
+
+Verification: focused Data tests -> full Node suite -> full exact GitHub CI. Then hand off to D3; no automatic conversational pause is required when the next authorized gate is clear and the previous evidence is accepted.
+
+Do not build Evidence, phone UX or dispatch until D4 proves complete production Data. Do not detour into browser/Vision/OCR/PDF, broad refactors, full 71-agent/311-skill activation or unneeded Research redesign. Authorized credential preparation is separate and cannot advance a functional gate or convert `SKIPPED` to PASS.

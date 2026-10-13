@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "project": "OpenClaw V2",
-  "updated_at": "2026-10-12",
+  "updated_at": "2026-10-13",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "2b75359a4bebd262540071733f87cf705259677b",
-  "verified_code_head": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
-  "verified_ci_run_id": 38295293595,
+  "verified_head": "8c3ec70172d8c136b29a5dda853190af447e3908",
+  "verified_code_head": "fbbf05d7d7a016805353924b06732d0bacf39b81",
+  "verified_ci_run_id": 38323842573,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,11 +18,11 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38295293595,
+    "ci_run_id": 38323842573,
     "ci_conclusion": "success"
   },
   "current_phase": 6,
-  "current_phase_name": "First Real Research Agent + Web Skill — PASS_LIVE; 48h Data/Result gate next",
+  "current_phase_name": "First Real Research Agent + Web Skill — PASS_LIVE; production Data D1 PASS_CODE_CI, D2 next",
   "walking_skeleton_gate": "IN_PROGRESS",
   "route_id": "PRODUCTION_DATA_THEN_EVIDENCE",
   "truth_labels": [
@@ -43,11 +43,11 @@
     "05_heartbeat_stale_worker_recovery": "PASS_HOSTED",
     "06_attempt_step_budget_deadline_breakers": "PASS_HOSTED",
     "07_atomic_budget_reservation_reconciliation": "PASS_HOSTED",
-    "08_lite_dag_research_to_data": "PASS_CODE_CI_GATE_ONLY_DATA_NOT_PRODUCTION_RUNTIME",
+    "08_lite_dag_research_to_data": "PASS_CODE_CI",
     "09_real_deepseek_openclaw": "PASS_LIVE",
     "10_real_native_web_search_fetch": "PASS_LIVE",
     "11_structured_research_sources": "PASS_LIVE",
-    "12_data_result_validation_dedupe_normalization": "NOT_BUILT",
+    "12_data_result_validation_dedupe_normalization": "NOT_PROVEN",
     "13_llm_accounting": "PASS_LIVE",
     "14_durable_evidence_artifacts": "NOT_BUILT",
     "15_phone_short_result_deep_log": "NOT_BUILT"
@@ -77,7 +77,11 @@
       "heartbeat_deadline_guard_0018_present": true,
       "complete_node_success_active_lease_guard_0019_present": true,
       "requeue_node_retry_active_lease_guard_0019_present": true,
-      "verification_child_branch_id": "br-wandering-fire-a4vhwmd6"
+      "verification_child_branch_id": "br-wandering-fire-a4vhwmd6",
+      "observed_at": "2026-10-12T23:57:30.163Z",
+      "total_artifacts": 0,
+      "fail_node_terminal_active_lease_guard_present": true,
+      "check_scope": "Fresh read-only hosted counts and deployed guard inspection; no new behavioral write test or paid call. Verification child id retains historical provenance."
     }
   },
   "live_capabilities": {
@@ -108,6 +112,16 @@
   },
   "latest_verified_innovations": [
     {
+      "commit": "8c3ec70172d8c136b29a5dda853190af447e3908",
+      "result": "PASS_CODE_CI",
+      "change": "Historical ChatGPT project archive is readable; exact archive CI 38323842573 succeeded. Archive completeness limits are explicit; current GitHub/CI remains authoritative."
+    },
+    {
+      "commit": "fbbf05d7d7a016805353924b06732d0bacf39b81",
+      "result": "PASS_CODE_CI",
+      "change": "Production Data schema v1 input/output validation contract and focused tests implemented; exact full CI 38302547362 succeeded. Complete production Data runtime remains NOT_PROVEN."
+    },
+    {
       "commit": "2b75359a4bebd262540071733f87cf705259677b",
       "result": "PASS_CODE_CI",
       "change": "Independent journal correction records acceptance #1 as PASS_LIVE from preserved fail-closed Vercel gate execution metadata correlated to hosted Neon; full CI 38295293595 succeeded."
@@ -129,13 +143,45 @@
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38295293595_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38295293595_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38323842573_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38323842573_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
     "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
   },
   "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "Build only the production Data/Result runtime required by 48h item #12: deterministic schema validation, normalization, deduplication, required-field enforcement, source integrity and deterministic structured output. Run focused tests and full CI. Do not start Evidence, phone UX or GitHub dispatch until Data is PASS_CODE_CI.",
-  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/CI -> direct hosted Neon reality before any write. One gate at a time; production Data is now the next allowed implementation gate."
+  "next_action": "D2 only: implement deterministic production Data normalization and deduplication preserving required-field values, stable ordering and source integrity with no LLM calls. Focused unit tests -> full Node suite -> full exact GitHub CI. After D2 PASS_CODE_CI continue D3 and D4 sequentially; Evidence, phone UX and GitHub dispatch feature work wait until complete production Data PASS_CODE_CI.",
+  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. Read docs/03_48H_EXECUTION_GATES.md for the remaining gated route. One feature gate at a time; D1 is complete and D2 is next.",
+  "scope_notes_48h": {
+    "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
+    "12_data_result_validation_dedupe_normalization": "D1 contract is PASS_CODE_CI; normalization/dedupe, Data Kernel runtime and production Data vertical remain unproven."
+  },
+  "data_subgates": {
+    "D1_contract": {
+      "status": "PASS_CODE_CI",
+      "commit": "fbbf05d7d7a016805353924b06732d0bacf39b81",
+      "ci_run_id": 38302547362
+    },
+    "D2_normalization_dedupe": {
+      "status": "NOT_BUILT"
+    },
+    "D3_kernel_runtime": {
+      "status": "NOT_BUILT"
+    },
+    "D4_production_vertical": {
+      "status": "NOT_PROVEN"
+    }
+  },
+  "evidence_scope_note": "Lane hosted_inspector performed a fresh read-only hosted check at 2026-10-12T23:57:30.163Z: zero active tasks, RUNNING nodes, unresolved reservations and artifacts; deployed active-lease guards inspected. Previously proven Research/behavioral hosted gates retain their historical evidence. This reconciliation performs no new paid run or hosted mutation; exact archive CI 38323842573 hosted/live conditional steps remain SKIPPED.",
+  "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
+  "execution_lanes": {
+    "coordinator_and_publisher": "root",
+    "investigator": "data_investigator",
+    "independent_specialist": "data_skeptic",
+    "data_writer": "data_implementer (assigned when D2 begins)",
+    "verifier": "verification_engineer",
+    "hosted_inspector": "hosted_inspector",
+    "recorder": "data_readonly_review",
+    "note": "Named actual coordinator/review/verification/inspection/recorder lanes. Future data_implementer is not yet execution proof. Seven available concurrency slots are capacity, not seven permanently active agents or distinct model certifications."
+  }
 }

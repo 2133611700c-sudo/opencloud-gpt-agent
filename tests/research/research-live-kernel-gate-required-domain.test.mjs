@@ -26,10 +26,7 @@ const researchFrom = (url) => ({
   },
 });
 
-const kernel = {
-  claimNodeForTaskAndAgent: async () => null,
-  completeSuccess: async () => false,
-};
+const dataWorker = { runTask: async () => { throw new Error('Data cannot run before Research evidence is accepted'); } };
 
 test('live gate rejects official DeepSeek evidence outside request.requiredDomains', async () => {
   const calls = [];
@@ -44,7 +41,7 @@ test('live gate rejects official DeepSeek evidence outside request.requiredDomai
   await assert.rejects(() => runLiveResearchKernelGate({
     query,
     worker: { runTask: async () => researchFrom('https://www.deepseek.com/news') },
-    kernel,
+    dataWorker,
     idempotencyKey: 'required-domain-proof-test',
   }), (error) => error?.code === 'LIVE_REQUIRED_DOMAIN_SOURCE_NOT_PROVEN');
 
@@ -58,7 +55,7 @@ test('live gate rejects malformed requiredDomains before touching the queue', as
   await assert.rejects(() => runLiveResearchKernelGate({
     query: async () => { queried = true; return { rows: [] }; },
     worker: { runTask: async () => researchFrom('https://api-docs.deepseek.com/updates/') },
-    kernel,
+    dataWorker,
     idempotencyKey: 'invalid-required-domain-test',
     request: {
       requiredFields: ['modelId', 'modelVersion'],

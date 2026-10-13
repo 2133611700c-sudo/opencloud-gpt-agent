@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import { createPostgresKernelAdapter } from '../src/kernel/postgres-kernel-adapter.mjs';
+import { createPostgresDataAdapter } from '../src/data/postgres-data-adapter.mjs';
+import { createDataWorker } from '../src/data/data-worker.mjs';
 import { createPsqlQuery } from '../src/kernel/psql-query.mjs';
 import {
   createProductionResearchWorker,
@@ -14,7 +15,12 @@ const id = randomUUID();
 
 try {
   const query = createPsqlQuery({ databaseUrl: process.env.DATABASE_URL });
-  const kernel = createPostgresKernelAdapter({ query });
+  const dataWorker = createDataWorker({
+    kernel: createPostgresDataAdapter({ query }),
+    workerId: `live-data-${id}`,
+    leaseSeconds: 60,
+    heartbeatIntervalMs: 10_000,
+  });
   const worker = createProductionResearchWorker({
     query,
     workerId: `live-research-${id}`,
@@ -36,9 +42,8 @@ try {
   const evidence = await runLiveResearchKernelGate({
     query,
     worker,
-    kernel,
+    dataWorker,
     idempotencyKey: `ci-live-research-${id}`,
-    dataWorkerId: `live-data-${id}`,
   });
 
   process.stdout.write(`${JSON.stringify({

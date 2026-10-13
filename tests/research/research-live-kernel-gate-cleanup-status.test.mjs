@@ -36,14 +36,14 @@ const makeQuery = (taskStatus) => {
   return { query, calls };
 };
 
-const kernel = { claimNodeForTaskAndAgent: async () => null, completeSuccess: async () => false };
+const dataWorker = { runTask: async () => { throw new Error('Data cannot run before Research evidence is accepted'); } };
 
 test('live gate treats cancelled=false as cleanup failure while task remains active', async () => {
   const db = makeQuery('RUNNING');
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
     worker: { runTask: async () => incompleteResearch },
-    kernel,
+    dataWorker,
     idempotencyKey: 'cleanup-active-test',
   }), (error) => error?.code === 'LIVE_GATE_CLEANUP_FAILED'
     && error?.originalCode === 'LIVE_WEB_TOOLS_NOT_PROVEN'
@@ -56,7 +56,7 @@ test('live gate preserves original failure when task was already terminalized by
   await assert.rejects(() => runLiveResearchKernelGate({
     query: db.query,
     worker: { runTask: async () => incompleteResearch },
-    kernel,
+    dataWorker,
     idempotencyKey: 'cleanup-terminal-test',
   }), (error) => error?.code === 'LIVE_WEB_TOOLS_NOT_PROVEN');
   assert.ok(db.calls.some((call) => call.text.startsWith('SELECT status FROM tasks WHERE id=$1')));

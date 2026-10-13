@@ -1,3 +1,7 @@
+import { isDeepStrictEqual } from 'node:util';
+import { validateDataOutput } from '../data/data-contract.mjs';
+import { transformData } from '../data/data-transformer.mjs';
+
 const gateError = (message, code, extras = {}) => Object.assign(new Error(message), { code, ...extras });
 
 const requireFn = (value, name) => {
@@ -121,16 +125,15 @@ const cancelFailedGateTask = async (query, taskId, originalError) => {
 
 /**
  * Positive live gate for the 48h Research vertical.
- * Data is completed deterministically only to terminalize the lite DAG; this does
- * not certify the future Data runtime implementation.
+ * Research is followed by the production Data worker. Durable canonical output,
+ * terminal task state and zero Data model spend are checked independently.
  */
 export async function runLiveResearchKernelGate({
   query,
   worker,
-  kernel,
+  dataWorker,
   idempotencyKey,
   now = () => new Date(),
-  dataWorkerId = 'live-research-gate-data',
   goal = 'Using official DeepSeek API documentation, identify the current release served by API model id deepseek-flash. Return modelId and modelVersion.',
   request = {
     maxResults: 3,
@@ -141,16 +144,16 @@ export async function runLiveResearchKernelGate({
   const q = requireFn(query, 'query');
   const researchWorker = requireObject(worker, 'worker');
   const runTask = requireFn(researchWorker.runTask?.bind(researchWorker), 'worker.runTask');
-  const db = requireObject(kernel, 'kernel');
-  const claimData = requireFn(db.claimNodeForTaskAndAgent?.bind(db), 'kernel.claimNodeForTaskAndAgent');
-  const completeData = requireFn(db.completeSuccess?.bind(db), 'kernel.completeSuccess');
+  const productionDataWorker = requireObject(dataWorker, 'dataWorker');
+  const runDataTask = requireFn(productionDataWorker.runTask?.bind(productionDataWorker), 'dataWorker.runTask');
   const key = requireText(idempotencyKey, 'idempotencyKey');
-  requireText(dataWorkerId, 'dataWorkerId');
   const requiredFields = Array.isArray(request?.requiredFields) ? [...request.requiredFields] : [];
   if (requiredFields.length === 0 || requiredFields.some((field) => typeof field !== 'string' || field.trim() === '')) {
     throw new TypeError('live gate request.requiredFields must contain at least one non-empty field');
   }
   const requiredDomains = normalizeRequiredDomains(request?.constraints?.requiredDomains);
+  const requestPayload = JSON.stringify(request);
+  const immutableRequest = JSON.parse(requestPayload);
 
   const existingResearch = await activeQueueCount(q, 'researcher');
   const existingData = await activeQueueCount(q, 'data');
@@ -163,7 +166,7 @@ export async function runLiveResearchKernelGate({
     const deadline = new Date(now().getTime() + 10 * 60 * 1000).toISOString();
     const created = await q(
       'SELECT * FROM create_lite_research_task($1,$2,$3::jsonb,$4,$5,$6,$7::timestamptz)',
-      [key, goal, JSON.stringify(request), 0.25, 100_000, 4, deadline],
+      [key, goal, requestPayload, 0.25, 100_000, 4, deadline],
     );
     taskId = created?.rows?.[0]?.task_id;
     if (typeof taskId !== 'string' || taskId === '') throw gateError('live gate task creation failed', 'LIVE_TASK_CREATE_FAILED');
@@ -204,11 +207,15 @@ export async function runLiveResearchKernelGate({
     }
 
     const accounting = await q(
-      'SELECT count(*)::int AS accounting_rows, min(accounting_basis) AS accounting_basis FROM llm_accounting WHERE task_id=$1',
+      `SELECT count(*)::int AS accounting_rows, min(accounting_basis) AS accounting_basis,
+       COALESCE(jsonb_agg(to_jsonb(accounting) ORDER BY accounting.id), '[]'::jsonb) AS ledger_rows
+       FROM llm_accounting accounting WHERE task_id=$1`,
       [taskId],
     );
     const accountingRows = Number(accounting?.rows?.[0]?.accounting_rows ?? 0);
-    if (accountingRows !== 1) throw gateError(`expected exactly one model accounting row, got ${accountingRows}`, 'LIVE_ACCOUNTING_INVALID');
+    if (accountingRows !== 1 || !Array.isArray(accounting?.rows?.[0]?.ledger_rows) || accounting.rows[0].ledger_rows.length !== 1) {
+      throw gateError('Expected exactly one complete model accounting record', 'LIVE_ACCOUNTING_INVALID');
+    }
 
     const reservations = await q(
       "SELECT count(*) FILTER (WHERE status='RESERVED')::int AS unresolved_reservations FROM budget_reservations WHERE task_id=$1",
@@ -217,21 +224,109 @@ export async function runLiveResearchKernelGate({
     const unresolvedReservations = Number(reservations?.rows?.[0]?.unresolved_reservations ?? -1);
     if (unresolvedReservations !== 0) throw gateError('live Research left unresolved budget reservation', 'LIVE_RESERVATION_LEAK');
 
-    const dataClaim = await claimData({ taskId, workerId: dataWorkerId, agentId: 'data', leaseSeconds: 30 });
-    if (!dataClaim || dataClaim.taskId !== taskId) {
-      throw gateError('Data did not become claimable after live Research SUCCESS', 'LIVE_DATA_NOT_RELEASED');
+    const dataExecution = await runDataTask(taskId);
+    if (dataExecution?.status !== 'EXECUTED' || dataExecution?.claim?.taskId !== taskId
+        || dataExecution?.claim?.agentId !== 'data' || typeof dataExecution?.claim?.nodeId !== 'string'
+        || !dataExecution.claim.nodeId) {
+      throw gateError('Production Data worker did not execute the gate task', 'LIVE_DATA_CLAIM_MISMATCH');
     }
-    const dataCompleted = await completeData({
-      nodeId: dataClaim.nodeId,
-      workerId: dataClaim.workerId,
-      leaseToken: dataClaim.leaseToken,
-      outputData: { status: 'SUCCESS', mode: 'DETERMINISTIC_LIVE_GATE_COMPLETION', researchNodeId: execution.claim.nodeId },
-    });
-    if (dataCompleted !== true) throw gateError('deterministic Data gate completion was rejected', 'LIVE_DATA_COMPLETION_REJECTED');
+    const productionData = dataExecution.execution;
+    if (productionData?.status !== 'SUCCESS' || productionData?.nodeStatus !== 'SUCCESS') {
+      throw gateError('Production Data node did not return SUCCESS', 'LIVE_DATA_NOT_SUCCESS');
+    }
+    if (productionData.taskStatus !== 'SUCCESS') {
+      throw gateError('Production Data task finalizer did not return SUCCESS', 'LIVE_TASK_NOT_SUCCESS');
+    }
+    try { validateDataOutput(productionData.result); }
+    catch { throw gateError('Production Data output does not satisfy schema v1', 'LIVE_DATA_OUTPUT_INVALID'); }
 
-    const finalized = await q('SELECT finalize_task($1) AS status', [taskId]);
-    const taskStatus = finalized?.rows?.[0]?.status;
-    if (taskStatus !== 'SUCCESS') throw gateError(`live task finalizer returned ${String(taskStatus)}`, 'LIVE_TASK_NOT_SUCCESS');
+    const persisted = await q(`SELECT
+      task.status AS task_status, task.terminal_reason, task.terminal_at,
+      task.request_payload, task.reserved_cost_usd, task.reserved_tokens, task.current_steps,
+      task.current_cost_usd = (SELECT COALESCE(sum(a.cost_usd), 0) FROM llm_accounting a WHERE a.task_id = task.id) AS cost_reconciled,
+      task.current_tokens = (SELECT COALESCE(sum(a.total_tokens), 0) FROM llm_accounting a WHERE a.task_id = task.id) AS tokens_reconciled,
+      research.status AS research_status, research.output_data AS research_result,
+      research.reserved_cost_usd AS research_reserved_cost_usd, research.reserved_tokens AS research_reserved_tokens,
+      data.status AS data_status, data.output_data AS data_result,
+      data.reserved_cost_usd AS data_reserved_cost_usd, data.reserved_tokens AS data_reserved_tokens,
+      (SELECT count(*)::int FROM task_nodes WHERE task_id = task.id) AS node_count,
+      (SELECT count(*)::int FROM task_node_dependencies WHERE task_id = task.id) AS dependency_count
+    FROM tasks task
+    JOIN task_nodes research
+      ON research.task_id = task.id AND research.id = $2
+      AND research.node_key = 'research' AND research.agent_id = 'researcher'
+    JOIN task_nodes data
+      ON data.task_id = task.id AND data.id = $3
+      AND data.node_key = 'data' AND data.agent_id = 'data'
+    JOIN task_node_dependencies dependency
+      ON dependency.task_id = task.id AND dependency.node_id = data.id
+      AND dependency.parent_node_id = research.id
+    WHERE task.id = $1 AND data.input_payload ->> 'source_node_key' = 'research'`,
+    [taskId, execution.claim.nodeId, dataExecution.claim.nodeId]);
+    if (!Array.isArray(persisted?.rows) || persisted.rows.length !== 1) {
+      throw gateError('Production Data persistence is not linked to the claimed Research dependency', 'LIVE_DATA_PERSISTENCE_NOT_PROVEN');
+    }
+    const snapshot = persisted.rows[0];
+    if (snapshot.task_status !== 'SUCCESS' || snapshot.terminal_reason !== 'ALL_NODES_SUCCEEDED'
+        || snapshot.terminal_at == null || snapshot.node_count !== 2 || snapshot.dependency_count !== 1
+        || snapshot.research_status !== 'SUCCESS' || snapshot.data_status !== 'SUCCESS') {
+      throw gateError('Durable production task and canonical DAG are not terminal SUCCESS', 'LIVE_TASK_NOT_SUCCESS');
+    }
+    let canonicalData;
+    try {
+      if (!isDeepStrictEqual(immutableRequest, snapshot.request_payload)) {
+        throw gateError('Stored task request differs from the acceptance contract', 'LIVE_REQUEST_PERSISTENCE_MISMATCH');
+      }
+      if (!isDeepStrictEqual(JSON.parse(JSON.stringify(research.result)), snapshot.research_result)) {
+        throw gateError('Stored Research differs from the executed Research result', 'LIVE_RESEARCH_PERSISTENCE_MISMATCH');
+      }
+      validateDataOutput(snapshot.data_result);
+      canonicalData = transformData({
+        requiredFields: snapshot.request_payload?.requiredFields ?? [],
+        researchResult: snapshot.research_result,
+      });
+    } catch (error) {
+      if (error?.code === 'LIVE_RESEARCH_PERSISTENCE_MISMATCH' || error?.code === 'LIVE_REQUEST_PERSISTENCE_MISMATCH') throw error;
+      throw gateError('Stored Research/Data cannot prove the production Data contract', 'LIVE_DATA_OUTPUT_INVALID');
+    }
+    // Ignore only object-key insertion order; do not repair persisted arrays or values.
+    if (!isDeepStrictEqual(snapshot.data_result, canonicalData)
+        || !isDeepStrictEqual(productionData.result, snapshot.data_result)) {
+      throw gateError('Returned and persisted Data differ from the deterministic production result', 'LIVE_DATA_CANONICAL_MISMATCH');
+    }
+    const dataOfficialSources = snapshot.data_result.sources.filter(isOfficialDeepSeekSource);
+    const dataRequiredSources = dataOfficialSources.filter((source) => isRequiredDomainSource(source, requiredDomains));
+    const dataAcceptedItems = acceptedEvidenceItems(snapshot.data_result, requiredFields, new Set(dataRequiredSources.map((source) => source.id)));
+    if (dataRequiredSources.length === 0 || dataAcceptedItems.length === 0) {
+      throw gateError('Production Data does not preserve required official-source evidence', 'LIVE_DATA_SOURCE_NOT_PROVEN');
+    }
+
+    const afterAccounting = await q(`SELECT count(*)::int AS accounting_rows,
+      min(accounting_basis) AS accounting_basis,
+      COALESCE(jsonb_agg(to_jsonb(accounting) ORDER BY accounting.id), '[]'::jsonb) AS ledger_rows,
+      count(*) FILTER (WHERE node_id = $2)::int AS research_accounting_rows,
+      count(*) FILTER (WHERE node_id = $3)::int AS data_accounting_rows
+      FROM llm_accounting accounting WHERE task_id = $1`, [taskId, execution.claim.nodeId, dataExecution.claim.nodeId]);
+    const finalAccounting = afterAccounting?.rows?.[0];
+    if (finalAccounting?.accounting_rows !== 1 || finalAccounting.research_accounting_rows !== 1
+        || finalAccounting.data_accounting_rows !== 0 || finalAccounting.accounting_basis !== accounting.rows[0].accounting_basis
+        || !isDeepStrictEqual(finalAccounting.ledger_rows, accounting.rows[0].ledger_rows)
+        || snapshot.cost_reconciled !== true || snapshot.tokens_reconciled !== true || snapshot.current_steps !== 2) {
+      throw gateError('Production Data changed model accounting or introduced a model call', 'LIVE_DATA_ACCOUNTING_INVALID');
+    }
+    const afterReservations = await q(`SELECT
+      count(*) FILTER (WHERE status = 'RESERVED')::int AS unresolved_reservations,
+      count(*) FILTER (WHERE node_id = $2)::int AS data_reservations
+      FROM budget_reservations WHERE task_id = $1`, [taskId, dataExecution.claim.nodeId]);
+    const finalReservations = afterReservations?.rows?.[0];
+    const reservationCounters = [snapshot.reserved_cost_usd, snapshot.reserved_tokens,
+      snapshot.research_reserved_cost_usd, snapshot.research_reserved_tokens,
+      snapshot.data_reserved_cost_usd, snapshot.data_reserved_tokens];
+    if (finalReservations?.unresolved_reservations !== 0 || finalReservations.data_reservations !== 0
+        || reservationCounters.some((value) => value == null || Number(value) !== 0)) {
+      throw gateError('Production Data has unresolved or new model budget reservations', 'LIVE_DATA_RESERVATION_INVALID');
+    }
+    const taskStatus = snapshot.task_status;
 
     return Object.freeze({
       status: 'PASS',
@@ -249,7 +344,14 @@ export async function runLiveResearchKernelGate({
       accounting_rows: accountingRows,
       accounting_basis: accounting?.rows?.[0]?.accounting_basis ?? null,
       unresolved_reservations: unresolvedReservations,
-      data_mode: 'DETERMINISTIC_LIVE_GATE_COMPLETION',
+      data_mode: 'PRODUCTION_DATA',
+      data_status: productionData.nodeStatus,
+      data_schema_version: snapshot.data_result.schemaVersion,
+      data_item_count: snapshot.data_result.items.length,
+      data_source_count: snapshot.data_result.sources.length,
+      accepted_data_item_count: dataAcceptedItems.length,
+      data_accounting_rows: finalAccounting.data_accounting_rows,
+      data_reservation_rows: finalReservations.data_reservations,
     });
   } catch (error) {
     if (taskId) await cancelFailedGateTask(q, taskId, error);

@@ -24,6 +24,7 @@ const query = async (text, values=[]) => {
 
 execFileSync('psql',[...connection,'-c','TRUNCATE TABLE tasks CASCADE;'],{env:{...process.env,PGPASSWORD:'openclaw'}});
 const taskRow=execFileSync('psql',[...connection,'-c',`SELECT task_id FROM create_lite_research_task('research-e2e','integration','{}'::jsonb,1.0,10000,10,NOW()+INTERVAL '10 minutes');`],{encoding:'utf8',env:{...process.env,PGPASSWORD:'openclaw'}}).trim();
+try {
 const kernel=createPostgresKernelAdapter({query});
 const claim=await kernel.claimNextNodeForAgent({workerId:'research-e2e-worker',agentId:'researcher',leaseSeconds:60});
 assert.ok(claim);
@@ -50,3 +51,7 @@ assert.equal(reserved,'0','Research completion must leave zero unresolved reserv
 const accounting=execFileSync('psql',[...connection,'-c',`SELECT count(*) FROM llm_accounting WHERE task_id='${claim.taskId}' AND accounting_basis='OBSERVED_USAGE';`],{encoding:'utf8',env:{...process.env,PGPASSWORD:'openclaw'}}).trim();
 assert.equal(accounting,'1','Research execution with full cache split must persist exactly one observed accounting row');
 console.log('research postgres kernel e2e: PASS');
+} finally {
+  // Delete only this test's fixture in its fixed disposable local database.
+  execFileSync('psql',[...connection,'-c',`DELETE FROM tasks WHERE id='${taskRow.replaceAll("'","''")}';`],{env:{...process.env,PGPASSWORD:'openclaw'}});
+}

@@ -966,3 +966,32 @@ No-LLM guarded-fetch reproduction session `52947` exited0: same official pricing
 **Next A13b:** preserve validated billing on rejected Research content/tool envelopes without accepting invalid Research -> focused/full tests/exact CI. **Then A13c:** documented opt-in trusted environment proxy for native fetch, proxy false by default/private guard retained -> exact CI. Only then one new bounded live proof; do not automatically duplicate the failed run or rewrite history.
 
 Then E3b1 accounted runtime receipt -> E3b2 lifecycle/new-process survival -> Phone. Overall IN_PROGRESS, scope13 NOT_PROVEN, complete14 NOT_BUILT; five skips remain non-proof/permanent secrets NOT_PROVEN/admin403 BLOCKED. Recorder only governance edits using root fresh HEAD/CI, no network/DB/model/secret-file operation.
+
+
+## JRNL-2026-10-14-010 — Measured accounting PASS_LIVE; strict Data failure preserved
+
+**Current implementation HEAD:** `2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a`  
+**A13b:** `e0bc3470beba219d394e2d422f79a365315dd3cc`, exactCI `38644184577` SUCCESS/job `116126865734`  
+**A13c:** exactCI `38644930255` SUCCESS/job `116129326146`; both runs passed all code steps/five external conditional steps SKIPPED each
+
+### Narrow fixes and actual verification
+
+A13b preserves validated observed/fallback billing before rejected Research terminalization. Writer four production files/investigator three unit files105focused/root PostgreSQL file.353full units and writer29billing-boundary probes passed; root ResearchPG session44190exit0 includes fallback/stale/reclaim/duplicates, production Data36318exit0. Initial local SELECT-only/DML harness and lease_until column corrections preceded pass; these are harness preparation findings, not production defects.
+
+A13c root three files implements documented opt-in trusted env proxy, default false/private-network guard retained.7focused/354full; writer five actual invalid script flags rejected before DB/models. Native config46249exit0 validtrue/no warnings; pinned2026.9.8 unchanged. Prior009 native literal127.0.0.1/localhost private-guard probes remain narrowly scoped, not broad DNS/redirect certification.
+
+### One real Research run: billing succeeds, strict Data rejects missing fields
+
+Paid session `30779` exited1, task `8c4196e7-7056-4f20-ac74-a18f62148926`. Native ResearchSUCCESS and tool/required-domain fail-closed checks passed. DataFAIL_WITH_EVIDENCE REQUIRED_FIELD_MISSING: auxiliary legacy-ids item contains behavior/retiredIds but lacks modelId/modelVersion. Task terminalFAIL_WITH_EVIDENCE/NODE_FAILED. Preserve strict validation; this is no positive Data/full-task live PASS. Scope12 remains PASS_CODE_CI with live negative validation evidence only.
+
+**Accounting scope13: PASS_LIVE independently of task failure.** Measured runner66044ms = accounting-bound input66044ms = actual sole OBSERVED_USAGE row66044ms. Cachehit12800/miss7441/completion860,total21101,costUSD0.003341; RECONCILED reservation exactly matches actuals, task reserved0. Duration is aggregate native Research spawn-to-close, not individual provider HTTP timing. Historical old latency0 remains unchanged; earlier failed4daaffb3 possible provider spend remains NOT_PROVEN, not retroactively repaired.
+
+### Durable snapshot retrieval; runtime Evidence remains unbuilt
+
+E3a artifact `e39b062a-8761-4974-a416-c675108e06e4`, SHA256 `bd28674d197716f818956896a4679d0861b493142d86de237378a0a4def475c8`,5144bytes; seal35510exit0. Separate new-process read-only22852exit0 at `2026-10-14T22:11:07.428Z` retrieved same artifact/latency and verified historical0, hosted active/RUNNING/RESERVED0/0/0/artifacts10. This is E3a storage proof, not automatic runtimeReceipt producer/full lifecycle; complete14 remains NOT_BUILT.
+
+### Next route
+
+**E3b1 accounted runtime receipt for normal/rejected billing -> exact CI and child/hosted checks -> E3b2 terminal lifecycle/new-process survival -> Phone -> Dispatch -> final positive/battle proof.** Final positive live request can be bounded to exactly one model; do not weaken Data validation or retry paid runs now. Extreme1e300 SQL-domain edge was noted read-only, not a real-provider regression or a new repair gate.
+
+Overall IN_PROGRESS. Five external CI skips remain non-proof; permanent secrets NOT_PROVEN/admin403 BLOCKED. Recorder only these three governance files from root fresh HEAD/CI, no network/DB/model/source/secret-file operation.

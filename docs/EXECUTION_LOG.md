@@ -408,3 +408,12 @@ A capability is not READY until all applicable answers are YES:
 - Safe E3a failure artifact5f2a4312-be41-442d-86c5-162173a556f1 sha890606c56a9bc16c430ef592504546ba6e9dae349652bb6d96892bea0e466e47 bytes2953 persisted, not automatic runtime receipt/full14 proof.
 - No-LLM native fetch session52947exit0: proxyfalse ECONNREFUSED5248ms; proxytrueHTTP200/23908bytes/1914ms/privateguardfalse; plain Node official root/pricing200. Narrow route A13b validated billing on rejected envelope/fullCI -> A13c documented opt-in trusted proxy falsebydefault/privateguard/fullCI -> one new bounded live proof, no automatic duplicate/history rewrite.
 - ThenE3b1accounted receipt -> E3b2lifecycle/survival -> Phone. DetailsJRNL-2026-10-14-009; overallIN_PROGRESS/full14NOT_BUILT/secretsNOT_PROVEN/admin403BLOCKED/SKIPPEDnonproof. Preflight runtime/authprofile/balance/hosted facts are readiness only.
+
+
+### A13b/A13c [PASS_CODE_CI]; measured accounting13 [PASS_LIVE]
+
+- A13b e0bc3470beba219d394e2d422f79a365315dd3cc exactCI38644184577/job116126865734 SUCCESS; A13c2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a exactCI38644930255/job116129326146 SUCCESS, eachfiveexternalSKIPPED. Writer4production/investigator3unit/rootPGfile;105focused353full29billing probes; PG44190exit0/production36318exit0. A13croot3files7focused354full/writer5invalidflags; nativeconfig46249exit0 valid/no warnings/pinunchanged.
+- Paid30779exit1 task8c4196e7-7056-4f20-ac74-a18f62148926 ResearchSUCCESS/tool/domainchecks passed; strictData REQUIRED_FIELD_MISSING auxiliarylegacy-ids item lacksmodelId/modelVersion -> terminalFAIL_WITH_EVIDENCE/NODE_FAILED. No positive Data/full-taskPASS; scope12 remainsPASS_CODE_CI.
+- Accounting13 separatelyPASS_LIVE: measuredrunner=input=soleOBSERVED_USAGE latency66044ms;hit12800/miss7441/completion860,total21101,USD0.003341,RECONCILEDexactactuals/reserved0. AggregateResearchprocess duration, notindividualHTTPtime. Historical0 unchanged/firstfailed4daaff possiblecostNOT_PROVEN.
+- E3a failureartifacte39b062a-8761-4974-a416-c675108e06e4 shabd28674d197716f818956896a4679d0861b493142d86de237378a0a4def475c8 bytes5144 sealed35510exit0; NEWPROCESSreadonly22852exit0 at22:11:07.428Z sameartifact/latency/historical0,hosted0/0/0/artifacts10. No automaticRuntimeReceipt/full14proof.
+- NextE3b1accountedreceipt normal/rejectedbilling/exactCI child-hosted -> E3b2lifecycle/survival -> Phone/Dispatch/finalpositivebattle. No paid retries now/no weakeningData; overallIN_PROGRESS/full14NOT_BUILT/secretsNOT_PROVEN/admin403BLOCKED. DetailsJRNL-2026-10-14-010.

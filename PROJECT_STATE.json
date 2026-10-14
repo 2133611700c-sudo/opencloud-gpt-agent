@@ -4,9 +4,9 @@
   "updated_at": "2026-10-14",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "7f2791cb0480835d30acb5657af6a450f4358353",
-  "verified_code_head": "7f2791cb0480835d30acb5657af6a450f4358353",
-  "verified_ci_run_id": 38642052950,
+  "verified_head": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
+  "verified_code_head": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
+  "verified_ci_run_id": 38644930255,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,13 +18,13 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38642052950,
+    "ci_run_id": 38644930255,
     "ci_conclusion": "success"
   },
   "current_phase": 7,
-  "current_phase_name": "A13 latency code PASS_CODE_CI; A13b rejected-envelope accounting and A13c trusted proxy next; full accounting NOT_PROVEN",
+  "current_phase_name": "Accounting13 PASS_LIVE measured aggregate latency; E3b1 accounted runtime receipt next; full Evidence NOT_BUILT",
   "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "A13_LATENCY_THEN_EVIDENCE_SURVIVAL_THEN_PHONE_DISPATCH",
+  "route_id": "E3B_RUNTIME_RECEIPTS_THEN_EVIDENCE_SURVIVAL_PHONE_DISPATCH",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -48,7 +48,7 @@
     "10_real_native_web_search_fetch": "PASS_LIVE",
     "11_structured_research_sources": "PASS_LIVE",
     "12_data_result_validation_dedupe_normalization": "PASS_CODE_CI",
-    "13_llm_accounting": "NOT_PROVEN",
+    "13_llm_accounting": "PASS_LIVE",
     "14_durable_evidence_artifacts": "NOT_BUILT",
     "15_phone_short_result_deep_log": "NOT_BUILT"
   },
@@ -78,14 +78,14 @@
       "complete_node_success_active_lease_guard_0019_present": true,
       "requeue_node_retry_active_lease_guard_0019_present": true,
       "verification_child_branch_id": "br-wandering-fire-a4vhwmd6",
-      "observed_at": "2026-10-14T21:26:27.860Z",
-      "total_artifacts": 8,
+      "observed_at": "2026-10-14T22:11:07.428Z",
+      "total_artifacts": 10,
       "fail_node_terminal_active_lease_guard_present": true,
-      "check_scope": "Separate root read-only consumer25989 exited0; retrieved8same durable receipt IDs/hash/size without producer-local bundle, clean active/RUNNING/RESERVED0/0/0. E3a producer output unrecovered after pause: no producer exit0 or full runtime lifecycle proof claimed.",
+      "check_scope": "Separate new-process read-only consumer22852exit0 retrieved same latest failure artifact/hash/size and latency66044, historical0 unchanged; active/RUNNING/RESERVED0/0/0/artifacts10. Storage retrieval proof only, no automatic runtime receipt/full lifecycle promotion.",
       "guard_inspection_observed_at": "2026-10-12T23:57:30.163Z",
       "evidence_snapshot_function_present": true,
       "evidence_persist_function_present": true,
-      "evidence_artifacts": 8,
+      "evidence_artifacts": 10,
       "evidence_e2_verification_child_branch_id": "br-rough-recipe-a4038vhb"
     }
   },
@@ -117,11 +117,16 @@
     "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows.",
     "llm_accounting_subproofs": {
       "usage_cost_cache_reservation": "PASS_LIVE",
-      "mandatory_latency": "NOT_PROVEN",
-      "scope_note": "Fresh historical task read observed one accounting row, OBSERVED_USAGE16286tokens/costUSD0.002246 and no unresolved reserve, but latency_ms0. Historical usage/money/cache/reservation proof is retained; no fresh paid run or complete accounting PASS is claimed."
+      "mandatory_latency": "PASS_LIVE",
+      "scope_note": "Measured new native Research aggregate runtime66044ms equals accounted input and sole live OBSERVED_USAGE row66044; cost/token/cache/reconciliation verified. This is not provider HTTP latency. Downstream Data failed strict validation; complete positive vertical unproved."
     }
   },
   "latest_verified_innovations": [
+    {
+      "commit": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
+      "result": "PASS_LIVE",
+      "change": "A13 measured accounting independently correlated live at66044ms with one OBSERVED_USAGE row21101tokens/USD0.003341 and reconciled reserve0 after A13b/A13c exact CI. Native Research succeeded, downstream Data rejected auxiliary item REQUIRED_FIELD_MISSING; terminal task failed and scope12 stays code-only. E3a safe artifact persisted/read anew; full runtime receipt/lifecycle remains NOT_BUILT."
+    },
     {
       "commit": "7f2791cb0480835d30acb5657af6a450f4358353",
       "result": "PASS_CODE_CI",
@@ -208,22 +213,22 @@
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38642052950_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38642052950_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38644930255_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38644930255_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
     "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING",
-    "mandatory_llm_latency": "NOT_PROVEN",
-    "rejected_research_envelope_accounting": "NOT_PROVEN",
-    "documented_trusted_proxy_fetch": "NOT_BUILT"
+    "mandatory_llm_latency": "PASS_LIVE",
+    "rejected_research_envelope_accounting": "PASS_CODE_CI",
+    "documented_trusted_proxy_fetch": "PASS_CODE_CI"
   },
   "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "A13b first: preserve validated billing/usage/latency on rejected Research content/tool envelopes without accepting invalid Research; focused/full tests -> exact full CI. Then A13c: documented opt-in trusted environment proxy for native web_fetch, private-network guard retained and proxy false by default -> exact full CI. Only then one new bounded live proof; do not automatically duplicate failed task or rewrite historical accounting. Then E3b1 accounted runtime receipt -> E3b2 lifecycle/new-process survival -> Phone.",
-  "continuation_rule": "Follow START_HERE boot order and current exact HEAD/CI/hosted reality. A13 measured-latency code PASS_CODE_CI at7f2791c, paid proof failed INVALID_SUCCESS_ENVELOPE and ledger0 does not prove free provider execution; full13 NOT_PROVEN. Preserve historical money/token/cache/reservation and Kernel/Research proofs. A13b validated billing on rejected envelope -> exact CI -> A13c opt-in trusted proxy/guard -> exact CI -> one new bounded live proof. E3a remains PASS_HOSTED, complete14 NOT_BUILT; E3b runtime receipts/lifecycle/survival follow. SKIPPED external steps remain non-proof.",
+  "next_action": "E3b1 only: accounted runtime receipt for both normal Research and rejected-envelope billing paths -> focused/full exact CI and child/hosted checks as applicable. Then E3b2 full terminal lifecycle and independent new-process retrieval after producer termination -> Phone -> Dispatch -> final positive bounded exact-one-model live/battle proof. Do not weaken Data validation to repair missing model fields; no further paid retries now. Preserve historical accounting and first failed task spend uncertainty.",
+  "continuation_rule": "Use START_HERE boot order/current exact HEAD/CI/hosted reality. Scope13 PASS_LIVE for measured aggregate native Research duration and verified live billing, not provider HTTP timing. New task8c4196e7 terminal failed strict Data REQUIRED_FIELD_MISSING: no positive full-task/live Data PASS. Historical latency0 unchanged and earlier4daaffb3 spend NOT_PROVEN. E3a safe artifact persistence/retrieval remains storage-only; complete14 NOT_BUILT. E3b1 accounted runtime receipt -> E3b2 lifecycle/survival -> Phone/Dispatch -> final bounded positive/battle. No paid retries now; five external CI skips remain non-proof.",
   "scope_notes_48h": {
     "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
     "12_data_result_validation_dedupe_normalization": "D1–D4 production Data contracts, transformer, fenced runtime and production vertical are PASS_CODE_CI. Real local/CI PostgreSQL uses injected synthetic Research runtime; no fresh hosted/paid Production Data result is claimed.",
-    "13_llm_accounting": "A13 measured native aggregate runtime latency code PASS_CODE_CI at7f2791c; this is spawn-to-close duration, not individual provider HTTP latency. New paid task4daaffb3 failed INVALID_SUCCESS_ENVELOPE (unresolved web_fetch), terminal ledger0/reserve0; provider spend NOT_PROVEN. Full13 remains NOT_PROVEN until rejection-path billing preserved and one bounded measured live proof. Historical OBSERVED_USAGE money/token/cache/reservation PASS_LIVE remains; old latency0 unchanged."
+    "13_llm_accounting": "New live task8c4196e7-7056-4f20-ac74-a18f62148926 proves actual aggregate native Research duration66044ms equals billing input and sole OBSERVED_USAGE row latency66044; cachehit12800/miss7441/completion860/total21101/costUSD0.003341, RECONCILED actuals/reserved0. This is aggregate spawn-to-close duration, not individual provider HTTP latency. Task ultimately failed strict Data required-field validation, so no positive full vertical/live Data claim. Historical task latency0 remains; earlier failed task4daaffb3 possible provider spend remains NOT_PROVEN."
   },
   "data_subgates": {
     "D1_contract": {
@@ -325,7 +330,7 @@
       "note": "Actual production Research wiring with synthetic injected runtime -> Kernel -> actual Data worker/transformer -> persisted canonical terminal result. Whole accounting ledger and returned/persisted Research/Data compared. Partial required-field failure terminalizes Data/task; no paid call or hosted write."
     }
   },
-  "evidence_scope_note": "Exact A13CI38642052950 SUCCESS/all code steps/five external SKIPPED. Paid session12845exit1 task4daaffb3-f32c-45e7-b410-3b57e104d156 terminalFAIL_WITH_EVIDENCE/NODE_FAILED, ResearchFAIL/DataBLOCKED,ledger0/reserve0/currentledgercost0; provider spend NOT_PROVEN. E3a failure artifact5f2a4312-be41-442d-86c5-162173a556f1 sha890606c56a9bc16c430ef592504546ba6e9dae349652bb6d96892bea0e466e47 bytes2953 safely persisted; this is not automatic runtime receipt/full lifecycle proof. E3a prior fixture survival/retrieval PASS_HOSTED retained; complete14 NOT_BUILT. Historical latency0 remains; A13b/A13c next, no automatic duplicate paid run.",
+  "evidence_scope_note": "A13b exactCI38644184577/job116126865734 and A13c exactCI38644930255/job116129326146 SUCCESS/allcode/fiveexternalSKIPPED each. New paid30779exit1 task8c4196e7 ResearchSUCCESS/tool/domain checks passed, strict DataFAIL_WITH_EVIDENCE REQUIRED_FIELD_MISSING and taskFAIL_WITH_EVIDENCE/NODE_FAILED. Scope13 measured billing PASS_LIVE independently despite failed task; scope12 remains PASS_CODE_CI. Safe E3a artifacte39b062a-8761-4974-a416-c675108e06e4 shabd28674d197716f818956896a4679d0861b493142d86de237378a0a4def475c8 bytes5144 sealed35510exit0 and retrieved new-process22852exit0 at2026-10-14T22:11:07.428Z; hosted0/0/0/artifacts10. This does not prove runtime receipt/full14 lifecycle. Historical0 and initialfailed possible spend uncertainty preserved.",
   "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
   "execution_lanes": {
     "coordinator_and_publisher": "root",
@@ -335,7 +340,7 @@
     "verifier": "evidence_verifier (read-only actual unit/review)",
     "hosted_inspector": "hosted_inspector",
     "recorder": "evidence_recorder",
-    "note": "A13 root owned two production runner/bindings files; evidence_investigator owned two unit files and75 focused cases; evidence_writer independently ran34 probes plus30 existing focused cases and made no writes. Root342 full units/foundation/health/localPG recovery/execution, connector expected-SHA publication/exact CI, bounded failed live attempt and no-LLM fetch diagnostic. Recorder only three governance files from root fresh proof; no network/DB/model/source/secret-file operation.",
+    "note": "A13b writer four production files, investigator three unit files, root one PostgreSQL integration file plus operations/publication. A13c root three files; writer five actual invalid-flag probes. Root exact CI/live execution/independent financial correlation/E3a seal and new-process read. Recorder only state+journal+log from root fresh proof; no network/DB/model/source/secret-file operation.",
     "postgres_integration_writer": "data_investigator (D4 PostgreSQL zone only after explicit writer handoff)",
     "evidence_writer": "root (A13 two production files); investigator (two unit files); writer independent probes only/no source writes"
   },
@@ -460,7 +465,7 @@
     },
     "E3_runtime_receipt_lifecycle_process_survival": {
       "status": "NOT_BUILT",
-      "note": "A13 mandatory latency first, then E3b1 accounted runtime receipt and E3b2 terminal lifecycle/new-process survival; E3a fixture receipt retrieval does not close this runtime gate."
+      "note": "E3b1 accounted runtime receipt on normal/rejected-billing paths next, then E3b2 full terminal lifecycle/new-process survival. Ad hoc E3a live snapshot seal/read does not close this runtime gate."
     },
     "E3a_bound_raw_snapshot": {
       "status": "PASS_HOSTED",
@@ -509,34 +514,41 @@
         "running_nodes": 0,
         "reserved_reservations": 0
       },
-      "proof_limit": "Owned terminal fixture snapshot/build/persist/retrieval only. Actual accounted runtime receipt and terminal producer lifecycle remain E3b1/E3b2; full durable Evidence scope14 NOT_BUILT."
+      "proof_limit": "Owned terminal fixture snapshot/build/persist/retrieval only. Actual accounted runtime receipt and terminal producer lifecycle remain E3b1/E3b2; full durable Evidence scope14 NOT_BUILT.",
+      "latest_live_failure_snapshot": {
+        "task_id": "8c4196e7-7056-4f20-ac74-a18f62148926",
+        "artifact_id": "e39b062a-8761-4974-a416-c675108e06e4",
+        "sha256": "bd28674d197716f818956896a4679d0861b493142d86de237378a0a4def475c8",
+        "bytes": 5144,
+        "seal_session_id": 35510,
+        "seal_exit_code": 0,
+        "separate_new_process_consumer_session_id": 22852,
+        "consumer_exit_code": 0,
+        "consumer_observed_at": "2026-10-14T22:11:07.428Z",
+        "same_receipt_and_latency_verified": true,
+        "historical_latency_zero_verified": true,
+        "proof_limit": "E3a storage snapshot only; automatic accounted runtime receipt/lifecycle absent."
+      }
+    },
+    "E3b1_accounted_runtime_receipt": {
+      "status": "NOT_BUILT"
+    },
+    "E3b2_terminal_lifecycle_process_survival": {
+      "status": "NOT_BUILT"
     }
   },
   "known_gap_notes": {
-    "durable_evidence_bundle": "E3a tested E1-valid bound raw snapshots and durable storage/retrieval on child/parent. Eight persisted receipts survived a pause and were retrieved by a separate read-only process without producer-local bundle. Actual accounted runtime receipt generation and full terminal lifecycle/survival remain E3b1/E3b2; complete14 NOT_BUILT.",
-    "mandatory_llm_latency": "Measured spawn-to-close code is PASS_CODE_CI; live nonzero accounted measurement remains NOT_PROVEN because bounded paid attempt failed content/tool envelope validation before accounting persisted. Historical live latency0 preserved.",
-    "rejected_research_envelope_accounting": "Task4daaffb3-f32c-45e7-b410-3b57e104d156 paid/native execution rejected unresolved web_fetch SUCCESS envelope; hosted ledger0/reserve0/current ledger cost0 do not establish zero provider spend. A13b must preserve validated billing despite rejected Research content.",
-    "documented_trusted_proxy_fetch": "No-LLM native guarded-fetch probe: same pricing URL useEnvProxyfalse ECONNREFUSED, trueHTTP200 with ssrfAllowPrivateNetworkfalse. A13c must use documented opt-in trusted env proxy, preserve private-network guard and false default; full CI before any next paid run."
+    "durable_evidence_bundle": "Latest real-task failure snapshot artifact persisted/sealed and read by separate new process; E3a storage behavior only. Automatic accounted runtime receipt producer remains absent; E3b1 both normal/rejected billing receipts then E3b2 full terminal lifecycle/survival required before full14.",
+    "mandatory_llm_latency": "Closed by task8c4196e7 live normal Research: measured aggregate runner/input/accounting duration each66044ms, one accounted row/reservation reconciled. Historical0 unchanged; no individual provider HTTP latency claim.",
+    "rejected_research_envelope_accounting": "A13b code/local PostgreSQL rejection-path observed/fallback/stale/reclaim/duplicate billing verified, exact CI PASS_CODE_CI. Initial4daaffb3 remains historic ledger0 and possible provider spend NOT_PROVEN; no retroactive repair or free-call claim.",
+    "documented_trusted_proxy_fetch": "A13c opt-in trusted proxy accepted exact CI; native config valid/no warnings and new real Research tool/domain fail-closed checks passed. Default false/private network guard retained; native literal127.0.0.1/localhost blocked as scoped009 probe only, no broad DNS/redirect certification."
   },
   "accounting_subgates": {
     "A13_measured_aggregate_runtime_latency": {
-      "status": "PASS_CODE_CI",
-      "historical_live_task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
-      "observed_at": "2026-10-14T21:23:17.283Z",
-      "accounting_rows": 1,
-      "accounting_basis": "OBSERVED_USAGE",
-      "total_tokens": 16286,
-      "cost_usd": 0.002246,
-      "latency_ms": 0,
-      "unresolved_reservations": 0,
-      "mock_reproduction": {
-        "observed_latency_ms": 0,
-        "fallback_latency_ms": 77,
-        "measurement_present": false
-      },
+      "status": "PASS_LIVE",
       "intended_measurement": "Monotonic native OpenClaw process spawn-to-close elapsed duration for aggregated Research accounting row; not individual provider HTTP latency.",
       "historical_row_policy": "Preserve existing0; no rewriting.",
-      "new_paid_proof": "NOT_PROVEN",
+      "new_paid_proof": "PASS_LIVE",
       "commit": "7f2791cb0480835d30acb5657af6a450f4358353",
       "ci_run_id": 38642052950,
       "ci_job_id": 116119732617,
@@ -575,14 +587,67 @@
         "safe_failure_artifact_sha256": "890606c56a9bc16c430ef592504546ba6e9dae349652bb6d96892bea0e466e47",
         "safe_failure_artifact_bytes": 2953,
         "runtime_receipt_proof": "NOT_BUILT"
+      },
+      "measured_live_proof": {
+        "task_id": "8c4196e7-7056-4f20-ac74-a18f62148926",
+        "paid_session_id": 30779,
+        "paid_session_exit_code": 1,
+        "native_research_status": "SUCCESS",
+        "tool_and_required_domain_checks_passed": true,
+        "runner_latency_ms": 66044,
+        "billing_input_latency_ms": 66044,
+        "accounting_latency_ms": 66044,
+        "accounting_rows": 1,
+        "accounting_basis": "OBSERVED_USAGE",
+        "prompt_cache_hit_tokens": 12800,
+        "prompt_cache_miss_tokens": 7441,
+        "completion_tokens": 860,
+        "total_tokens": 21101,
+        "cost_usd": 0.003341,
+        "reservation_status": "RECONCILED",
+        "reconciled_actuals_match": true,
+        "task_reserved_remaining": 0,
+        "task_status": "FAIL_WITH_EVIDENCE",
+        "terminal_reason": "NODE_FAILED",
+        "data_status": "FAIL_WITH_EVIDENCE",
+        "data_error": "REQUIRED_FIELD_MISSING",
+        "data_failure_detail": "Auxiliary legacy-ids item has behavior/retiredIds but lacks modelId/modelVersion; strict validation preserved.",
+        "proof_limit": "Accounting PASS_LIVE only, aggregate spawn-to-close timing. No positive task/production Data live result."
+      },
+      "historical_baseline": {
+        "historical_live_task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
+        "observed_at": "2026-10-14T21:23:17.283Z",
+        "accounting_rows": 1,
+        "accounting_basis": "OBSERVED_USAGE",
+        "total_tokens": 16286,
+        "cost_usd": 0.002246,
+        "latency_ms": 0,
+        "unresolved_reservations": 0,
+        "mock_reproduction": {
+          "observed_latency_ms": 0,
+          "fallback_latency_ms": 77,
+          "measurement_present": false
+        }
       }
     },
     "A13b_preserve_billing_on_rejected_envelope": {
-      "status": "NOT_BUILT",
-      "reason": "Rejected Research envelope currently discards validated billing before durable accounting; ledger0 after native paid execution requires correction."
+      "status": "PASS_CODE_CI",
+      "commit": "e0bc3470beba219d394e2d422f79a365315dd3cc",
+      "ci_run_id": 38644184577,
+      "ci_job_id": 116126865734,
+      "verification": {
+        "investigator_focused_cases": 105,
+        "full_unit_cases": 353,
+        "writer_billing_boundary_probes": 29,
+        "root_research_postgres_session_id": 44190,
+        "root_research_postgres_exit_code": 0,
+        "root_production_data_session_id": 36318,
+        "root_production_data_exit_code": 0
+      },
+      "note": "Writer four production files; investigator three unit files; root one PostgreSQL integration file/operations. Observed/fallback billing on rejected envelope, stale/reclaim/duplicate behavior proved locally. Historic failed4daaffb3 ledger0/spend uncertainty remains."
     },
     "A13c_opt_in_trusted_env_proxy": {
-      "status": "NOT_BUILT",
+      "status": "PASS_CODE_CI",
       "native_no_llm_probe": {
         "session_id": 52947,
         "exit_code": 0,
@@ -594,7 +659,22 @@
         "ssrf_allow_private_network": false
       },
       "plain_node_official_root_and_pricing_http_status": 200,
-      "implementation_requirement": "Documented opt-in trusted env proxy; false default and private-network guard preserved. Full CI before next bounded paid proof."
+      "implementation_requirement": "Documented opt-in trusted env proxy; false default and private-network guard preserved. Full CI before next bounded paid proof.",
+      "commit": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
+      "ci_run_id": 38644930255,
+      "ci_job_id": 116129326146,
+      "verification": {
+        "root_files": 3,
+        "focused_cases": 7,
+        "full_unit_cases": 354,
+        "writer_invalid_flags_rejected_before_db_models": 5,
+        "native_config_session_id": 46249,
+        "native_config_exit_code": 0,
+        "native_config_valid": true,
+        "native_config_warnings": 0,
+        "openclaw_version": "2026.9.8"
+      },
+      "note": "Proxy opt-in documented/default false/private-network guard retained; pin unchanged. Earlier native probe only verifies literal loopback/localhost blocking, not broad DNS/redirect behavior."
     }
   }
 }

@@ -52,11 +52,17 @@ const snapshot = () => {
   };
 };
 
-const makeStore = ({ artifact, persistCreated = true, readRow = true } = {}) => {
+const snapshotSha256 = 'a'.repeat(64);
+const inputQuery = (query, raw = snapshot()) => async (sql, values) => sql.startsWith('SELECT * FROM load_terminal_evidence_input_v1')
+  ? { rows: [{ snapshot: structuredClone(raw), snapshot_sha256: snapshotSha256 }] }
+  : query(sql, values);
+
+const makeStore = ({ artifact, persistCreated = true, readRow = true, rawSnapshot = snapshot() } = {}) => {
   const calls = [];
   const artifactId = uuid(7);
   const query = async (sql, values) => {
     calls.push({ sql, values });
+    if (sql.startsWith('SELECT * FROM load_terminal_evidence_input_v1')) return { rows: [{ snapshot: structuredClone(rawSnapshot), snapshot_sha256: snapshotSha256 }] };
     if (sql.startsWith('SELECT * FROM persist_task_evidence_v1')) {
       return { rows: [{ artifact_id: artifactId, created: persistCreated, uri: `artifact://postgres/${artifactId}`, sha256: artifact.sha256, size_bytes: artifact.sizeBytes }] };
     }
@@ -72,21 +78,22 @@ const makeStore = ({ artifact, persistCreated = true, readRow = true } = {}) => 
 test('persist validates canonical artifact before SQL and returns durable receipt', async () => {
   const artifact = createEvidenceArtifact(snapshot());
   const { store, calls, artifactId } = makeStore({ artifact });
-  const receipt = await store.persist({ taskId: artifact.bundle.task.id, artifact });
+  const receipt = await store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 });
   assert.equal(receipt.artifactId, artifactId);
   assert.equal(receipt.created, true);
   assert.equal(receipt.sha256, artifact.sha256);
   assert.equal(receipt.sizeBytes, artifact.sizeBytes);
   assert.equal(receipt.serialized, artifact.serialized);
   assert.deepEqual(receipt.bundle, artifact.bundle);
-  assert.equal(calls.length, 1);
-  assert.deepEqual(calls[0].values, [artifact.bundle.task.id, artifact.serialized, artifact.sha256]);
+  assert.equal(calls.length, 2);
+  assert.match(calls[0].sql, /^SELECT \* FROM load_terminal_evidence_input_v1/);
+  assert.deepEqual(calls[1].values, [artifact.bundle.task.id, artifact.serialized, artifact.sha256, snapshotSha256]);
 });
 
 test('repeat persistence receipt may be idempotent without changing identity', async () => {
   const artifact = createEvidenceArtifact(snapshot());
   const { store, artifactId } = makeStore({ artifact, persistCreated: false });
-  const receipt = await store.persist({ taskId: artifact.bundle.task.id, artifact });
+  const receipt = await store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 });
   assert.equal(receipt.created, false);
   assert.equal(receipt.artifactId, artifactId);
 });
@@ -148,7 +155,7 @@ test('persist and read reject noncanonical bytes even when hashes and sizes matc
   for (const serialized of [JSON.stringify(canonical.bundle, null, 2), ` ${canonical.serialized}`, canonical.serialized.replace('"schemaVersion":1', '"schemaVersion":1,"schemaVersion":1')]) {
     const artifact = rehash(canonical, serialized); let calls = 0;
     const store = createPostgresEvidenceStore({ query: async () => { calls += 1; return { rows: [receiptRow(artifact)] }; } });
-    await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact }), (error) => error.code === 'EVIDENCE_NONCANONICAL'); assert.equal(calls, 0);
+    await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 }), (error) => error.code === 'EVIDENCE_NONCANONICAL'); assert.equal(calls, 0);
     await assert.rejects(() => store.read(artifact.bundle.task.id), (error) => error.code === 'EVIDENCE_NONCANONICAL');
   }
 });
@@ -156,16 +163,16 @@ test('persist and read reject noncanonical bytes even when hashes and sizes matc
 test('persist validates every receipt identity field and requires a boolean created flag', async () => {
   const artifact = createEvidenceArtifact(snapshot());
   for (const changes of [{ artifact_id: 'invalid' }, { task_id: uuid(99) }, { task_id: null }, { uri: 'https://example.com/unrelated' }, { uri: `artifact://postgres/${uuid(99)}` }, { created: 'true' }, { created: undefined }, { size_bytes: `${artifact.sizeBytes}.0` }, { size_bytes: true }, { created_at: 'private timestamp sentinel' }, { created_at: null }]) {
-    const row = { ...receiptRow(artifact), ...changes }; const store = createPostgresEvidenceStore({ query: async () => ({ rows: [row] }) });
-    await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact }), PostgresEvidenceStoreError);
+    const row = { ...receiptRow(artifact), ...changes }; const store = createPostgresEvidenceStore({ query: inputQuery(async () => ({ rows: [row] })) });
+    await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 }), PostgresEvidenceStoreError);
   }
 });
 
 test('store rejects ambiguous or malformed response rows rather than selecting the first', async () => {
   const artifact = createEvidenceArtifact(snapshot());
   for (const result of [{ rows: [receiptRow(artifact), receiptRow(artifact)] }, { rows: null }, {}]) {
-    const store = createPostgresEvidenceStore({ query: async () => result });
-    await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact }), PostgresEvidenceStoreError);
+    const store = createPostgresEvidenceStore({ query: inputQuery(async () => result) });
+    await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 }), PostgresEvidenceStoreError);
     await assert.rejects(() => store.read(artifact.bundle.task.id), PostgresEvidenceStoreError);
   }
 });
@@ -181,7 +188,7 @@ test('retrieval requires task ownership, logical URI and a timestamp in its rece
 test('transport and invalid JSON errors never expose raw messages or causes', async () => {
   const artifact = createEvidenceArtifact(snapshot()); const sentinel = ['private', 'synthetic', 'sentinel'].join('-');
   const failed = createPostgresEvidenceStore({ query: async () => { throw new Error(sentinel, { cause: new Error(sentinel) }); } });
-  for (const run of [() => failed.persist({ taskId: artifact.bundle.task.id, artifact }), () => failed.read(artifact.bundle.task.id)]) await assert.rejects(run, (error) => error instanceof PostgresEvidenceStoreError && error.code === 'EVIDENCE_STORE_QUERY_FAILED' && error.cause === undefined && !inspect(error).includes(sentinel));
+  for (const run of [() => failed.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 }), () => failed.read(artifact.bundle.task.id)]) await assert.rejects(run, (error) => error instanceof PostgresEvidenceStoreError && error.code === 'EVIDENCE_STORE_QUERY_FAILED' && error.cause === undefined && !inspect(error).includes(sentinel));
   const invalid = rehash(artifact, `'${sentinel}'`); const store = createPostgresEvidenceStore({ query: async () => ({ rows: [receiptRow(invalid)] }) });
   for (const run of [() => store.persist({ taskId: artifact.bundle.task.id, artifact: invalid }), () => store.read(artifact.bundle.task.id)]) await assert.rejects(run, (error) => error instanceof PostgresEvidenceStoreError && error.code === 'EVIDENCE_JSON_INVALID' && error.cause === undefined && !inspect(error).includes(sentinel));
 });
@@ -189,7 +196,104 @@ test('transport and invalid JSON errors never expose raw messages or causes', as
 test('canonical public bytes with integer-like and supplementary Unicode keys remain accepted', async () => {
   const raw = snapshot(); Object.assign(raw.nodes[0].output_data.items[0].data, { '10': 'ten', '2': 'two', '\u{10000}': 'supplementary', '\uE000': 'BMP' });
   raw.nodes[1].output_data = transformData({ requiredFields: raw.task.request_payload.requiredFields, researchResult: raw.nodes[0].output_data });
-  const artifact = createEvidenceArtifact(raw); const { store } = makeStore({ artifact });
-  assert.equal((await store.persist({ taskId: artifact.bundle.task.id, artifact })).serialized, artifact.serialized);
+  const artifact = createEvidenceArtifact(raw); const { store } = makeStore({ artifact, rawSnapshot: raw });
+  assert.equal((await store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 })).serialized, artifact.serialized);
   assert.equal((await store.read(artifact.bundle.task.id)).serialized, artifact.serialized);
+});
+
+test('loadInput returns validated authoritative input and an internal fingerprint without write capabilities', async () => {
+  const artifact = createEvidenceArtifact(snapshot()); const { store, calls } = makeStore({ artifact });
+  const input = await store.loadInput(artifact.bundle.task.id);
+  assert.equal(input.snapshotSha256, snapshotSha256); assert.equal(input.snapshot.task.current_tokens, '9');
+  assert.deepEqual(input.snapshot, snapshot()); assert.deepEqual(Object.keys(store).sort(), ['loadInput', 'persist', 'read']);
+  assert.deepEqual(calls[0].values, [artifact.bundle.task.id]); assert.match(calls[0].sql, /^SELECT /);
+});
+
+test('loadInput rejects unavailable, ambiguous, malformed and cross-task server inputs', async () => {
+  const raw = snapshot(); const wrong = snapshot(); wrong.task.id = uuid(99);
+  for (const [rows, code] of [
+    [[], 'EVIDENCE_INPUT_UNAVAILABLE'],
+    [[{ snapshot: raw, snapshot_sha256: snapshotSha256 }, { snapshot: raw, snapshot_sha256: snapshotSha256 }], 'EVIDENCE_RECEIPT_INVALID'],
+    [[{ snapshot: raw }], 'EVIDENCE_RECEIPT_INVALID'],
+    [[{ snapshot: raw, snapshot_sha256: 'not-a-fingerprint' }], 'EVIDENCE_RECEIPT_INVALID'],
+    [[{ snapshot: wrong, snapshot_sha256: snapshotSha256 }], 'EVIDENCE_TASK_MISMATCH'],
+  ]) {
+    const store = createPostgresEvidenceStore({ query: async () => ({ rows }) });
+    await assert.rejects(() => store.loadInput(raw.task.id), (error) => error.code === code);
+  }
+});
+
+test('first persistence requires an explicit captured context and never invents a fingerprint', async () => {
+  const artifact = createEvidenceArtifact(snapshot()); const { store, calls } = makeStore({ artifact, readRow: false });
+  await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact }), (error) => error.code === 'EVIDENCE_SNAPSHOT_REQUIRED');
+  assert.equal(calls.length, 1); assert.match(calls[0].sql, /^SELECT \* FROM read_task_evidence_snapshot_v1/);
+});
+
+test('legacy API can only return identical existing evidence as a read-only retry', async () => {
+  const artifact = createEvidenceArtifact(snapshot()); const { store, calls } = makeStore({ artifact });
+  const repeated = await store.persist({ taskId: artifact.bundle.task.id, artifact });
+  assert.equal(repeated.created, false); assert.equal(repeated.sha256, artifact.sha256);
+  assert.equal(calls.length, 1); assert.match(calls[0].sql, /^SELECT \* FROM read_task_evidence_snapshot_v1/);
+  const modified = snapshot(); modified.nodes[0].output_data.items[0].data.price = 99;
+  modified.nodes[1].output_data = transformData({ requiredFields: modified.task.request_payload.requiredFields, researchResult: modified.nodes[0].output_data });
+  await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact: createEvidenceArtifact(modified) }), (error) => error.code === 'EVIDENCE_ARTIFACT_CONFLICT');
+  assert.equal(calls.every((call) => call.sql.startsWith('SELECT * FROM read_task_evidence_snapshot_v1')), true);
+});
+
+test('stale fingerprints and valid forged public bundles reject before the SQL writer', async () => {
+  const original = snapshot(); const artifact = createEvidenceArtifact(original); const { store, calls } = makeStore({ artifact });
+  await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: 'b'.repeat(64) }), (error) => error.code === 'EVIDENCE_SNAPSHOT_CHANGED');
+  const forged = snapshot(); forged.nodes[0].output_data.items[0].data.price = 999;
+  forged.nodes[1].output_data = transformData({ requiredFields: forged.task.request_payload.requiredFields, researchResult: forged.nodes[0].output_data });
+  await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact: createEvidenceArtifact(forged), expectedSnapshotFingerprint: snapshotSha256 }), (error) => error.code === 'EVIDENCE_SNAPSHOT_ARTIFACT_MISMATCH');
+  assert.equal(calls.every((call) => call.sql.startsWith('SELECT * FROM load_terminal_evidence_input_v1')), true);
+});
+
+test('malformed explicit fingerprint fails before any query', async () => {
+  const artifact = createEvidenceArtifact(snapshot()); const { store, calls } = makeStore({ artifact });
+  for (const fingerprint of ['', 'A'.repeat(64), 7, {}]) await assert.rejects(() => store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: fingerprint }), (error) => error.code === 'EVIDENCE_SNAPSHOT_REQUIRED');
+  assert.equal(calls.length, 0);
+});
+
+test('authoritative rebuilding preserves nullable defaults, trimmed criteria and scalar error omission', async () => {
+  for (const request of [null, { requiredFields: null }, { requiredFields: [' price ', 'active'] }, { requiredFields: ['price', 'active'], maxResults: null, constraints: null }]) {
+    const raw = snapshot(); raw.task.request_payload = request; raw.task.terminal_detail = 'Private error prose'; raw.nodes[0].last_error = false;
+    raw.nodes[1].output_data = transformData({ requiredFields: request?.requiredFields ?? [], researchResult: raw.nodes[0].output_data });
+    const artifact = createEvidenceArtifact(raw); const { store } = makeStore({ artifact, rawSnapshot: raw });
+    const stored = await store.persist({ taskId: raw.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 });
+    assert.equal(stored.serialized, artifact.serialized); assert.equal(stored.serialized.includes('Private error prose'), false);
+    assert.equal(Object.hasOwn(stored, 'snapshotSha256'), false);
+  }
+});
+
+test('supplied opaque redaction is part of trusted derivation and never enters SQL arguments', async () => {
+  const secret = ['opaque', 'synthetic', 'value'].join('-'); const raw = snapshot(); raw.task.goal += ' ' + secret;
+  const artifact = createEvidenceArtifact(raw, { sensitiveValues: [secret] }); const { store, calls } = makeStore({ artifact, rawSnapshot: raw });
+  await assert.rejects(() => store.persist({ taskId: raw.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 }), (error) => error.code === 'EVIDENCE_SNAPSHOT_ARTIFACT_MISMATCH');
+  const stored = await store.persist({ taskId: raw.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256, sensitiveValues: [secret] });
+  assert.equal(stored.serialized.includes(secret), false); assert.equal(JSON.stringify(calls).includes(secret), false);
+});
+
+test('native driver Date headers normalize to ISO3 without changing canonical snapshot bytes', async () => {
+  const artifact = createEvidenceArtifact(snapshot()); const date = new Date(at);
+  const store = createPostgresEvidenceStore({ query: inputQuery(async () => ({ rows: [{ ...receiptRow(artifact), created_at: date }] })) });
+  const loaded = await store.read(artifact.bundle.task.id);
+  assert.equal(loaded.createdAt, '2026-10-14T10:00:00.123Z'); assert.equal(loaded.serialized, artifact.serialized);
+  assert.equal(loaded.bundle.task.createdAt, at);
+  const persisted = await store.persist({ taskId: artifact.bundle.task.id, artifact, expectedSnapshotFingerprint: snapshotSha256 });
+  assert.equal(persisted.createdAt, loaded.createdAt); assert.equal(persisted.sha256, artifact.sha256);
+  const strings = createPostgresEvidenceStore({ query: async () => ({ rows: [receiptRow(artifact)] }) });
+  assert.equal((await strings.read(artifact.bundle.task.id)).createdAt, at);
+});
+
+test('invalid, proxy and exotic Date headers reject without invoking overrides or leaking causes', async () => {
+  const artifact = createEvidenceArtifact(snapshot()); let invoked = false;
+  class ExoticDate extends Date {}
+  const overridden = new Date(at); Object.defineProperty(overridden, 'toISOString', { get() { invoked = true; throw new Error('private date sentinel'); } });
+  const proxy = new Proxy(new Date(at), { getPrototypeOf() { invoked = true; throw new Error('private date sentinel'); } });
+  for (const value of [new Date(NaN), new ExoticDate(at), Object.create(Date.prototype), overridden, proxy]) {
+    const store = createPostgresEvidenceStore({ query: async () => ({ rows: [{ ...receiptRow(artifact), created_at: value }] }) });
+    await assert.rejects(() => store.read(artifact.bundle.task.id), (error) => error instanceof PostgresEvidenceStoreError && error.code === 'EVIDENCE_RECEIPT_INVALID' && error.cause === undefined && !inspect(error).includes('private date sentinel'));
+  }
+  assert.equal(invoked, false);
 });

@@ -88,6 +88,8 @@ jobs:
         run: node tests/integration/data-postgres-kernel-e2e.mjs
       - name: Run PostgreSQL production Data vertical
         run: node tests/integration/production-data-vertical-e2e.mjs
+      - name: Run PostgreSQL bound Evidence persistence E2E
+        run: node tests/integration/evidence-postgres-store-e2e.mjs
       - name: Verify hosted Neon persistence when DATABASE_URL exists
         if: steps.prereqs.outputs.database_present == 'true'
         env:

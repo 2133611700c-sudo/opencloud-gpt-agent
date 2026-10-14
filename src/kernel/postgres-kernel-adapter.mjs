@@ -23,6 +23,13 @@ const mapAccounting = (row) => row ? Object.freeze({
   created: row.created === true,
 }) : null;
 
+const mapAccountingWithRuntimeReceipt = (row) => row ? Object.freeze({
+  accountingId: row.accounting_id,
+  created: row.accounting_created === true,
+  runtimeReceiptId: row.runtime_receipt_id,
+  runtimeReceiptCreated: row.runtime_receipt_created === true,
+}) : null;
+
 export function createPostgresKernelAdapter({ query } = {}) {
   const q = requireQuery(query);
 
@@ -72,9 +79,19 @@ export function createPostgresKernelAdapter({ query } = {}) {
       return mapAccounting(row);
     },
 
+    async recordLlmCallWithRuntimeReceipt({ reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId = null, promptCacheHitTokens = 0, promptCacheMissTokens, completionTokens, totalTokens, actualCostUsd, latencyMs, runtimeReceipt }) {
+      const row = await one(q, 'SELECT * FROM record_llm_call_with_runtime_receipt_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb)', [reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId, promptCacheHitTokens, promptCacheMissTokens, completionTokens, totalTokens, actualCostUsd, latencyMs, JSON.stringify(runtimeReceipt)]);
+      return mapAccountingWithRuntimeReceipt(row);
+    },
+
     async recordLlmCallReservationFallback({ reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId = null, latencyMs, reason }) {
       const row = await one(q, 'SELECT * FROM record_llm_call_reservation_fallback($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)', [reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId, latencyMs, reason]);
       return mapAccounting(row);
+    },
+
+    async recordLlmCallReservationFallbackWithRuntimeReceipt({ reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId = null, latencyMs, reason, runtimeReceipt }) {
+      const row = await one(q, 'SELECT * FROM record_llm_call_reservation_fallback_with_runtime_receipt_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb)', [reservationId, callKey, nodeId, workerId, leaseToken, provider, model, pricingVersion, providerRequestId, latencyMs, reason, JSON.stringify(runtimeReceipt)]);
+      return mapAccountingWithRuntimeReceipt(row);
     },
   });
 }

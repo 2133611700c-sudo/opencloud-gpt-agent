@@ -8,7 +8,7 @@ import { createDataWorker } from '../../src/data/data-worker.mjs';
 import { assertLiveRuntimeEvidenceProof } from '../../src/evidence/live-runtime-evidence-gate.mjs';
 import { createPostgresTerminalEvidenceFinalizer } from '../../src/evidence/postgres-terminal-evidence-finalizer.mjs';
 import { createPostgresEvidenceStoreV2 } from '../../src/evidence/postgres-evidence-store-v2.mjs';
-import { createPsqlQuery } from '../../src/kernel/psql-query.mjs';
+import { createPsqlQuery, postgresEnvFromDatabaseUrl } from '../../src/kernel/psql-query.mjs';
 import { normalizeResearchResult } from '../../src/research/research-contract.mjs';
 import {
   createProductionResearchWorker,
@@ -18,9 +18,22 @@ import {
 const databaseUrl = 'postgresql://openclaw:openclaw@127.0.0.1:5432/openclaw_v2_test';
 const model = DEFAULT_PRODUCTION_RESEARCH_MODEL;
 const self = fileURLToPath(import.meta.url);
+const pgEnv = postgresEnvFromDatabaseUrl(databaseUrl);
 
 const emit = (value) => process.stdout.write(`${JSON.stringify(value)}\n`);
 const queryFor = () => createPsqlQuery({ databaseUrl });
+const literal = (value) => `'${String(value).replaceAll("'", "''")}'`;
+const mutateLocalFixture = (sql) => execFileSync(
+  'psql',
+  ['-X', '-q', '-A', '-t', '-v', 'ON_ERROR_STOP=1'],
+  {
+    input: `${sql}\n`,
+    encoding: 'utf8',
+    env: pgEnv,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: 15_000,
+  },
+).trim();
 
 const syntheticResearch = ({ id, mode }) => ({
   result: normalizeResearchResult({
@@ -168,15 +181,13 @@ async function retrieverMain() {
 async function conflictMain() {
   const taskId = process.env.E3_TASK_ID;
   if (!taskId) throw new Error('E3_TASK_ID is required');
-  const query = queryFor();
-  const changed = await query(
-    `UPDATE artifacts SET sha256=$2
-     WHERE task_id=$1 AND artifact_type='EVIDENCE_BUNDLE_V1'
-     RETURNING id`,
-    [taskId, 'b'.repeat(64)],
+  const changed = mutateLocalFixture(
+    `UPDATE artifacts SET sha256=${literal('b'.repeat(64))}
+     WHERE task_id=${literal(taskId)}::uuid AND artifact_type='EVIDENCE_BUNDLE_V1'
+     RETURNING id;`,
   );
-  assert.equal(changed.rows.length, 1);
-  const finalizer = createPostgresTerminalEvidenceFinalizer({ query });
+  assert.equal(changed.split(/\r?\n/).filter(Boolean).length, 1);
+  const finalizer = createPostgresTerminalEvidenceFinalizer({ query: queryFor() });
   let rejected = null;
   try {
     await finalizer.finalize(taskId);
@@ -259,10 +270,10 @@ if (childRole === 'producer') {
 
     console.log('runtime Evidence lifecycle E2E: SUCCESS + FAIL_WITH_EVIDENCE persisted by producer processes, independently retrieved after producer exit, receipt linkage verified, persistence conflict fails closed');
   } finally {
-    if (taskIds.length === 2) {
-      await query('DELETE FROM tasks WHERE id=$1 OR id=$2', taskIds);
-    } else if (taskIds.length === 1) {
-      await query('DELETE FROM tasks WHERE id=$1', taskIds);
+    if (taskIds.length) {
+      mutateLocalFixture(
+        `DELETE FROM tasks WHERE id IN (${taskIds.map((taskId) => `${literal(taskId)}::uuid`).join(',')});`,
+      );
     }
   }
 }

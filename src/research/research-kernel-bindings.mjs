@@ -55,6 +55,58 @@ const latencyMsFor = (research) => {
   return value;
 };
 
+const RESEARCH_RUNTIME_VERSION = '2026.9.8';
+const RESEARCH_THINKING_LEVEL = 'max';
+const RECEIPT_TOOLS = new Set(['web_search', 'web_fetch']);
+
+const runtimeReceiptFor = (research, requestedModel) => {
+  const telemetry = research?.telemetry;
+  let observed = null;
+
+  if (telemetry?.provider === 'deepseek' && typeof telemetry?.model === 'string' && telemetry.model.trim() !== '') {
+    observed = {
+      provider: 'deepseek',
+      model: telemetry.model.replace(/^deepseek\//, ''),
+      sessionId: telemetry.sessionId == null ? null : String(telemetry.sessionId),
+      toolSummary: null,
+    };
+
+    const summary = telemetry.toolSummary;
+    const tools = Array.isArray(summary?.tools) ? [...new Set(summary.tools)] : null;
+    const completeTools = Number.isSafeInteger(summary?.calls)
+      && summary.calls >= 0
+      && Number.isSafeInteger(summary?.failures)
+      && summary.failures >= 0
+      && summary.failures <= summary.calls
+      && tools !== null
+      && summary.calls >= tools.length
+      && ((summary.calls === 0) === (tools.length === 0))
+      && tools.every((tool) => typeof tool === 'string' && RECEIPT_TOOLS.has(tool));
+
+    if (completeTools) {
+      observed.toolSummary = {
+        calls: summary.calls,
+        failures: summary.failures,
+        tools,
+        totalToolTimeMs: Number.isSafeInteger(summary.totalToolTimeMs) && summary.totalToolTimeMs >= 0
+          ? summary.totalToolTimeMs
+          : null,
+      };
+    }
+  }
+
+  return Object.freeze({
+    observed: observed == null ? null : Object.freeze(observed),
+    configured: Object.freeze({
+      runtimeVersion: RESEARCH_RUNTIME_VERSION,
+      requestedModel,
+      thinkingLevel: RESEARCH_THINKING_LEVEL,
+    }),
+    trace: Object.freeze([]),
+    error: null,
+  });
+};
+
 export function createResearchKernelExecutor({ kernel, runResearch, pricingVersion, estimateReservation, heartbeatIntervalMs = 10_000 } = {}) {
   const db = requireObject(kernel, 'kernel');
   if (typeof runResearch !== 'function') throw new TypeError('runResearch must be a function');
@@ -93,8 +145,8 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
         const zeroCostWithUsage = usage != null && usage.total > 0 && observedCostUsd === 0;
 
         if (missingUsage || missingCost || missingCacheRead || zeroCostWithUsage) {
-          if (typeof db.recordLlmCallReservationFallback !== 'function') {
-            throw Object.assign(new Error('reservation fallback accounting capability is required'), { code: 'ACCOUNTING_FALLBACK_UNAVAILABLE' });
+          if (typeof db.recordLlmCallReservationFallbackWithRuntimeReceipt !== 'function') {
+            throw Object.assign(new Error('runtime receipt fallback accounting capability is required'), { code: 'ACCOUNTING_RUNTIME_RECEIPT_UNAVAILABLE' });
           }
           const reason = research?.telemetry?.accountingFallbackReason === 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY'
             ? 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY'
@@ -107,7 +159,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
                 : missingCacheRead
                   ? 'MISSING_CACHE_READ_TELEMETRY'
                   : 'ZERO_COST_WITH_NONZERO_USAGE';
-          const accounted = await db.recordLlmCallReservationFallback({
+          const accounted = await db.recordLlmCallReservationFallbackWithRuntimeReceipt({
             reservationId,
             callKey: reservationKey,
             nodeId: claim.nodeId,
@@ -119,17 +171,21 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
             providerRequestId: research?.telemetry?.sessionId ?? null,
             latencyMs,
             reason,
+            runtimeReceipt: runtimeReceiptFor(research, model),
           });
           if (!accounted) throw Object.assign(new Error('fallback model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
           return accounted;
         }
 
+        if (typeof db.recordLlmCallWithRuntimeReceipt !== 'function') {
+          throw Object.assign(new Error('runtime receipt accounting capability is required'), { code: 'ACCOUNTING_RUNTIME_RECEIPT_UNAVAILABLE' });
+        }
         const promptCacheHitTokens = usage.cacheRead;
         // OpenClaw reports uncached input, cache reads, and cache writes as separate buckets.
         // The kernel schema has hit/miss prompt buckets, so cache writes are conservatively
         // classified with misses while observed provider cost remains authoritative.
         const promptCacheMissTokens = usage.input + (usage.cacheWrite ?? 0);
-        const accounted = await db.recordLlmCall({
+        const accounted = await db.recordLlmCallWithRuntimeReceipt({
           reservationId,
           callKey: reservationKey,
           nodeId: claim.nodeId,
@@ -145,6 +201,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           totalTokens: usage.total,
           actualCostUsd: observedCostUsd,
           latencyMs,
+          runtimeReceipt: runtimeReceiptFor(research, model),
         });
         if (!accounted) throw Object.assign(new Error('model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
         return accounted;

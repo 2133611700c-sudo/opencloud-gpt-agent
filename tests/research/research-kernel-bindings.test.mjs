@@ -7,15 +7,15 @@ const claim = { taskId:'t', nodeId:'n', workerId:'w', leaseToken, agentId:'resea
 
 const research = {
   result:{ status:'SUCCESS', summary:'ok', sources:[] },
-  telemetry:{ usage:{ input:3, output:2, cacheRead:0, cacheWrite:0, total:5 }, costUsd:0.01, sessionId:'s', toolSummary:{ totalToolTimeMs:7 } },
+  telemetry:{ provider:'deepseek', model:'deepseek-flash', usage:{ input:3, output:2, cacheRead:0, cacheWrite:0, total:5 }, costUsd:0.01, sessionId:'s', toolSummary:{ calls:2, failures:0, tools:['web_search','web_fetch'], totalToolTimeMs:7 } },
   process:{ latencyMs:9 },
 };
 
 const kernelWithCalls = (calls) => ({
   reserve: async (x)=>(calls.push(['reserve',x]),'r'),
   heartbeat: async (x)=>(calls.push(['heartbeat',x]),true),
-  recordLlmCall: async (x)=>(calls.push(['account',x]),{accountingId:'a',created:true}),
-  recordLlmCallReservationFallback: async (x)=>(calls.push(['fallback',x]),{accountingId:'af',created:true}),
+  recordLlmCallWithRuntimeReceipt: async (x)=>(calls.push(['account',x]),{accountingId:'a',created:true,runtimeReceiptId:'rr',runtimeReceiptCreated:true}),
+  recordLlmCallReservationFallbackWithRuntimeReceipt: async (x)=>(calls.push(['fallback',x]),{accountingId:'af',created:true,runtimeReceiptId:'rrf',runtimeReceiptCreated:true}),
   completeSuccess: async (x)=>(calls.push(['complete',x]),true),
   failTerminal: async (x)=>(calls.push(['fail',x]),true),
   releaseReservation: async (x)=>(calls.push(['release',x]),1),
@@ -34,6 +34,11 @@ test('binds full observed DeepSeek usage and completion to one fence', async () 
   assert.equal(calls[1][1].totalTokens,5);
   assert.equal(calls[1][1].actualCostUsd,0.01);
   assert.equal(calls[1][1].latencyMs,9);
+  assert.deepEqual(calls[1][1].runtimeReceipt, {
+    observed:{ provider:'deepseek', model:'deepseek-flash', sessionId:'s', toolSummary:{ calls:2, failures:0, tools:['web_search','web_fetch'], totalToolTimeMs:7 } },
+    configured:{ runtimeVersion:'2026.9.8', requestedModel:'deepseek/deepseek-flash', thinkingLevel:'max' },
+    trace:[], error:null,
+  });
 });
 
 test('classifies DeepSeek cache hit and miss without double-counting prompt tokens', async () => {
@@ -108,6 +113,20 @@ test('uses reservation fallback when cacheRead telemetry is missing', async () =
   assert.equal(out.status,'SUCCESS');
   assert.deepEqual(calls.map(x=>x[0]),['reserve','fallback','complete']);
   assert.equal(calls[1][1].reason,'MISSING_CACHE_READ_TELEMETRY');
+});
+
+test('rejected-envelope fallback emits configured receipt without inventing observed identity', async () => {
+  const calls=[];
+  const rejected={...research,telemetry:{ provider:null, model:null, usage:null, costUsd:null, sessionId:null, accountingFallbackReason:'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY' },process:{latencyMs:12}};
+  const execute=createResearchKernelExecutor({ kernel:kernelWithCalls(calls), pricingVersion:'p1', estimateReservation:async()=>({costUsd:0.1,tokens:50}), runResearch:async()=>rejected, heartbeatIntervalMs:60_000 });
+  await execute({claim,request:'q'});
+  assert.deepEqual(calls.map(x=>x[0]),['reserve','fallback','complete']);
+  assert.equal(calls[1][1].reason,'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY');
+  assert.deepEqual(calls[1][1].runtimeReceipt, {
+    observed:null,
+    configured:{ runtimeVersion:'2026.9.8', requestedModel:'deepseek/deepseek-flash', thinkingLevel:'max' },
+    trace:[], error:null,
+  });
 });
 
 test('malformed observed telemetry fails closed instead of using fallback', async () => {

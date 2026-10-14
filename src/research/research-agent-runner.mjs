@@ -2,6 +2,7 @@ import { spawn as nodeSpawn } from 'node:child_process';
 import { chmod, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
+import { performance } from 'node:perf_hooks';
 
 import { redactSensitiveText } from '../providers/deepseek-smoke-runner.mjs';
 import {
@@ -49,6 +50,27 @@ const positiveInteger = (value, field, max = Number.MAX_SAFE_INTEGER) => {
   }
 };
 
+const invalidLatency = () => new ResearchAgentProcessError('Research process latency measurement is invalid', {
+  code: 'INVALID_PROCESS_LATENCY',
+});
+
+const readClock = (nowMs) => {
+  try {
+    const value = nowMs();
+    if (typeof value !== 'number' || !Number.isFinite(value)) throw invalidLatency();
+    return value;
+  } catch {
+    throw invalidLatency();
+  }
+};
+
+const measuredLatency = (startedAt, endedAt) => {
+  const elapsed = endedAt - startedAt;
+  const latencyMs = Math.max(1, Math.ceil(elapsed));
+  if (elapsed < 0 || !Number.isSafeInteger(latencyMs) || latencyMs > 2_147_483_647) throw invalidLatency();
+  return latencyMs;
+};
+
 const researchTimeoutSeconds = (timeoutMs) => {
   if (timeoutMs <= 15_000) return 10;
   return Math.max(10, Math.min(295, Math.floor((timeoutMs - 5_000) / 1000)));
@@ -85,6 +107,7 @@ export async function runResearchAgent({
   maxStderrBytes = 200_000,
   signal,
   spawnImpl = nodeSpawn,
+  nowMs = () => performance.now(),
   tempRoot = tmpdir(),
 } = {}) {
   const apiKey = env?.DEEPSEEK_API_KEY;
@@ -94,6 +117,7 @@ export async function runResearchAgent({
   positiveInteger(timeoutMs, 'timeoutMs', 300_000);
   positiveInteger(maxStdoutBytes, 'maxStdoutBytes', 10_000_000);
   positiveInteger(maxStderrBytes, 'maxStderrBytes', 2_000_000);
+  if (typeof nowMs !== 'function') throw invalidLatency();
   if (signal != null && !(signal instanceof AbortSignal)) throw new TypeError('signal must be an AbortSignal');
   if (signal?.aborted) throw new ResearchAgentProcessError('Research agent aborted before start', { code: 'ABORTED' });
 
@@ -116,6 +140,7 @@ export async function runResearchAgent({
 
     return await new Promise((resolve, reject) => {
       let child;
+      let startedAt;
       let settled = false;
       let stdoutBytes = 0;
       let stderrBytes = 0;
@@ -161,6 +186,12 @@ export async function runResearchAgent({
       signal?.addEventListener('abort', onAbort, { once: true });
       if (signal?.aborted) { onAbort(); return; }
 
+      try {
+        startedAt = readClock(nowMs);
+      } catch (error) {
+        finishReject(error);
+        return;
+      }
       try {
         child = spawnImpl(invocation.executable, [...invocation.args], {
           shell: false,
@@ -208,6 +239,10 @@ export async function runResearchAgent({
 
       child.on('close', (exitCode, exitSignal) => {
         if (settled) return;
+        // Aggregate native runtime wall duration, including tools; not provider HTTP latency.
+        let latencyMs;
+        try { latencyMs = measuredLatency(startedAt, readClock(nowMs)); }
+        catch (error) { finishReject(error); return; }
         const stdout = Buffer.concat(stdoutChunks).toString('utf8');
         const stderr = redactSensitiveText(Buffer.concat(stderrChunks).toString('utf8'), [apiKey]);
 
@@ -223,7 +258,7 @@ export async function runResearchAgent({
           const parsed = parseResearchAgentEnvelope(stdout, { requestedModel: invocation.model });
           finishResolve(Object.freeze({
             ...parsed,
-            process: Object.freeze({ exitCode, signal: exitSignal, stdoutBytes, stderrBytes, stderrPresent: stderr.trim().length > 0 }),
+            process: Object.freeze({ exitCode, signal: exitSignal, stdoutBytes, stderrBytes, stderrPresent: stderr.trim().length > 0, latencyMs }),
           }));
         } catch (error) {
           finishReject(new ResearchAgentProcessError(

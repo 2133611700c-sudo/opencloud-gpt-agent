@@ -48,8 +48,11 @@ const requireObservedCost = (costUsd) => {
 };
 
 const latencyMsFor = (research) => {
-  const value = research?.process?.latencyMs ?? research?.telemetry?.toolSummary?.totalToolTimeMs ?? 0;
-  return Number.isSafeInteger(value) && value >= 0 ? value : 0;
+  const value = research?.process?.latencyMs;
+  if (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647) {
+    throw Object.assign(new Error('Research process latency measurement is invalid'), { code: 'INVALID_PROCESS_LATENCY' });
+  }
+  return value;
 };
 
 export function createResearchKernelExecutor({ kernel, runResearch, pricingVersion, estimateReservation, heartbeatIntervalMs = 10_000 } = {}) {

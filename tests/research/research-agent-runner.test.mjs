@@ -137,6 +137,7 @@ test('runs shell-free with pinned 0600 config and native ephemeral OpenClaw run 
     assert.equal(capture.args[capture.args.indexOf('--timeout') + 1], '115');
     assert.equal(capture.configMode, 0o600); assert.match(capture.stdin, /UNTRUSTED DATA/);
     assert.equal(result.result.status, 'SUCCESS'); assert.equal(result.process.exitCode, 0);
+    assert.ok(Number.isInteger(result.process.latencyMs) && result.process.latencyMs >= 1 && result.process.latencyMs <= 2_147_483_647);
     assert.equal(existsSync(capture.configPath), false); assert.deepEqual(readdirSync(root), []);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
@@ -199,6 +200,92 @@ test('zero exit still fails closed on invalid Research envelope', async () => {
     await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root,
       spawnImpl: successfulSpawn(capture, root, agentEnvelope({ toolSummary: { calls: 1, tools: ['web_search'], totalToolTimeMs: 1 } })) }),
       (error) => error instanceof ResearchAgentProcessError && error.code === 'INVALID_SUCCESS_ENVELOPE');
+    assert.deepEqual(readdirSync(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('records measured native process duration with rounding and SQL INTEGER bounds', async (t) => {
+  for (const [name, start, end, expected] of [
+    ['fraction rounds up', 0, 37.25, 38], ['exact milliseconds', 10, 47, 37],
+    ['submillisecond minimum', 10, 10.25, 1], ['equal timestamps minimum', 10, 10, 1],
+    ['negative clock origin', -10, -9.25, 1],
+    ['SQL INTEGER maximum', 0, 2_147_483_647, 2_147_483_647],
+    ['fraction below maximum', 0, 2_147_483_646.25, 2_147_483_647],
+  ]) await t.test(name, async () => {
+    const root = isolatedRoot(); const capture = {}; let samples = 0;
+    try {
+      const result = await runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+        spawnImpl: successfulSpawn(capture, root), nowMs: () => {
+          samples += 1;
+          if (samples === 1) { assert.equal(capture.child, undefined, 'first sample precedes native spawn'); return start; }
+          assert.ok(capture.child, 'second sample follows native runtime'); return end;
+        },
+      });
+      assert.equal(samples, 2); assert.equal(result.process.latencyMs, expected);
+      assert.equal(result.telemetry.toolSummary.totalToolTimeMs, 50, 'tool duration remains separate telemetry');
+      assert.deepEqual(readdirSync(root), []);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+});
+
+const assertInvalidLatency = (error) => {
+  assert.ok(error instanceof ResearchAgentProcessError);
+  assert.equal(error.code, 'INVALID_PROCESS_LATENCY');
+  assert.equal(error.message, 'Research process latency measurement is invalid');
+  assert.equal(error.cause, undefined);
+  return true;
+};
+
+test('invalid clock configuration or start sample blocks spawn and cleans config', async (t) => {
+  const secret = 'private clock failure sentinel';
+  const cases = [
+    ['nonfunction clock', 1], ['null clock', null],
+    ['undefined sample', () => undefined], ['string sample', () => '0'],
+    ['NaN sample', () => NaN], ['infinite sample', () => Infinity],
+    ['throwing clock', () => { throw new Error(secret, { cause: new Error(secret) }); }],
+  ];
+  for (const [name, nowMs] of cases) await t.test(name, async () => {
+    const root = isolatedRoot(); let spawned = false;
+    try {
+      await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root, nowMs,
+        spawnImpl: () => { spawned = true; return makeFakeChild(); },
+      }), assertInvalidLatency);
+      assert.equal(spawned, false); assert.deepEqual(readdirSync(root), []);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+});
+
+test('invalid end samples fail after runtime without leaking clock errors or retaining config', async (t) => {
+  for (const [name, end] of [
+    ['undefined', undefined], ['null', null], ['string', '37'], ['boolean', true],
+    ['backwards', -1], ['NaN', NaN], ['infinity', Infinity],
+    ['overflow', 2_147_483_648], ['rounding overflow', 2_147_483_647.25],
+    ['throwing', () => { throw new Error('private clock failure', { cause: new Error('private cause') }); }],
+  ]) await t.test(name, async () => {
+    const root = isolatedRoot(); const capture = {}; let samples = 0;
+    try {
+      await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+        spawnImpl: successfulSpawn(capture, root), nowMs: () => {
+          samples += 1; return samples === 1 ? 0 : typeof end === 'function' ? end() : end;
+        },
+      }), assertInvalidLatency);
+      assert.ok(capture.child, 'the runtime did execute before invalid end telemetry');
+      assert.equal(samples, 2); assert.equal(existsSync(capture.configPath), false);
+      assert.deepEqual(readdirSync(root), []);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+});
+
+test('duplicate close events do not resample or change settled process latency', async () => {
+  const root = isolatedRoot(); const capture = {}; let samples = 0;
+  try {
+    const result = await runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+      spawnImpl: successfulSpawn(capture, root), nowMs: () => {
+        samples += 1; if (samples > 2) throw new Error('unexpected third clock sample'); return samples === 1 ? 0 : 37.25;
+      },
+    });
+    capture.child.emit('close', 0, null); capture.child.emit('close', 1, null);
+    assert.equal(samples, 2); assert.equal(result.process.latencyMs, 38);
     assert.deepEqual(readdirSync(root), []);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

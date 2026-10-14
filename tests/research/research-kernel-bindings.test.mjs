@@ -33,6 +33,7 @@ test('binds full observed DeepSeek usage and completion to one fence', async () 
   assert.equal(calls[1][1].completionTokens,2);
   assert.equal(calls[1][1].totalTokens,5);
   assert.equal(calls[1][1].actualCostUsd,0.01);
+  assert.equal(calls[1][1].latencyMs,9);
 });
 
 test('classifies DeepSeek cache hit and miss without double-counting prompt tokens', async () => {
@@ -142,4 +143,52 @@ test('accepts cacheRead greater than uncached input because OpenClaw reports sep
   assert.equal(accounting.promptCacheMissTokens,3);
   assert.equal(accounting.completionTokens,2);
   assert.equal(accounting.totalTokens,9);
+});
+
+test('observed and fallback accounting use measured process duration instead of tool time', async () => {
+  for (const fallback of [false, true]) {
+    const calls = [];
+    const measured = { ...research, telemetry: { ...research.telemetry,
+      usage: fallback ? null : research.telemetry.usage, toolSummary: { totalToolTimeMs: 999 } }, process: { latencyMs: 9 } };
+    const execute = createResearchKernelExecutor({ kernel: kernelWithCalls(calls), pricingVersion: 'p1',
+      estimateReservation: async () => ({ costUsd: 0.1, tokens: 50 }), runResearch: async () => measured, heartbeatIntervalMs: 60_000 });
+    await execute({ claim, request: 'q' });
+    assert.deepEqual(calls.map(([event]) => event), ['reserve', fallback ? 'fallback' : 'account', 'complete']);
+    assert.equal(calls[1][1].latencyMs, 9);
+  }
+});
+
+test('measured process latency accepts the complete positive SQL INTEGER range', async () => {
+  for (const latencyMs of [1, 2_147_483_647]) {
+    const calls = [];
+    const execute = createResearchKernelExecutor({ kernel: kernelWithCalls(calls), pricingVersion: 'p1',
+      estimateReservation: async () => ({ costUsd: 0.1, tokens: 50 }),
+      runResearch: async () => ({ ...research, process: { latencyMs } }), heartbeatIntervalMs: 60_000 });
+    await execute({ claim, request: 'q' });
+    assert.equal(calls.find(([event]) => event === 'account')[1].latencyMs, latencyMs);
+  }
+});
+
+test('invalid measured process latency after runtime blocks observed and fallback accounting', async (t) => {
+  const invalid = [undefined, null, 0, -1, 0.5, 2_147_483_648, NaN, Infinity, '9', true];
+  for (const fallback of [false, true]) for (const [index, latencyMs] of invalid.entries()) {
+    await t.test(`${fallback ? 'fallback' : 'observed'} invalid value ${index}`, async () => {
+      const calls = []; let runtimeRuns = 0;
+      const execute = createResearchKernelExecutor({ kernel: kernelWithCalls(calls), pricingVersion: 'p1',
+        estimateReservation: async () => ({ costUsd: 0.1, tokens: 50 }), heartbeatIntervalMs: 60_000,
+        runResearch: async () => {
+          runtimeRuns += 1;
+          return { ...research, telemetry: { ...research.telemetry, usage: fallback ? null : research.telemetry.usage,
+            toolSummary: { totalToolTimeMs: 999 } }, process: latencyMs === undefined ? undefined : { latencyMs } };
+        },
+      });
+      await assert.rejects(() => execute({ claim, request: 'q' }), (error) => {
+        assert.equal(error.code, 'INVALID_PROCESS_LATENCY');
+        assert.equal(error.message, 'Research process latency measurement is invalid'); assert.equal(error.cause, undefined); return true;
+      });
+      assert.equal(runtimeRuns, 1, 'invalid duration is detected after the synthetic runtime returns');
+      assert.deepEqual(calls.map(([event]) => event), ['reserve', 'fail', 'release']);
+      assert.equal(calls[1][1].error.code, 'INVALID_PROCESS_LATENCY');
+    });
+  }
 });

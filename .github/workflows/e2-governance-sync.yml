@@ -27,6 +27,7 @@ jobs:
         shell: bash
         run: |
           python3 - <<'PY'
+          import base64
           import json
           from pathlib import Path
 
@@ -103,53 +104,8 @@ jobs:
           marker = '## JRNL-2026-10-14-006 — E2 durable PostgreSQL Evidence persistence verified'
           if marker in journal:
               raise SystemExit('E2 journal checkpoint already exists')
-          entry = r'''
-
----
-
-## JRNL-2026-10-14-006 — E2 durable PostgreSQL Evidence persistence verified
-
-**Branch:** `v2/openclaw-clean-20261011`
-**Implementation HEAD:** `495b23b67d1226d4a79c8b640e56080dbbcaeda1`
-**Exact full CI:** `38505501374` — `SUCCESS`
-**48h parent:** scope #14 durable Evidence
-**Gate:** E2 durable SQL persistence/retrieval
-
-### Result
-
-E2 is complete at both code/CI and hosted PostgreSQL layers. Migration `0020_evidence_artifact_persistence.sql` adds a single immutable `EVIDENCE_BUNDLE_V1` artifact per task plus `persist_task_evidence_v1(uuid,text,text)` and `read_task_evidence_snapshot_v1(uuid)`. The Node adapter `src/evidence/postgres-evidence-store.mjs` validates the E1 canonical bundle, SHA256, byte length and task linkage before persistence and revalidates stored evidence on read.
-
-Exact CI `38505501374` completed `SUCCESS`. Node tests, all migrations/SQL assertions, Research PostgreSQL E2E, Data PostgreSQL E2E and the production Data vertical all passed. The hosted/live credential-dependent Actions steps remained `SKIPPED`; those skips are not promoted to hosted/live PASS.
-
-### Hosted verification
-
-A new Neon verification branch could not be created because the project branch limit was reached. The previously inspected child `br-wandering-fire-a4vhwmd6` was not used because it was not clean at this checkpoint. A different existing clean child, `br-rough-recipe-a4038vhb`, had `0` active tasks, `0` RUNNING nodes and `0` unresolved reservations before E2.
-
-The additive E2 functions/index were applied transactionally to that clean child. A behavioral test proved: first persist creates one artifact; identical retry is idempotent and returns the same artifact; retrieval returns the exact serialized payload/hash/size; only one Evidence artifact exists. Test rows were removed and the child returned to `0/0/0` with zero E2 artifacts.
-
-The same additive migration was then applied to hosted `openclaw-v2 / openclaw_v2`. The same first-persist / repeat-idempotency / exact-read behavior passed directly. Final hosted observation at `2026-10-14T03:21:53.544Z`:
-
-- `persist_task_evidence_v1(uuid,text,text)`: present;
-- `read_task_evidence_snapshot_v1(uuid)`: present;
-- active tasks: `0`;
-- RUNNING nodes: `0`;
-- unresolved `RESERVED` reservations: `0`;
-- `EVIDENCE_BUNDLE_V1` artifacts after cleanup: `0`.
-
-**E2 result: `PASS_HOSTED`.** E1 remains `PASS_CODE_CI`.
-
-### Negative evidence / proof limit
-
-This gate does not yet prove that a real terminal runtime automatically produces Evidence and that the Evidence remains retrievable after the producer process terminates. Therefore complete mandatory scope #14 remains **`NOT_BUILT`** until E3 passes. No new paid DeepSeek/web execution occurred in E2. Permanent GitHub Actions credential plumbing remains `NOT_PROVEN`; latest credential-dependent CI steps were `SKIPPED`.
-
-### Route decision
-
-**Next allowed gate: E3 runtime receipt/lifecycle/process survival only.**
-
-Integrate the E1 canonical bundle and E2 PostgreSQL store into terminal runtime lifecycle; persist a durable receipt before producer exit; terminate the producer; retrieve and revalidate the same Evidence from a fresh process for both SUCCESS and failed terminal paths. Only after E3 is accepted may complete scope #14 become PASS and Phone P1 start.
-
-Do not detour into Phone, GitHub intake/dispatch, browser/Vision/PDF, catalog scale-out, broad refactors or redundant paid Research runs before E3 acceptance.
-'''
+          entry_b64 = 'CgotLS0KCiMjIEpSTkwtMjAyNi0xMC0xNC0wMDYg4oCUIEUyIGR1cmFibGUgUG9zdGdyZVNRTCBFdmlkZW5jZSBwZXJzaXN0ZW5jZSB2ZXJpZmllZAoKKipCcmFuY2g6KiogYHYyL29wZW5jbGF3LWNsZWFuLTIwMjYxMDExYAoqKkltcGxlbWVudGF0aW9uIEhFQUQ6KiogYDQ5NWIyM2I2N2QxMjI2ZDRhNzljOGI2NDBlNTYwODBkYmJjYWVkYTFgCioqRXhhY3QgZnVsbCBDSToqKiBgMzg1MDU1MDEzNzRgIOKAlCBgU1VDQ0VTU2AKKio0OGggcGFyZW50OioqIHNjb3BlICMxNCBkdXJhYmxlIEV2aWRlbmNlCioqR2F0ZToqKiBFMiBkdXJhYmxlIFNRTCBwZXJzaXN0ZW5jZS9yZXRyaWV2YWwKCiMjIyBSZXN1bHQKCkUyIGlzIGNvbXBsZXRlIGF0IGJvdGggY29kZS9DSSBhbmQgaG9zdGVkIFBvc3RncmVTUUwgbGF5ZXJzLiBNaWdyYXRpb24gYDAwMjBfZXZpZGVuY2VfYXJ0aWZhY3RfcGVyc2lzdGVuY2Uuc3FsYCBhZGRzIGEgc2luZ2xlIGltbXV0YWJsZSBgRVZJREVOQ0VfQlVORExFX1YxYCBhcnRpZmFjdCBwZXIgdGFzayBwbHVzIGBwZXJzaXN0X3Rhc2tfZXZpZGVuY2VfdjEodXVpZCx0ZXh0LHRleHQpYCBhbmQgYHJlYWRfdGFza19ldmlkZW5jZV9zbmFwc2hvdF92MSh1dWlkKWAuIFRoZSBOb2RlIGFkYXB0ZXIgYHNyYy9ldmlkZW5jZS9wb3N0Z3Jlcy1ldmlkZW5jZS1zdG9yZS5tanNgIHZhbGlkYXRlcyB0aGUgRTEgY2Fub25pY2FsIGJ1bmRsZSwgU0hBMjU2LCBieXRlIGxlbmd0aCBhbmQgdGFzayBsaW5rYWdlIGJlZm9yZSBwZXJzaXN0ZW5jZSBhbmQgcmV2YWxpZGF0ZXMgc3RvcmVkIGV2aWRlbmNlIG9uIHJlYWQuCgpFeGFjdCBDSSBgMzg1MDU1MDEzNzRgIGNvbXBsZXRlZCBgU1VDQ0VTU2AuIE5vZGUgdGVzdHMsIGFsbCBtaWdyYXRpb25zL1NRTCBhc3NlcnRpb25zLCBSZXNlYXJjaCBQb3N0Z3JlU1FMIEUyRSwgRGF0YSBQb3N0Z3JlU1FMIEUyRSBhbmQgdGhlIHByb2R1Y3Rpb24gRGF0YSB2ZXJ0aWNhbCBhbGwgcGFzc2VkLiBUaGUgaG9zdGVkL2xpdmUgY3JlZGVudGlhbC1kZXBlbmRlbnQgQWN0aW9ucyBzdGVwcyByZW1haW5lZCBgU0tJUFBFRGA7IHRob3NlIHNraXBzIGFyZSBub3QgcHJvbW90ZWQgdG8gaG9zdGVkL2xpdmUgUEFTUy4KCiMjIyBIb3N0ZWQgdmVyaWZpY2F0aW9uCgpBIG5ldyBOZW9uIHZlcmlmaWNhdGlvbiBicmFuY2ggY291bGQgbm90IGJlIGNyZWF0ZWQgYmVjYXVzZSB0aGUgcHJvamVjdCBicmFuY2ggbGltaXQgd2FzIHJlYWNoZWQuIFRoZSBwcmV2aW91c2x5IGluc3BlY3RlZCBjaGlsZCBgYnItd2FuZGVyaW5nLWZpcmUtYTR2aHdtZDZgIHdhcyBub3QgdXNlZCBiZWNhdXNlIGl0IHdhcyBub3QgY2xlYW4gYXQgdGhpcyBjaGVja3BvaW50LiBBIGRpZmZlcmVudCBleGlzdGluZyBjbGVhbiBjaGlsZCwgYGJyLXJvdWdoLXJlY2lwZS1hNDAzOHZoYmAsIGhhZCBgMGAgYWN0aXZlIHRhc2tzLCBgMGAgUlVOTklORyBub2RlcyBhbmQgYDBgIHVucmVzb2x2ZWQgcmVzZXJ2YXRpb25zIGJlZm9yZSBFMi4KClRoZSBhZGRpdGl2ZSBFMiBmdW5jdGlvbnMvaW5kZXggd2VyZSBhcHBsaWVkIHRyYW5zYWN0aW9uYWxseSB0byB0aGF0IGNsZWFuIGNoaWxkLiBBIGJlaGF2aW9yYWwgdGVzdCBwcm92ZWQ6IGZpcnN0IHBlcnNpc3QgY3JlYXRlcyBvbmUgYXJ0aWZhY3Q7IGlkZW50aWNhbCByZXRyeSBpcyBpZGVtcG90ZW50IGFuZCByZXR1cm5zIHRoZSBzYW1lIGFydGlmYWN0OyByZXRyaWV2YWwgcmV0dXJucyB0aGUgZXhhY3Qgc2VyaWFsaXplZCBwYXlsb2FkL2hhc2gvc2l6ZTsgb25seSBvbmUgRXZpZGVuY2UgYXJ0aWZhY3QgZXhpc3RzLiBUZXN0IHJvd3Mgd2VyZSByZW1vdmVkIGFuZCB0aGUgY2hpbGQgcmV0dXJuZWQgdG8gYDAvMC8wYCB3aXRoIHplcm8gRTIgYXJ0aWZhY3RzLgoKVGhlIHNhbWUgYWRkaXRpdmUgbWlncmF0aW9uIHdhcyB0aGVuIGFwcGxpZWQgdG8gaG9zdGVkIGBvcGVuY2xhdy12MiAvIG9wZW5jbGF3X3YyYC4gVGhlIHNhbWUgZmlyc3QtcGVyc2lzdCAvIHJlcGVhdC1pZGVtcG90ZW5jeSAvIGV4YWN0LXJlYWQgYmVoYXZpb3IgcGFzc2VkIGRpcmVjdGx5LiBGaW5hbCBob3N0ZWQgb2JzZXJ2YXRpb24gYXQgYDIwMjYtMTAtMTRUMDM6MjE6NTMuNTQ0WmA6CgotIGBwZXJzaXN0X3Rhc2tfZXZpZGVuY2VfdjEodXVpZCx0ZXh0LHRleHQpYDogcHJlc2VudDsKLSBgcmVhZF90YXNrX2V2aWRlbmNlX3NuYXBzaG90X3YxKHV1aWQpYDogcHJlc2VudDsKLSBhY3RpdmUgdGFza3M6IGAwYDsKLSBSVU5OSU5HIG5vZGVzOiBgMGA7Ci0gdW5yZXNvbHZlZCBgUkVTRVJWRURgIHJlc2VydmF0aW9uczogYDBgOwotIGBFVklERU5DRV9CVU5ETEVfVjFgIGFydGlmYWN0cyBhZnRlciBjbGVhbnVwOiBgMGAuCgoqKkUyIHJlc3VsdDogYFBBU1NfSE9TVEVEYC4qKiBFMSByZW1haW5zIGBQQVNTX0NPREVfQ0lgLgoKIyMjIE5lZ2F0aXZlIGV2aWRlbmNlIC8gcHJvb2YgbGltaXQKClRoaXMgZ2F0ZSBkb2VzIG5vdCB5ZXQgcHJvdmUgdGhhdCBhIHJlYWwgdGVybWluYWwgcnVudGltZSBhdXRvbWF0aWNhbGx5IHByb2R1Y2VzIEV2aWRlbmNlIGFuZCB0aGF0IHRoZSBFdmlkZW5jZSByZW1haW5zIHJldHJpZXZhYmxlIGFmdGVyIHRoZSBwcm9kdWNlciBwcm9jZXNzIHRlcm1pbmF0ZXMuIFRoZXJlZm9yZSBjb21wbGV0ZSBtYW5kYXRvcnkgc2NvcGUgIzE0IHJlbWFpbnMgKipgTk9UX0JVSUxUYCoqIHVudGlsIEUzIHBhc3Nlcy4gTm8gbmV3IHBhaWQgRGVlcFNlZWsvd2ViIGV4ZWN1dGlvbiBvY2N1cnJlZCBpbiBFMi4gUGVybWFuZW50IEdpdEh1YiBBY3Rpb25zIGNyZWRlbnRpYWwgcGx1bWJpbmcgcmVtYWlucyBgTk9UX1BST1ZFTmA7IGxhdGVzdCBjcmVkZW50aWFsLWRlcGVuZGVudCBDSSBzdGVwcyB3ZXJlIGBTS0lQUEVEYC4KCiMjIyBSb3V0ZSBkZWNpc2lvbgoKKipOZXh0IGFsbG93ZWQgZ2F0ZTogRTMgcnVudGltZSByZWNlaXB0L2xpZmVjeWNsZS9wcm9jZXNzIHN1cnZpdmFsIG9ubHkuKioKCkludGVncmF0ZSB0aGUgRTEgY2Fub25pY2FsIGJ1bmRsZSBhbmQgRTIgUG9zdGdyZVNRTCBzdG9yZSBpbnRvIHRlcm1pbmFsIHJ1bnRpbWUgbGlmZWN5Y2xlOyBwZXJzaXN0IGEgZHVyYWJsZSByZWNlaXB0IGJlZm9yZSBwcm9kdWNlciBleGl0OyB0ZXJtaW5hdGUgdGhlIHByb2R1Y2VyOyByZXRyaWV2ZSBhbmQgcmV2YWxpZGF0ZSB0aGUgc2FtZSBFdmlkZW5jZSBmcm9tIGEgZnJlc2ggcHJvY2VzcyBmb3IgYm90aCBTVUNDRVNTIGFuZCBmYWlsZWQgdGVybWluYWwgcGF0aHMuIE9ubHkgYWZ0ZXIgRTMgaXMgYWNjZXB0ZWQgbWF5IGNvbXBsZXRlIHNjb3BlICMxNCBiZWNvbWUgUEFTUyBhbmQgUGhvbmUgUDEgc3RhcnQuCgpEbyBub3QgZGV0b3VyIGludG8gUGhvbmUsIEdpdEh1YiBpbnRha2UvZGlzcGF0Y2gsIGJyb3dzZXIvVmlzaW9uL1BERiwgY2F0YWxvZyBzY2FsZS1vdXQsIGJyb2FkIHJlZmFjdG9ycyBvciByZWR1bmRhbnQgcGFpZCBSZXNlYXJjaCBydW5zIGJlZm9yZSBFMyBhY2NlcHRhbmNlLgo='
+          entry = base64.b64decode(entry_b64).decode('utf-8')
           journal_path.write_text(journal.rstrip() + entry + '\n')
           PY
 

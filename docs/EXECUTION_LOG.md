@@ -356,3 +356,14 @@ A capability is not READY until all applicable answers are YES:
 - Latest hosted read-only counts at `2026-10-13T11:36:55.060Z`: active0/RUNNING0/RESERVED0/artifacts0. Observations only; previous hosted behavior/Research live proofs retain their provenance.
 - Five hosted/live/upload exact-CI steps remained `SKIPPED`; no new hosted/live PASS is inferred. Details and real handoffs live in `JRNL-2026-10-13-003`.
 - D1/D2/D3 are `PASS_CODE_CI`; complete Data #12 and D4 remain `NOT_PROVEN`. Next route: D4 actual production Research -> Data worker -> persisted canonical result -> authoritative terminal task. Evidence/Phone/Dispatch remain unbuilt and await complete Data acceptance.
+
+
+### D4 complete production Research -> Data vertical [PASS_CODE_CI]
+
+- Implementation `b0693ca2abc234348785ab83bf176fad625047a3`; parent checkpoint `8b54e6f14a37485f1747ba6dab8653783fcdd319`; exact full CI `38394312147` SUCCESS, job `115285527950` completed success, production Data PostgreSQL step15 passed. Five hosted/live/upload conditional steps SKIPPED.
+- Acceptance script/gate now executes the actual Data worker instead of gate-only completion, checking exact canonical persisted request/Research/Data/dependency/task, whole ordered accounting ledger, required provenance, reconciled cost/tokens and zero Data spend/reservations.
+- Actual writers: `data_implementer` main zones, `data_investigator` PostgreSQL zone after explicit handoff; `root` Docker/PostgreSQL operator and publisher; specialist/verifier read-only reports: full228/focused70 and148assertions/64negative cases. Recorder inspected exact publication/CI, not secrets or runtime mutation.
+- Root sequential local PostgreSQL: ResearchE2E exit0; D3Data session24514 exit0; D4production session62196 exit0. Synthetic Research2sources/3items -> Data2sources/2items; one fixture Research accounting row0.01USD/20tokens + RECONCILEDreservation, Data0; partial required field preserves ResearchSUCCESS but terminal Data/task failure. No paid call/hosted write.
+- D4 review fixes: count-only accounting -> full ledger equality; returned/stored Research -> JSONtransport comparison; correct accounting cost_usd beforePG; Research fixture cleanup. These are current gate findings, not retrospective D3 failure claims.
+- Root pinned runtime/plugin/config/authprofiles0/HTTPSNeon read-only preparation is preflight only. Permanent external secrets remain NOT_PROVEN/admin403BLOCKED; prior paid Research live evidence is retained separately. Details/hashes in JRNL-2026-10-13-004.
+- D1–D4 and complete48h scope#12 are PASS_CODE_CI only. NextPhase7: Evidence E1contract -> E2durableSQLpersist/retrieve -> E3runtime receipt/lifecycle + newprocess survival. Evidence/Phone/Dispatch remain NOT_BUILT; overall skeleton IN_PROGRESS.

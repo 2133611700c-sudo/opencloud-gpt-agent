@@ -11,9 +11,11 @@ This is the execution route for the remaining Walking Skeleton, subordinate to `
 - Research and its accounting retain the previously proven `PASS_LIVE`; this route does not claim a new paid run.
 - Fresh read-only hosted inspection by `hosted_inspector` at `2026-10-12T23:57:30.163Z`: zero active tasks, RUNNING nodes, unresolved reservations and artifacts; deployed active-lease guards inspected. This is not a new hosted behavioral write test.
 - Latest archive CI hosted/live conditional steps were `SKIPPED`; external steps must execute before their layer is promoted.
-- Complete production Data, durable Evidence, phone result and actual user/GitHub dispatch remain unfinished.
+- Complete production Data is now `PASS_CODE_CI` (D1–D4 accepted below); durable Evidence, phone result and actual user/GitHub dispatch remain unfinished.
 
-Current functional route: **D2 -> D3 -> D4 -> E1 -> E2 -> P1 -> I1 -> I2 -> B1 -> G1 -> G2**. Authorized credential preparation may proceed independently, but does not advance a functional gate or prove G1.
+Accepted Data checkpoint: D1–D4 and complete scope #12 are `PASS_CODE_CI` at `b0693ca2abc234348785ab83bf176fad625047a3`, exact full CI `38394312147` SUCCESS. Existing entry-baseline bullets above retain their historical provenance; no fresh hosted/paid Data PASS is implied.
+
+Current functional route: **E1 -> E2 -> E3 -> P1 -> I1 -> I2 -> B1 -> G1 -> G2**. Authorized credential preparation may proceed independently, but does not advance a functional gate or prove G1.
 
 ## Shared operating rules
 
@@ -72,29 +74,39 @@ Verify positive and negative PostgreSQL vertical plus full exact CI. Perform dir
 
 Exit: complete #12 `PASS_CODE_CI`; any additional hosted/live promotion requires its own executed evidence. Evidence feature work may now start.
 
-## E1 — Durable Evidence bundle
+## E1 — Versioned Evidence contract
 
-Parents: scope #14 and accounting #13. Entry: complete Data #12 `PASS_CODE_CI`.
+Parent: scope #14. Entry: complete Data #12 `PASS_CODE_CI`.
 
-Persist versioned task/acceptance criteria, nodes, Research/production Data results, sources, accounting, model/tool metadata, trace/errors, attempts and terminal status in durable storage. Exclude credentials and private chain-of-thought. Existing PostgreSQL artifacts/storage is the smallest supported starting point; new platform infrastructure is not a prerequisite.
+Define the immutable/versioned input-output contract for task, acceptance criteria, nodes, Research/production Data results, sources, accounting, tool/model metadata, attempts, safe trace/errors and terminal status. Exclude secrets and private chain-of-thought. This gate has no database/runner lifecycle implementation.
 
-Verify content/schema, stable task linkage, repeat-safe persistence, retrieval and secret exclusion; PostgreSQL integration and full exact CI. Any schema migration follows child/hosted protocol.
+Verify required fields/linkage, terminal status, accounting/provenance and positive/negative secret-safe cases; focused tests -> full exact CI.
 
-Exit: `PASS_CODE_CI` for bundle construction/persistence; survival remains unproven until E2.
+Exit: `PASS_CODE_CI` for E1 contract only. Durable Evidence remains unbuilt until E2/E3 proof; hand off the contract to SQL persistence.
 
-## E2 — Evidence survives runner termination
+## E2 — Durable SQL persistence and retrieval
 
-Parent: scope #14. Entry: E1 verified.
+Parent: scope #14. Entry: E1 contract `PASS_CODE_CI`.
 
-Persist from one process, terminate that producer, retrieve independently from a new process using only durable identity/storage. Verify no producer-local filesystem dependency. Inspect terminal task/result/accounting/source linkage and cleanup.
+Persist/retrieve the validated bundle through the smallest existing PostgreSQL/artifacts surface, preserving task identity, immutable acceptance data and repeat-safe storage. Define ownership/atomicity and durable receipt linkage; no new S3/platform dependency is needed.
 
-Verify local process-survival integration and direct hosted persistence/retrieval when applicable; full exact CI.
+Verify actual SQL/adapter behavior, idempotency, retrieval, linkage and failure paths; real local PostgreSQL integration -> full exact CI. Apply any migration through child verification/hosted behavior/cleanliness protocol when applicable.
 
-Exit: `PASS_CODE_CI` for the code test and `PASS_HOSTED` only when the hosted survival path executes. Complete #14 requires the durable layer proof, not an artifact counter alone.
+Exit: `PASS_CODE_CI` for SQL persistence/retrieval; `PASS_HOSTED` only for actual hosted execution. Runtime integration and survival remain E3.
+
+## E3 — Runtime receipt/lifecycle and producer-process survival
+
+Parent: scope #14. Entry: E2 storage/retrieval proved at the required layer.
+
+Integrate durable Evidence receipt with the terminal runtime lifecycle. Persist from one process, terminate the producer, and retrieve/validate from a new process using durable identity/storage alone. Verify canonical task/Data/accounting/source linkage and no producer-local filesystem dependency.
+
+Verify successful and failed terminal paths, persistence failure handling, receipt linkage, independent new-process retrieval and cleanup; real PostgreSQL integration -> full exact CI; direct hosted persistence/retrieval when that layer executes.
+
+Exit: durable Evidence proof at its explicitly evidenced layer; complete #14 requires survival/retrieval, not a schema, local artifact or row counter alone. Only then start P1.
 
 ## P1 — Phone result and deep log
 
-Parent: scope #15. Entry: E2 durable retrieval proved at the required layer.
+Parent: scope #15. Entry: E3 durable receipt/lifecycle and process-survival retrieval proved at the required layer.
 
 Success: `[SUCCESS]`, 1–5 result lines, cost, attempts and reachable deep-log/evidence link. Failure: `[FAIL_WITH_EVIDENCE]`, reason, progress, evidence supporting zero further calls and deep-log link. Do not dump trace or implementation details into the phone result.
 

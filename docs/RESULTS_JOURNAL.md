@@ -721,3 +721,71 @@ Five exact-CI conditional steps remained `SKIPPED`: hosted Neon persistence, liv
 Prove actual production Research structured output -> actual Data worker/transformer -> persisted validated normalized/deduped sourced result -> Data SUCCESS -> authoritative task terminalization. Existing deterministic live-gate completion is not production Data proof. Preserve the pinned Research runtime and previously verified live run; use existing structured results where appropriate, with fixture/local evidence labelled precisely. Focused/negative checks -> full exact GitHub CI; direct hosted/live proof when that layer executes.
 
 Do not start Evidence/Phone/Dispatch before D4 acceptance closes complete scope #12. No browser/Vision/PDF/catalog scale-out, unrelated refactor or redundant paid Research experiment.
+
+---
+
+## JRNL-2026-10-13-004 — Complete production Data D4 vertical verified
+
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified implementation HEAD before this checkpoint:** `b0693ca2abc234348785ab83bf176fad625047a3`  
+**Parent accepted D3 checkpoint:** `8b54e6f14a37485f1747ba6dab8653783fcdd319`, exact full CI `38392212344` `SUCCESS`  
+**Exact D4 full CI:** `38394312147` — `SUCCESS`  
+**Independently inspected CI job:** `115285527950` — completed `success`, zero failed steps; production Data PostgreSQL step `15` succeeded
+
+### Route Card and completed production Data path
+
+48h parent: scope #12 Data/Result validation/dedup/normalization. D1–D3 were already `PASS_CODE_CI`; D4's gap was gate-only Data completion in the Research acceptance path rather than the actual production worker and persisted result proof.
+
+The live gate/script now invokes the real task-scoped Data worker. It verifies exact Research/Data/task/dependency identities, immutable request and JSON-transport-equivalent returned/stored Research. Returned and persisted Data must match schema v1 and the deterministic transform of the stored authoritative request/Research, without repairing array order or values. The canonical two-node/one-dependency task must terminate SUCCESS with two steps, reconciled cost/tokens and zero reservations. Required official-domain provenance must survive Data. The entire ordered accounting ledger is compared before/after Data, with one Research row and zero Data rows; Data reservation rows and counters remain zero.
+
+Eight files changed: workflow; live Research script/gate; production Data PostgreSQL harness; existing Research PostgreSQL harness cleanup; three live-gate test files. No migration, runtime pin/model change, new provider or secret-storage change was included.
+
+### Actual parallel handoffs and review findings
+
+- `data_implementer` wrote the main D4 runtime/script/unit/workflow zones.
+- After explicit handoff, `data_investigator` became sole writer of the PostgreSQL integration zone and refined the normalized Research fixture/persistence/accounting cases.
+- `data_skeptic` supplied independent read-only `148` assertions, including `64` negative cases. Implementer/independent verification reports show full meaningful unit suite `228` and focused suite `70`, all passed.
+- `root` owned Docker/PostgreSQL operations, final integration/review and publication; `verification_engineer` remained read-only and did not run Docker.
+- The recorder read the published files/hashes and exact CI job before receiving governance GO; no recorder model/DB/Docker mutation occurred.
+
+Review identified insufficient count-only accounting checks and returned/stored Research drift; full ordered accounting-ledger equality and JSON-transport Research comparison were added before publication. Root identified a new verification SQL reference error; the implementation lane corrected it to existing accounting `cost_usd` before the PostgreSQL run. Research integration fixture cleanup was corrected for sequential harness execution. These are D4 review/preparation findings, not invented earlier D3 defects or failed CI claims.
+
+### Verification and local PostgreSQL evidence
+
+Root ran the isolated PostgreSQL checks sequentially:
+
+- Research E2E after fixture cleanup correction: exit `0`.
+- D3 Data E2E session `24514`: exit `0`.
+- D4 production vertical session `62196`: exit `0`.
+
+The positive fixture uses production Research wiring with an injected synthetic runtime, actual Kernel/SQL and actual production Data worker/transformer. Normalized Research has `2` sources/`3` items; persisted Data has `2` sources/`2` items, preserving zero/false, nested array order and distinct provenance. One synthetic Research accounting row records `$0.01`/`20` tokens with its RECONCILED reservation; Data adds no model row/reservation/spend. These are synthetic fixture ledger values, not paid charges.
+
+A partial required-field case leaves Research SUCCESS but terminalizes Data/task as FAIL_WITH_EVIDENCE, with no Data output and zero unresolved reservations. It is not filtered into a nominal success.
+
+Exact full CI `38394312147` succeeded for all code steps, including new production Data PostgreSQL vertical. Five conditional hosted/live/upload steps were `SKIPPED`; those steps prove no new hosted/paid execution.
+
+Reviewed SHA256 values:
+
+- gate: `da4df3686231404aa81771a1b4f38a629005fa963631fc1a2dc031bc9a249b5f`;
+- production PostgreSQL test: `d338201b92bdeeb770bdf4d2fd26c31c49c37f39ee55b34c7a495a57a084559b`;
+- workflow: `2ae2f2f3e338c1afaaf5e49c49dda7b7a8dbd25b335b511274d6e9a612cc8fb4`.
+
+**D4 and complete scope #12: `PASS_CODE_CI`. D1–D4 are complete at the code/CI layer.** This is not a new `PASS_HOSTED` or `PASS_LIVE`. Overall Walking Skeleton remains `IN_PROGRESS`.
+
+### Read-only runtime preparation and retained limits
+
+Root prepared private pinned OpenClaw `2026.9.8` with matching DeepSeek/DuckDuckGo plugins; configuration validation returned `valid:true`, no warnings, and DeepSeek auth scope had zero stored profiles. Root also used HTTPS Neon read-only transport to reach the expected database with clean `0/0/0` counts. These are installation/configuration/transport preflight facts. No credential value is recorded here, and the recorder inspected no secret file.
+
+The last timestamped direct hosted observation retained in state is `2026-10-13T11:36:55.060Z`: active tasks/RUNNING nodes/unresolved reservations/artifacts all `0`. No hosted mutation, new paid Research/web call or new hosted production Data behavior was executed for D4. The older paid Research task/observed accounting remains separate historical live proof; its Data mode was gate-only.
+
+Permanent external machine credential plumbing remains `NOT_PROVEN`; recorded secret/protection administration HTTP `403` actions remain `BLOCKED`. Evidence, Phone and actual user/GitHub dispatch remain `NOT_BUILT`. Private session credentials do not prove continuous hosted/live Actions execution.
+
+### Route decision
+
+**Next: Evidence E1 contract only.** Phase 7 begins; no Evidence PASS is declared.
+
+Checkpoint publication resumed on `2026-10-14`. Fresh remote HEAD and exact run/job/step reads still matched `b0693ca2abc234348785ab83bf176fad625047a3` / CI `38394312147` SUCCESS. The four pending governance files survived the pause; no new feature implementation or live result was inferred from recovery.
+
+Narrowed Evidence route: **E1 versioned terminal bundle contract -> E2 durable SQL persistence/retrieval -> E3 runtime receipt/lifecycle integration and retrieval from a new process after producer termination.** Persist task/immutable acceptance criteria/nodes/Research/production Data/sources/accounting/tool-model metadata/attempts/errors/terminal status, excluding credentials and private chain-of-thought.
+
+Each micro-gate requires focused/negative checks and full exact CI; SQL/hosted changes require the applicable child/behavior/cleanliness protocol. Phone/Dispatch wait until durable Evidence is independently proved. Do not detour into browser/Vision/PDF, catalog activation, unrelated refactors or redundant paid Research experiments.

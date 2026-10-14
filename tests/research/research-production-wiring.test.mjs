@@ -20,7 +20,7 @@ const makeQuery = () => {
       }] };
     }
     if (text.startsWith('SELECT reserve_node_budget')) return { rows: [{ reservation_id: 'reservation-1' }] };
-    if (text.startsWith('SELECT * FROM record_llm_call(')) return { rows: [{ accounting_id: 'accounting-1', created: true }] };
+    if (text.startsWith('SELECT * FROM record_llm_call_with_runtime_receipt_v1(')) return { rows: [{ accounting_id: 'accounting-1', accounting_created: true, runtime_receipt_id: 'receipt-1', runtime_receipt_created: true }] };
     if (text.startsWith('SELECT complete_node_success')) return { rows: [{ accepted: true }] };
     if (text.startsWith('SELECT heartbeat_node')) return { rows: [{ accepted: true }] };
     throw new Error(`unexpected SQL: ${text}`);
@@ -44,7 +44,7 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ca
       researchCalls.push(input);
       return {
         result: { status: 'SUCCESS', summary: 'verified', sources: [{ id: 's1', url: 'https://example.com', checkedAt: '2026-10-11T21:00:00Z' }], items: [], needsBrowser: [], confidence: 'HIGH' },
-        telemetry: { usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, total: 15 }, costUsd: 0.01, sessionId: 'provider-session-1' },
+        telemetry: { provider: 'deepseek', model: 'deepseek-flash', usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, total: 15 }, costUsd: 0.01, sessionId: 'provider-session-1', toolSummary: { calls: 2, failures: 0, tools: ['web_search', 'web_fetch'], totalToolTimeMs: 7 } },
         process: { latencyMs: 9 },
       };
     },
@@ -69,7 +69,7 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ca
   assert.ok(reserve);
   assert.equal(reserve.values[0], `research:task-1:node-1:${leaseToken}`);
 
-  const accounting = db.calls.find((call) => call.text.startsWith('SELECT * FROM record_llm_call('));
+  const accounting = db.calls.find((call) => call.text.startsWith('SELECT * FROM record_llm_call_with_runtime_receipt_v1('));
   assert.ok(accounting);
   assert.equal(accounting.values[1], `research:task-1:node-1:${leaseToken}`);
   assert.equal(accounting.values[5], 'deepseek');
@@ -77,6 +77,12 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ca
   assert.equal(accounting.values[7], 'pricing-v1');
   assert.equal(accounting.values[9], 0);
   assert.equal(accounting.values[10], 10);
+  assert.deepEqual(JSON.parse(accounting.values[15]), {
+    observed: { provider: 'deepseek', model: 'deepseek-flash', sessionId: 'provider-session-1', toolSummary: { calls: 2, failures: 0, tools: ['web_search', 'web_fetch'], totalToolTimeMs: 7 } },
+    configured: { runtimeVersion: '2026.9.8', requestedModel: 'deepseek/deepseek-flash', thinkingLevel: 'max' },
+    trace: [],
+    error: null,
+  });
 
   const completion = db.calls.find((call) => call.text.startsWith('SELECT complete_node_success'));
   assert.ok(completion);

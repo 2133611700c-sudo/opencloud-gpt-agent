@@ -143,6 +143,11 @@ async function producerMain() {
   assert.equal(receipt.bundle.runtimeReceipts.length, 1);
   assert.equal(receipt.bundle.coverage.runtimeReceiptsPresent, true);
   assert.equal(receipt.bundle.coverage.toolMetadataPresent, true);
+  const runtimeReceipt = receipt.bundle.runtimeReceipts[0];
+  assert.equal(runtimeReceipt.trace.length, 1);
+  assert.equal(runtimeReceipt.trace[0].event, 'ACCOUNTING_RECONCILED');
+  assert.match(runtimeReceipt.trace[0].at, /Z$/);
+  assert.equal(runtimeReceipt.error, null);
 
   emit({
     taskId,
@@ -175,6 +180,8 @@ async function retrieverMain() {
     model: runtime?.observed?.model ?? null,
     runtimeVersion: runtime?.configured?.runtimeVersion ?? null,
     tools: runtime?.observed?.toolSummary?.tools ?? [],
+    trace: runtime?.trace ?? [],
+    runtimeError: runtime?.error ?? null,
   });
 }
 
@@ -248,6 +255,10 @@ if (childRole === 'producer') {
       assert.equal(retrieved.runtimeVersion, '2026.9.8');
       assert.ok(retrieved.tools.includes('web_search'));
       assert.ok(retrieved.tools.includes('web_fetch'));
+      assert.equal(retrieved.trace.length, 1);
+      assert.equal(retrieved.trace[0].event, 'ACCOUNTING_RECONCILED');
+      assert.match(retrieved.trace[0].at, /Z$/);
+      assert.equal(retrieved.runtimeError, null);
     }
 
     // Corrupt one local fixture after successful retrieval; the production finalizer
@@ -268,7 +279,7 @@ if (childRole === 'producer') {
     assert.equal(cleanliness.rows[0].running_nodes, 0);
     assert.equal(cleanliness.rows[0].unresolved_reservations, 0);
 
-    console.log('runtime Evidence lifecycle E2E: SUCCESS + FAIL_WITH_EVIDENCE persisted by producer processes, independently retrieved after producer exit, receipt linkage verified, persistence conflict fails closed');
+    console.log('runtime Evidence lifecycle E2E: SUCCESS + FAIL_WITH_EVIDENCE persisted by producer processes, independently retrieved after producer exit, receipt linkage and accounting trace verified, persistence conflict fails closed');
   } finally {
     if (taskIds.length) {
       mutateLocalFixture(

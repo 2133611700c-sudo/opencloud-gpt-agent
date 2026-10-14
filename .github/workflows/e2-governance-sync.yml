@@ -1,0 +1,173 @@
+name: OpenClaw V2 E2 Governance Sync
+
+on:
+  push:
+    branches:
+      - e2-governance-sync-run
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v2/openclaw-clean-20261011
+          fetch-depth: 20
+
+      - name: Verify expected target head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "495b23b67d1226d4a79c8b640e56080dbbcaeda1"
+
+      - name: Record E2 hosted evidence checkpoint
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          state_path = Path('PROJECT_STATE.json')
+          state = json.loads(state_path.read_text())
+          head = '495b23b67d1226d4a79c8b640e56080dbbcaeda1'
+          ci = 38505501374
+
+          state['verified_head'] = head
+          state['verified_code_head'] = head
+          state['verified_ci_run_id'] = ci
+          state['verified_ci_conclusion'] = 'success'
+          state['foundation']['ci_run_id'] = ci
+          state['foundation']['ci_conclusion'] = 'success'
+          state['current_phase'] = 7
+          state['current_phase_name'] = 'Artifact + Evidence Layer — E2 durable PostgreSQL persistence PASS_HOSTED; E3 runtime lifecycle/process survival next'
+          state['route_id'] = 'DURABLE_EVIDENCE_E3_THEN_PHONE_DISPATCH'
+
+          direct = state['hosted_postgres']['direct_check']
+          direct.update({
+              'active_tasks': 0,
+              'running_nodes': 0,
+              'unresolved_reservations': 0,
+              'observed_at': '2026-10-14T03:21:53.544Z',
+              'evidence_persist_function_present': True,
+              'evidence_snapshot_function_present': True,
+              'evidence_artifacts': 0,
+              'evidence_e2_verification_child_branch_id': 'br-rough-recipe-a4038vhb',
+              'check_scope': 'Evidence E2 additive migration 0020 and behavior verified on clean Neon child br-rough-recipe-a4038vhb, then applied to hosted openclaw-v2. First persist, idempotent repeat and exact read/hash/size linkage passed; test rows cleaned. Final hosted state active0/RUNNING0/RESERVED0/EVIDENCE_BUNDLE_V1 artifacts0. No paid provider execution.'
+          })
+
+          innovation = {
+              'commit': head,
+              'result': 'PASS_HOSTED',
+              'change': 'Evidence E2 migration 0020 + PostgreSQL evidence store implemented; exact CI 38505501374 SUCCESS. Clean child and hosted Neon directly proved canonical persist/read, immutable task/acceptance linkage, repeat-safe idempotency, hash/size verification and post-test clean state.'
+          }
+          state['latest_verified_innovations'] = [innovation] + [x for x in state.get('latest_verified_innovations', []) if x.get('commit') != head]
+
+          gaps = state['known_gaps']
+          gaps['durable_evidence_bundle'] = 'NOT_BUILT_E3_RUNTIME_LIFECYCLE_PROCESS_SURVIVAL_PENDING'
+          gaps['github_actions_database_url'] = 'MISSING_IN_CI_38505501374_SO_HOSTED_ACTIONS_STEP_SKIPPED'
+          gaps['github_actions_deepseek_api_key'] = 'MISSING_IN_CI_38505501374_SO_LIVE_ACTIONS_STEPS_SKIPPED'
+
+          state['next_action'] = 'Evidence E3 only: integrate the E1 canonical bundle and E2 PostgreSQL store into terminal runtime lifecycle, persist a receipt before producer exit, then retrieve and validate the durable Evidence from a fresh process after producer termination for SUCCESS and failed terminal paths. Complete scope #14 remains NOT_BUILT until this process-survival proof passes. Phone/Dispatch wait.'
+          state['continuation_rule'] = 'Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. D1-D4 Data PASS_CODE_CI; E1 Evidence contract PASS_CODE_CI; E2 durable PostgreSQL persistence PASS_HOSTED. E3 runtime receipt/lifecycle/process-survival is the next gate; Phone/Dispatch wait. SKIPPED external CI steps prove no hosted/live behavior.'
+          state['evidence_scope_note'] = 'E1 contract is PASS_CODE_CI. E2 durable SQL persist/retrieve is PASS_HOSTED at commit 495b23b67d1226d4a79c8b640e56080dbbcaeda1 with exact CI 38505501374 SUCCESS and direct child+hosted Neon behavioral proof. Final hosted check at 2026-10-14T03:21:53.544Z: active0/RUNNING0/RESERVED0/EVIDENCE_BUNDLE_V1 artifacts0; persist/read functions present. Complete scope #14 remains NOT_BUILT until E3 runtime receipt/process-survival proof. Latest CI hosted/live secret-dependent steps were SKIPPED; historical Research PASS_LIVE is separate.'
+
+          state.setdefault('evidence_subgates', {})['E2_durable_sql_persist_retrieve'] = {
+              'status': 'PASS_HOSTED',
+              'commit': head,
+              'ci_run_id': ci,
+              'files': [
+                  'migrations/0020_evidence_artifact_persistence.sql',
+                  'src/evidence/postgres-evidence-store.mjs',
+                  'tests/sql/0020_evidence_artifact_persistence_test.sql',
+                  'tests/evidence/postgres-evidence-store.test.mjs'
+              ],
+              'verification_child_branch_id': 'br-rough-recipe-a4038vhb',
+              'hosted_branch_id': 'br-odd-forest-a4leyaqj',
+              'hosted_observed_at': '2026-10-14T03:21:53.544Z',
+              'post_clean_state': {
+                  'active_tasks': 0,
+                  'running_nodes': 0,
+                  'unresolved_reservations': 0,
+                  'evidence_artifacts': 0
+              },
+              'proof': 'Canonical E1 bundle persisted with SHA256/size and immutable task+acceptance linkage; identical retry returns same artifact without duplication; fresh read returns exact serialized payload; child and hosted behavior directly verified.'
+          }
+          state['evidence_subgates']['E3_runtime_receipt_lifecycle_process_survival'] = {'status': 'NOT_BUILT'}
+          state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + '\n')
+
+          journal_path = Path('docs/RESULTS_JOURNAL.md')
+          journal = journal_path.read_text()
+          marker = '## JRNL-2026-10-14-006 — E2 durable PostgreSQL Evidence persistence verified'
+          if marker in journal:
+              raise SystemExit('E2 journal checkpoint already exists')
+          entry = r'''
+
+---
+
+## JRNL-2026-10-14-006 — E2 durable PostgreSQL Evidence persistence verified
+
+**Branch:** `v2/openclaw-clean-20261011`
+**Implementation HEAD:** `495b23b67d1226d4a79c8b640e56080dbbcaeda1`
+**Exact full CI:** `38505501374` — `SUCCESS`
+**48h parent:** scope #14 durable Evidence
+**Gate:** E2 durable SQL persistence/retrieval
+
+### Result
+
+E2 is complete at both code/CI and hosted PostgreSQL layers. Migration `0020_evidence_artifact_persistence.sql` adds a single immutable `EVIDENCE_BUNDLE_V1` artifact per task plus `persist_task_evidence_v1(uuid,text,text)` and `read_task_evidence_snapshot_v1(uuid)`. The Node adapter `src/evidence/postgres-evidence-store.mjs` validates the E1 canonical bundle, SHA256, byte length and task linkage before persistence and revalidates stored evidence on read.
+
+Exact CI `38505501374` completed `SUCCESS`. Node tests, all migrations/SQL assertions, Research PostgreSQL E2E, Data PostgreSQL E2E and the production Data vertical all passed. The hosted/live credential-dependent Actions steps remained `SKIPPED`; those skips are not promoted to hosted/live PASS.
+
+### Hosted verification
+
+A new Neon verification branch could not be created because the project branch limit was reached. The previously inspected child `br-wandering-fire-a4vhwmd6` was not used because it was not clean at this checkpoint. A different existing clean child, `br-rough-recipe-a4038vhb`, had `0` active tasks, `0` RUNNING nodes and `0` unresolved reservations before E2.
+
+The additive E2 functions/index were applied transactionally to that clean child. A behavioral test proved: first persist creates one artifact; identical retry is idempotent and returns the same artifact; retrieval returns the exact serialized payload/hash/size; only one Evidence artifact exists. Test rows were removed and the child returned to `0/0/0` with zero E2 artifacts.
+
+The same additive migration was then applied to hosted `openclaw-v2 / openclaw_v2`. The same first-persist / repeat-idempotency / exact-read behavior passed directly. Final hosted observation at `2026-10-14T03:21:53.544Z`:
+
+- `persist_task_evidence_v1(uuid,text,text)`: present;
+- `read_task_evidence_snapshot_v1(uuid)`: present;
+- active tasks: `0`;
+- RUNNING nodes: `0`;
+- unresolved `RESERVED` reservations: `0`;
+- `EVIDENCE_BUNDLE_V1` artifacts after cleanup: `0`.
+
+**E2 result: `PASS_HOSTED`.** E1 remains `PASS_CODE_CI`.
+
+### Negative evidence / proof limit
+
+This gate does not yet prove that a real terminal runtime automatically produces Evidence and that the Evidence remains retrievable after the producer process terminates. Therefore complete mandatory scope #14 remains **`NOT_BUILT`** until E3 passes. No new paid DeepSeek/web execution occurred in E2. Permanent GitHub Actions credential plumbing remains `NOT_PROVEN`; latest credential-dependent CI steps were `SKIPPED`.
+
+### Route decision
+
+**Next allowed gate: E3 runtime receipt/lifecycle/process survival only.**
+
+Integrate the E1 canonical bundle and E2 PostgreSQL store into terminal runtime lifecycle; persist a durable receipt before producer exit; terminate the producer; retrieve and revalidate the same Evidence from a fresh process for both SUCCESS and failed terminal paths. Only after E3 is accepted may complete scope #14 become PASS and Phone P1 start.
+
+Do not detour into Phone, GitHub intake/dispatch, browser/Vision/PDF, catalog scale-out, broad refactors or redundant paid Research runs before E3 acceptance.
+'''
+          journal_path.write_text(journal.rstrip() + entry + '\n')
+          PY
+
+      - name: Validate governance diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/validate-foundation.mjs
+          python3 -m json.tool PROJECT_STATE.json >/dev/null
+          git diff --check
+          git diff --exit-code -- . ':!PROJECT_STATE.json' ':!docs/RESULTS_JOURNAL.md'
+
+      - name: Commit governance checkpoint to target branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'OpenClaw V2 Machine'
+          git config user.email 'actions@users.noreply.github.com'
+          git add PROJECT_STATE.json docs/RESULTS_JOURNAL.md
+          git commit -m 'docs(v2): record E2 durable Evidence PASS_HOSTED'
+          git push origin HEAD:v2/openclaw-clean-20261011

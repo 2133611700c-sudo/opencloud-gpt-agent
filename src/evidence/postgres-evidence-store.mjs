@@ -1,13 +1,13 @@
 import { createHash } from 'node:crypto';
 
-import { validateEvidenceBundle } from './evidence-contract.mjs';
+import { serializeEvidenceBundle, validateEvidenceBundle } from './evidence-contract.mjs';
 
 const UUID = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const SHA256 = /^[0-9a-f]{64}$/;
 
 export class PostgresEvidenceStoreError extends Error {
-  constructor(message, { code = 'EVIDENCE_STORE_INVALID', cause } = {}) {
-    super(message, cause ? { cause } : undefined);
+  constructor(message, { code = 'EVIDENCE_STORE_INVALID' } = {}) {
+    super(message);
     this.name = 'PostgresEvidenceStoreError';
     this.code = code;
   }
@@ -24,38 +24,59 @@ const requireTaskId = (taskId) => {
 };
 
 const digest = (serialized) => createHash('sha256').update(serialized, 'utf8').digest('hex');
+const invalidReceipt = () => { throw new PostgresEvidenceStoreError('PostgreSQL evidence receipt is invalid', { code: 'EVIDENCE_RECEIPT_INVALID' }); };
+const oneRow = (result, allowEmpty = false) => {
+  if (!Array.isArray(result?.rows) || result.rows.length > 1) invalidReceipt();
+  if (!result.rows.length && !allowEmpty) throw new PostgresEvidenceStoreError('PostgreSQL did not return an evidence persistence receipt', { code: 'EVIDENCE_PERSIST_RECEIPT_MISSING' });
+  return result.rows[0] ?? null;
+};
+const receiptSize = (value) => {
+  if ((typeof value !== 'number' && typeof value !== 'string') || (typeof value === 'string' && !/^[1-9]\d*$/.test(value))) invalidReceipt();
+  const number = Number(value);
+  if (!Number.isSafeInteger(number) || number < 1) invalidReceipt();
+  return number;
+};
+const receiptIdentity = (taskId, row, persisted = false) => {
+  if (!row || typeof row !== 'object' || Array.isArray(row) || typeof row.artifact_id !== 'string' || !UUID.test(row.artifact_id) || row.artifact_id !== row.artifact_id.toLowerCase()) invalidReceipt();
+  if ((!persisted || Object.hasOwn(row, 'task_id')) && row.task_id !== taskId) throw new PostgresEvidenceStoreError('Stored evidence task linkage is invalid', { code: 'EVIDENCE_TASK_MISMATCH' });
+  if (row.uri !== `artifact://postgres/${row.artifact_id}`) invalidReceipt();
+  if (persisted && typeof row.created !== 'boolean') invalidReceipt();
+  if ((!persisted || Object.hasOwn(row, 'created_at')) && (typeof row.created_at !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(row.created_at) || !Number.isFinite(Date.parse(row.created_at)))) invalidReceipt();
+};
 
 const validateArtifact = (taskId, artifact) => {
   if (!artifact || typeof artifact !== 'object' || Array.isArray(artifact)) {
     throw new TypeError('artifact must be an object');
   }
-  if (typeof artifact.serialized !== 'string' || artifact.serialized.length === 0) {
+  const { serialized, sha256, sizeBytes } = artifact;
+  if (typeof serialized !== 'string' || serialized.length === 0) {
     throw new TypeError('artifact.serialized is required');
   }
-  if (typeof artifact.sha256 !== 'string' || !SHA256.test(artifact.sha256)) {
+  if (typeof sha256 !== 'string' || !SHA256.test(sha256)) {
     throw new TypeError('artifact.sha256 must be lowercase hex');
   }
-  if (!Number.isSafeInteger(artifact.sizeBytes) || artifact.sizeBytes < 1) {
+  if (!Number.isSafeInteger(sizeBytes) || sizeBytes < 1) {
     throw new TypeError('artifact.sizeBytes must be a positive safe integer');
   }
-  const actualSize = Buffer.byteLength(artifact.serialized, 'utf8');
-  if (actualSize !== artifact.sizeBytes) {
+  const actualSize = Buffer.byteLength(serialized, 'utf8');
+  if (actualSize !== sizeBytes) {
     throw new PostgresEvidenceStoreError('Evidence byte length does not match artifact metadata', { code: 'EVIDENCE_SIZE_MISMATCH' });
   }
-  if (digest(artifact.serialized) !== artifact.sha256) {
+  if (digest(serialized) !== sha256) {
     throw new PostgresEvidenceStoreError('Evidence hash does not match artifact metadata', { code: 'EVIDENCE_HASH_MISMATCH' });
   }
   let parsed;
   try {
-    parsed = JSON.parse(artifact.serialized);
-  } catch (cause) {
-    throw new PostgresEvidenceStoreError('Evidence serialized payload is not valid JSON', { code: 'EVIDENCE_JSON_INVALID', cause });
+    parsed = JSON.parse(serialized);
+  } catch {
+    throw new PostgresEvidenceStoreError('Evidence serialized payload is not valid JSON', { code: 'EVIDENCE_JSON_INVALID' });
   }
   const bundle = validateEvidenceBundle(parsed);
   if (bundle.task.id !== taskId) {
     throw new PostgresEvidenceStoreError('Evidence task id does not match persistence target', { code: 'EVIDENCE_TASK_MISMATCH' });
   }
-  return bundle;
+  if (serializeEvidenceBundle(bundle) !== serialized) throw new PostgresEvidenceStoreError('Evidence payload is not canonical', { code: 'EVIDENCE_NONCANONICAL' });
+  return { bundle, serialized, sha256, sizeBytes };
 };
 
 const receipt = (row, bundle, serialized, { created = null } = {}) => Object.freeze({
@@ -63,7 +84,7 @@ const receipt = (row, bundle, serialized, { created = null } = {}) => Object.fre
   taskId: row.task_id ?? bundle.task.id,
   uri: row.uri,
   sha256: row.sha256,
-  sizeBytes: Number(row.size_bytes),
+  sizeBytes: receiptSize(row.size_bytes),
   created,
   createdAt: row.created_at ?? null,
   serialized,
@@ -72,17 +93,12 @@ const receipt = (row, bundle, serialized, { created = null } = {}) => Object.fre
 
 const validateStoredRow = (taskId, row) => {
   if (!row) return null;
-  if (typeof row.artifact_id !== 'string' || !UUID.test(row.artifact_id)) {
-    throw new PostgresEvidenceStoreError('Stored evidence artifact id is invalid', { code: 'EVIDENCE_RECEIPT_INVALID' });
-  }
-  if (row.task_id != null && String(row.task_id).toLowerCase() !== taskId) {
-    throw new PostgresEvidenceStoreError('Stored evidence task linkage is invalid', { code: 'EVIDENCE_TASK_MISMATCH' });
-  }
+  receiptIdentity(taskId, row);
   if (typeof row.serialized !== 'string' || typeof row.sha256 !== 'string' || !SHA256.test(row.sha256)) {
     throw new PostgresEvidenceStoreError('Stored evidence payload metadata is invalid', { code: 'EVIDENCE_RECEIPT_INVALID' });
   }
-  const sizeBytes = Number(row.size_bytes);
-  if (!Number.isSafeInteger(sizeBytes) || sizeBytes < 1 || Buffer.byteLength(row.serialized, 'utf8') !== sizeBytes) {
+  const sizeBytes = receiptSize(row.size_bytes);
+  if (Buffer.byteLength(row.serialized, 'utf8') !== sizeBytes) {
     throw new PostgresEvidenceStoreError('Stored evidence byte length is invalid', { code: 'EVIDENCE_SIZE_MISMATCH' });
   }
   if (digest(row.serialized) !== row.sha256) {
@@ -90,41 +106,44 @@ const validateStoredRow = (taskId, row) => {
   }
   let parsed;
   try { parsed = JSON.parse(row.serialized); }
-  catch (cause) {
-    throw new PostgresEvidenceStoreError('Stored evidence is not valid JSON', { code: 'EVIDENCE_JSON_INVALID', cause });
+  catch {
+    throw new PostgresEvidenceStoreError('Stored evidence is not valid JSON', { code: 'EVIDENCE_JSON_INVALID' });
   }
   const bundle = validateEvidenceBundle(parsed);
   if (bundle.task.id !== taskId) {
     throw new PostgresEvidenceStoreError('Stored evidence bundle references another task', { code: 'EVIDENCE_TASK_MISMATCH' });
   }
+  if (serializeEvidenceBundle(bundle) !== row.serialized) throw new PostgresEvidenceStoreError('Stored evidence payload is not canonical', { code: 'EVIDENCE_NONCANONICAL' });
   return { bundle, sizeBytes };
 };
 
 export function createPostgresEvidenceStore({ query } = {}) {
   const q = requireQuery(query);
+  const safeQuery = async (sql, values) => {
+    try { return await q(sql, values); }
+    catch { throw new PostgresEvidenceStoreError('PostgreSQL evidence operation failed', { code: 'EVIDENCE_STORE_QUERY_FAILED' }); }
+  };
 
   return Object.freeze({
     async persist({ taskId, artifact } = {}) {
       const normalizedTaskId = requireTaskId(taskId);
-      const bundle = validateArtifact(normalizedTaskId, artifact);
-      const result = await q(
+      const validated = validateArtifact(normalizedTaskId, artifact);
+      const result = await safeQuery(
         'SELECT * FROM persist_task_evidence_v1($1,$2,$3)',
-        [normalizedTaskId, artifact.serialized, artifact.sha256],
+        [normalizedTaskId, validated.serialized, validated.sha256],
       );
-      const row = result?.rows?.[0];
-      if (!row) {
-        throw new PostgresEvidenceStoreError('PostgreSQL did not return an evidence persistence receipt', { code: 'EVIDENCE_PERSIST_RECEIPT_MISSING' });
-      }
-      if (row.sha256 !== artifact.sha256 || Number(row.size_bytes) !== artifact.sizeBytes) {
+      const row = oneRow(result);
+      receiptIdentity(normalizedTaskId, row, true);
+      if (row.sha256 !== validated.sha256 || receiptSize(row.size_bytes) !== validated.sizeBytes) {
         throw new PostgresEvidenceStoreError('PostgreSQL evidence receipt does not match the canonical artifact', { code: 'EVIDENCE_PERSIST_RECEIPT_MISMATCH' });
       }
-      return receipt(row, bundle, artifact.serialized, { created: row.created === true });
+      return receipt(row, validated.bundle, validated.serialized, { created: row.created });
     },
 
     async read(taskId) {
       const normalizedTaskId = requireTaskId(taskId);
-      const result = await q('SELECT * FROM read_task_evidence_snapshot_v1($1)', [normalizedTaskId]);
-      const row = result?.rows?.[0] ?? null;
+      const result = await safeQuery('SELECT * FROM read_task_evidence_snapshot_v1($1)', [normalizedTaskId]);
+      const row = oneRow(result, true);
       if (!row) return null;
       const verified = validateStoredRow(normalizedTaskId, row);
       return receipt(row, verified.bundle, row.serialized);

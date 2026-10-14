@@ -126,8 +126,7 @@ const unique = (rows, key) => {
 };
 const sorted = (rows) => [...rows].sort((a, b) => compare(a.id, b.id));
 const safeError = (value) => {
-  if (value == null) return null;
-  object(value);
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   const result = {};
   for (const key of ['code', 'reason']) if (typeof value[key] === 'string' && CODE.test(value[key])) result[key] = value[key];
   return result;
@@ -520,4 +519,8 @@ export function createEvidenceArtifact(snapshot, options = {}) {
   const bundle = buildEvidenceBundle(snapshot, options);
   const serialized = canonical(bundle);
   return Object.freeze({ bundle, serialized, sha256: createHash('sha256').update(serialized, 'utf8').digest('hex'), sizeBytes: Buffer.byteLength(serialized, 'utf8') });
+}
+
+export function serializeEvidenceBundle(bundle) {
+  return canonical(validateEvidenceBundle(bundle));
 }

@@ -133,6 +133,9 @@ export function createPsqlQuery({
         env: pgEnv,
         input: `${wrapped}\n`,
         maxBuffer: maxBufferBytes,
+        // execFileSync otherwise copies captured stderr to the parent on failure;
+        // PostgreSQL diagnostics can contain private bound values.
+        stdio: ['pipe', 'pipe', 'pipe'],
       });
     } catch (error) {
       throw new PsqlQueryError('PostgreSQL query failed', { cause: error });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { buildEvidenceBundle, createEvidenceArtifact, validateEvidenceBundle, EvidenceContractError } from '../../src/evidence/evidence-contract.mjs';
+import { buildEvidenceBundle, createEvidenceArtifact, serializeEvidenceBundle, validateEvidenceBundle, EvidenceContractError } from '../../src/evidence/evidence-contract.mjs';
 import { transformData } from '../../src/data/data-transformer.mjs';
 
 const uuid = (number) => `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`;
@@ -293,4 +293,18 @@ test('public provenance still covers deduped representatives, aliases and unused
   snapshot.nodes[1].output_data = transformData({ requiredFields: snapshot.task.request_payload.requiredFields, researchResult: result });
   const bundle = createEvidenceArtifact(snapshot).bundle; assert.equal(bundle.nodes[1].result.items.length, 1); assert.equal(bundle.nodes[1].result.sources.length, 2);
   assert.deepEqual(validateEvidenceBundle(JSON.parse(JSON.stringify(bundle))), bundle);
+});
+
+test('scalar and array error payloads are omitted safely from terminal snapshots', () => {
+  for (const value of ['Private error prose sentinel', 7, false, ['Private error prose sentinel']]) {
+    const raw = failure(); raw.nodes[0].last_error = value; raw.task.terminal_detail = value;
+    const artifact = createEvidenceArtifact(raw);
+    assert.equal(artifact.bundle.nodes[0].error, null); assert.equal(artifact.bundle.task.terminalError, null);
+    assert.equal(artifact.serialized.includes('Private error prose sentinel'), false);
+  }
+});
+
+test('public serializer validates before producing the same deterministic artifact bytes', () => {
+  const artifact = createEvidenceArtifact(fixture()); assert.equal(serializeEvidenceBundle(JSON.parse(artifact.serialized)), artifact.serialized);
+  const invalid = JSON.parse(artifact.serialized); invalid.task.status = 'RUNNING'; assert.throws(() => serializeEvidenceBundle(invalid), EvidenceContractError);
 });

@@ -60,6 +60,7 @@ test('psql query transport keeps connection and bound task data out of argv whil
   assert.equal(calls[0].options.env.DATABASE_URL, undefined);
   assert.match(calls[0].options.input, /^WITH __openclaw_query AS \(SELECT /);
   assert.ok(calls[0].options.input.includes(sensitiveTaskValue));
+  assert.deepEqual(calls[0].options.stdio, ['pipe', 'pipe', 'pipe']);
 });
 
 test('psql transport fails closed on malformed output', async () => {

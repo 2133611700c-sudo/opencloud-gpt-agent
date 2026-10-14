@@ -882,3 +882,34 @@ This gate does not yet prove that a real terminal runtime automatically produces
 Integrate the E1 canonical bundle and E2 PostgreSQL store into terminal runtime lifecycle; persist a durable receipt before producer exit; terminate the producer; retrieve and revalidate the same Evidence from a fresh process for both SUCCESS and failed terminal paths. Only after E3 is accepted may complete scope #14 become PASS and Phone P1 start.
 
 Do not detour into Phone, GitHub intake/dispatch, browser/Vision/PDF, catalog scale-out, broad refactors or redundant paid Research runs before E3 acceptance.
+
+
+## JRNL-2026-10-14-007 — E2 proof scope corrected; Evidence store boundary repaired
+
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified repair HEAD:** `aeb8710b54301a500f41762e42ce0f496b36f47d`  
+**Exact full CI:** `38569187811` SUCCESS; root-inspected job `115869571556`, all code steps passed, five external conditional steps SKIPPED
+
+### External checkpoint reconciliation and proof correction
+
+An external writer advanced the branch through E2 implementation `495b23b67d1226d4a79c8b640e56080dbbcaeda1` and checkpoint `372fa4cf7f9caf28b111adf49d06822d59386ee8`/journal006. Root reviewed the delta and independently dispatched exact checkpoint CI `38567467736`: SUCCESS, job `115863734128`, code steps passed/five external steps SKIPPED. The earlier implementation CI `38505501374` remains historical.
+
+Retain E2's historical child/hosted **PASS_HOSTED for SQL storage mechanics**: persist/retry/read/hash/size and immutable linkage. Correction: the committed SQL fixture is a minimal bundle that does not satisfy E1; it does not prove production E1-built bundle acceptance. Do not erase the storage behavior or promote it into full Evidence/runtime survival proof.
+
+Root's hosted read-only observation at `2026-10-14T12:52:17.306Z` found migration0020 functions present, active/RUNNING/RESERVED0/0/0 and artifacts0. Inherited row fingerprints (tasks7/nodes14/accounting3/reservations6/artifacts0) exactly matched the pre-E2 baseline; no inherited row change or new hosted mutation is claimed.
+
+### Narrow store-boundary correction and actual lanes
+
+Review reproduced defects in canonical serialized bytes, durable receipt identity/row cardinality, and database error privacy, including JSON causes/scalar detail. Four Evidence contract/store/test files were corrected by `evidence_writer`; root corrected two psql transport/test files, explicitly isolating stdio so database stderr cannot escape into parent output. No migration/SQL/runtime feature change belongs to this repair.
+
+Writer actual unit counts: focused53/full281. Root independently ran **281/281** actual unit cases plus foundation/health/diff checks. Root PostgreSQL production vertical session `62733` exited0; migration0020 SQL assertions exited0. A private stderr-leak probe changed from before=true to after=false; no private value is recorded. Initial verifier/skeptic tasks were pending and were not executed for this repair; their earlier gate work is not credited as new review.
+
+Exact repair CI above passed. **Store-boundary repair: PASS_CODE_CI only.** Five hosted/live/upload conditional steps remained SKIPPED. No new hosted/paid PASS is inferred.
+
+### Remaining acceptance gap and route
+
+Seven root PostgreSQL request probes: `{}` passes; six E1-valid forms fail SQL acceptance parity — null request, null requiredFields, null maxResults, null constraints, trim-normalized required field and redacted goal. These are explicit pending production-builder gaps; fixture storage checks do not close them.
+
+**Next E3a:** bind the authoritative raw task/request/acceptance snapshot to E1 construction and SQL storage, resolving those gaps with actual PostgreSQL positive/negative tests and full exact CI. **Then E3b:** terminal runtime receipt/lifecycle and retrieval from a new process after producer termination for success/failure paths.
+
+Complete scope #14 remains NOT_BUILT; overall IN_PROGRESS. Phone/Dispatch wait. Permanent machine secrets remain NOT_PROVEN; recorded administration403 actions remain BLOCKED. Recorder made only these governance edits from root fresh HEAD/CI evidence, with no network/DB/model/secret-file operations. Preserve accepted Data/Research runtime and avoid unrelated work.

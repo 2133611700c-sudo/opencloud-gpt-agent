@@ -380,3 +380,13 @@ A capability is not READY until all applicable answers are YES:
 - Root hosted read-only session43993 at `2026-10-14T02:37:10.789386Z`: active0/RUNNING0/RESERVED0/artifacts0; planned E2 snapshot/persist functions absent. Observation only, no hosted write/live promotion.
 - Recorder network reads externally stalled/aborted; root supplied fresh unchanged HEAD/exact CI before local three-file governance GO. No recorder secret-file, DB/model or source mutation.
 - E1 PASS_CODE_CI only; complete Evidence#14 NOT_BUILT, overall IN_PROGRESS. E2 durable SQL persistence/retrieval -> E3 runtime receipt/lifecycle/new-process survival next; Phone/Dispatch wait. Permanent secrets NOT_PROVEN/admin403 BLOCKED; SKIPPED remains non-proof.
+
+
+### E2 store-boundary repair and proof-scope correction [PASS_CODE_CI]
+
+- Repair `aeb8710b54301a500f41762e42ce0f496b36f47d`; exact full CI38569187811 SUCCESS, root-inspected job115869571556 all code steps passed/five external steps SKIPPED. External E2 checkpoint372fa4c independently rerun CI38567467736 SUCCESS; journal006 storage history preserved.
+- Correction: historical child/hosted E2 SQL storage PASS_HOSTED does not prove production E1-builder acceptance; SQL fixture was minimal and not E1-valid. Six request null/normalization/redaction parity gaps remain E3a. Complete Evidence#14 NOT_BUILT.
+- Actual writers: evidence_writer four Evidence files; root two psql transport/test files. Canonical bytes, exact receipt identity/cardinality and safe database error/cause/detail boundaries corrected; explicit stdio changed private stderr probe leak before=true/after=false. No private value, SQL/runtime feature or new hosted write recorded.
+- Writer53focused/281full; root independent281/281 plus foundation/health/diff checks. Root production PostgreSQL session62733 exit0; migration0020 SQL assertions exit0. Initial specialist/verifier tasks were pending/not executed for this repair and are not credited as new evidence.
+- Hosted read-only12:52:17Z functions0020 present/clean0/0/0/artifacts0 and inherited fingerprints tasks7/nodes14/accounting3/reservations6/artifacts0 unchanged. Details in JRNL-2026-10-14-007.
+- Next E3a bound raw snapshot -> E3b runtime receipt/lifecycle/new-process survival. Phone/Dispatch wait; overall IN_PROGRESS; permanent secrets NOT_PROVEN/admin403 BLOCKED; SKIPPED is non-proof.

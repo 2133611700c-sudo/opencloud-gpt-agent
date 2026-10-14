@@ -4,9 +4,9 @@
   "updated_at": "2026-10-14",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "b0693ca2abc234348785ab83bf176fad625047a3",
-  "verified_code_head": "b0693ca2abc234348785ab83bf176fad625047a3",
-  "verified_ci_run_id": 38394312147,
+  "verified_head": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
+  "verified_code_head": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
+  "verified_ci_run_id": 38501303395,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,11 +18,11 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38394312147,
+    "ci_run_id": 38501303395,
     "ci_conclusion": "success"
   },
   "current_phase": 7,
-  "current_phase_name": "Artifact + Evidence Layer — E1 contract next; production Data D1–D4 PASS_CODE_CI",
+  "current_phase_name": "Artifact + Evidence Layer — E1 contract PASS_CODE_CI; E2 durable SQL persistence next",
   "walking_skeleton_gate": "IN_PROGRESS",
   "route_id": "DURABLE_EVIDENCE_THEN_PHONE_DISPATCH",
   "truth_labels": [
@@ -78,11 +78,13 @@
       "complete_node_success_active_lease_guard_0019_present": true,
       "requeue_node_retry_active_lease_guard_0019_present": true,
       "verification_child_branch_id": "br-wandering-fire-a4vhwmd6",
-      "observed_at": "2026-10-13T11:36:55.060Z",
+      "observed_at": "2026-10-14T02:37:10.789386Z",
       "total_artifacts": 0,
       "fail_node_terminal_active_lease_guard_present": true,
-      "check_scope": "Fresh hosted read-only counts at observed_at only; guard booleans and verification child id retain earlier inspection/behavioral provenance. No new hosted mutation, behavioral write test or paid provider execution.",
-      "guard_inspection_observed_at": "2026-10-12T23:57:30.163Z"
+      "check_scope": "Root fresh hosted read-only counts and function absence at observed_at only; earlier guard/child behavior provenance retained. No hosted mutation, behavioral write test or paid provider execution.",
+      "guard_inspection_observed_at": "2026-10-12T23:57:30.163Z",
+      "evidence_snapshot_function_present": false,
+      "evidence_persist_function_present": false
     }
   },
   "live_capabilities": {
@@ -112,6 +114,11 @@
     "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows."
   },
   "latest_verified_innovations": [
+    {
+      "commit": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
+      "result": "PASS_CODE_CI",
+      "change": "E1 versioned terminal Evidence contract, canonical serializer/SHA256 and safe projection validated; exact full CI 38501303395 succeeded. Durable persistence/runtime survival remain E2/E3 and complete scope #14 remains NOT_BUILT."
+    },
     {
       "commit": "b0693ca2abc234348785ab83bf176fad625047a3",
       "result": "PASS_CODE_CI",
@@ -173,15 +180,15 @@
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38394312147_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38394312147_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38501303395_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38501303395_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
     "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
   },
   "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "Evidence E1 only: define a versioned terminal Evidence input/output contract from task/immutable acceptance/nodes/Research/production Data/sources/accounting/tool-model metadata/attempts/errors/terminal status, excluding secrets and private chain-of-thought. Focused/negative tests -> full exact CI. Then E2 durable SQL persistence/retrieval; E3 runtime receipt/lifecycle integration and retrieval from a new process after producer termination. Evidence remains NOT_BUILT until proven; Phone/Dispatch wait. Preserve existing Research/Data proofs and runtime pin.",
-  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. D1–D4 and complete production Data #12 are PASS_CODE_CI. Follow narrowed E1 contract -> E2 durable SQL persist/retrieve -> E3 runtime receipt/lifecycle/process survival before Phone/Dispatch. Overall Walking Skeleton remains IN_PROGRESS and external SKIPPED remains non-proof.",
+  "next_action": "Evidence E2 only: persist/retrieve the E1 versioned canonical bundle through the existing PostgreSQL/artifacts surface with immutable acceptance/task linkage and repeat-safe storage; actual local PostgreSQL behavior and full exact CI. Apply any hosted migration through child verification, hosted application and cleanliness protocol. Then E3 runtime receipt/lifecycle integration and retrieval from a new process after producer termination. Complete Evidence remains NOT_BUILT; Phone/Dispatch wait.",
+  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. D1–D4 and complete production Data #12 are PASS_CODE_CI; E1 Evidence contract is PASS_CODE_CI only. Continue E2 durable SQL persist/retrieve -> E3 runtime receipt/lifecycle/process survival before Phone/Dispatch. Overall Walking Skeleton remains IN_PROGRESS; SKIPPED external CI steps prove no hosted/live behavior.",
   "scope_notes_48h": {
     "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
     "12_data_result_validation_dedupe_normalization": "D1–D4 production Data contracts, transformer, fenced runtime and production vertical are PASS_CODE_CI. Real local/CI PostgreSQL uses injected synthetic Research runtime; no fresh hosted/paid Production Data result is claimed."
@@ -286,18 +293,19 @@
       "note": "Actual production Research wiring with synthetic injected runtime -> Kernel -> actual Data worker/transformer -> persisted canonical terminal result. Whole accounting ledger and returned/persisted Research/Data compared. Partial required-field failure terminalizes Data/task; no paid call or hosted write."
     }
   },
-  "evidence_scope_note": "Exact D4 full CI 38394312147 succeeded including PostgreSQL production Data vertical; five hosted/live/upload steps were SKIPPED. Complete Data #12 is PASS_CODE_CI, not a new PASS_HOSTED/PASS_LIVE. Existing paid Research proof remains historical; its Data was gate-only. State retains the last timestamped Neon counts at 2026-10-13T11:36:55.060Z. Root's private runtime/config/HTTPS transport preparation is preflight/read-only proof only; permanent external machine credentials remain NOT_PROVEN.",
+  "evidence_scope_note": "Exact E1 full CI 38501303395 succeeded; five hosted/live/upload steps were SKIPPED. E1 is a pure versioned contract/serializer/hash and does not implement persistence or process survival. Complete #14 remains NOT_BUILT; complete Data #12 remains PASS_CODE_CI. Latest root hosted read-only counts at 2026-10-14T02:37:10.789386Z were active0/RUNNING0/RESERVED0/artifacts0; E2 snapshot/persist functions absent. No new hosted write or paid call is claimed. Historical Research live proof remains separate. Permanent external credentials remain NOT_PROVEN; recorded administration HTTP403 blockers remain BLOCKED.",
   "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
   "execution_lanes": {
     "coordinator_and_publisher": "root",
-    "investigator": "data_investigator",
-    "independent_specialist": "data_skeptic",
+    "investigator": "evidence_investigator",
+    "independent_specialist": "evidence_skeptic",
     "data_writer": "data_implementer (D4 main feature zones)",
-    "verifier": "verification_engineer (read-only full unit/foundation/health/review)",
+    "verifier": "evidence_verifier (read-only actual unit/review)",
     "hosted_inspector": "hosted_inspector",
-    "recorder": "data_readonly_review",
-    "note": "D4 data_implementer wrote main zones and handed the PostgreSQL integration zone to data_investigator. Root owned Docker/PostgreSQL execution, final integration/publication. data_skeptic and verification_engineer supplied independent read-only assertions/unit/review evidence. Prior D3 quota recovery remains historical; no verifier Docker operation or catalog/model readiness is implied.",
-    "postgres_integration_writer": "data_investigator (D4 PostgreSQL zone only after explicit writer handoff)"
+    "recorder": "evidence_recorder",
+    "note": "E1 evidence_writer owned the two contract/test files; evidence_investigator designed/scouted E2 read-only; evidence_skeptic independently reproduced defects and verified corrected negative/permutation cases; evidence_verifier ran actual focused/full unit checks; root reviewed/published and inspected exact CI/hosted read-only reality. evidence_recorder used root fresh remote proof after bounded gh reads were externally stalled/aborted; no recorder DB/model/source mutation or secret-file read.",
+    "postgres_integration_writer": "data_investigator (D4 PostgreSQL zone only after explicit writer handoff)",
+    "evidence_writer": "evidence_writer (E1 two-file zone only)"
   },
   "infrastructure_access_blockers": {
     "github_actions_secret_public_key": {
@@ -342,7 +350,31 @@
   },
   "evidence_subgates": {
     "E1_contract": {
-      "status": "NOT_BUILT"
+      "status": "PASS_CODE_CI",
+      "commit": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
+      "ci_run_id": 38501303395,
+      "ci_job_id": 115648653045,
+      "files": [
+        "src/evidence/evidence-contract.mjs",
+        "tests/evidence/evidence-contract.test.mjs"
+      ],
+      "local_verification": {
+        "focused_cases_passed": 39,
+        "full_unit_cases_passed": 267,
+        "independent_assertions": 168,
+        "seeded_permutations": 100,
+        "permutation_seed": 17
+      },
+      "hashes": {
+        "contract": "b95fe8c1acf6da956f9666a3ce0e8da784bd7b3d88c92fa7acda1dd7ad731ac3",
+        "tests": "a1acd25e80b92c3bcad1db40c496083bb99ba91fd9bdef51505e22814262cc6a"
+      },
+      "review_fixes": [
+        "Retained canonical Data facts and provenance remain validated after redaction; forged values/identity/source metadata rejected.",
+        "Reject impossible calendar dates and compare nanosecond chronology without truncation.",
+        "Require executed successful node/accounting attempts and reconcile task steps to all node attempts."
+      ],
+      "note": "Pure terminal Evidence schema v1 contract, safe projection, canonical UTF8 serialization and SHA256; no SQL/runtime lifecycle implementation or Kernel edit. Pre-fix focused35/full263 were limited-coverage observations, superseded by final39/267 and specialist168. Complete durable Evidence remains NOT_BUILT until E2/E3 proof."
     },
     "E2_durable_sql_persist_retrieve": {
       "status": "NOT_BUILT"

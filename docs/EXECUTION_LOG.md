@@ -367,3 +367,16 @@ A capability is not READY until all applicable answers are YES:
 - D4 review fixes: count-only accounting -> full ledger equality; returned/stored Research -> JSONtransport comparison; correct accounting cost_usd beforePG; Research fixture cleanup. These are current gate findings, not retrospective D3 failure claims.
 - Root pinned runtime/plugin/config/authprofiles0/HTTPSNeon read-only preparation is preflight only. Permanent external secrets remain NOT_PROVEN/admin403BLOCKED; prior paid Research live evidence is retained separately. Details/hashes in JRNL-2026-10-13-004.
 - D1–D4 and complete48h scope#12 are PASS_CODE_CI only. NextPhase7: Evidence E1contract -> E2durableSQLpersist/retrieve -> E3runtime receipt/lifecycle + newprocess survival. Evidence/Phone/Dispatch remain NOT_BUILT; overall skeleton IN_PROGRESS.
+
+
+## 2026-10-14
+
+### E1 terminal Evidence contract [PASS_CODE_CI]
+
+- Implementation `b9b896f33b2a19a6b623045c1a7aae09d68e88a3`; parent D4 checkpoint `44675b282f61cb9adf9e1594b96d724063b09cff`; exact full CI `38501303395` SUCCESS, root-inspected job `115648653045` all code steps successful/five external conditional steps SKIPPED.
+- Two-file pure schema-v1 contract/public projection/canonical UTF8 serializer/SHA256: task/acceptance/nodes/results/sources/ledger/metadata/attempts/errors/terminal status linkage. No SQL/runtime lifecycle, migration, Kernel change or paid call.
+- Actual lanes: investigator design/read-only E2 scout -> sole evidence_writer -> independent evidence_skeptic negative review -> evidence_verifier actual units -> root integration/publication/exact CI -> evidence_recorder governance. Initial35focused/263full were pre-fix limited coverage, superseded by final39/267 plus168independent assertions including100seed17permutations.
+- Corrected before publication: redaction could hide forged retained Data facts/source identity/metadata; impossible calendar/source timestamps and nanosecond ordering; successful/accounting attempt0/missing startedAt; inconsistent task steps versus attempts. Details and accepted fingerprints in JRNL-2026-10-14-005. No retrospective Kernel failure claimed.
+- Root hosted read-only session43993 at `2026-10-14T02:37:10.789386Z`: active0/RUNNING0/RESERVED0/artifacts0; planned E2 snapshot/persist functions absent. Observation only, no hosted write/live promotion.
+- Recorder network reads externally stalled/aborted; root supplied fresh unchanged HEAD/exact CI before local three-file governance GO. No recorder secret-file, DB/model or source mutation.
+- E1 PASS_CODE_CI only; complete Evidence#14 NOT_BUILT, overall IN_PROGRESS. E2 durable SQL persistence/retrieval -> E3 runtime receipt/lifecycle/new-process survival next; Phone/Dispatch wait. Permanent secrets NOT_PROVEN/admin403 BLOCKED; SKIPPED remains non-proof.

@@ -789,3 +789,51 @@ Checkpoint publication resumed on `2026-10-14`. Fresh remote HEAD and exact run/
 Narrowed Evidence route: **E1 versioned terminal bundle contract -> E2 durable SQL persistence/retrieval -> E3 runtime receipt/lifecycle integration and retrieval from a new process after producer termination.** Persist task/immutable acceptance criteria/nodes/Research/production Data/sources/accounting/tool-model metadata/attempts/errors/terminal status, excluding credentials and private chain-of-thought.
 
 Each micro-gate requires focused/negative checks and full exact CI; SQL/hosted changes require the applicable child/behavior/cleanliness protocol. Phone/Dispatch wait until durable Evidence is independently proved. Do not detour into browser/Vision/PDF, catalog activation, unrelated refactors or redundant paid Research experiments.
+
+
+## JRNL-2026-10-14-005 — E1 versioned terminal Evidence contract verified
+
+**Branch:** `v2/openclaw-clean-20261011`  
+**Verified implementation HEAD before this checkpoint:** `b9b896f33b2a19a6b623045c1a7aae09d68e88a3`  
+**Parent accepted D4 checkpoint:** `44675b282f61cb9adf9e1594b96d724063b09cff`, exact full CI `38498887712` SUCCESS, job `115640857524`  
+**Exact E1 full CI:** `38501303395` — SUCCESS  
+**Root-inspected CI job:** `115648653045` — all code steps successful; five hosted/live/upload conditional steps SKIPPED
+
+### Route Card and implemented contract
+
+48h parent: scope #14 durable Evidence. Complete production Data D1–D4 was already PASS_CODE_CI. E1 defines only the immutable schema-v1 terminal Evidence contract, safe public projection, canonical UTF8 serialization and SHA256, in `src/evidence/evidence-contract.mjs` and `tests/evidence/evidence-contract.test.mjs`. No SQL, runner lifecycle, migration or Kernel edit belongs to this gate.
+
+The contract links task/immutable acceptance criteria/nodes/dependencies/Research/production Data/sources/accounting/reservations/tool-model metadata/attempts/safe errors and terminal status. It checks terminal closure, exact accounting totals, reciprocal ledger provenance, canonical Data and preserved source linkage. It removes credentials/private reasoning/raw process-envelope material using explicit projection and safe errors. This is validation and serialization proof, not durable storage or a runner-survival proof.
+
+### Actual parallel handoffs and corrected defects
+
+`evidence_investigator` supplied design and read-only E2 scouting; `evidence_writer` was sole writer of the two E1 files. `evidence_skeptic` independently challenged negative cases; `evidence_verifier` ran actual focused/full unit checks. Root integrated/reviewed, published with expected HEAD and inspected exact CI; `evidence_recorder` received governance-only GO after acceptance.
+
+Initial focused35/full263 passes were limited pre-fix coverage and did not establish E1 acceptance. Independent review reproduced forged retained Data facts/title/source URL/item identity hidden behind an authentic redaction flag; impossible calendar/source timestamps; successful node/accounting attempt0 or absent startedAt; and inconsistent task steps versus summed node attempts. The writer corrected these before publication. Final negative cases reject those forgeries, preserve validation of retained facts/provenance after redaction, validate real calendar instants/nanosecond chronology and enforce executed attempts/step reconciliation. No closed Kernel/Research regression was invented or repaired.
+
+### Accepted evidence and fingerprints
+
+- Final focused unit cases: `39/39` passed.
+- Final full actual unit cases: `267/267` passed.
+- Independent assertions: `168` passed, including `100` seeded permutations (seed `17`).
+- Contract SHA256: `b95fe8c1acf6da956f9666a3ce0e8da784bd7b3d88c92fa7acda1dd7ad731ac3`.
+- Tests SHA256: `a1acd25e80b92c3bcad1db40c496083bb99ba91fd9bdef51505e22814262cc6a`.
+- Exact full CI `38501303395` succeeded at implementation HEAD above; five external conditional steps remained SKIPPED.
+
+**E1 contract: PASS_CODE_CI. Complete scope #14 durable Evidence: NOT_BUILT.** E2 persistence and E3 runtime receipt/process survival are still unbuilt. Overall Walking Skeleton remains IN_PROGRESS.
+
+### Hosted observation, recovery and retained limits
+
+Root's direct hosted read-only session `43993` observed `2026-10-14T02:37:10.789386Z`, database `openclaw_v2`: active tasks0/RUNNING nodes0/RESERVED reservations0/artifacts0. E2 functions `read_task_evidence_snapshot_v1(uuid)` and `persist_task_evidence_v1(uuid,text,text)` were absent. This proves only clean counts and absence at that timestamp; no hosted write or paid model call was made for E1.
+
+Recorder remote-read tools stalled and were externally aborted after `1707.5s` and `557.7s`; no exec session IDs or writes resulted. Root re-read unchanged implementation HEAD and exact successful CI before authorizing these local governance edits. The recorder read local published source/fingerprints and root evidence, not secrets; this entry does not claim an independent recorder network/DB inspection.
+
+Permanent external machine secret plumbing remains NOT_PROVEN; recorded administration HTTP403 actions remain BLOCKED. Five SKIPPED hosted/live/upload steps prove no new hosted/live behavior. Existing Research PASS_LIVE remains historical and separate. Phone and actual user/GitHub dispatch remain NOT_BUILT.
+
+Privacy validation uses known projections, recognizable credential patterns and caller-supplied sensitive values; it cannot guarantee detection of undisclosed opaque secrets inside arbitrary prose. Redaction can collapse distinct records, so full dedupe equivalence after redaction is not claimed; retained facts/provenance are still checked and the public integrity flags preserve this limit.
+
+### Route decision
+
+**Next: E2 durable SQL persistence/retrieval only**, using the existing PostgreSQL/artifacts surface with immutable task/acceptance linkage, validated canonical payload and repeat-safe storage. Real local PostgreSQL positive/negative/idempotency/retrieval checks -> full exact CI; any hosted schema application follows child verification, hosted behavior and cleanliness protocol.
+
+Then E3 integrates runtime receipt/lifecycle and retrieves from a new process after producer termination. Complete Evidence requires persistence and survival proof; Phone/Dispatch wait. Preserve pinned Research runtime and accepted Data proofs; no browser/catalog/refactor detours or redundant paid Research run.

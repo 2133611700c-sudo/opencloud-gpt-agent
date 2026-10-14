@@ -1,0 +1,80 @@
+import base64
+import json
+from pathlib import Path
+
+EXPECTED_HEAD = '495b23b67d1226d4a79c8b640e56080dbbcaeda1'
+CI_RUN = 38505501374
+
+state_path = Path('PROJECT_STATE.json')
+state = json.loads(state_path.read_text())
+state['verified_head'] = EXPECTED_HEAD
+state['verified_code_head'] = EXPECTED_HEAD
+state['verified_ci_run_id'] = CI_RUN
+state['verified_ci_conclusion'] = 'success'
+state['foundation']['ci_run_id'] = CI_RUN
+state['foundation']['ci_conclusion'] = 'success'
+state['current_phase'] = 7
+state['current_phase_name'] = 'Artifact + Evidence Layer — E2 durable PostgreSQL persistence PASS_HOSTED; E3 runtime lifecycle/process survival next'
+state['route_id'] = 'DURABLE_EVIDENCE_E3_THEN_PHONE_DISPATCH'
+
+direct = state['hosted_postgres']['direct_check']
+direct.update({
+    'active_tasks': 0,
+    'running_nodes': 0,
+    'unresolved_reservations': 0,
+    'observed_at': '2026-10-14T03:21:53.544Z',
+    'evidence_persist_function_present': True,
+    'evidence_snapshot_function_present': True,
+    'evidence_artifacts': 0,
+    'evidence_e2_verification_child_branch_id': 'br-rough-recipe-a4038vhb',
+    'check_scope': 'Evidence E2 additive migration 0020 and behavior verified on clean Neon child br-rough-recipe-a4038vhb, then applied to hosted openclaw-v2. First persist, idempotent repeat and exact read/hash/size linkage passed; test rows cleaned. Final hosted state active0/RUNNING0/RESERVED0/EVIDENCE_BUNDLE_V1 artifacts0. No paid provider execution.'
+})
+
+innovation = {
+    'commit': EXPECTED_HEAD,
+    'result': 'PASS_HOSTED',
+    'change': 'Evidence E2 migration 0020 + PostgreSQL evidence store implemented; exact CI 38505501374 SUCCESS. Clean child and hosted Neon directly proved canonical persist/read, immutable task/acceptance linkage, repeat-safe idempotency, hash/size verification and post-test clean state.'
+}
+state['latest_verified_innovations'] = [innovation] + [x for x in state.get('latest_verified_innovations', []) if x.get('commit') != EXPECTED_HEAD]
+
+gaps = state['known_gaps']
+gaps['durable_evidence_bundle'] = 'NOT_BUILT_E3_RUNTIME_LIFECYCLE_PROCESS_SURVIVAL_PENDING'
+gaps['github_actions_database_url'] = 'MISSING_IN_CI_38505501374_SO_HOSTED_ACTIONS_STEP_SKIPPED'
+gaps['github_actions_deepseek_api_key'] = 'MISSING_IN_CI_38505501374_SO_LIVE_ACTIONS_STEPS_SKIPPED'
+
+state['next_action'] = 'Evidence E3 only: integrate the E1 canonical bundle and E2 PostgreSQL store into terminal runtime lifecycle, persist a receipt before producer exit, then retrieve and validate the durable Evidence from a fresh process after producer termination for SUCCESS and failed terminal paths. Complete scope #14 remains NOT_BUILT until this process-survival proof passes. Phone/Dispatch wait.'
+state['continuation_rule'] = 'Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. D1-D4 Data PASS_CODE_CI; E1 Evidence contract PASS_CODE_CI; E2 durable PostgreSQL persistence PASS_HOSTED. E3 runtime receipt/lifecycle/process-survival is the next gate; Phone/Dispatch wait. SKIPPED external CI steps prove no hosted/live behavior.'
+state['evidence_scope_note'] = 'E1 contract is PASS_CODE_CI. E2 durable SQL persist/retrieve is PASS_HOSTED at commit 495b23b67d1226d4a79c8b640e56080dbbcaeda1 with exact CI 38505501374 SUCCESS and direct child+hosted Neon behavioral proof. Final hosted check at 2026-10-14T03:21:53.544Z: active0/RUNNING0/RESERVED0/EVIDENCE_BUNDLE_V1 artifacts0; persist/read functions present. Complete scope #14 remains NOT_BUILT until E3 runtime receipt/process-survival proof. Latest CI hosted/live secret-dependent steps were SKIPPED; historical Research PASS_LIVE is separate.'
+
+state.setdefault('evidence_subgates', {})['E2_durable_sql_persist_retrieve'] = {
+    'status': 'PASS_HOSTED',
+    'commit': EXPECTED_HEAD,
+    'ci_run_id': CI_RUN,
+    'files': [
+        'migrations/0020_evidence_artifact_persistence.sql',
+        'src/evidence/postgres-evidence-store.mjs',
+        'tests/sql/0020_evidence_artifact_persistence_test.sql',
+        'tests/evidence/postgres-evidence-store.test.mjs'
+    ],
+    'verification_child_branch_id': 'br-rough-recipe-a4038vhb',
+    'hosted_branch_id': 'br-odd-forest-a4leyaqj',
+    'hosted_observed_at': '2026-10-14T03:21:53.544Z',
+    'post_clean_state': {
+        'active_tasks': 0,
+        'running_nodes': 0,
+        'unresolved_reservations': 0,
+        'evidence_artifacts': 0
+    },
+    'proof': 'Canonical E1 bundle persisted with SHA256/size and immutable task+acceptance linkage; identical retry returns same artifact without duplication; fresh read returns exact serialized payload; child and hosted behavior directly verified.'
+}
+state['evidence_subgates']['E3_runtime_receipt_lifecycle_process_survival'] = {'status': 'NOT_BUILT'}
+state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + '\n')
+
+journal_path = Path('docs/RESULTS_JOURNAL.md')
+journal = journal_path.read_text()
+marker = '## JRNL-2026-10-14-006 — E2 durable PostgreSQL Evidence persistence verified'
+if marker in journal:
+    raise SystemExit('E2 journal checkpoint already exists')
+entry_b64 = 'CgotLS0KCiMjIEpSTkwtMjAyNi0xMC0xNC0wMDYg4oCUIEUyIGR1cmFibGUgUG9zdGdyZVNRTCBFdmlkZW5jZSBwZXJzaXN0ZW5jZSB2ZXJpZmllZAoKKipCcmFuY2g6KiogYHYyL29wZW5jbGF3LWNsZWFuLTIwMjYxMDExYAoqKkltcGxlbWVudGF0aW9uIEhFQUQ6KiogYDQ5NWIyM2I2N2QxMjI2ZDRhNzljOGI2NDBlNTYwODBkYmJjYWVkYTFgCioqRXhhY3QgZnVsbCBDSToqKiBgMzg1MDU1MDEzNzRgIOKAlCBgU1VDQ0VTU2AKKio0OGggcGFyZW50OioqIHNjb3BlICMxNCBkdXJhYmxlIEV2aWRlbmNlCioqR2F0ZToqKiBFMiBkdXJhYmxlIFNRTCBwZXJzaXN0ZW5jZS9yZXRyaWV2YWwKCiMjIyBSZXN1bHQKCkUyIGlzIGNvbXBsZXRlIGF0IGJvdGggY29kZS9DSSBhbmQgaG9zdGVkIFBvc3RncmVTUUwgbGF5ZXJzLiBNaWdyYXRpb24gYDAwMjBfZXZpZGVuY2VfYXJ0aWZhY3RfcGVyc2lzdGVuY2Uuc3FsYCBhZGRzIGEgc2luZ2xlIGltbXV0YWJsZSBgRVZJREVOQ0VfQlVORExFX1YxYCBhcnRpZmFjdCBwZXIgdGFzayBwbHVzIGBwZXJzaXN0X3Rhc2tfZXZpZGVuY2VfdjEodXVpZCx0ZXh0LHRleHQpYCBhbmQgYHJlYWRfdGFza19ldmlkZW5jZV9zbmFwc2hvdF92MSh1dWlkKWAuIFRoZSBOb2RlIGFkYXB0ZXIgYHNyYy9ldmlkZW5jZS9wb3N0Z3Jlcy1ldmlkZW5jZS1zdG9yZS5tanNgIHZhbGlkYXRlcyB0aGUgRTEgY2Fub25pY2FsIGJ1bmRsZSwgU0hBMjU2LCBieXRlIGxlbmd0aCBhbmQgdGFzayBsaW5rYWdlIGJlZm9yZSBwZXJzaXN0ZW5jZSBhbmQgcmV2YWxpZGF0ZXMgc3RvcmVkIGV2aWRlbmNlIG9uIHJlYWQuCgpFeGFjdCBDSSBgMzg1MDU1MDEzNzRgIGNvbXBsZXRlZCBgU1VDQ0VTU2AuIE5vZGUgdGVzdHMsIGFsbCBtaWdyYXRpb25zL1NRTCBhc3NlcnRpb25zLCBSZXNlYXJjaCBQb3N0Z3JlU1FMIEUyRSwgRGF0YSBQb3N0Z3JlU1FMIEUyRSBhbmQgdGhlIHByb2R1Y3Rpb24gRGF0YSB2ZXJ0aWNhbCBhbGwgcGFzc2VkLiBUaGUgaG9zdGVkL2xpdmUgY3JlZGVudGlhbC1kZXBlbmRlbnQgQWN0aW9ucyBzdGVwcyByZW1haW5lZCBgU0tJUFBFRGA7IHRob3NlIHNraXBzIGFyZSBub3QgcHJvbW90ZWQgdG8gaG9zdGVkL2xpdmUgUEFTUy4KCiMjIyBIb3N0ZWQgdmVyaWZpY2F0aW9uCgpBIG5ldyBOZW9uIHZlcmlmaWNhdGlvbiBicmFuY2ggY291bGQgbm90IGJlIGNyZWF0ZWQgYmVjYXVzZSB0aGUgcHJvamVjdCBicmFuY2ggbGltaXQgd2FzIHJlYWNoZWQuIFRoZSBwcmV2aW91c2x5IGluc3BlY3RlZCBjaGlsZCBgYnItd2FuZGVyaW5nLWZpcmUtYTR2aHdtZDZgIHdhcyBub3QgdXNlZCBiZWNhdXNlIGl0IHdhcyBub3QgY2xlYW4gYXQgdGhpcyBjaGVja3BvaW50LiBBIGRpZmZlcmVudCBleGlzdGluZyBjbGVhbiBjaGlsZCwgYGJyLXJvdWdoLXJlY2lwZS1hNDAzOHZoYmAsIGhhZCBgMGAgYWN0aXZlIHRhc2tzLCBgMGAgUlVOTklORyBub2RlcyBhbmQgYDBgIHVucmVzb2x2ZWQgcmVzZXJ2YXRpb25zIGJlZm9yZSBFMi4KClRoZSBhZGRpdGl2ZSBFMiBmdW5jdGlvbnMvaW5kZXggd2VyZSBhcHBsaWVkIHRyYW5zYWN0aW9uYWxseSB0byB0aGF0IGNsZWFuIGNoaWxkLiBBIGJlaGF2aW9yYWwgdGVzdCBwcm92ZWQ6IGZpcnN0IHBlcnNpc3QgY3JlYXRlcyBvbmUgYXJ0aWZhY3Q7IGlkZW50aWNhbCByZXRyeSBpcyBpZGVtcG90ZW50IGFuZCByZXR1cm5zIHRoZSBzYW1lIGFydGlmYWN0OyByZXRyaWV2YWwgcmV0dXJucyB0aGUgZXhhY3Qgc2VyaWFsaXplZCBwYXlsb2FkL2hhc2gvc2l6ZTsgb25seSBvbmUgRXZpZGVuY2UgYXJ0aWZhY3QgZXhpc3RzLiBUZXN0IHJvd3Mgd2VyZSByZW1vdmVkIGFuZCB0aGUgY2hpbGQgcmV0dXJuZWQgdG8gYDAvMC8wYCB3aXRoIHplcm8gRTIgYXJ0aWZhY3RzLgoKVGhlIHNhbWUgYWRkaXRpdmUgbWlncmF0aW9uIHdhcyB0aGVuIGFwcGxpZWQgdG8gaG9zdGVkIGBvcGVuY2xhdy12MiAvIG9wZW5jbGF3X3YyYC4gVGhlIHNhbWUgZmlyc3QtcGVyc2lzdCAvIHJlcGVhdC1pZGVtcG90ZW5jeSAvIGV4YWN0LXJlYWQgYmVoYXZpb3IgcGFzc2VkIGRpcmVjdGx5LiBGaW5hbCBob3N0ZWQgb2JzZXJ2YXRpb24gYXQgYDIwMjYtMTAtMTRUMDM6MjE6NTMuNTQ0WmA6CgotIGBwZXJzaXN0X3Rhc2tfZXZpZGVuY2VfdjEodXVpZCx0ZXh0LHRleHQpYDogcHJlc2VudDsKLSBgcmVhZF90YXNrX2V2aWRlbmNlX3NuYXBzaG90X3YxKHV1aWQpYDogcHJlc2VudDsKLSBhY3RpdmUgdGFza3M6IGAwYDsKLSBSVU5OSU5HIG5vZGVzOiBgMGA7Ci0gdW5yZXNvbHZlZCBgUkVTRVJWRURgIHJlc2VydmF0aW9uczogYDBgOwotIGBFVklERU5DRV9CVU5ETEVfVjFgIGFydGlmYWN0cyBhZnRlciBjbGVhbnVwOiBgMGAuCgoqKkUyIHJlc3VsdDogYFBBU1NfSE9TVEVEYC4qKiBFMSByZW1haW5zIGBQQVNTX0NPREVfQ0lgLgoKIyMjIE5lZ2F0aXZlIGV2aWRlbmNlIC8gcHJvb2YgbGltaXQKClRoaXMgZ2F0ZSBkb2VzIG5vdCB5ZXQgcHJvdmUgdGhhdCBhIHJlYWwgdGVybWluYWwgcnVudGltZSBhdXRvbWF0aWNhbGx5IHByb2R1Y2VzIEV2aWRlbmNlIGFuZCB0aGF0IHRoZSBFdmlkZW5jZSByZW1haW5zIHJldHJpZXZhYmxlIGFmdGVyIHRoZSBwcm9kdWNlciBwcm9jZXNzIHRlcm1pbmF0ZXMuIFRoZXJlZm9yZSBjb21wbGV0ZSBtYW5kYXRvcnkgc2NvcGUgIzE0IHJlbWFpbnMgKipgTk9UX0JVSUxUYCoqIHVudGlsIEUzIHBhc3Nlcy4gTm8gbmV3IHBhaWQgRGVlcFNlZWsvd2ViIGV4ZWN1dGlvbiBvY2N1cnJlZCBpbiBFMi4gUGVybWFuZW50IEdpdEh1YiBBY3Rpb25zIGNyZWRlbnRpYWwgcGx1bWJpbmcgcmVtYWlucyBgTk9UX1BST1ZFTmA7IGxhdGVzdCBjcmVkZW50aWFsLWRlcGVuZGVudCBDSSBzdGVwcyB3ZXJlIGBTS0lQUEVEYC4KCiMjIyBSb3V0ZSBkZWNpc2lvbgoKKipOZXh0IGFsbG93ZWQgZ2F0ZTogRTMgcnVudGltZSByZWNlaXB0L2xpZmVjeWNsZS9wcm9jZXNzIHN1cnZpdmFsIG9ubHkuKioKCkludGVncmF0ZSB0aGUgRTEgY2Fub25pY2FsIGJ1bmRsZSBhbmQgRTIgUG9zdGdyZVNRTCBzdG9yZSBpbnRvIHRlcm1pbmFsIHJ1bnRpbWUgbGlmZWN5Y2xlOyBwZXJzaXN0IGEgZHVyYWJsZSByZWNlaXB0IGJlZm9yZSBwcm9kdWNlciBleGl0OyB0ZXJtaW5hdGUgdGhlIHByb2R1Y2VyOyByZXRyaWV2ZSBhbmQgcmV2YWxpZGF0ZSB0aGUgc2FtZSBFdmlkZW5jZSBmcm9tIGEgZnJlc2ggcHJvY2VzcyBmb3IgYm90aCBTVUNDRVNTIGFuZCBmYWlsZWQgdGVybWluYWwgcGF0aHMuIE9ubHkgYWZ0ZXIgRTMgaXMgYWNjZXB0ZWQgbWF5IGNvbXBsZXRlIHNjb3BlICMxNCBiZWNvbWUgUEFTUyBhbmQgUGhvbmUgUDEgc3RhcnQuCgpEbyBub3QgZGV0b3VyIGludG8gUGhvbmUsIEdpdEh1YiBpbnRha2UvZGlzcGF0Y2gsIGJyb3dzZXIvVmlzaW9uL1BERiwgY2F0YWxvZyBzY2FsZS1vdXQsIGJyb2FkIHJlZmFjdG9ycyBvciByZWR1bmRhbnQgcGFpZCBSZXNlYXJjaCBydW5zIGJlZm9yZSBFMyBhY2NlcHRhbmNlLgo='
+entry = base64.b64decode(entry_b64).decode('utf-8')
+journal_path.write_text((journal.rstrip() + entry).rstrip() + '\n')

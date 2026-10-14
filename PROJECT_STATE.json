@@ -4,9 +4,9 @@
   "updated_at": "2026-10-14",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "aeb8710b54301a500f41762e42ce0f496b36f47d",
-  "verified_code_head": "aeb8710b54301a500f41762e42ce0f496b36f47d",
-  "verified_ci_run_id": 38569187811,
+  "verified_head": "461a10305184e99dee71162c83a43b9305ddf79e",
+  "verified_code_head": "461a10305184e99dee71162c83a43b9305ddf79e",
+  "verified_ci_run_id": 38574279224,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,13 +18,13 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38569187811,
+    "ci_run_id": 38574279224,
     "ci_conclusion": "success"
   },
   "current_phase": 7,
-  "current_phase_name": "Artifact + Evidence Layer — E2 store-boundary repair PASS_CODE_CI; E3a bound raw snapshot next",
+  "current_phase_name": "Accounting latency A13 next; E3a bound Evidence snapshot PASS_HOSTED; complete Evidence NOT_BUILT",
   "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "DURABLE_EVIDENCE_E3_THEN_PHONE_DISPATCH",
+  "route_id": "A13_LATENCY_THEN_EVIDENCE_SURVIVAL_THEN_PHONE_DISPATCH",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -48,7 +48,7 @@
     "10_real_native_web_search_fetch": "PASS_LIVE",
     "11_structured_research_sources": "PASS_LIVE",
     "12_data_result_validation_dedupe_normalization": "PASS_CODE_CI",
-    "13_llm_accounting": "PASS_LIVE",
+    "13_llm_accounting": "NOT_PROVEN",
     "14_durable_evidence_artifacts": "NOT_BUILT",
     "15_phone_short_result_deep_log": "NOT_BUILT"
   },
@@ -78,14 +78,14 @@
       "complete_node_success_active_lease_guard_0019_present": true,
       "requeue_node_retry_active_lease_guard_0019_present": true,
       "verification_child_branch_id": "br-wandering-fire-a4vhwmd6",
-      "observed_at": "2026-10-14T12:52:17.306Z",
-      "total_artifacts": 0,
+      "observed_at": "2026-10-14T21:26:27.860Z",
+      "total_artifacts": 8,
       "fail_node_terminal_active_lease_guard_present": true,
-      "check_scope": "Root read-only count/function observation and inherited-row fingerprint comparison: tasks7/nodes14/accounting3/reservations6/artifacts0 matched pre-E2 baseline exactly. No inherited-row change, hosted write, paid call or new behavioral proof is claimed.",
+      "check_scope": "Separate root read-only consumer25989 exited0; retrieved8same durable receipt IDs/hash/size without producer-local bundle, clean active/RUNNING/RESERVED0/0/0. E3a producer output unrecovered after pause: no producer exit0 or full runtime lifecycle proof claimed.",
       "guard_inspection_observed_at": "2026-10-12T23:57:30.163Z",
       "evidence_snapshot_function_present": true,
       "evidence_persist_function_present": true,
-      "evidence_artifacts": 0,
+      "evidence_artifacts": 8,
       "evidence_e2_verification_child_branch_id": "br-rough-recipe-a4038vhb"
     }
   },
@@ -110,12 +110,23 @@
       "prompt_cache_miss_tokens": 4615,
       "completion_tokens": 663,
       "total_tokens": 16286,
-      "cost_usd": 0.002246
+      "cost_usd": 0.002246,
+      "latency_ms": 0
     },
     "paid_live_artifacts_count": 0,
-    "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows."
+    "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows.",
+    "llm_accounting_subproofs": {
+      "usage_cost_cache_reservation": "PASS_LIVE",
+      "mandatory_latency": "NOT_PROVEN",
+      "scope_note": "Fresh historical task read observed one accounting row, OBSERVED_USAGE16286tokens/costUSD0.002246 and no unresolved reserve, but latency_ms0. Historical usage/money/cache/reservation proof is retained; no fresh paid run or complete accounting PASS is claimed."
+    }
   },
   "latest_verified_innovations": [
+    {
+      "commit": "461a10305184e99dee71162c83a43b9305ddf79e",
+      "result": "PASS_HOSTED",
+      "change": "E3a bound terminal raw snapshot/E1 builder/storage, migration0021 accepted exact CI38574279224; child then hosted parent8 durable artifacts verified, later separate reader25989exit0. Full runtime receipts/lifecycle remains unbuilt. User fresh audit reproduced mandatory accounting latency0; A13 takes priority without erasing historical usage/cost/reservation proofs."
+    },
     {
       "commit": "aeb8710b54301a500f41762e42ce0f496b36f47d",
       "result": "PASS_CODE_CI",
@@ -192,18 +203,20 @@
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38569187811_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38569187811_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38574279224_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38574279224_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
-    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
+    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING",
+    "mandatory_llm_latency": "NOT_PROVEN"
   },
   "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "E3a only: bind raw task/request/acceptance snapshot authority to E1 bundle construction and SQL storage; resolve six reproduced E1-valid nullable/normalized/redacted request acceptance gaps through actual PostgreSQL integration, focused/full tests and exact CI. Then E3b terminal runtime receipt/lifecycle plus retrieval from a new process after producer termination, successful and failed paths. Complete scope #14 remains NOT_BUILT; Phone/Dispatch wait.",
-  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. Data D1-D4 and E1 PASS_CODE_CI; historical E2 SQL storage PASS_HOSTED is limited to storage mechanics, not production E1 builder acceptance. Store-boundary repair PASS_CODE_CI at aeb8710. Continue E3a bound raw snapshot -> E3b runtime receipt/lifecycle/new-process survival before Phone/Dispatch. Overall IN_PROGRESS; SKIPPED external steps remain non-proof.",
+  "next_action": "A13 first: measure monotonic native OpenClaw spawn-to-close elapsed duration and forward it to the aggregated Research accounting row for observed and fallback accounting; no individual provider HTTP-time claim and no historical-row rewrite. Focused/full tests -> exact full CI -> one bounded paid live proof with measured nonzero latency, exactly one accounting row and zero unresolved reserves. Then E3b1 accounted runtime receipt -> E3b2 terminal lifecycle/new-process survival -> Phone. No new paid proof has executed yet.",
+  "continuation_rule": "Follow START_HERE boot order/current HEAD/exact CI and hosted reality. Data D1-D4/E1 code proofs and historical Kernel/Research/usage/money/cache/reservation hosted/live proofs are retained. E3a bound snapshot/storage is PASS_HOSTED but full Evidence14 remains NOT_BUILT. Fresh user audit exposed missing mandatory latency, so scope13 NOT_PROVEN and A13 takes priority; exact CI before one measured paid proof. Then E3b1 accounted runtime receipt -> E3b2 lifecycle/survival before Phone/Dispatch. SKIPPED remains non-proof.",
   "scope_notes_48h": {
     "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
-    "12_data_result_validation_dedupe_normalization": "D1–D4 production Data contracts, transformer, fenced runtime and production vertical are PASS_CODE_CI. Real local/CI PostgreSQL uses injected synthetic Research runtime; no fresh hosted/paid Production Data result is claimed."
+    "12_data_result_validation_dedupe_normalization": "D1–D4 production Data contracts, transformer, fenced runtime and production vertical are PASS_CODE_CI. Real local/CI PostgreSQL uses injected synthetic Research runtime; no fresh hosted/paid Production Data result is claimed.",
+    "13_llm_accounting": "Mandatory scope13 includes latency. Historical real task accounting has latency_ms0 and no measured runner duration; full scope13 is NOT_PROVEN. Real OBSERVED_USAGE model/token/cache/pricing/cost and reservation/release linkage remain PASS_LIVE subproof. A13 must measure native OpenClaw spawn-to-close monotonic elapsed time for the aggregated Research accounting row; this is not individual provider HTTP latency. Preserve historical zero without rewriting."
   },
   "data_subgates": {
     "D1_contract": {
@@ -305,7 +318,7 @@
       "note": "Actual production Research wiring with synthetic injected runtime -> Kernel -> actual Data worker/transformer -> persisted canonical terminal result. Whole accounting ledger and returned/persisted Research/Data compared. Partial required-field failure terminalizes Data/task; no paid call or hosted write."
     }
   },
-  "evidence_scope_note": "Correction to E2 checkpoint scope: retain historical child/hosted PASS_HOSTED SQL storage behavior at495b23; the committed SQL fixture is minimal and not E1-valid, so production E1-builder acceptance was not proved. Root independently reran exact372fa4c baseline CI38567467736 SUCCESS and observed unchanged inherited-row fingerprints with clean hosted counts at2026-10-14T12:52:17.306Z. Boundary repair aeb8710 exactCI38569187811 SUCCESS is PASS_CODE_CI only; no new hosted write/paid call. Six E1-valid null/normalization/redaction request acceptance gaps remain E3a. Complete Evidence#14 NOT_BUILT until E3b runtime survival/retrieval. Five external steps SKIPPED; permanent secrets NOT_PROVEN/admin403 BLOCKED.",
+  "evidence_scope_note": "E3a461a103 exactCI38574279224 SUCCESS/all code steps incl Evidence PG passed/five external steps SKIPPED. Bound raw terminal snapshots persisted as E1 artifacts on child then parent; separate read-only consumer25989exit0 at2026-10-14T21:26:27.860Z verified8same durable IDs/hash/size with0/0/0/artifacts8 and no producer-local bundle. Producer20165 output was not recovered after pause; no exit0 claim. E3a PASS_HOSTED only, complete14 NOT_BUILT because actual runtime receipts/full lifecycle are not built. Fresh historical accounting read21:23:17.283Z exposed latency0; full13 NOT_PROVEN while money/token/cache/reservation PASS_LIVE remains intact. A13 priority, no fresh paid proof yet.",
   "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
   "execution_lanes": {
     "coordinator_and_publisher": "root",
@@ -315,7 +328,7 @@
     "verifier": "evidence_verifier (read-only actual unit/review)",
     "hosted_inspector": "hosted_inspector",
     "recorder": "evidence_recorder",
-    "note": "Current boundary repair: evidence_writer owned four Evidence files, root owned two psql transport files plus independent281-case unit/foundation/health/diff checks, PostgreSQL execution, publication and exact CI inspection. Initial independent verifier/skeptic tasks remained pending and were not executed for this repair. evidence_recorder updated governance only using root fresh HEAD/CI evidence; no recorder network/DB/model/secret-file operation.",
+    "note": "E3a evidence_writer owned three main files (migration/store/unit tests); evidence_investigator owned four integration/SQL/workflow files after explicit handoff. Root owned all DB/child/parent migration/behavior checks, unit/SQL verification, exact CI/publication and separate read-only consumer. Recorder governance only, using root fresh HEAD/CI/evidence; no network/DB/model/secret-file operation. Prior unexecuted repair specialist/verifier tasks are not credited.",
     "postgres_integration_writer": "data_investigator (D4 PostgreSQL zone only after explicit writer handoff)",
     "evidence_writer": "evidence_writer (four Evidence files in boundary repair); root (two psql transport files)"
   },
@@ -408,8 +421,8 @@
         "evidence_artifacts": 0
       },
       "proof": "Historical child/hosted SQL persist/retry/read/hash/size/task linkage behavior retained as PASS_HOSTED. Correction: SQL test used a minimal bundle that does not satisfy E1; this is SQL storage proof, not production E1-builder acceptance or runtime survival proof.",
-      "production_builder_acceptance_status": "NOT_PROVEN",
-      "production_builder_acceptance_limit": "Seven root PostgreSQL probes: {} request passes; null request, null requiredFields, null maxResults, null constraints, trim-normalized required field and redacted goal are E1-valid but SQL-rejected. Six parity gaps deferred to E3a bound raw-snapshot integration.",
+      "production_builder_acceptance_status": "PASS_HOSTED",
+      "production_builder_acceptance_limit": "Former six nullable/normalized/redacted request gaps corrected by E3a bound raw snapshot, tested with E1 construction/storage on child and parent. Actual runtime receipt/full lifecycle remains unbuilt. Earlier minimal SQL fixture stays historical storage-only proof.",
       "boundary_repair": {
         "status": "PASS_CODE_CI",
         "commit": "aeb8710b54301a500f41762e42ce0f496b36f47d",
@@ -440,13 +453,81 @@
     },
     "E3_runtime_receipt_lifecycle_process_survival": {
       "status": "NOT_BUILT",
-      "note": "E3b follows E3a bound raw-snapshot corrective integration."
+      "note": "A13 mandatory latency first, then E3b1 accounted runtime receipt and E3b2 terminal lifecycle/new-process survival; E3a fixture receipt retrieval does not close this runtime gate."
     },
     "E3a_bound_raw_snapshot": {
-      "status": "NOT_BUILT"
+      "status": "PASS_HOSTED",
+      "commit": "461a10305184e99dee71162c83a43b9305ddf79e",
+      "ci_run_id": 38574279224,
+      "ci_job_id": 115887166239,
+      "files": [
+        "migrations/0021_bound_evidence_snapshot.sql",
+        "src/evidence/postgres-evidence-store.mjs",
+        "tests/evidence/postgres-evidence-store.test.mjs",
+        "tests/integration/evidence-postgres-store-e2e.mjs",
+        "tests/sql/0020_evidence_artifact_persistence_test.sql",
+        "tests/sql/0021_bound_evidence_snapshot_test.sql",
+        ".github/workflows/v2-ci.yml"
+      ],
+      "migration_sha256": "2e3a9046ef7464e4497709ffd3c4db05de19e19c0450f116cdcac6e7477b3512",
+      "local_verification": {
+        "writer_focused_cases": 22,
+        "writer_full_unit_cases": 291,
+        "root_full_unit_cases": 291,
+        "sql_assertion_files_passed": 18,
+        "postgres_session_id": 32125,
+        "postgres_exit_code": 0,
+        "concurrency_and_mvcc_executed": true
+      },
+      "hosted_verification": {
+        "new_child_request_http_status": 422,
+        "new_child_request_reason": "project branch limit",
+        "verification_child_branch_id": "br-rough-recipe-a4038vhb",
+        "child_observed_at": "2026-10-14T13:40:48.927Z",
+        "child_owned_terminal_artifacts": 8,
+        "child_original_five_table_fingerprints_unchanged": true,
+        "parent_branch_id": "br-odd-forest-a4leyaqj",
+        "parent_observed_at": "2026-10-14T13:49:12.091Z",
+        "parent_verified_manifest_artifacts": 8,
+        "producer_session_id": 20165,
+        "producer_exit_code": "NOT_PROVEN",
+        "producer_output_limit": "Output not recovered after pause; durable manifest was verified, but no producer exit0 is claimed.",
+        "independent_read_only_consumer_session_id": 25989,
+        "consumer_exit_code": 0,
+        "consumer_observed_at": "2026-10-14T21:26:27.860Z",
+        "consumer_verified_artifacts": 8,
+        "same_receipt_ids_hashes_and_sizes": true,
+        "producer_local_bundle_required": false,
+        "active_tasks": 0,
+        "running_nodes": 0,
+        "reserved_reservations": 0
+      },
+      "proof_limit": "Owned terminal fixture snapshot/build/persist/retrieval only. Actual accounted runtime receipt and terminal producer lifecycle remain E3b1/E3b2; full durable Evidence scope14 NOT_BUILT."
     }
   },
   "known_gap_notes": {
-    "durable_evidence_bundle": "E2 historical hosted SQL storage mechanics are proved; production E1 builder/SQL acceptance parity for six nullable, normalized or redacted request forms awaits E3a bound raw-snapshot integration. Runtime receipt/lifecycle and new-process survival await E3b."
+    "durable_evidence_bundle": "E3a tested E1-valid bound raw snapshots and durable storage/retrieval on child/parent. Eight persisted receipts survived a pause and were retrieved by a separate read-only process without producer-local bundle. Actual accounted runtime receipt generation and full terminal lifecycle/survival remain E3b1/E3b2; complete14 NOT_BUILT.",
+    "mandatory_llm_latency": "Native runner does not produce process.latencyMs; bindings currently fall back to toolTime/0. Writer mocked observed0/fallback77 without measurement. Historical live row latency_ms0 confirmed; mandatory48h accounting latency is unproved. A13 measure monotonic aggregated spawn-to-close duration; preserve historical0."
+  },
+  "accounting_subgates": {
+    "A13_measured_aggregate_runtime_latency": {
+      "status": "NOT_PROVEN",
+      "historical_live_task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
+      "observed_at": "2026-10-14T21:23:17.283Z",
+      "accounting_rows": 1,
+      "accounting_basis": "OBSERVED_USAGE",
+      "total_tokens": 16286,
+      "cost_usd": 0.002246,
+      "latency_ms": 0,
+      "unresolved_reservations": 0,
+      "mock_reproduction": {
+        "observed_latency_ms": 0,
+        "fallback_latency_ms": 77,
+        "measurement_present": false
+      },
+      "intended_measurement": "Monotonic native OpenClaw process spawn-to-close elapsed duration for aggregated Research accounting row; not individual provider HTTP latency.",
+      "historical_row_policy": "Preserve existing0; no rewriting.",
+      "new_paid_proof": "NOT_PROVEN"
+    }
   }
 }

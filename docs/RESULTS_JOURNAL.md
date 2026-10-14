@@ -913,3 +913,29 @@ Seven root PostgreSQL request probes: `{}` passes; six E1-valid forms fail SQL a
 **Next E3a:** bind the authoritative raw task/request/acceptance snapshot to E1 construction and SQL storage, resolving those gaps with actual PostgreSQL positive/negative tests and full exact CI. **Then E3b:** terminal runtime receipt/lifecycle and retrieval from a new process after producer termination for success/failure paths.
 
 Complete scope #14 remains NOT_BUILT; overall IN_PROGRESS. Phone/Dispatch wait. Permanent machine secrets remain NOT_PROVEN; recorded administration403 actions remain BLOCKED. Recorder made only these governance edits from root fresh HEAD/CI evidence, with no network/DB/model/secret-file operations. Preserve accepted Data/Research runtime and avoid unrelated work.
+
+
+## JRNL-2026-10-14-008 — Bound Evidence E3a verified; mandatory latency A13 reprioritized
+
+**Verified implementation HEAD:** `461a10305184e99dee71162c83a43b9305ddf79e`  
+**Exact full CI:** `38574279224` SUCCESS; root-inspected job `115887166239`, all code steps including new Evidence PostgreSQL case passed; five external conditional steps SKIPPED
+
+### E3a accepted code and hosted proof
+
+Migration0021 binds terminal raw task/request/acceptance snapshots to E1 construction and durable storage, closing the earlier nullable/normalized/redacted request parity gap. Actual roles: `evidence_writer` three main migration/store/unit files; `evidence_investigator` four integration/SQL/workflow files; root all DB operations, verification, exact CI and publication. Writer22focused/291full; root291actual units,18SQL assertion files and real PostgreSQL session `32125` exit0, including concurrent writers/MVCC.
+
+Migration SHA256: `2e3a9046ef7464e4497709ffd3c4db05de19e19c0450f116cdcac6e7477b3512`. New child creation returnedHTTP422 project branch limit; root used existing `br-rough-recipe-a4038vhb`. At `2026-10-14T13:40:48.927Z`, eight owned terminal artifacts passed child verification and original five-table fingerprints remained unchanged. After exact CI, the same migration hash was applied to hosted parent; durable manifest verified all eight artifacts, with final `2026-10-14T13:49:12.091Z` active/RUNNING/RESERVED0/0/0/artifacts8.
+
+Producer session `20165` output was not recovered after pause: **no producer exit0 claim**. Root's separate read-only consumer session `25989` exited0 at `2026-10-14T21:26:27.860Z`, retrieving the same eight IDs/hash/size with0/0/0/artifacts8 and no producer-local bundle. This independently proves durable fixture retrieval across the pause. **E3a: PASS_HOSTED only. Complete Evidence#14 remains NOT_BUILT**: actual accounted runtime receipts and full terminal producer lifecycle remain unbuilt. Existing E2 minimal-fixture storage history remains correctly scoped.
+
+### Fresh audit correction: mandatory accounting latency is unproved
+
+User's fresh audit made mandatory48h latency gap the first next gate. Root at `2026-10-14T21:23:17.283Z` directly confirmed historical live task `eae6daf8-e086-43a5-aea9-b6ec879ce65a` has exactly one OBSERVED_USAGE accounting row,16286tokens/USD0.002246, zero unresolved reserve, but **latency_ms0**. Native runner does not produce process.latencyMs; bindings currently use toolTime/0. Writer's actual mock reproduced observed0/fallback77 without measurement.
+
+**Full scope#13: NOT_PROVEN.** Historical real money/token/cache/pricing/reservation-release subproof remains PASS_LIVE; prior hosted Kernel and real Research proofs retain their evidence and are not downgraded merely because read-only recovery did not repeat them. Preserve the historical zero; do not rewrite it into invented measurement.
+
+### Route decision
+
+**A13 first:** monotonic native OpenClaw spawn-to-close elapsed duration on the aggregated Research accounting row, expressly not individual provider HTTP latency. Focused/full tests -> exact full CI -> one bounded paid live proof with measured nonzero duration, exactly one accounting row and no unresolved reserve. This new paid proof has not executed yet.
+
+Then **E3b1 accounted runtime receipt -> E3b2 runtime lifecycle/new-process survival -> Phone**. Complete14 remains NOT_BUILT; overall IN_PROGRESS. Five skipped hosted/live/upload steps remain non-proof; permanent secrets NOT_PROVEN/admin403 BLOCKED. Recorder updated only governance using root fresh proof; no network, DB/model or secret-file operation.

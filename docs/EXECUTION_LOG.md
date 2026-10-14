@@ -390,3 +390,12 @@ A capability is not READY until all applicable answers are YES:
 - Writer53focused/281full; root independent281/281 plus foundation/health/diff checks. Root production PostgreSQL session62733 exit0; migration0020 SQL assertions exit0. Initial specialist/verifier tasks were pending/not executed for this repair and are not credited as new evidence.
 - Hosted read-only12:52:17Z functions0020 present/clean0/0/0/artifacts0 and inherited fingerprints tasks7/nodes14/accounting3/reservations6/artifacts0 unchanged. Details in JRNL-2026-10-14-007.
 - Next E3a bound raw snapshot -> E3b runtime receipt/lifecycle/new-process survival. Phone/Dispatch wait; overall IN_PROGRESS; permanent secrets NOT_PROVEN/admin403 BLOCKED; SKIPPED is non-proof.
+
+
+### E3a bound snapshots [PASS_HOSTED]; A13 mandatory latency audit correction [NOT_PROVEN]
+
+- Implementation461a10305184e99dee71162c83a43b9305ddf79e; exactCI38574279224 SUCCESS/job115887166239, all code including EvidencePG passed/five external steps SKIPPED. Writer3main files/investigator4testCI files; root all DB/verification/publication. Writer22focused/291full; root291units/18SQL files/PG32125exit0 actual concurrency/MVCC.
+- Same0021 SHA256 `2e3a9046ef7464e4497709ffd3c4db05de19e19c0450f116cdcac6e7477b3512`: branch creation422limit, existing child br-rough-recipe-a4038vhb eight owned terminal artifacts verified13:40:48.927Z/original five-table fingerprints unchanged; parent afterexactCI durable8manifest verified13:49:12.091Z clean0/0/0/artifacts8.
+- Producer20165 output unrecovered afterpause/no exit0 claim. Separate read-only consumer25989exit0 at21:26:27.860Z retrievedsame8durable IDs/hash/size with0/0/0/artifacts8, no producer-local bundle. E3a PASS_HOSTED only; complete14 NOT_BUILT, actual runtime receipts/full lifecycle awaitE3b.
+- Fresh user audit/root21:23:17.283Z historical live accounting oneOBSERVED_USAGE row16286tokens/USD0.002246/reserve0 butlatency_ms0; native runner no process.latencyMs, bindings toolTime/0; actual mocked observed0/fallback77 unmeasured. Full13 NOT_PROVEN; money/token/cache/reservation PASS_LIVE and historical Kernel/Research proofs preserved; oldzero notrewritten.
+- NextA13 monotonic nativeOpenClaw spawn-to-close aggregateResearch duration (not individual providerHTTPtime): tests/fullCI then one measured paid proof, notexecutedyet. ThenE3b1accounted runtime receipt -> E3b2lifecycle/survival -> Phone. DetailsJRNL-2026-10-14-008; overallIN_PROGRESS/secretsNOT_PROVEN/admin403BLOCKED/SKIPPEDnonproof.

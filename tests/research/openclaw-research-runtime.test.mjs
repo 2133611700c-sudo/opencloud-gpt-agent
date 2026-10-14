@@ -26,9 +26,24 @@ test('research config exposes only web_search and web_fetch and disables private
   assert.equal(config.tools.web.search.cacheTtlMinutes, 0);
   assert.equal(config.tools.web.fetch.cacheTtlMinutes, 0);
   assert.equal(config.tools.web.fetch.ssrfPolicy.dangerouslyAllowPrivateNetwork, false);
+  assert.equal(config.tools.web.fetch.useTrustedEnvProxy, false);
 
   const serialized = JSON.stringify(config);
   assert.doesNotMatch(serialized, /x_search|group:runtime|group:fs|group:ui|browser|sessions_spawn|"exec"|"write"|"edit"/);
+});
+
+test('trusted fetch proxy requires explicit boolean opt-in and retains private-network blocking', () => {
+  for (const enabled of [false, true]) {
+    const config = buildResearchOpenClawConfig({ fetchUseTrustedEnvProxy: enabled });
+    assert.equal(config.tools.web.fetch.useTrustedEnvProxy, enabled);
+    assert.equal(config.tools.web.fetch.ssrfPolicy.dangerouslyAllowPrivateNetwork, false);
+    assert.deepEqual(config.tools.allow, ['web_search', 'web_fetch']);
+    assert.equal(config.agents.defaults.model.primary, 'deepseek/deepseek-flash');
+    assert.deepEqual(config.agents.defaults.model.fallbacks, []);
+  }
+  for (const invalid of ['true', 'false', 0, 1, null, {}, []]) {
+    assert.throws(() => buildResearchOpenClawConfig({ fetchUseTrustedEnvProxy: invalid }), /fetchUseTrustedEnvProxy must be a boolean/);
+  }
 });
 
 test('walking skeleton rejects an unapproved search provider', () => {

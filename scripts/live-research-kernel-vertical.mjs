@@ -14,6 +14,12 @@ const pricingVersion = process.env.OPENCLAW_DEEPSEEK_PRICING_VERSION || 'deepsee
 const id = randomUUID();
 
 try {
+  // Set to true only for an operator-controlled outbound proxy. Presence of
+  // HTTP(S)_PROXY alone does not enable trust; direct networking remains default.
+  const proxyFlag = process.env.OPENCLAW_WEB_FETCH_TRUSTED_ENV_PROXY;
+  if (proxyFlag != null && proxyFlag !== 'true' && proxyFlag !== 'false') {
+    throw new TypeError('OPENCLAW_WEB_FETCH_TRUSTED_ENV_PROXY must be true or false');
+  }
   const query = createPsqlQuery({ databaseUrl: process.env.DATABASE_URL });
   const dataWorker = createDataWorker({
     kernel: createPostgresDataAdapter({ query }),
@@ -35,6 +41,7 @@ try {
       searchTimeoutSeconds: 20,
       fetchTimeoutSeconds: 30,
       fetchMaxChars: 20_000,
+      fetchUseTrustedEnvProxy: proxyFlag === 'true',
     },
     estimateReservation: async () => ({ costUsd: 0.10, tokens: 50_000 }),
   });

@@ -25,6 +25,7 @@ export function buildResearchOpenClawConfig({
   searchTimeoutSeconds = 20,
   fetchTimeoutSeconds = 30,
   fetchMaxChars = 20_000,
+  fetchUseTrustedEnvProxy = false,
 } = {}) {
   if (searchProvider !== 'duckduckgo') {
     throw new TypeError('Walking Skeleton research provider must be duckduckgo');
@@ -33,6 +34,7 @@ export function buildResearchOpenClawConfig({
   boundedInteger(searchTimeoutSeconds, 'searchTimeoutSeconds', 5, 60);
   boundedInteger(fetchTimeoutSeconds, 'fetchTimeoutSeconds', 5, 60);
   boundedInteger(fetchMaxChars, 'fetchMaxChars', 1_000, 50_000);
+  if (typeof fetchUseTrustedEnvProxy !== 'boolean') throw new TypeError('fetchUseTrustedEnvProxy must be a boolean');
 
   return Object.freeze({
     agents: Object.freeze({
@@ -63,6 +65,9 @@ export function buildResearchOpenClawConfig({
           cacheTtlMinutes: 0,
           maxRedirects: 3,
           readability: true,
+          // Explicit deployment opt-in: the operator-controlled proxy must enforce
+          // outbound policy after DNS resolution. Hostname/private-IP guards remain on.
+          useTrustedEnvProxy: fetchUseTrustedEnvProxy,
           ssrfPolicy: Object.freeze({ dangerouslyAllowPrivateNetwork: false }),
         }),
       }),

@@ -4,9 +4,9 @@
   "updated_at": "2026-10-14",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
-  "verified_code_head": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
-  "verified_ci_run_id": 38501303395,
+  "verified_head": "495b23b67d1226d4a79c8b640e56080dbbcaeda1",
+  "verified_code_head": "495b23b67d1226d4a79c8b640e56080dbbcaeda1",
+  "verified_ci_run_id": 38505501374,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -18,13 +18,13 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38501303395,
+    "ci_run_id": 38505501374,
     "ci_conclusion": "success"
   },
   "current_phase": 7,
-  "current_phase_name": "Artifact + Evidence Layer — E1 contract PASS_CODE_CI; E2 durable SQL persistence next",
+  "current_phase_name": "Artifact + Evidence Layer — E2 durable PostgreSQL persistence PASS_HOSTED; E3 runtime lifecycle/process survival next",
   "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "DURABLE_EVIDENCE_THEN_PHONE_DISPATCH",
+  "route_id": "DURABLE_EVIDENCE_E3_THEN_PHONE_DISPATCH",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -78,13 +78,15 @@
       "complete_node_success_active_lease_guard_0019_present": true,
       "requeue_node_retry_active_lease_guard_0019_present": true,
       "verification_child_branch_id": "br-wandering-fire-a4vhwmd6",
-      "observed_at": "2026-10-14T02:37:10.789386Z",
+      "observed_at": "2026-10-14T03:21:53.544Z",
       "total_artifacts": 0,
       "fail_node_terminal_active_lease_guard_present": true,
-      "check_scope": "Root fresh hosted read-only counts and function absence at observed_at only; earlier guard/child behavior provenance retained. No hosted mutation, behavioral write test or paid provider execution.",
+      "check_scope": "Evidence E2 additive migration 0020 and behavior verified on clean Neon child br-rough-recipe-a4038vhb, then applied to hosted openclaw-v2. First persist, idempotent repeat and exact read/hash/size linkage passed; test rows cleaned. Final hosted state active0/RUNNING0/RESERVED0/EVIDENCE_BUNDLE_V1 artifacts0. No paid provider execution.",
       "guard_inspection_observed_at": "2026-10-12T23:57:30.163Z",
-      "evidence_snapshot_function_present": false,
-      "evidence_persist_function_present": false
+      "evidence_snapshot_function_present": true,
+      "evidence_persist_function_present": true,
+      "evidence_artifacts": 0,
+      "evidence_e2_verification_child_branch_id": "br-rough-recipe-a4038vhb"
     }
   },
   "live_capabilities": {
@@ -114,6 +116,11 @@
     "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows."
   },
   "latest_verified_innovations": [
+    {
+      "commit": "495b23b67d1226d4a79c8b640e56080dbbcaeda1",
+      "result": "PASS_HOSTED",
+      "change": "Evidence E2 migration 0020 + PostgreSQL evidence store implemented; exact CI 38505501374 SUCCESS. Clean child and hosted Neon directly proved canonical persist/read, immutable task/acceptance linkage, repeat-safe idempotency, hash/size verification and post-test clean state."
+    },
     {
       "commit": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
       "result": "PASS_CODE_CI",
@@ -176,19 +183,19 @@
     }
   ],
   "known_gaps": {
-    "durable_evidence_bundle": "NOT_BUILT",
+    "durable_evidence_bundle": "NOT_BUILT_E3_RUNTIME_LIFECYCLE_PROCESS_SURVIVAL_PENDING",
     "phone_result_and_deep_log": "NOT_BUILT",
     "github_user_task_dispatch_workflow": "NOT_BUILT",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38501303395_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38501303395_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "MISSING_IN_CI_38505501374_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38505501374_SO_LIVE_ACTIONS_STEPS_SKIPPED",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
     "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
   },
   "forbidden_until_live_research_pass": [],
   "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "Evidence E2 only: persist/retrieve the E1 versioned canonical bundle through the existing PostgreSQL/artifacts surface with immutable acceptance/task linkage and repeat-safe storage; actual local PostgreSQL behavior and full exact CI. Apply any hosted migration through child verification, hosted application and cleanliness protocol. Then E3 runtime receipt/lifecycle integration and retrieval from a new process after producer termination. Complete Evidence remains NOT_BUILT; Phone/Dispatch wait.",
-  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. D1–D4 and complete production Data #12 are PASS_CODE_CI; E1 Evidence contract is PASS_CODE_CI only. Continue E2 durable SQL persist/retrieve -> E3 runtime receipt/lifecycle/process survival before Phone/Dispatch. Overall Walking Skeleton remains IN_PROGRESS; SKIPPED external CI steps prove no hosted/live behavior.",
+  "next_action": "Evidence E3 only: integrate the E1 canonical bundle and E2 PostgreSQL store into terminal runtime lifecycle, persist a receipt before producer exit, then retrieve and validate the durable Evidence from a fresh process after producer termination for SUCCESS and failed terminal paths. Complete scope #14 remains NOT_BUILT until this process-survival proof passes. Phone/Dispatch wait.",
+  "continuation_rule": "Read START_HERE.md -> full 48h plan -> PROJECT_STATE.json -> latest RESULTS_JOURNAL -> current HEAD/exact CI -> direct hosted Neon reality when required. D1-D4 Data PASS_CODE_CI; E1 Evidence contract PASS_CODE_CI; E2 durable PostgreSQL persistence PASS_HOSTED. E3 runtime receipt/lifecycle/process-survival is the next gate; Phone/Dispatch wait. SKIPPED external CI steps prove no hosted/live behavior.",
   "scope_notes_48h": {
     "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
     "12_data_result_validation_dedupe_normalization": "D1–D4 production Data contracts, transformer, fenced runtime and production vertical are PASS_CODE_CI. Real local/CI PostgreSQL uses injected synthetic Research runtime; no fresh hosted/paid Production Data result is claimed."
@@ -293,7 +300,7 @@
       "note": "Actual production Research wiring with synthetic injected runtime -> Kernel -> actual Data worker/transformer -> persisted canonical terminal result. Whole accounting ledger and returned/persisted Research/Data compared. Partial required-field failure terminalizes Data/task; no paid call or hosted write."
     }
   },
-  "evidence_scope_note": "Exact E1 full CI 38501303395 succeeded; five hosted/live/upload steps were SKIPPED. E1 is a pure versioned contract/serializer/hash and does not implement persistence or process survival. Complete #14 remains NOT_BUILT; complete Data #12 remains PASS_CODE_CI. Latest root hosted read-only counts at 2026-10-14T02:37:10.789386Z were active0/RUNNING0/RESERVED0/artifacts0; E2 snapshot/persist functions absent. No new hosted write or paid call is claimed. Historical Research live proof remains separate. Permanent external credentials remain NOT_PROVEN; recorded administration HTTP403 blockers remain BLOCKED.",
+  "evidence_scope_note": "E1 contract is PASS_CODE_CI. E2 durable SQL persist/retrieve is PASS_HOSTED at commit 495b23b67d1226d4a79c8b640e56080dbbcaeda1 with exact CI 38505501374 SUCCESS and direct child+hosted Neon behavioral proof. Final hosted check at 2026-10-14T03:21:53.544Z: active0/RUNNING0/RESERVED0/EVIDENCE_BUNDLE_V1 artifacts0; persist/read functions present. Complete scope #14 remains NOT_BUILT until E3 runtime receipt/process-survival proof. Latest CI hosted/live secret-dependent steps were SKIPPED; historical Research PASS_LIVE is separate.",
   "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
   "execution_lanes": {
     "coordinator_and_publisher": "root",
@@ -377,7 +384,25 @@
       "note": "Pure terminal Evidence schema v1 contract, safe projection, canonical UTF8 serialization and SHA256; no SQL/runtime lifecycle implementation or Kernel edit. Pre-fix focused35/full263 were limited-coverage observations, superseded by final39/267 and specialist168. Complete durable Evidence remains NOT_BUILT until E2/E3 proof."
     },
     "E2_durable_sql_persist_retrieve": {
-      "status": "NOT_BUILT"
+      "status": "PASS_HOSTED",
+      "commit": "495b23b67d1226d4a79c8b640e56080dbbcaeda1",
+      "ci_run_id": 38505501374,
+      "files": [
+        "migrations/0020_evidence_artifact_persistence.sql",
+        "src/evidence/postgres-evidence-store.mjs",
+        "tests/sql/0020_evidence_artifact_persistence_test.sql",
+        "tests/evidence/postgres-evidence-store.test.mjs"
+      ],
+      "verification_child_branch_id": "br-rough-recipe-a4038vhb",
+      "hosted_branch_id": "br-odd-forest-a4leyaqj",
+      "hosted_observed_at": "2026-10-14T03:21:53.544Z",
+      "post_clean_state": {
+        "active_tasks": 0,
+        "running_nodes": 0,
+        "unresolved_reservations": 0,
+        "evidence_artifacts": 0
+      },
+      "proof": "Canonical E1 bundle persisted with SHA256/size and immutable task+acceptance linkage; identical retry returns same artifact without duplication; fresh read returns exact serialized payload; child and hosted behavior directly verified."
     },
     "E3_runtime_receipt_lifecycle_process_survival": {
       "status": "NOT_BUILT"

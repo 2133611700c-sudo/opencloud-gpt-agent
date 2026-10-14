@@ -837,3 +837,48 @@ Privacy validation uses known projections, recognizable credential patterns and 
 **Next: E2 durable SQL persistence/retrieval only**, using the existing PostgreSQL/artifacts surface with immutable task/acceptance linkage, validated canonical payload and repeat-safe storage. Real local PostgreSQL positive/negative/idempotency/retrieval checks -> full exact CI; any hosted schema application follows child verification, hosted behavior and cleanliness protocol.
 
 Then E3 integrates runtime receipt/lifecycle and retrieves from a new process after producer termination. Complete Evidence requires persistence and survival proof; Phone/Dispatch wait. Preserve pinned Research runtime and accepted Data proofs; no browser/catalog/refactor detours or redundant paid Research run.
+
+---
+
+## JRNL-2026-10-14-006 — E2 durable PostgreSQL Evidence persistence verified
+
+**Branch:** `v2/openclaw-clean-20261011`
+**Implementation HEAD:** `495b23b67d1226d4a79c8b640e56080dbbcaeda1`
+**Exact full CI:** `38505501374` — `SUCCESS`
+**48h parent:** scope #14 durable Evidence
+**Gate:** E2 durable SQL persistence/retrieval
+
+### Result
+
+E2 is complete at both code/CI and hosted PostgreSQL layers. Migration `0020_evidence_artifact_persistence.sql` adds a single immutable `EVIDENCE_BUNDLE_V1` artifact per task plus `persist_task_evidence_v1(uuid,text,text)` and `read_task_evidence_snapshot_v1(uuid)`. The Node adapter `src/evidence/postgres-evidence-store.mjs` validates the E1 canonical bundle, SHA256, byte length and task linkage before persistence and revalidates stored evidence on read.
+
+Exact CI `38505501374` completed `SUCCESS`. Node tests, all migrations/SQL assertions, Research PostgreSQL E2E, Data PostgreSQL E2E and the production Data vertical all passed. The hosted/live credential-dependent Actions steps remained `SKIPPED`; those skips are not promoted to hosted/live PASS.
+
+### Hosted verification
+
+A new Neon verification branch could not be created because the project branch limit was reached. The previously inspected child `br-wandering-fire-a4vhwmd6` was not used because it was not clean at this checkpoint. A different existing clean child, `br-rough-recipe-a4038vhb`, had `0` active tasks, `0` RUNNING nodes and `0` unresolved reservations before E2.
+
+The additive E2 functions/index were applied transactionally to that clean child. A behavioral test proved: first persist creates one artifact; identical retry is idempotent and returns the same artifact; retrieval returns the exact serialized payload/hash/size; only one Evidence artifact exists. Test rows were removed and the child returned to `0/0/0` with zero E2 artifacts.
+
+The same additive migration was then applied to hosted `openclaw-v2 / openclaw_v2`. The same first-persist / repeat-idempotency / exact-read behavior passed directly. Final hosted observation at `2026-10-14T03:21:53.544Z`:
+
+- `persist_task_evidence_v1(uuid,text,text)`: present;
+- `read_task_evidence_snapshot_v1(uuid)`: present;
+- active tasks: `0`;
+- RUNNING nodes: `0`;
+- unresolved `RESERVED` reservations: `0`;
+- `EVIDENCE_BUNDLE_V1` artifacts after cleanup: `0`.
+
+**E2 result: `PASS_HOSTED`.** E1 remains `PASS_CODE_CI`.
+
+### Negative evidence / proof limit
+
+This gate does not yet prove that a real terminal runtime automatically produces Evidence and that the Evidence remains retrievable after the producer process terminates. Therefore complete mandatory scope #14 remains **`NOT_BUILT`** until E3 passes. No new paid DeepSeek/web execution occurred in E2. Permanent GitHub Actions credential plumbing remains `NOT_PROVEN`; latest credential-dependent CI steps were `SKIPPED`.
+
+### Route decision
+
+**Next allowed gate: E3 runtime receipt/lifecycle/process survival only.**
+
+Integrate the E1 canonical bundle and E2 PostgreSQL store into terminal runtime lifecycle; persist a durable receipt before producer exit; terminate the producer; retrieve and revalidate the same Evidence from a fresh process for both SUCCESS and failed terminal paths. Only after E3 is accepted may complete scope #14 become PASS and Phone P1 start.
+
+Do not detour into Phone, GitHub intake/dispatch, browser/Vision/PDF, catalog scale-out, broad refactors or redundant paid Research runs before E3 acceptance.

@@ -159,19 +159,16 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION load_terminal_evidence_input_v2(p_task_id UUID)
-RETURNS TABLE (
-  task_id UUID,
-  snapshot JSONB,
-  terminal_updated_at TIMESTAMPTZ,
-  terminal_at TIMESTAMPTZ
-)
-LANGUAGE plpgsql
+RETURNS TABLE (snapshot JSONB, snapshot_sha256 TEXT)
+LANGUAGE plpgsql VOLATILE
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_base RECORD;
   v_receipts JSONB;
+  v_snapshot JSONB;
 BEGIN
-  SELECT * INTO v_base FROM load_terminal_evidence_input_v1(p_task_id);
+  SELECT * INTO v_base FROM public.load_terminal_evidence_input_v1(p_task_id);
   IF NOT FOUND THEN RETURN; END IF;
 
   SELECT COALESCE(jsonb_agg(jsonb_build_object(
@@ -187,14 +184,12 @@ BEGIN
     'error',rr.error
   ) ORDER BY rr.id),'[]'::jsonb)
   INTO v_receipts
-  FROM runtime_receipts rr
+  FROM public.runtime_receipts rr
   WHERE rr.task_id=p_task_id;
 
-  task_id := v_base.task_id;
-  snapshot := jsonb_set(v_base.snapshot,'{runtimeReceipts}',v_receipts,FALSE);
-  terminal_updated_at := v_base.terminal_updated_at;
-  terminal_at := v_base.terminal_at;
-  RETURN NEXT;
+  v_snapshot := jsonb_set(v_base.snapshot,'{runtimeReceipts}',v_receipts,FALSE);
+  RETURN QUERY SELECT v_snapshot,
+    encode(public.digest(convert_to(v_snapshot::text, 'UTF8'), 'sha256'), 'hex');
 END;
 $$;
 

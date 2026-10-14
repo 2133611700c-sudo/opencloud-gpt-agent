@@ -939,3 +939,30 @@ User's fresh audit made mandatory48h latency gap the first next gate. Root at `2
 **A13 first:** monotonic native OpenClaw spawn-to-close elapsed duration on the aggregated Research accounting row, expressly not individual provider HTTP latency. Focused/full tests -> exact full CI -> one bounded paid live proof with measured nonzero duration, exactly one accounting row and no unresolved reserve. This new paid proof has not executed yet.
 
 Then **E3b1 accounted runtime receipt -> E3b2 runtime lifecycle/new-process survival -> Phone**. Complete14 remains NOT_BUILT; overall IN_PROGRESS. Five skipped hosted/live/upload steps remain non-proof; permanent secrets NOT_PROVEN/admin403 BLOCKED. Recorder updated only governance using root fresh proof; no network, DB/model or secret-file operation.
+
+
+## JRNL-2026-10-14-009 — A13 latency code verified; bounded live failure exposes billing/fetch gates
+
+**Implementation HEAD:** `7f2791cb0480835d30acb5657af6a450f4358353`  
+**Exact full CI:** `38642052950` SUCCESS; root-inspected job `116119732617`, all code steps passed/five external conditional steps SKIPPED  
+**Parent checkpoint008 CI:** `38641578381` SUCCESS, job `116118126252`, five external steps SKIPPED
+
+### Code, actual lanes and verification
+
+Native Research runner now measures monotonic OpenClaw spawn-to-close elapsed duration and forwards it to the aggregate accounting row, including fallback accounting. This is runtime duration, not individual provider HTTP latency. Root owned two production runner/bindings files; investigator owned two unit files and75/75 focused cases. Writer independently ran34 probes plus30 existing focused cases, with no writes. Root independently passed342/342 units plus foundation/health; isolated local PostgreSQL production vertical session56075 exited0 after cancelling one stale owned deadline-heartbeat-guard fixture via cancel_task in LOCAL DB only. No hosted cancellation is claimed.
+
+Fresh read-only preflight found pinned runtime2026.9.8/authprofiles0, available provider balance and clean hosted0/0/0. Preflight is not live accounting proof. gh CLI401 was recovered through connector reads/writes using expectedSHA, publishing checkpoint008 and A13. **A13 measured-latency code: PASS_CODE_CI. Full scope13 remains NOT_PROVEN.** Historical latency0 remains unchanged and prior live money/token/cache/reservation/Kernel/Research proofs retain their scope.
+
+### One bounded paid attempt failed; zero ledger is not zero provider spend
+
+Actual paid/native session `12845` exited1, task `4daaffb3-f32c-45e7-b410-3b57e104d156`: INVALID_SUCCESS_ENVELOPE because SUCCESS retained unresolved web_fetch. Hosted terminal status FAIL_WITH_EVIDENCE/NODE_FAILED, ResearchFAIL_WITH_EVIDENCE/DataBLOCKED; accounting rows0, unresolved reserve0, current ledger cost0. **Possible actual provider spend is NOT_PROVEN**; no free-call or measured live accounting success is claimed.
+
+E3a safely persisted failure artifact `5f2a4312-be41-442d-86c5-162173a556f1`, SHA256 `890606c56a9bc16c430ef592504546ba6e9dae349652bb6d96892bea0e466e47`,2953bytes. This is durable failure snapshot evidence, not automatic runtime receipt/full lifecycle proof; complete14 remains NOT_BUILT.
+
+### Native fetch diagnostic and narrow next route
+
+No-LLM guarded-fetch reproduction session `52947` exited0: same official pricing URL with useEnvProxyfalse returned ECONNREFUSED in5248ms; useEnvProxytrue returnedHTTP200/23908bytes in1914ms while ssrfAllowPrivateNetworkfalse. Plain Node GET official root/pricing also returned200. Proxytrue/privateguardfalse also rejected literal127.0.0.1 andlocalhost as SsrFBlockedError beforefetch; this does not prove broader DNS/redirect behavior. These diagnostics performed no paid inference.
+
+**Next A13b:** preserve validated billing on rejected Research content/tool envelopes without accepting invalid Research -> focused/full tests/exact CI. **Then A13c:** documented opt-in trusted environment proxy for native fetch, proxy false by default/private guard retained -> exact CI. Only then one new bounded live proof; do not automatically duplicate the failed run or rewrite history.
+
+Then E3b1 accounted runtime receipt -> E3b2 lifecycle/new-process survival -> Phone. Overall IN_PROGRESS, scope13 NOT_PROVEN, complete14 NOT_BUILT; five skips remain non-proof/permanent secrets NOT_PROVEN/admin403 BLOCKED. Recorder only governance edits using root fresh HEAD/CI, no network/DB/model/secret-file operation.

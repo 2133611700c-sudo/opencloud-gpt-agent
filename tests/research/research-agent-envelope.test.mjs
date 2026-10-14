@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   ResearchAgentEnvelopeError,
   parseResearchAgentEnvelope,
+  parseRejectedResearchBilling,
 } from '../../src/research/research-agent-envelope.mjs';
 
 const researchFinal = (overrides = {}) => ({
@@ -172,4 +173,72 @@ test('rejects successful-looking envelope with failed run status', () => {
     () => parse(envelope({ ok: false, status: 'error' })),
     (error) => error instanceof ResearchAgentEnvelopeError && error.code === 'AGENT_RUN_FAILED',
   );
+});
+
+const rejectedBilling = (value, options = {}) => parseRejectedResearchBilling(JSON.stringify(value), {
+  requestedModel: 'deepseek/deepseek-chat', ...options,
+});
+
+test('billing survives rejected web evidence without retaining result, tools or private fields', () => {
+  const value = envelope({ toolSummary: { calls: 2, tools: ['web_search', 'web_fetch'], failures: 1,
+    unresolvedError: { toolName: 'web_fetch', message: 'private tool detail sentinel' } }, reasoning: 'private reasoning sentinel' });
+  assert.throws(() => parse(value), (error) => error.code === 'UNRESOLVED_WEB_TOOL_FAILURE');
+  const billing = rejectedBilling(value);
+  assert.equal(billing.provider, 'deepseek'); assert.equal(billing.model, 'deepseek-chat');
+  assert.deepEqual(billing.usage, { input: 100, output: 30, cacheRead: 0, cacheWrite: 0, total: 130 });
+  assert.equal(billing.costUsd, 0.0012); assert.equal(billing.sessionId, 'session-123');
+  assert.equal(Object.isFrozen(billing), true); assert.equal(Object.isFrozen(billing.usage), true);
+  for (const key of ['result', 'final', 'toolSummary', 'reasoning', 'payloads', 'stdout', 'stderr']) assert.equal(Object.hasOwn(billing, key), false);
+  assert.ok(!JSON.stringify(billing).includes('private'));
+});
+
+test('missing or malformed rejected-run billing selects conservative fallback instead of throwing', () => {
+  for (const overrides of [
+    { usage: null }, { costUsd: null }, { usage: {} }, { usage: { input: 100, output: -1, total: 99 } },
+    { usage: { input: 100, output: 30, cacheRead: 1, cacheWrite: 0, total: 130 } },
+    { usage: { input: 100, output: 0.5, total: 100.5 } }, { costUsd: -1 }, { costUsd: '0.0012' },
+  ]) {
+    const billing = rejectedBilling(envelope(overrides));
+    assert.equal(billing.accountingFallbackReason, 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY');
+    assert.equal(billing.usage, null); assert.equal(billing.costUsd, null);
+  }
+});
+
+test('rejected-run partial cache telemetry remains explicit for conservative accounting', () => {
+  const billing = rejectedBilling(envelope({ usage: { input: 100, output: 30, total: 130 } }));
+  assert.deepEqual(billing.usage, { input: 100, output: 30, total: 130, cacheRead: null, cacheWrite: null });
+  assert.equal(billing.costUsd, 0.0012);
+  assert.equal(billing.accountingFallbackReason, 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY');
+});
+
+test('rejected billing requires string stdout without coercing objects or invoking getters', () => {
+  let reads = 0;
+  const coercible = { toString() { reads += 1; return JSON.stringify(envelope()); } };
+  Object.defineProperty(coercible, Symbol.toPrimitive, { get() { reads += 1; throw new Error('private coercion sentinel'); } });
+  for (const stdout of [coercible, {}, null, undefined, 1, true, '', '   ']) {
+    const billing = parseRejectedResearchBilling(stdout, { requestedModel: 'deepseek/deepseek-chat' });
+    assert.equal(billing.usage, null); assert.equal(billing.costUsd, null);
+    assert.equal(billing.accountingFallbackReason, 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY');
+  }
+  assert.equal(reads, 0);
+});
+
+test('unverified rejected-run identity and malformed JSON cannot create observed billing claims', () => {
+  for (const value of [envelope({ provider: 'other' }), envelope({ model: 'other' }), envelope({ provider: null }), {}]) {
+    const billing = rejectedBilling(value);
+    for (const key of ['provider', 'model', 'sessionId', 'usage', 'costUsd']) assert.equal(billing[key], null);
+    assert.equal(billing.accountingFallbackReason, 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY');
+  }
+  const billing = parseRejectedResearchBilling('not JSON private sentinel', { requestedModel: 'deepseek/deepseek-chat' });
+  assert.equal(billing.usage, null); assert.equal(billing.costUsd, null);
+  assert.ok(!JSON.stringify(billing).includes('private'));
+});
+
+test('rejected billing omits supplied secrets and unsafe session identities', () => {
+  const supplied = 'synthetic-private-session';
+  for (const sessionId of [supplied, ['sk', 'syntheticcredentialabcdef123456'].join('-'), 'Bearer private session', 'x'.repeat(257), 'https://example.com/?token=private']) {
+    const billing = rejectedBilling(envelope({ sessionId }), { sensitiveValues: [supplied] });
+    assert.equal(billing.sessionId, null);
+    assert.ok(!JSON.stringify(billing).includes(sessionId));
+  }
 });

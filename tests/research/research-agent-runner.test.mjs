@@ -11,6 +11,7 @@ import {
   ResearchAgentProcessError,
   ResearchTrustRootError,
   buildResearchChildEnv,
+  getRejectedResearchBilling,
   runResearchAgent,
 } from '../../src/research/research-agent-runner.mjs';
 
@@ -288,4 +289,43 @@ test('duplicate close events do not resample or change settled process latency',
     assert.equal(samples, 2); assert.equal(result.process.latencyMs, 38);
     assert.deepEqual(readdirSync(root), []);
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('native rejected envelope exposes only branded immutable billing and measured latency', async () => {
+  const root = isolatedRoot(); const capture = {}; let samples = 0;
+  const rejected = agentEnvelope({ usage: { input: 100, output: 30, cacheRead: 0, cacheWrite: 0, total: 130 },
+    toolSummary: { calls: 2, tools: ['web_search', 'web_fetch'], failures: 1,
+      unresolvedError: { toolName: 'web_fetch', message: 'private tool sentinel' } }, reasoning: 'private reasoning sentinel' });
+  try {
+    await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+      spawnImpl: successfulSpawn(capture, root, rejected), nowMs: () => ++samples === 1 ? 0 : 37.25,
+    }), (error) => {
+      assert.equal(error.code, 'INVALID_SUCCESS_ENVELOPE'); assert.equal(error.cause, undefined);
+      assert.match(error.message, /UNRESOLVED_WEB_TOOL_FAILURE/); assert.ok(!error.message.includes('private'));
+      const capsule = getRejectedResearchBilling(error);
+      assert.equal(capsule.originalCode, 'UNRESOLVED_WEB_TOOL_FAILURE');
+      assert.equal(capsule.research.process.latencyMs, 38);
+      assert.equal(capsule.research.telemetry.costUsd, 0.001);
+      assert.equal(capsule.research.telemetry.usage.total, 130);
+      assert.equal(Object.isFrozen(capsule), true); assert.equal(Object.isFrozen(capsule.research), true);
+      assert.equal(Object.isFrozen(capsule.research.telemetry), true); assert.equal(Object.isFrozen(capsule.research.process), true);
+      const serialized = JSON.stringify(capsule);
+      for (const key of ['final', 'result', 'stdout', 'stderr', 'reasoning', 'toolSummary', 'cause']) assert.equal(serialized.includes(`"${key}"`), false);
+      assert.equal(serialized.includes('private'), false);
+      assert.equal(getRejectedResearchBilling(Object.assign(new Error('copied failure'), error)), null);
+      return true;
+    });
+    assert.deepEqual(readdirSync(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('native billing lookup does not read forged error properties or getters', () => {
+  let reads = 0; const fake = {};
+  for (const key of ['code', 'name', 'accountingResearch', 'rejectedResearchBilling', 'research', 'billing']) {
+    Object.defineProperty(fake, key, { get() { reads += 1; throw new Error('forged getter detail'); } });
+  }
+  assert.equal(getRejectedResearchBilling(fake), null); assert.equal(reads, 0);
+  assert.equal(getRejectedResearchBilling(new Proxy(fake, { get() { reads += 1; throw new Error('private proxy detail'); } })), null);
+  assert.equal(getRejectedResearchBilling(new ResearchAgentProcessError('fake', { code: 'INVALID_SUCCESS_ENVELOPE' })), null);
+  assert.equal(reads, 0);
 });

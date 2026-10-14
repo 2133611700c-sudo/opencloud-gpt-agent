@@ -96,7 +96,9 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           if (typeof db.recordLlmCallReservationFallback !== 'function') {
             throw Object.assign(new Error('reservation fallback accounting capability is required'), { code: 'ACCOUNTING_FALLBACK_UNAVAILABLE' });
           }
-          const reason = missingUsage && missingCost
+          const reason = research?.telemetry?.accountingFallbackReason === 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY'
+            ? 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY'
+            : missingUsage && missingCost
             ? 'MISSING_USAGE_AND_COST_TELEMETRY'
             : missingUsage
               ? 'MISSING_USAGE_TELEMETRY'
@@ -119,7 +121,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
             reason,
           });
           if (!accounted) throw Object.assign(new Error('fallback model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
-          return;
+          return accounted;
         }
 
         const promptCacheHitTokens = usage.cacheRead;
@@ -145,6 +147,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           latencyMs,
         });
         if (!accounted) throw Object.assign(new Error('model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
+        return accounted;
       },
       completeSuccess: ({ result }) => db.completeSuccess({ nodeId: claim.nodeId, workerId: claim.workerId, leaseToken: claim.leaseToken, outputData: result }),
       failTerminal: ({ error }) => db.failTerminal({ nodeId: claim.nodeId, workerId: claim.workerId, leaseToken: claim.leaseToken, error }),

@@ -9,7 +9,11 @@ import {
   buildResearchAgentExecInvocation,
   buildResearchOpenClawConfig,
 } from './openclaw-research-runtime.mjs';
-import { parseResearchAgentEnvelope } from './research-agent-envelope.mjs';
+import {
+  ResearchAgentEnvelopeError,
+  parseRejectedResearchBilling,
+  parseResearchAgentEnvelope,
+} from './research-agent-envelope.mjs';
 import { isSecureResearchStateDir } from './research-trust-root.mjs';
 
 const SAFE_ENV_KEYS = Object.freeze([
@@ -17,6 +21,24 @@ const SAFE_ENV_KEYS = Object.freeze([
   'SSL_CERT_FILE', 'SSL_CERT_DIR', 'NODE_EXTRA_CA_CERTS',
   'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'NO_PROXY',
 ]);
+
+const rejectedResearchBilling = new WeakMap();
+const ENVELOPE_REJECTION_CODES = new Set([
+  'RESEARCH_AGENT_ENVELOPE_INVALID', 'EMPTY_AGENT_STDOUT', 'INVALID_ENVELOPE_SHAPE',
+  'INVALID_AGENT_JSON', 'AGENT_RUN_FAILED', 'PROVIDER_MISMATCH', 'MODEL_MISMATCH',
+  'CODE_MODE_NOT_DIRECT', 'EMPTY_AGENT_FINAL', 'INVALID_TELEMETRY', 'INVALID_TOOL_EVIDENCE',
+  'NO_WEB_TOOL_EVIDENCE', 'DISALLOWED_TOOL_USED', 'NO_WEB_SEARCH_EVIDENCE',
+  'INVALID_RESEARCH_JSON', 'INVALID_RESEARCH_RESULT', 'NO_WEB_FETCH_EVIDENCE',
+  'UNRESOLVED_WEB_TOOL_FAILURE',
+]);
+
+// Only errors created after a measured native exit-zero rejection are registered.
+// No caller-visible property or error name/code can fabricate this identity.
+export function getRejectedResearchBilling(error) {
+  return error !== null && (typeof error === 'object' || typeof error === 'function')
+    ? rejectedResearchBilling.get(error) ?? null
+    : null;
+}
 
 export class MissingResearchCredentialError extends Error {
   constructor() {
@@ -261,10 +283,22 @@ export async function runResearchAgent({
             process: Object.freeze({ exitCode, signal: exitSignal, stdoutBytes, stderrBytes, stderrPresent: stderr.trim().length > 0, latencyMs }),
           }));
         } catch (error) {
-          finishReject(new ResearchAgentProcessError(
-            `Invalid OpenClaw Research success output: ${redactSensitiveText(error?.message, [apiKey])}`,
-            { code: 'INVALID_SUCCESS_ENVELOPE', exitCode, signal: exitSignal, cause: error },
-          ));
+          const originalCode = error instanceof ResearchAgentEnvelopeError && ENVELOPE_REJECTION_CODES.has(error.code)
+            ? error.code : 'RESEARCH_AGENT_ENVELOPE_INVALID';
+          const rejection = new ResearchAgentProcessError(
+            `Invalid OpenClaw Research success output (${originalCode})`,
+            { code: 'INVALID_SUCCESS_ENVELOPE', exitCode, signal: exitSignal },
+          );
+          rejectedResearchBilling.set(rejection, Object.freeze({
+            research: Object.freeze({
+              telemetry: parseRejectedResearchBilling(stdout, {
+                requestedModel: invocation.model, sensitiveValues: [apiKey],
+              }),
+              process: Object.freeze({ latencyMs }),
+            }),
+            originalCode,
+          }));
+          finishReject(rejection);
         }
       });
     });

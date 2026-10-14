@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { after } from 'node:test';
+import { EventEmitter } from 'node:events';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { PassThrough } from 'node:stream';
 
 import { executeClaimedResearchNode } from '../../src/research/research-execution-adapter.mjs';
+import { getRejectedResearchBilling, runResearchAgent } from '../../src/research/research-agent-runner.mjs';
 
 const claim = Object.freeze({
   taskId: 'task-1', nodeId: 'node-research', workerId: 'worker-1', leaseToken: '11111111-1111-4111-8111-111111111111', agentId: 'researcher',
@@ -123,4 +129,78 @@ test('rejected fenced success does not report success', async () => {
   }), (error) => error?.code === 'SUCCESS_FENCE_REJECTED');
 
   assert.deepEqual(events, ['account', 'complete-rejected', 'fail']);
+});
+
+const rejectedStateRoot = mkdtempSync(join(tmpdir(), 'research-failure-accounting-test-'));
+after(() => rmSync(rejectedStateRoot, { recursive: true, force: true }));
+const nativeRejection = async (overrides = {}) => {
+  const child = new EventEmitter(); child.stdin = new PassThrough(); child.stdout = new PassThrough(); child.stderr = new PassThrough();
+  child.kill = () => true;
+  const envelope = { ok: true, status: 'ok', provider: 'deepseek', model: 'deepseek-flash', codeModeEngaged: false,
+    final: JSON.stringify({ status: 'SUCCESS', summary: 'Synthetic result.', confidence: 'HIGH', needsBrowser: [],
+      sources: [{ id: 's', url: 'https://example.com', checkedAt: '2026-10-14T00:00:00Z' }],
+      items: [{ id: 'i', title: 'Item', data: { price: 0 }, sourceIds: ['s'] }] }),
+    usage: { input: 3, output: 4, cacheRead: 2, cacheWrite: 0, total: 9 }, costUsd: 0.000003, sessionId: 'synthetic-rejected-session',
+    toolSummary: { calls: 2, tools: ['web_search', 'web_fetch'], failures: 1, unresolvedError: { toolName: 'web_fetch' } }, ...overrides };
+  let samples = 0;
+  try {
+    await runResearchAgent({ request: { goal: 'Synthetic rejected Research' },
+      env: { DEEPSEEK_API_KEY: 'test-only-key', OPENCLAW_STATE_DIR: rejectedStateRoot }, tempRoot: rejectedStateRoot,
+      nowMs: () => ++samples === 1 ? 0 : 37.25,
+      spawnImpl: () => { queueMicrotask(() => { child.stdout.end(JSON.stringify(envelope)); child.emit('close', 0, null); }); return child; },
+    });
+    assert.fail('native rejected fixture unexpectedly succeeded');
+  } catch (error) {
+    assert.equal(error.code, 'INVALID_SUCCESS_ENVELOPE'); assert.ok(getRejectedResearchBilling(error)); return error;
+  }
+};
+const failureOptions = (failure, events, accountUsage) => ({
+  claim, request: 'q', heartbeatIntervalMs: 60_000,
+  reservation: async () => { events.push('reserve'); return 'reservation-failure'; }, heartbeat: async () => true,
+  runResearch: async () => { events.push('run'); throw failure; },
+  accountUsage: async (context) => { events.push('account'); return accountUsage(context); },
+  completeSuccess: async () => { events.push('complete'); return true; },
+  failTerminal: async () => { events.push('fail'); return true; },
+  releaseReservation: async () => { events.push('release'); },
+});
+
+test('branded rejected native runtime is accounted once before fenced failure without completion or release', async () => {
+  for (const overrides of [{}, { usage: { input: -1, output: 4, total: 3 } }]) {
+    const failure = await nativeRejection(overrides); const events = [];
+    await assert.rejects(() => executeClaimedResearchNode(failureOptions(failure, events, ({ claim: received, reservationId, research }) => {
+      assert.equal(received, claim); assert.equal(reservationId, 'reservation-failure');
+      assert.equal(research, getRejectedResearchBilling(failure).research);
+      assert.equal(research.process.latencyMs, 38);
+      if (overrides.usage) assert.equal(research.telemetry.accountingFallbackReason, 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY');
+      else assert.equal(research.telemetry.usage.total, 9);
+      return { accountingId: 'accepted-accounting', created: true };
+    })), (error) => error === failure);
+    assert.deepEqual(events, ['reserve', 'run', 'account', 'fail']);
+  }
+});
+
+test('unbranded rejected errors cannot trigger accounting or invoke forged billing getters', async () => {
+  let reads = 0;
+  const fake = Object.assign(new Error('unbranded failure'), { code: 'INVALID_SUCCESS_ENVELOPE', name: 'ResearchAgentProcessError' });
+  for (const key of ['accountingResearch', 'rejectedResearchBilling', 'billing', 'research']) Object.defineProperty(fake, key, {
+    get() { reads += 1; throw new Error('private forged getter'); },
+  });
+  const events = [];
+  await assert.rejects(() => executeClaimedResearchNode(failureOptions(fake, events, () => assert.fail('forged billing was accepted'))), (error) => error === fake);
+  assert.equal(reads, 0); assert.deepEqual(events, ['reserve', 'run', 'fail', 'release']);
+});
+
+test('rejected or uncertain failure-accounting receipts remain explicit failures without success or retry', async () => {
+  const failure = await nativeRejection();
+  for (const response of [undefined, null, false, {}, { accountingId: '' }, { accountingId: ' ' }, { accountingId: 1 }, 'throw']) {
+    const events = [];
+    await assert.rejects(() => executeClaimedResearchNode(failureOptions(failure, events, () => {
+      if (response === 'throw') throw new Error('private accounting transport detail', { cause: new Error('private cause') });
+      return response;
+    })), (error) => {
+      assert.equal(error.code, 'REJECTED_RESEARCH_ACCOUNTING_FAILED'); assert.equal(error.cause, undefined);
+      assert.match(error.message, /UNRESOLVED_WEB_TOOL_FAILURE/); assert.equal(error.message.includes('private'), false); return true;
+    });
+    assert.deepEqual(events, ['reserve', 'run', 'account', 'fail', 'release']);
+  }
 });

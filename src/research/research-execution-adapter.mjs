@@ -1,4 +1,6 @@
 import { LeaseHeartbeatManager } from '../kernel/heartbeat.mjs';
+import { isProxy } from 'node:util/types';
+import { getRejectedResearchBilling } from './research-agent-runner.mjs';
 
 export class ResearchExecutionAdapterError extends Error {
   constructor(message, { code = 'RESEARCH_EXECUTION_ADAPTER_ERROR', cause } = {}) {
@@ -11,6 +13,12 @@ export class ResearchExecutionAdapterError extends Error {
 const requireFn = (value, name) => {
   if (typeof value !== 'function') throw new TypeError(`${name} must be a function`);
   return value;
+};
+
+const ownText = (value, key) => {
+  if (value === null || (typeof value !== 'object' && typeof value !== 'function') || isProxy(value)) return null;
+  const descriptor = Object.getOwnPropertyDescriptor(value, key);
+  return descriptor && typeof descriptor.value === 'string' ? descriptor.value : null;
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -69,7 +77,27 @@ export async function executeClaimedResearchNode({
     }
     if (heartbeatManager.failure) throw heartbeatManager.failure;
 
-    const research = await run({ request, signal: heartbeatManager.signal, claim: lease });
+    let research;
+    try {
+      research = await run({ request, signal: heartbeatManager.signal, claim: lease });
+    } catch (error) {
+      const billing = getRejectedResearchBilling(error);
+      if (billing) {
+        if (heartbeatManager.failure) throw heartbeatManager.failure;
+        try {
+          const receipt = await account({ claim: lease, reservationId, research: billing.research });
+          const accountingId = ownText(receipt, 'accountingId');
+          if (accountingId === null || accountingId.trim() === '') throw new Error();
+          accounted = true;
+        } catch {
+          throw new ResearchExecutionAdapterError(
+            `Accounting for rejected Research was not accepted (${billing.originalCode})`,
+            { code: 'REJECTED_RESEARCH_ACCOUNTING_FAILED' },
+          );
+        }
+      }
+      throw error;
+    }
     if (heartbeatManager.failure) throw heartbeatManager.failure;
 
     await account({ claim: lease, reservationId, research });
@@ -89,8 +117,8 @@ export async function executeClaimedResearchNode({
         const failed = await fail({
           claim: lease,
           error: {
-            code: typeof error?.code === 'string' ? error.code : 'RESEARCH_EXECUTION_FAILED',
-            message: typeof error?.message === 'string' ? error.message : 'Research execution failed',
+            code: ownText(error, 'code') ?? 'RESEARCH_EXECUTION_FAILED',
+            message: ownText(error, 'message') ?? 'Research execution failed',
           },
         });
         terminalized = failed === true;

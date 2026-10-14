@@ -40,6 +40,53 @@ const nonNegativeNumber = (value, label) => {
   return value;
 };
 
+const REJECTED_BILLING_REASON = 'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY';
+
+const safeBillingSession = (value, sensitiveValues) => {
+  if (typeof value !== 'string') return null;
+  const session = value.trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$/.test(session)) return null;
+  if (/(?:sk-|gh[pousr]_|github_pat_|xox[baprs]-|AKIA[0-9A-Z]{16}|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.)/i.test(session)) return null;
+  if (Array.isArray(sensitiveValues) && sensitiveValues.some((secret) => typeof secret === 'string' && secret !== '' && session.includes(secret))) return null;
+  return session;
+};
+
+// Billing remains independent of Research acceptance: a rejected final/tool result
+// can still contain a charged, observed provider response. Never return its payload.
+export function parseRejectedResearchBilling(stdout, { requestedModel, sensitiveValues = [] } = {}) {
+  if (typeof requestedModel !== 'string' || !/^deepseek\/[A-Za-z0-9._:-]+$/.test(requestedModel)) {
+    throw new TypeError('requestedModel must be a deepseek/<model> reference');
+  }
+  const fallback = Object.freeze({
+    provider: null, model: null, usage: null, costUsd: null, sessionId: null,
+    accountingFallbackReason: REJECTED_BILLING_REASON,
+  });
+  if (typeof stdout !== 'string' || stdout.trim() === '') return fallback;
+  try {
+    const envelope = objectOrFail(JSON.parse(stdout), 'agent envelope');
+    const expectedModel = requestedModel.slice('deepseek/'.length);
+    if (envelope.ok !== true || envelope.status !== 'ok' || envelope.provider !== 'deepseek'
+      || (envelope.model !== expectedModel && envelope.model !== requestedModel)
+      || envelope.usage == null || envelope.costUsd == null) return fallback;
+    const rawUsage = objectOrFail(envelope.usage, 'usage');
+    const input = nonNegativeInteger(rawUsage.input, 'usage.input');
+    const output = nonNegativeInteger(rawUsage.output, 'usage.output');
+    const total = nonNegativeInteger(rawUsage.total, 'usage.total');
+    const cacheRead = optionalNonNegativeInteger(rawUsage.cacheRead, 'usage.cacheRead');
+    const cacheWrite = optionalNonNegativeInteger(rawUsage.cacheWrite, 'usage.cacheWrite');
+    if (total !== input + output + (cacheRead ?? 0) + (cacheWrite ?? 0)) return fallback;
+    const costUsd = nonNegativeNumber(envelope.costUsd, 'costUsd');
+    return Object.freeze({
+      provider: 'deepseek', model: expectedModel,
+      usage: Object.freeze({ input, output, total, cacheRead, cacheWrite }), costUsd,
+      sessionId: safeBillingSession(envelope.sessionId, sensitiveValues),
+      accountingFallbackReason: REJECTED_BILLING_REASON,
+    });
+  } catch {
+    return fallback;
+  }
+}
+
 export function parseResearchAgentEnvelope(stdout, { requestedModel } = {}) {
   if (typeof stdout !== 'string' || stdout.trim() === '') {
     fail('OpenClaw agent stdout is empty', 'EMPTY_AGENT_STDOUT');

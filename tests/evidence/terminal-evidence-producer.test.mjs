@@ -83,7 +83,7 @@ test('producer fails closed when durable read-back identity or bytes differ', as
 });
 
 test('producer rejects malformed input and incomplete store capabilities', async () => {
-  assert.throws(() => persistTerminalEvidence({ store: {}, taskId }), TypeError);
+  await assert.rejects(() => persistTerminalEvidence({ store: {}, taskId }), TypeError);
   const store = {
     loadInput: async () => ({ snapshot: null, snapshotSha256: fingerprint }),
     persist: async () => { throw new Error('must not persist'); },

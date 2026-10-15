@@ -1,0 +1,115 @@
+name: OpenClaw 2026.10.3 Sidecar Compatibility
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-sidecar'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openclaw-2026-10-3-sidecar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate existing Final 48 foundation
+        run: npm run validate:foundation
+
+      - name: Run existing Node test suite
+        run: npm test
+
+      - name: Run existing health check
+        run: npm run health
+
+      - name: Install exact OpenClaw candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          printf '%s\n' "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.10.3"
+
+      - name: Prepare isolated candidate state
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-state"
+          install -d -m 700 "$state_dir"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+
+      - name: Install exact matching official plugins
+        shell: bash
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
+          openclaw plugins list | grep -i deepseek
+          openclaw plugins list | grep -i duckduckgo
+          test -d "$OPENCLAW_STATE_DIR/npm/projects"
+
+      - name: Verify isolated candidate has no stored DeepSeek profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth_json="$(openclaw models auth list --provider deepseek --json)"
+          AUTH_JSON="$auth_json" node --input-type=module -e "const value=JSON.parse(process.env.AUTH_JSON); if (!Array.isArray(value.profiles) || value.profiles.length !== 0) throw new Error('stored DeepSeek auth profiles are present in the candidate scope');"
+
+      - name: Verify current Research CLI contract is still supported
+        shell: bash
+        run: |
+          set -euo pipefail
+          help_file="$RUNNER_TEMP/openclaw-agent-exec-help.txt"
+          openclaw agent exec --help > "$help_file"
+          for flag in --message-file --config --model --code-mode --thinking --timeout --json; do
+            grep -F -- "$flag" "$help_file" >/dev/null
+          done
+
+      - name: Validate current Research config against OpenClaw 2026.10.3
+        env:
+          OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research-2026.10.3.json
+          OPENCLAW_CONFIG_READONLY: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/write-research-openclaw-config.mjs "$OPENCLAW_CONFIG_PATH"
+          test "$(stat -c '%a' "$OPENCLAW_CONFIG_PATH")" = "600"
+          test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
+          openclaw config validate --json
+
+      - name: Verify candidate operational surfaces are present
+        shell: bash
+        run: |
+          set -euo pipefail
+          root_help="$RUNNER_TEMP/openclaw-help.txt"
+          openclaw --help > "$root_help"
+          grep -i 'agent' "$root_help" >/dev/null
+          grep -i 'plugins' "$root_help" >/dev/null
+          grep -i 'doctor' "$root_help" >/dev/null
+
+      - name: Record compatibility summary
+        shell: bash
+        run: |
+          {
+            echo '## OpenClaw 2026.10.3 sidecar compatibility'
+            echo '- core: openclaw@2026.10.3'
+            echo '- provider plugin: @openclaw/deepseek-provider@2026.10.3'
+            echo '- web plugin: @openclaw/duckduckgo-plugin@2026.10.3'
+            echo '- existing Final 48 runtime remains pinned to 2026.9.8'
+            echo '- provider calls: 0'
+            echo '- hosted database mutations: 0'
+          } >> "$GITHUB_STEP_SUMMARY"

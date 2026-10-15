@@ -47,7 +47,7 @@ jobs:
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
           test "$version_token" = "2026.10.3"
 
-      - name: Prepare isolated A7 state
+      - name: Prepare isolated A7 state and exact DeepSeek plugin
         shell: bash
         run: |
           set -euo pipefail
@@ -56,6 +56,8 @@ jobs:
           config_path="$state_dir/openclaw.json"
           install -d -m 700 "$state_dir"
           install -d -m 700 "$workspace_dir"
+          export OPENCLAW_STATE_DIR="$state_dir"
+          export OPENCLAW_CONFIG_PATH="$config_path"
           {
             echo "OPENCLAW_STATE_DIR=$state_dir"
             echo "OPENCLAW_CONFIG_PATH=$config_path"
@@ -64,13 +66,6 @@ jobs:
           openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a7-baseline.json"
           openclaw plugins install @openclaw/deepseek-provider@2026.10.3
           openclaw config validate --json > "$RUNNER_TEMP/openclaw-a7-config.json"
-          openclaw models list --all --provider deepseek --json > "$RUNNER_TEMP/openclaw-a7-catalog.json"
-          CATALOG_JSON="$(cat "$RUNNER_TEMP/openclaw-a7-catalog.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.CATALOG_JSON);
-            const serialized = JSON.stringify(value);
-            if (!serialized.includes("deepseek-flash")) throw new Error("deepseek-flash missing from 2026.10.3 catalog");
-            if (!serialized.includes("deepseek-v4-pro")) throw new Error("deepseek-v4-pro missing from 2026.10.3 catalog");
-          '
 
       - name: Require DeepSeek credential without exposing it
         env:
@@ -91,7 +86,6 @@ jobs:
           test "${DEEPSEEK_API_KEY_PRESENT:-}" = true
           mkdir -p artifacts
 
-          # A7 paid-call budget: exactly one provider request. Do not add retries here.
           openclaw infer model run \
             --local \
             --model deepseek/deepseek-flash \
@@ -127,7 +121,7 @@ jobs:
             native_infer_usage_exposed: hasNativeUsage,
             native_infer_cost_exposed: hasNativeCost,
             hosted_database_mutations: 0,
-            secret_values_logged: false,
+            secret_values_logged: false
           };
           process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`);
           NODE

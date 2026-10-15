@@ -10,12 +10,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: openclaw-2026-10-3-a2-${{ github.ref }}
+  group: openclaw-2026-10-3-a3-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  a2_inventory:
-    name: A2 plugins + skills + command inventory
+  a3_web_runtime:
+    name: A3 real web search + fetch
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -35,104 +35,122 @@ jobs:
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
           test "$version_token" = "2026.10.3"
 
-      - name: Prepare isolated A2 state
+      - name: Prepare isolated A3 state
         shell: bash
         run: |
           set -euo pipefail
-          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a2-state"
-          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a2-workspace"
+          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a3-state"
+          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a3-workspace"
           config_path="$state_dir/openclaw.json"
           install -d -m 700 "$state_dir"
           install -d -m 700 "$workspace_dir"
           {
             echo "OPENCLAW_STATE_DIR=$state_dir"
             echo "OPENCLAW_CONFIG_PATH=$config_path"
-            echo "OPENCLAW_A2_WORKSPACE=$workspace_dir"
+            echo "OPENCLAW_A3_WORKSPACE=$workspace_dir"
           } >> "$GITHUB_ENV"
-          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a2-baseline.json"
+          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a3-baseline.json"
 
-      - name: Install exact matching official plugins
+      - name: Install and select key-free DuckDuckGo provider
         shell: bash
         run: |
           set -euo pipefail
-          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
           openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
-          test -d "$OPENCLAW_STATE_DIR/npm/projects"
+          openclaw config set tools.web.search.provider duckduckgo
+          openclaw config validate --json > "$RUNNER_TEMP/openclaw-a3-config.json"
 
-      - name: Prove plugin inventory
+      - name: Execute real OpenClaw web search
         shell: bash
         run: |
           set -euo pipefail
-          openclaw plugins list --json > "$RUNNER_TEMP/openclaw-a2-plugins.json"
-          PLUGINS_JSON="$(cat "$RUNNER_TEMP/openclaw-a2-plugins.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.PLUGINS_JSON);
-            const serialized = JSON.stringify(value).toLowerCase();
-            for (const expected of ["browser", "deepseek", "duckduckgo"]) {
-              if (!serialized.includes(expected)) throw new Error(`expected plugin inventory entry missing: ${expected}`);
+          openclaw infer web search \
+            --provider duckduckgo \
+            --query "OpenClaw AI agent GitHub" \
+            --limit 3 \
+            --json > "$RUNNER_TEMP/openclaw-a3-search.json"
+
+          SEARCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-search.json")" node --input-type=module -e '
+            const envelope = JSON.parse(process.env.SEARCH_JSON);
+            if (envelope?.ok !== true) throw new Error(`web search envelope failed: ${envelope?.error ?? "unknown"}`);
+            if (envelope?.capability !== "web.search") throw new Error("wrong search capability");
+            if (envelope?.transport !== "local") throw new Error("web search did not use local capability runtime");
+            if (envelope?.provider !== "duckduckgo") throw new Error(`unexpected provider: ${envelope?.provider}`);
+            const result = envelope?.outputs?.[0]?.result;
+            if (!result || result.kind !== "results") throw new Error(`unexpected search result kind: ${result?.kind}`);
+            if (!Array.isArray(result.results) || result.results.length < 1) throw new Error("web search returned no results");
+            for (const item of result.results) {
+              const url = new URL(item.url);
+              if (!['http:', 'https:'].includes(url.protocol)) throw new Error("non-http search URL");
+              if (typeof item.title !== "string" || item.title.trim() === "") throw new Error("search title missing");
             }
           '
 
-      - name: Prove skills inventory and readiness report
+      - name: Execute real OpenClaw web fetch
         shell: bash
         run: |
           set -euo pipefail
-          openclaw skills list --json > "$RUNNER_TEMP/openclaw-a2-skills.json"
-          openclaw skills check --json > "$RUNNER_TEMP/openclaw-a2-skills-check.json"
-          SKILLS_JSON="$(cat "$RUNNER_TEMP/openclaw-a2-skills.json")" SKILLS_CHECK_JSON="$(cat "$RUNNER_TEMP/openclaw-a2-skills-check.json")" node --input-type=module -e '
-            const list = JSON.parse(process.env.SKILLS_JSON);
-            const check = JSON.parse(process.env.SKILLS_CHECK_JSON);
-            if (!Array.isArray(list.skills)) throw new Error("skills list missing skills array");
-            if (list.skills.length === 0) throw new Error("skills inventory unexpectedly empty");
-            if (!check || typeof check !== "object") throw new Error("skills check did not return an object");
-            if (check.ok === false) throw new Error("skills check returned ok=false");
+          openclaw infer web fetch \
+            --url "https://example.com/" \
+            --format text \
+            --json > "$RUNNER_TEMP/openclaw-a3-fetch.json"
+
+          FETCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-fetch.json")" node --input-type=module -e '
+            const envelope = JSON.parse(process.env.FETCH_JSON);
+            if (envelope?.ok !== true) throw new Error(`web fetch envelope failed: ${envelope?.error ?? "unknown"}`);
+            if (envelope?.capability !== "web.fetch") throw new Error("wrong fetch capability");
+            if (envelope?.transport !== "local") throw new Error("web fetch did not use local capability runtime");
+            if (typeof envelope?.provider !== "string" || !envelope.provider) throw new Error("fetch provider missing");
+            const result = envelope?.outputs?.[0]?.result;
+            if (!result || result.status !== 200) throw new Error(`unexpected fetch status: ${result?.status}`);
+            if (typeof result.text !== "string" || !result.text.toLowerCase().includes("example domain")) throw new Error("expected fetched content missing");
+            if (result.externalContent?.untrusted !== true) throw new Error("external-content trust marker missing");
           '
 
-      - name: Prove major command families are callable
-        shell: bash
-        run: |
-          set -euo pipefail
-          root_help="$RUNNER_TEMP/openclaw-a2-root-help.txt"
-          openclaw --help > "$root_help"
-          for cmd in setup config doctor agent agents gateway models nodes browser cron hooks channels memory security sandbox skills plugins; do
-            grep -E "(^|[[:space:]])${cmd}([[:space:]]|$)" "$root_help" >/dev/null || {
-              echo "missing command family in root help: $cmd" >&2
-              exit 1
-            }
-          done
-
-      - name: Record safe A2 evidence
+      - name: Record safe A3 evidence
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          PLUGINS_JSON="$(cat "$RUNNER_TEMP/openclaw-a2-plugins.json")" SKILLS_JSON="$(cat "$RUNNER_TEMP/openclaw-a2-skills.json")" node --input-type=module <<'NODE' > artifacts/openclaw-2026.10.3-a2.json
-          const plugins = JSON.parse(process.env.PLUGINS_JSON);
-          const skills = JSON.parse(process.env.SKILLS_JSON);
-          const pluginRows = Array.isArray(plugins) ? plugins : Array.isArray(plugins.plugins) ? plugins.plugins : [];
+          SEARCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-search.json")" FETCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-fetch.json")" node --input-type=module <<'NODE' > artifacts/openclaw-2026.10.3-a3.json
+          const search = JSON.parse(process.env.SEARCH_JSON);
+          const fetch = JSON.parse(process.env.FETCH_JSON);
+          const sr = search.outputs[0].result;
+          const fr = fetch.outputs[0].result;
           const evidence = {
             status: 'PASS',
-            stage: 'A2',
-            capability: 'plugin_skill_command_inventory',
+            stage: 'A3',
+            capability: 'real_web_search_and_fetch',
             openclaw_version: '2026.10.3',
-            plugin_inventory_json: 'PASS',
-            expected_plugins_seen: ['browser', 'deepseek', 'duckduckgo'],
-            observed_plugin_rows: pluginRows.length,
-            skills_list_json: 'PASS',
-            skills_check_json: 'PASS',
-            observed_skills: skills.skills.length,
-            command_families: ['setup','config','doctor','agent','agents','gateway','models','nodes','browser','cron','hooks','channels','memory','security','sandbox','skills','plugins'],
-            provider_calls: 0,
+            search: {
+              provider: search.provider,
+              transport: search.transport,
+              kind: sr.kind,
+              count: sr.results.length,
+              urls: sr.results.map((item) => item.url).slice(0, 3),
+              external_content_untrusted: sr.externalContent?.untrusted === true,
+            },
+            fetch: {
+              provider: fetch.provider,
+              transport: fetch.transport,
+              status: fr.status,
+              final_url: fr.finalUrl,
+              extractor: fr.extractor,
+              external_content_untrusted: fr.externalContent?.untrusted === true,
+              text_contains_expected_marker: fr.text.toLowerCase().includes('example domain'),
+            },
+            model_provider_calls: 0,
+            paid_search_calls: 0,
             hosted_database_mutations: 0,
             secret_values_logged: false,
           };
           process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`);
           NODE
-          cat artifacts/openclaw-2026.10.3-a2.json >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/openclaw-2026.10.3-a3.json >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload safe A2 evidence
+      - name: Upload safe A3 evidence
         uses: actions/upload-artifact@v4
         with:
-          name: openclaw-2026-10-3-a2-inventory
-          path: artifacts/openclaw-2026.10.3-a2.json
+          name: openclaw-2026-10-3-a3-web
+          path: artifacts/openclaw-2026.10.3-a3.json
           if-no-files-found: error
           retention-days: 14

@@ -13,6 +13,7 @@ The Final 48 runtime stays separate while this acceptance sequence runs. After O
 - Core: `openclaw@2026.10.3`
 - DeepSeek provider: `@openclaw/deepseek-provider@2026.10.3`
 - DuckDuckGo plugin: `@openclaw/duckduckgo-plugin@2026.10.3`
+- Firecrawl plugin: `@openclaw/firecrawl-plugin@2026.10.3`
 - Release tag: `v2026.10.3`
 - Release status: stable, not prerelease
 - Canonical V2 branch: `v2/openclaw-clean-20261011`
@@ -33,9 +34,9 @@ The Final 48 runtime stays separate while this acceptance sequence runs. After O
 | --- | --- | --- | --- |
 | A0 | Exact install + package compatibility | exact 2026.10.3 core and matching provider/search plugins install; existing V2 tests/config remain green | PASS_CODE_CI |
 | A1 | Core CLI + config + Gateway + Doctor | isolated baseline config validates; Gateway starts/stops; health/Doctor complete without persistent credentials or hosted mutations | PASS_CODE_CI |
-| A2 | Plugin, skill, tool inventory | bundled/installed plugins enumerate; skills inventory/check works; expected core command families are callable | NOT_PROVEN |
-| A3 | Web search + fetch | real public search and fetch return bounded evidence through the 2026.10.3 runtime | NOT_PROVEN |
-| A4 | Managed browser | dedicated OpenClaw profile starts, opens a public page, snapshots, acts on a harmless control, closes tab, stops cleanly | NOT_PROVEN |
+| A2 | Plugin, skill, tool inventory | bundled/installed plugins enumerate; skills inventory/check works; expected core command families are callable | PASS_CODE_CI |
+| A3 | Web search + fetch | real public search and fetch return bounded evidence through the 2026.10.3 runtime | PASS_CODE_CI |
+| A4 | Managed browser | dedicated OpenClaw profile starts, opens a public page, snapshots, acts on a harmless control, closes tab, stops cleanly | PASS_CODE_CI |
 | A5 | Existing signed-in browser | `user`/existing-session driver attaches to a real signed-in Chrome context and performs read-only navigation without re-authentication | NOT_PROVEN |
 | A6 | Files + runtime/process tools | bounded workspace read/write/edit and harmless process execution prove policy, path and cleanup behavior | NOT_PROVEN |
 | A7 | DeepSeek direct provider | one bounded live DeepSeek 2026.10.3 call proves auth, exact model, output and telemetry envelope | NOT_PROVEN |
@@ -68,6 +69,60 @@ The Final 48 runtime stays separate while this acceptance sequence runs. After O
 - persistent credentials created: `false`
 
 Two preceding diagnostic runs exposed a real contract nuance: an isolated `auth none` Gateway reached `ready`, but the CLI health RPC path in this CI context was rejected as `device-required`. A1 therefore proves the documented shared-auth path with a generated one-run token while HTTP liveness/readiness is proved independently. This behavior is retained as evidence and is not counted as a product crash or silently discarded.
+
+## A2 evidence
+
+- Workflow run: `38800624816`
+- Job: `116648384787` — `A2 plugins + skills + command inventory`
+- Exact core observed: `OpenClaw 2026.10.3`
+- Plugin inventory JSON: PASS
+- Observed plugin rows: `67`
+- Required entries observed: `browser`, `deepseek`, `duckduckgo`
+- Skills list/check: PASS
+- Observed skills: `55`
+- Root command families proved callable: `setup`, `config`, `doctor`, `agent`, `agents`, `gateway`, `models`, `nodes`, `browser`, `cron`, `hooks`, `channels`, `memory`, `security`, `sandbox`, `skills`, `plugins`
+- Provider calls: `0`
+- Hosted database mutations: `0`
+- Artifact: `openclaw-2026-10-3-a2-inventory`, id `12004610668`
+- Artifact digest: `sha256:d3b14b1f758679c74cafd5c8cc772d201a25ade22ad1c1c6bc193696ffbb1eac`
+
+## A3 evidence
+
+- Workflow run: `38804084593`, successful attempt `2`
+- Job: `116713670760` — `A3 real web search + fetch`
+- Exact core observed: `OpenClaw 2026.10.3`
+- Official matching plugins installed: DuckDuckGo `2026.10.3`, Firecrawl `2026.10.3`
+- Real public `web_search`: PASS
+- Real public `web_fetch`: PASS
+- Fetch target: tagged OpenClaw `v2026.10.3` README
+- External-content trust wrapping: PASS
+- Model provider calls: `0`
+- Hosted database mutations: `0`
+- The preceding attempt failed before capability execution because npm returned `ECONNRESET`; the same acceptance job was rerun unchanged and completed successfully.
+- Artifact: `openclaw-2026-10-3-a3-web`, id `12011409572`
+- Artifact digest: `sha256:4aaa8530ac1d7e64ce25980b5d80871e369f1098c91292c84495f83d069e20b6`
+
+## A4 evidence
+
+- Workflow run: `38821126892`
+- Job: `116717686010` — `A4 managed browser lifecycle + action`
+- Exact core observed: `OpenClaw 2026.10.3`
+- Real Chrome/Chromium executable detected on CI runner: PASS
+- Isolated token-auth Gateway start/readiness: PASS
+- Managed profile `openclaw` start: PASS
+- Public Selenium web form open: PASS
+- `tabs` and DOMContentLoaded wait: PASS
+- AI snapshot with interactive refs: PASS
+- Harmless textbox `type`: PASS
+- DOM `evaluate` read-back exactly matched the typed value: PASS
+- Full-page screenshot created and validated non-empty: PASS
+- Labeled tab close and absence check: PASS
+- Browser clean stop: PASS
+- Gateway clean stop: PASS
+- Model provider calls: `0`
+- Hosted database mutations: `0`
+- Artifact: `openclaw-2026-10-3-a4-browser`, id `12013526060`
+- Artifact digest: `sha256:5556f08116c00422225b621e207152ce3d32027a0676f8568b797857c96ac941`
 
 ## Execution rules
 

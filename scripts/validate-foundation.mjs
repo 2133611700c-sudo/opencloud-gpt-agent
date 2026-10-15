@@ -30,6 +30,18 @@ if (!workflow.includes('group: openclaw-v2-shared-hosted-state')) {
 if (!workflow.includes('cancel-in-progress: false')) {
   throw new Error('V2 CI must not cancel an in-flight hosted live gate');
 }
+if (/^permissions:\s+write-all\s*$/m.test(workflow)) {
+  throw new Error('V2 CI must not grant write-all GitHub token permissions');
+}
+for (const requiredPermission of [
+  'contents: read',
+  'statuses: write',
+  'id-token: write',
+]) {
+  if (!workflow.includes(requiredPermission)) {
+    throw new Error(`V2 CI is missing least-privilege permission: ${requiredPermission}`);
+  }
+}
 
 const router = await readFile('START_HERE.md', 'utf8');
 for (const requiredPointer of [

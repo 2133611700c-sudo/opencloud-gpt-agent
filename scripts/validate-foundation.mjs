@@ -9,10 +9,12 @@ const required = [
   'docs/02_48H_WALKING_SKELETON.md',
   'docs/EXECUTION_LOG.md',
   'docs/RESULTS_JOURNAL.md',
+  'docs/FINAL_48.md',
   'package.json',
   'src/health.mjs',
   'tests/health.test.mjs',
-  '.github/workflows/v2-ci.yml'
+  '.github/workflows/v2-ci.yml',
+  '.github/workflows/v2-live-prerequisites.yml',
 ];
 
 for (const path of required) await access(path);
@@ -41,6 +43,109 @@ for (const requiredPermission of [
   if (!workflow.includes(requiredPermission)) {
     throw new Error(`V2 CI is missing least-privilege permission: ${requiredPermission}`);
   }
+}
+
+// Final-48 live gates are operator-controlled. Ordinary push/PR foundation work
+// must remain deterministic and must never receive hosted/provider credentials.
+for (const requiredLiveGateToken of [
+  'live_gate:',
+  '- none',
+  '- hosted',
+  '- kernel',
+  '- smoke',
+  "github.event_name == 'workflow_dispatch'",
+  "github.ref == 'refs/heads/v2/openclaw-clean-20261011'",
+]) {
+  if (!workflow.includes(requiredLiveGateToken)) {
+    throw new Error(`V2 CI is missing Final-48 live gate control: ${requiredLiveGateToken}`);
+  }
+}
+
+const foundationMatch = workflow.match(/\n  foundation:\n([\s\S]*?)\n  live_request_guard:/);
+if (!foundationMatch) throw new Error('V2 CI foundation/live job boundary is missing');
+if (/\bsecrets\./.test(foundationMatch[1])) {
+  throw new Error('ordinary foundation job must not read GitHub live secrets');
+}
+if (/live-research-kernel-vertical\.mjs|live-deepseek-smoke\.mjs|verify-hosted-postgres\.mjs/.test(foundationMatch[1])) {
+  throw new Error('ordinary foundation job must not execute hosted or paid live gates');
+}
+
+const requireJob = (jobName, gateName) => {
+  const start = workflow.indexOf(`\n  ${jobName}:\n`);
+  if (start < 0) throw new Error(`V2 CI is missing ${jobName}`);
+  const rest = workflow.slice(start + 1);
+  const nextJob = rest.search(/\n  [a-zA-Z0-9_]+:\n/);
+  const section = nextJob > 0 ? rest.slice(0, nextJob) : rest;
+  const requiredIf = `github.event_name == 'workflow_dispatch' && github.event.inputs.live_gate == '${gateName}'`;
+  if (!section.includes(requiredIf)) {
+    throw new Error(`${jobName} must be selected only by workflow_dispatch live_gate=${gateName}`);
+  }
+  if (!section.includes('live_request_guard')) {
+    throw new Error(`${jobName} must depend on the canonical live request guard`);
+  }
+  return section;
+};
+
+const hostedSection = requireJob('live_hosted', 'hosted');
+const kernelSection = requireJob('live_kernel', 'kernel');
+const smokeSection = requireJob('live_smoke', 'smoke');
+
+if (!hostedSection.includes('test -n "${DATABASE_URL:-}"')) {
+  throw new Error('live_hosted must fail closed when DATABASE_URL is missing');
+}
+if (!hostedSection.includes('verify-hosted-postgres.mjs')) {
+  throw new Error('live_hosted must execute hosted PostgreSQL verification');
+}
+if (!kernelSection.includes('test -n "${DATABASE_URL:-}"') || !kernelSection.includes('test -n "${DEEPSEEK_API_KEY:-}"')) {
+  throw new Error('live_kernel must fail closed when either live secret is missing');
+}
+if (!kernelSection.includes('live-research-kernel-vertical.mjs')) {
+  throw new Error('live_kernel must execute exactly the production Research kernel vertical');
+}
+if (kernelSection.includes('live-deepseek-smoke.mjs')) {
+  throw new Error('live_kernel must not also execute the provider smoke');
+}
+if (!smokeSection.includes('test -n "${DEEPSEEK_API_KEY:-}"')) {
+  throw new Error('live_smoke must fail closed when DEEPSEEK_API_KEY is missing');
+}
+if (!smokeSection.includes('live-deepseek-smoke.mjs')) {
+  throw new Error('live_smoke must execute the isolated provider smoke');
+}
+if (smokeSection.includes('live-research-kernel-vertical.mjs')) {
+  throw new Error('live_smoke must not also execute the Kernel Research vertical');
+}
+
+const countOccurrences = (value, needle) => value.split(needle).length - 1;
+if (countOccurrences(workflow, 'live-research-kernel-vertical.mjs') !== 1) {
+  throw new Error('V2 CI must contain exactly one paid Kernel Research command');
+}
+if (countOccurrences(workflow, 'live-deepseek-smoke.mjs') !== 1) {
+  throw new Error('V2 CI must contain exactly one provider smoke command');
+}
+
+const liveGuardMatch = workflow.match(/\n  live_request_guard:\n([\s\S]*?)\n  live_hosted:/);
+if (!liveGuardMatch) throw new Error('V2 CI live request guard is missing');
+if (!liveGuardMatch[1].includes("test \"$GITHUB_REF\" = 'refs/heads/v2/openclaw-clean-20261011'")) {
+  throw new Error('V2 live request guard must reject non-canonical branches');
+}
+
+const prerequisiteWorkflow = await readFile('.github/workflows/v2-live-prerequisites.yml', 'utf8');
+if (!prerequisiteWorkflow.includes('workflow_dispatch:')) {
+  throw new Error('V2 live prerequisite workflow must remain manual');
+}
+if (/^\s*push:\s*$/m.test(prerequisiteWorkflow) || /^\s*pull_request:\s*$/m.test(prerequisiteWorkflow)) {
+  throw new Error('V2 live prerequisite workflow must not run on push or pull_request');
+}
+if (!prerequisiteWorkflow.includes("test \"$GITHUB_REF\" = 'refs/heads/v2/openclaw-clean-20261011'")) {
+  throw new Error('V2 live prerequisite workflow must reject non-canonical branches');
+}
+for (const secretName of ['DATABASE_URL', 'DEEPSEEK_API_KEY']) {
+  if (!prerequisiteWorkflow.includes(`${secretName}: PRESENT`) || !prerequisiteWorkflow.includes(`${secretName}: MISSING`)) {
+    throw new Error(`V2 live prerequisite workflow must report only presence for ${secretName}`);
+  }
+}
+if (!prerequisiteWorkflow.includes('No secret values were printed.')) {
+  throw new Error('V2 live prerequisite workflow must explicitly preserve secret-value confidentiality');
 }
 
 const router = await readFile('START_HERE.md', 'utf8');

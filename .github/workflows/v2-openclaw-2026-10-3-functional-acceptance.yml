@@ -53,13 +53,25 @@ jobs:
           } >> "$GITHUB_ENV"
           openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a3-baseline.json"
 
-      - name: Install and select key-free DuckDuckGo provider
+      - name: Install exact official web providers
         shell: bash
         run: |
           set -euo pipefail
           openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
+          openclaw plugins install @openclaw/firecrawl-plugin@2026.10.3
           openclaw config set tools.web.search.provider duckduckgo
+          openclaw config set tools.web.fetch.provider firecrawl
           openclaw config validate --json > "$RUNNER_TEMP/openclaw-a3-config.json"
+          openclaw infer web providers --json > "$RUNNER_TEMP/openclaw-a3-providers.json"
+
+          PROVIDERS_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-providers.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.PROVIDERS_JSON);
+            if (value?.ok !== true) throw new Error("web provider inventory envelope failed");
+            const output = value?.outputs?.[0]?.result;
+            if (!output || !Array.isArray(output.search) || !Array.isArray(output.fetch)) throw new Error("web provider inventory shape invalid");
+            if (!output.search.some((row) => row.id === "duckduckgo" && row.selected === true)) throw new Error("duckduckgo search provider not selected");
+            if (!output.fetch.some((row) => row.id === "firecrawl" && row.selected === true)) throw new Error("firecrawl fetch provider not selected");
+          '
 
       - name: Execute real OpenClaw web search
         shell: bash
@@ -95,6 +107,7 @@ jobs:
         run: |
           set -euo pipefail
           openclaw infer web fetch \
+            --provider firecrawl \
             --url "https://example.com/" \
             --format text \
             --json > "$RUNNER_TEMP/openclaw-a3-fetch.json"
@@ -104,11 +117,14 @@ jobs:
             if (envelope?.ok !== true) throw new Error(`web fetch envelope failed: ${envelope?.error ?? "unknown"}`);
             if (envelope?.capability !== "web.fetch") throw new Error("wrong fetch capability");
             if (envelope?.transport !== "local") throw new Error("web fetch did not use local capability runtime");
-            if (typeof envelope?.provider !== "string" || !envelope.provider) throw new Error("fetch provider missing");
+            if (envelope?.provider !== "firecrawl") throw new Error(`unexpected fetch provider: ${envelope?.provider}`);
             const result = envelope?.outputs?.[0]?.result;
-            if (!result || result.status !== 200) throw new Error(`unexpected fetch status: ${result?.status}`);
+            if (!result) throw new Error("fetch result missing");
+            if (typeof result.status === "number" && result.status !== 200) throw new Error(`unexpected fetch status: ${result.status}`);
+            if (result.extractor !== "firecrawl") throw new Error(`unexpected fetch extractor: ${result.extractor}`);
+            if (result.extractMode !== "text") throw new Error(`unexpected fetch mode: ${result.extractMode}`);
             if (typeof result.text !== "string" || !result.text.toLowerCase().includes("example domain")) throw new Error("expected fetched content missing");
-            if (result.externalContent?.untrusted !== true) throw new Error("fetch external-content trust marker missing");
+            if (result.externalContent?.untrusted !== true || result.externalContent?.wrapped !== true) throw new Error("fetch trust markers missing");
           '
 
       - name: Record safe A3 evidence
@@ -138,14 +154,16 @@ jobs:
             fetch: {
               provider: fetch.provider,
               transport: fetch.transport,
-              status: fr.status,
+              status: fr.status ?? null,
               final_url: fr.finalUrl,
               extractor: fr.extractor,
               external_content_untrusted: fr.externalContent?.untrusted === true,
+              external_content_wrapped: fr.externalContent?.wrapped === true,
               text_contains_expected_marker: fr.text.toLowerCase().includes("example domain"),
             },
             model_provider_calls: 0,
             paid_search_calls: 0,
+            firecrawl_access: 'keyless-starter',
             hosted_database_mutations: 0,
             secret_values_logged: false,
           };

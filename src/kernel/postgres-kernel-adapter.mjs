@@ -18,6 +18,11 @@ const mapClaim = (row, workerId) => row ? Object.freeze({
   workerId,
 }) : null;
 
+const mapTaskCreate = (row) => row ? Object.freeze({
+  taskId: row.task_id,
+  created: row.created === true,
+}) : null;
+
 const mapAccounting = (row) => row ? Object.freeze({
   accountingId: row.accounting_id,
   created: row.created === true,
@@ -34,6 +39,11 @@ export function createPostgresKernelAdapter({ query } = {}) {
   const q = requireQuery(query);
 
   return Object.freeze({
+    async createLiteResearchTask({ idempotencyKey, goal, requestPayload, budgetLimitUsd, tokenBudgetLimit, maxTotalSteps, deadlineAt }) {
+      const row = await one(q, 'SELECT * FROM create_lite_research_task($1,$2,$3::jsonb,$4,$5,$6,$7::timestamptz)', [idempotencyKey, goal, JSON.stringify(requestPayload ?? {}), budgetLimitUsd, tokenBudgetLimit, maxTotalSteps, deadlineAt]);
+      return mapTaskCreate(row);
+    },
+
     async claimNextNode({ workerId, leaseSeconds = 30 }) {
       const row = await one(q, 'SELECT * FROM claim_next_node($1, $2)', [workerId, leaseSeconds]);
       return mapClaim(row, workerId);

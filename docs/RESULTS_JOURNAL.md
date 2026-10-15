@@ -308,7 +308,7 @@ A fresh child could not be created because the Neon project was already at its b
 - branch: `openclaw-v2-0018-verify-20261012`;
 - branch id: `br-wandering-fire-a4vhwmd6`;
 - parent: hosted `openclaw-v2` / `br-odd-forest-a4leyaqj`;
-- pre-test state: `0` active tasks, `0` RUNNING nodes and `0` unresolved `RESERVED` reservations;
+- pre-test state: `0` active tasks, `0` RUNNING nodes, `0` unresolved `RESERVED` reservations;
 - full 0018 heartbeat guard was absent before application.
 
 The exact repository `heartbeat_node` function body from migration 0018 was applied transactionally. The expired-deadline regression then created a task already past `deadline_at`, with a still-`RUNNING` node and a valid unexpired lease/fencing token.

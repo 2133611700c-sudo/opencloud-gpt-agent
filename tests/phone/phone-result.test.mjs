@@ -5,6 +5,14 @@ import { formatPhoneResult } from '../../src/phone/phone-result.mjs';
 
 const deepLogUrl = 'https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/123456789';
 
+const freezeRecursively = (value) => {
+  if (value !== null && typeof value === 'object') {
+    Object.values(value).forEach(freezeRecursively);
+    Object.freeze(value);
+  }
+  return value;
+};
+
 const successEvidence = () => ({
   task: {
     status: 'SUCCESS',
@@ -97,6 +105,24 @@ test('formats FAIL_WITH_EVIDENCE with reason, progress and proof that paid work 
   assert.match(result.text, /Further calls: blocked by terminal task; unresolved reservations=0/);
   assert.match(result.text, /Cost: \$0\.000003/);
   assert.match(result.text, /Attempts: 1/);
+});
+
+test('formats recursively frozen SUCCESS Evidence without mutation', () => {
+  const evidence = freezeRecursively(successEvidence());
+  const before = structuredClone(evidence);
+  const result = formatPhoneResult({ evidence, deepLogUrl });
+  assert.equal(result.status, 'SUCCESS');
+  assert.match(result.text, /Listing 1/);
+  assert.deepEqual(evidence, before);
+});
+
+test('formats recursively frozen FAIL_WITH_EVIDENCE without mutation', () => {
+  const evidence = freezeRecursively(failureEvidence());
+  const before = structuredClone(evidence);
+  const result = formatPhoneResult({ evidence, deepLogUrl });
+  assert.equal(result.status, 'FAIL_WITH_EVIDENCE');
+  assert.match(result.text, /Further calls: blocked by terminal task; unresolved reservations=0/);
+  assert.deepEqual(evidence, before);
 });
 
 test('rejects task/accounting cost mismatch', () => {

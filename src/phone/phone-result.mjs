@@ -130,7 +130,7 @@ const failureReason = (bundle) => {
 
 export function formatPhoneResult({ evidence, deepLogUrl } = {}) {
   const bundle = requireObject(evidence, 'evidence');
-  bundle.task = requireObject(bundle.task, 'task');
+  requireObject(bundle.task, 'task');
   assertTerminalClean(bundle);
 
   const url = requireDeepLogUrl(deepLogUrl);

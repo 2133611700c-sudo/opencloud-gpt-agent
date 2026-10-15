@@ -65,9 +65,7 @@ jobs:
           openclaw infer web providers --json > "$RUNNER_TEMP/openclaw-a3-providers.json"
 
           PROVIDERS_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-providers.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.PROVIDERS_JSON);
-            if (value?.ok !== true) throw new Error("web provider inventory envelope failed");
-            const output = value?.outputs?.[0]?.result;
+            const output = JSON.parse(process.env.PROVIDERS_JSON);
             if (!output || !Array.isArray(output.search) || !Array.isArray(output.fetch)) throw new Error("web provider inventory shape invalid");
             if (!output.search.some((row) => row.id === "duckduckgo" && row.selected === true)) throw new Error("duckduckgo search provider not selected");
             if (!output.fetch.some((row) => row.id === "firecrawl" && row.selected === true)) throw new Error("firecrawl fetch provider not selected");
@@ -163,7 +161,7 @@ jobs:
             },
             model_provider_calls: 0,
             paid_search_calls: 0,
-            firecrawl_access: 'keyless-starter',
+            firecrawl_access: "keyless-starter",
             hosted_database_mutations: 0,
             secret_values_logged: false,
           };

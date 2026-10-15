@@ -1,0 +1,157 @@
+name: OpenClaw 2026.10.3 Functional Acceptance
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-functional-acceptance'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openclaw-2026-10-3-functional-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  a1_core_cli_gateway_doctor:
+    name: A1 core CLI + config + Gateway + Doctor
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install exact OpenClaw candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          printf '%s\n' "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.10.3"
+
+      - name: Prepare isolated acceptance state
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-acceptance-state"
+          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-acceptance-workspace"
+          config_path="$state_dir/openclaw.json"
+          install -d -m 700 "$state_dir"
+          install -d -m 700 "$workspace_dir"
+          {
+            echo "OPENCLAW_STATE_DIR=$state_dir"
+            echo "OPENCLAW_CONFIG_PATH=$config_path"
+            echo "OPENCLAW_ACCEPTANCE_WORKSPACE=$workspace_dir"
+            echo "OPENCLAW_ACCEPTANCE_GATEWAY_PORT=18983"
+          } >> "$GITHUB_ENV"
+
+      - name: Create baseline config and validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          openclaw setup --baseline --skip-bootstrap --workspace "$OPENCLAW_ACCEPTANCE_WORKSPACE" --json > "$RUNNER_TEMP/openclaw-baseline.json"
+          openclaw config set gateway.mode local
+          openclaw config set gateway.port "$OPENCLAW_ACCEPTANCE_GATEWAY_PORT"
+          openclaw config validate --json > "$RUNNER_TEMP/openclaw-config-validate.json"
+          test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
+          test -f "$OPENCLAW_CONFIG_PATH"
+
+      - name: Run read-only Doctor error gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          openclaw doctor --lint --severity-min error --json > "$RUNNER_TEMP/openclaw-doctor.json"
+          DOCTOR_JSON="$(cat "$RUNNER_TEMP/openclaw-doctor.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.DOCTOR_JSON);
+            if (typeof value.schemaVersion === "undefined") throw new Error("doctor schemaVersion missing");
+            if (!Array.isArray(value.findings)) throw new Error("doctor findings missing");
+            const errors = value.findings.filter((item) => item?.severity === "error");
+            if (errors.length !== 0) throw new Error(`doctor reported ${errors.length} error finding(s)`);
+          '
+
+      - name: Start isolated loopback Gateway and prove health
+        shell: bash
+        run: |
+          set -euo pipefail
+          gateway_log="$RUNNER_TEMP/openclaw-gateway.log"
+          openclaw gateway run \
+            --port "$OPENCLAW_ACCEPTANCE_GATEWAY_PORT" \
+            --bind loopback \
+            --auth none \
+            --allow-unconfigured \
+            >"$gateway_log" 2>&1 &
+          gateway_pid="$!"
+
+          cleanup() {
+            if kill -0 "$gateway_pid" 2>/dev/null; then
+              kill -TERM "$gateway_pid" 2>/dev/null || true
+              for _ in $(seq 1 30); do
+                kill -0 "$gateway_pid" 2>/dev/null || break
+                sleep 1
+              done
+              kill -KILL "$gateway_pid" 2>/dev/null || true
+            fi
+            wait "$gateway_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          healthy=0
+          for _ in $(seq 1 30); do
+            if openclaw health --json --timeout 2500 > "$RUNNER_TEMP/openclaw-health.json" 2>/dev/null; then
+              if HEALTH_JSON="$(cat "$RUNNER_TEMP/openclaw-health.json")" node --input-type=module -e '
+                const value = JSON.parse(process.env.HEALTH_JSON);
+                if (value?.ok !== true) process.exit(1);
+              '; then
+                healthy=1
+                break
+              fi
+            fi
+            sleep 1
+          done
+
+          if [ "$healthy" -ne 1 ]; then
+            echo 'Gateway did not reach healthy state' >&2
+            tail -n 120 "$gateway_log" >&2 || true
+            exit 1
+          fi
+
+          kill -TERM "$gateway_pid"
+          wait "$gateway_pid"
+          trap - EXIT
+          ! kill -0 "$gateway_pid" 2>/dev/null
+
+      - name: Record safe A1 evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          node --input-type=module <<'NODE' > artifacts/openclaw-2026.10.3-a1.json
+          const evidence = {
+            status: 'PASS',
+            stage: 'A1',
+            capability: 'core_cli_config_gateway_doctor',
+            openclaw_version: '2026.10.3',
+            config_validate: 'PASS',
+            doctor_error_gate: 'PASS',
+            gateway_loopback_start_health_stop: 'PASS',
+            provider_calls: 0,
+            hosted_database_mutations: 0,
+            secret_values_logged: false,
+          };
+          process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`);
+          NODE
+          cat artifacts/openclaw-2026.10.3-a1.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload safe A1 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-2026-10-3-a1-core-acceptance
+          path: artifacts/openclaw-2026.10.3-a1.json
+          if-no-files-found: error
+          retention-days: 14

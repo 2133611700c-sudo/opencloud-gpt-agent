@@ -4,9 +4,9 @@
   "updated_at": "2026-10-14",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
-  "verified_code_head": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
-  "verified_ci_run_id": 38644930255,
+  "verified_head": "3cba302c10584c28a6760cd9594b03c1bb59267f",
+  "verified_code_head": "0b2a10ae6fce7f74cbf1d7b78e2e7d2001599e07",
+  "verified_ci_run_id": 38668413618,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -14,17 +14,18 @@
   "architecture_source": "SYSTEM.md",
   "master_roadmap": "docs/01_MASTER_ARCHITECTURE_AND_ROADMAP.md",
   "detailed_execution_history": "docs/EXECUTION_LOG.md",
+  "history_policy": "Current checkpoint only; append-only historical truth lives in RESULTS_JOURNAL and EXECUTION_LOG.",
   "legacy_branch": "main",
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38644930255,
+    "ci_run_id": 38668413618,
     "ci_conclusion": "success"
   },
-  "current_phase": 7,
-  "current_phase_name": "Accounting13 PASS_LIVE measured aggregate latency; E3b1 accounted runtime receipt next; full Evidence NOT_BUILT",
+  "current_phase": 8,
+  "current_phase_name": "48h reconciliation: current full production positive E2E NOT_PROVEN; Evidence PASS_HOSTED; automatic Phone/dispatch NOT_PROVEN",
   "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "E3B_RUNTIME_RECEIPTS_THEN_EVIDENCE_SURVIVAL_PHONE_DISPATCH",
+  "route_id": "F1_POSITIVE_DATA_THEN_PAID_EVIDENCE_PHONE_INTAKE_FINAL",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -42,18 +43,18 @@
     "04_atomic_lease_unique_fencing": "PASS_HOSTED",
     "05_heartbeat_stale_worker_recovery": "PASS_HOSTED",
     "06_attempt_step_budget_deadline_breakers": "PASS_HOSTED",
-    "07_atomic_budget_reservation_reconciliation": "PASS_HOSTED",
+    "07_atomic_budget_reservation_reconciliation": "PASS_LIVE",
     "08_lite_dag_research_to_data": "PASS_CODE_CI",
     "09_real_deepseek_openclaw": "PASS_LIVE",
     "10_real_native_web_search_fetch": "PASS_LIVE",
     "11_structured_research_sources": "PASS_LIVE",
     "12_data_result_validation_dedupe_normalization": "PASS_CODE_CI",
     "13_llm_accounting": "PASS_LIVE",
-    "14_durable_evidence_artifacts": "NOT_BUILT",
-    "15_phone_short_result_deep_log": "NOT_BUILT"
+    "14_durable_evidence_artifacts": "PASS_HOSTED",
+    "15_phone_short_result_deep_log": "NOT_PROVEN_AUTOMATIC_RUNTIME_DELIVERY"
   },
   "acceptance_map": {
-    "01_positive_real_research_e2e_success": "PASS_LIVE",
+    "01_positive_real_research_e2e_success": "NOT_PROVEN_CURRENT_FULL_PRODUCTION_VERTICAL",
     "02_duplicate_dispatch_one_task": "PASS_CODE_CI",
     "03_worker_crash_safe_continuation": "PASS_CODE_CI",
     "04_stale_fencing_token_zero_mutations": "PASS_HOSTED",
@@ -63,6 +64,11 @@
     "08_deadline_terminalization": "PASS_HOSTED",
     "09_reservation_actual_release_invariant": "PASS_LIVE"
   },
+  "route_prerequisites": {
+    "historical_research_gate": "PASS_LIVE",
+    "current_full_positive_e2e": "NOT_PROVEN_CURRENT_FULL_PRODUCTION_VERTICAL",
+    "note": "Historical paid Research passed before production Data existed. Current acceptance #1 is stricter and remains unproven until one current-head paid Research -> production Data -> receipt-bound Evidence -> phone vertical succeeds."
+  },
   "hosted_postgres": {
     "provider": "Neon",
     "project_id": "little-tree-63040612",
@@ -70,23 +76,24 @@
     "branch_id": "br-odd-forest-a4leyaqj",
     "database_name": "openclaw_v2",
     "status": "PASS_HOSTED",
-    "direct_check": {
+    "latest_read_only_inventory": {
+      "observed_on": "2026-10-14 America/Chicago",
+      "tasks": 20,
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
-      "heartbeat_deadline_guard_0018_present": true,
-      "complete_node_success_active_lease_guard_0019_present": true,
-      "requeue_node_retry_active_lease_guard_0019_present": true,
-      "verification_child_branch_id": "br-wandering-fire-a4vhwmd6",
-      "observed_at": "2026-10-14T22:11:07.428Z",
-      "total_artifacts": 10,
-      "fail_node_terminal_active_lease_guard_present": true,
-      "check_scope": "Separate new-process read-only consumer22852exit0 retrieved same latest failure artifact/hash/size and latency66044, historical0 unchanged; active/RUNNING/RESERVED0/0/0/artifacts10. Storage retrieval proof only, no automatic runtime receipt/full lifecycle promotion.",
-      "guard_inspection_observed_at": "2026-10-12T23:57:30.163Z",
-      "evidence_snapshot_function_present": true,
-      "evidence_persist_function_present": true,
-      "evidence_artifacts": 10,
-      "evidence_e2_verification_child_branch_id": "br-rough-recipe-a4038vhb"
+      "llm_accounting_rows": 7,
+      "evidence_artifacts": 13,
+      "runtime_receipts": 3,
+      "scope_note": "Read-only audit inventory. Receipt-bound hosted SUCCESS/FAIL lifecycle proof exists; latest receipt-bound SUCCESS inspected is synthetic and is not paid-provider proof."
+    },
+    "deployed_invariants": {
+      "heartbeat_deadline_guard_0018": true,
+      "active_lease_write_parity_0019": true,
+      "evidence_persistence_0020_0021": true,
+      "runtime_receipts_0022_0025": true,
+      "expired_intake_redelivery_0026": true,
+      "fail_node_terminal_cascade_and_finalize": true
     }
   },
   "live_capabilities": {
@@ -94,587 +101,119 @@
     "deepseek_model": "deepseek/deepseek-flash",
     "deepseek_release": "DeepSeek-V4.1-Flash",
     "thinking": "max",
-    "deepseek_paid_inference": "PASS_LIVE",
-    "paid_live_accounting_linkage": "PASS_LIVE",
-    "structured_research_with_official_sources": "PASS_LIVE",
-    "live_web_search_fetch": "PASS_LIVE",
-    "live_kernel_research_gate": "PASS_LIVE",
-    "paid_live_task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
-    "paid_live_task_status": "SUCCESS",
-    "paid_live_accounting": {
-      "provider": "deepseek",
-      "model": "deepseek-flash",
-      "pricing_version": "deepseek-v4.1-flash-2026-09-10",
-      "accounting_basis": "OBSERVED_USAGE",
-      "prompt_cache_hit_tokens": 11008,
-      "prompt_cache_miss_tokens": 4615,
-      "completion_tokens": 663,
-      "total_tokens": 16286,
+    "historical_research_gate": "PASS_LIVE",
+    "real_web_search_fetch": "PASS_LIVE",
+    "structured_research_sources": "PASS_LIVE",
+    "llm_accounting": "PASS_LIVE",
+    "current_full_production_vertical": "NOT_PROVEN",
+    "historical_paid_success": {
+      "task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
+      "task_status": "SUCCESS",
+      "tokens": 16286,
       "cost_usd": 0.002246,
-      "latency_ms": 0
+      "latency_ms": 0,
+      "proof_limit": "Real paid Research + both web tools + official-source provenance + accounting. Data was historical deterministic gate-only completion, so this is not current production Data E2E proof."
     },
-    "paid_live_artifacts_count": 0,
-    "proof_limit": "Acceptance #1 is PASS_LIVE: preserved Vercel runtime command metadata shows the fail-closed live Kernel Research gate exited 0, and hosted Neon correlation proves the same task reached terminal SUCCESS with official required-domain sources, exactly one observed accounting row and zero residual reservation. The gate code itself rejects success unless both web_search and web_fetch are present. Durable Evidence item #14 remains NOT_BUILT because this task has zero artifact rows.",
-    "llm_accounting_subproofs": {
-      "usage_cost_cache_reservation": "PASS_LIVE",
-      "mandatory_latency": "PASS_LIVE",
-      "scope_note": "Measured new native Research aggregate runtime66044ms equals accounted input and sole live OBSERVED_USAGE row66044; cost/token/cache/reconciliation verified. This is not provider HTTP latency. Downstream Data failed strict validation; complete positive vertical unproved."
+    "measured_paid_run": {
+      "task_id": "8c4196e7-7056-4f20-ac74-a18f62148926",
+      "task_status": "FAIL_WITH_EVIDENCE",
+      "research_status": "SUCCESS",
+      "data_status": "FAIL_WITH_EVIDENCE",
+      "data_error": "REQUIRED_FIELD_MISSING",
+      "prompt_cache_hit_tokens": 12800,
+      "prompt_cache_miss_tokens": 7441,
+      "completion_tokens": 860,
+      "total_tokens": 21101,
+      "cost_usd": 0.003341,
+      "latency_ms": 66044,
+      "latency_scope": "aggregate native Research spawn-to-close, not provider HTTP-only latency",
+      "reservation_status": "RECONCILED",
+      "reserved_cost_usd": 0.1,
+      "reserved_tokens": 50000,
+      "actual_cost_usd": 0.003341,
+      "actual_tokens": 21101,
+      "unresolved_reservations": 0
+    },
+    "rejected_fetch_run": {
+      "task_id": "4daaffb3-f32c-45e7-b410-3b57e104d156",
+      "status": "FAIL_WITH_EVIDENCE",
+      "internal_accounting_rows": 0,
+      "provider_spend": "NOT_PROVEN",
+      "note": "Never infer zero provider spend from an absent internal accounting row."
     }
+  },
+  "evidence": {
+    "subsystem_status": "PASS_HOSTED",
+    "artifact_type": "EVIDENCE_BUNDLE_V1",
+    "artifact_count": 13,
+    "runtime_receipt_count": 3,
+    "synthetic_receipt_bound_success_task_id": "a2452516-78ea-41d7-83e0-ea9199857169",
+    "paid_receipt_bound_full_vertical": "NOT_PROVEN",
+    "proof_limit": "Hosted persistence/lifecycle/survival is proven. The receipt-bound SUCCESS inspected is synthetic; paid task 8c4196e7 predates runtime receipts and has zero receipts."
+  },
+  "phone_and_deep_log": {
+    "renderer": "PASS_CODE_CI",
+    "manual_github_mobile_failure_surface": "PASS_CODE_CI",
+    "proof_issue": 51,
+    "proof_comment_id": 6181620362,
+    "automatic_runtime_publication": "NOT_PROVEN",
+    "paid_success_phone_delivery": "NOT_PROVEN"
+  },
+  "github_intake": {
+    "parser_and_postgres_binding": "PASS_CODE_CI",
+    "concurrent_duplicate_one_task": "PASS_CODE_CI",
+    "expired_exact_redelivery": "PASS_HOSTED",
+    "actual_external_issue_or_webhook_entrypoint": "NOT_PROVEN",
+    "note": "Current V2 CI listens to push, pull_request and workflow_dispatch; it does not provide production issues:opened delivery."
+  },
+  "latest_ci_external_steps": {
+    "run_id": 38668413618,
+    "hosted_neon": "SKIPPED_MISSING_DATABASE_URL",
+    "live_kernel_research": "SKIPPED_MISSING_SECRETS",
+    "live_deepseek_smoke": "SKIPPED_MISSING_DEEPSEEK_API_KEY",
+    "rule": "SKIPPED is not PASS_HOSTED or PASS_LIVE."
+  },
+  "remaining_48h_gaps": {
+    "F1_positive_current_production_paid_vertical": "NOT_PROVEN — repair Research output/admission so strict production Data succeeds; do not weaken Data validation.",
+    "F2_same_paid_task_receipt_bound_evidence": "NOT_PROVEN — same successful paid task must persist runtime receipt + durable Evidence and survive fresh-process retrieval.",
+    "P2_automatic_phone_deep_log_delivery": "NOT_PROVEN — existing safe renderers/manual GitHub Mobile proof are not automatic runtime delivery.",
+    "I1c_real_external_user_github_entry": "NOT_PROVEN — parser/PostgreSQL binding pass CI, but no actual issues:opened/webhook/runtime entrypoint is wired."
+  },
+  "known_gaps": {
+    "current_positive_production_paid_e2e": "NOT_PROVEN",
+    "paid_receipt_bound_evidence_composition": "NOT_PROVEN",
+    "automatic_phone_result_and_deep_log": "NOT_PROVEN",
+    "external_github_user_task_entry": "NOT_PROVEN",
+    "permanent_secret_store": "NOT_PROVEN",
+    "github_actions_database_url": "MISSING_IN_CI_38668413618_SO_HOSTED_ACTIONS_STEP_SKIPPED",
+    "github_actions_deepseek_api_key": "MISSING_IN_CI_38668413618_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
+    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
   },
   "latest_verified_innovations": [
     {
+      "commit": "3cba302c10584c28a6760cd9594b03c1bb59267f",
+      "result": "PASS_CODE_CI",
+      "change": "Append-only JRNL-2026-10-14-011 inventories current 15 scope items, 9 acceptance gates, hosted Neon and paid/synthetic/manual proof boundaries; exact CI 38668413618 SUCCESS with external steps honestly SKIPPED."
+    },
+    {
+      "commit": "0b2a10ae6fce7f74cbf1d7b78e2e7d2001599e07",
+      "result": "PASS_CODE_CI",
+      "change": "GitHub Issue parser -> PostgreSQL atomic intake binding; concurrent deliveries converge on one durable task. External issue event wiring remains NOT_PROVEN."
+    },
+    {
+      "commit": "a214872",
+      "result": "PASS_CODE_CI",
+      "change": "Safe mobile deep-log renderer and manual GitHub Mobile failure proof exist; automatic runtime publication remains NOT_PROVEN."
+    },
+    {
       "commit": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
       "result": "PASS_LIVE",
-      "change": "A13 measured accounting independently correlated live at66044ms with one OBSERVED_USAGE row21101tokens/USD0.003341 and reconciled reserve0 after A13b/A13c exact CI. Native Research succeeded, downstream Data rejected auxiliary item REQUIRED_FIELD_MISSING; terminal task failed and scope12 stays code-only. E3a safe artifact persisted/read anew; full runtime receipt/lifecycle remains NOT_BUILT."
-    },
-    {
-      "commit": "7f2791cb0480835d30acb5657af6a450f4358353",
-      "result": "PASS_CODE_CI",
-      "change": "Native aggregated Research spawn-to-close monotonic latency forwarded to accounting; exact full CI38642052950 SUCCESS. Actual bounded paid attempt rejected unresolved web_fetch success envelope and persisted no accounting row; scope13 remains NOT_PROVEN. Safe terminal failure artifact persisted via E3a; runtime receipt/full Evidence remains unbuilt."
-    },
-    {
-      "commit": "461a10305184e99dee71162c83a43b9305ddf79e",
-      "result": "PASS_HOSTED",
-      "change": "E3a bound terminal raw snapshot/E1 builder/storage, migration0021 accepted exact CI38574279224; child then hosted parent8 durable artifacts verified, later separate reader25989exit0. Full runtime receipts/lifecycle remains unbuilt. User fresh audit reproduced mandatory accounting latency0; A13 takes priority without erasing historical usage/cost/reservation proofs."
-    },
-    {
-      "commit": "aeb8710b54301a500f41762e42ce0f496b36f47d",
-      "result": "PASS_CODE_CI",
-      "change": "Evidence store-boundary canonical bytes/receipt/cardinality/safe-error correction and explicit psql stdio privacy; exact CI 38569187811 SUCCESS. Root independently ran281 units, foundation/health and PostgreSQL SQL/production checks. Historical E2 hosted SQL storage proof retained with E1-builder acceptance limits; complete Evidence NOT_BUILT."
-    },
-    {
-      "commit": "495b23b67d1226d4a79c8b640e56080dbbcaeda1",
-      "result": "PASS_HOSTED",
-      "change": "Evidence E2 migration 0020 + PostgreSQL evidence store implemented; exact CI 38505501374 SUCCESS. Clean child and hosted Neon directly proved canonical persist/read, immutable task/acceptance linkage, repeat-safe idempotency, hash/size verification and post-test clean state."
-    },
-    {
-      "commit": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
-      "result": "PASS_CODE_CI",
-      "change": "E1 versioned terminal Evidence contract, canonical serializer/SHA256 and safe projection validated; exact full CI 38501303395 succeeded. Durable persistence/runtime survival remain E2/E3 and complete scope #14 remains NOT_BUILT."
-    },
-    {
-      "commit": "b0693ca2abc234348785ab83bf176fad625047a3",
-      "result": "PASS_CODE_CI",
-      "change": "D4 production Research-to-Data acceptance path replaces gate-only completion; canonical persisted dependency/request/Research/Data and full ordered accounting ledger proved. Exact full CI 38394312147 succeeded; complete scope #12 PASS_CODE_CI."
-    },
-    {
-      "commit": "8b54e6f14a37485f1747ba6dab8653783fcdd319",
-      "result": "PASS_CODE_CI",
-      "change": "Accepted D3 checkpoint with corrected real writer/Docker/verifier/specialist roles; exact full CI 38392212344 succeeded. Five external steps remained SKIPPED."
-    },
-    {
-      "commit": "35900bc5ac499a7c3c0d787c71a40935b3dbf3fa",
-      "result": "PASS_CODE_CI",
-      "change": "D3 production Data worker/adapter and real PostgreSQL E2E proved scoped ownership, guarded dependency/request authority, active-fence/deadline writes, terminalization and zero Data spend. Exact full CI 38391284569 succeeded, including new Data E2E."
-    },
-    {
-      "commit": "897ec28c38ac6fd66ecb0e732676a86a56997e72",
-      "result": "PASS_CODE_CI",
-      "change": "D2 accepted state/journal/log checkpoint published; exact full CI 38326462023 succeeded. Five hosted/live/upload conditional steps remained SKIPPED."
-    },
-    {
-      "commit": "9205d4b2d839b70927e174a09a2f85a7e6606357",
-      "result": "PASS_CODE_CI",
-      "change": "D2 finite plain JSON normalization/dedupe with provenance-sensitive record identity, minimum codepoint representatives and stable remapped references. Exact full CI 38325890102 succeeded; complete Data scope #12 remains NOT_PROVEN."
-    },
-    {
-      "commit": "97049ec12970de14401a23508c317619d25ee040",
-      "result": "PASS_CODE_CI",
-      "change": "D1/state/journal reconciliation and remaining execution-gate route published; exact full CI 38325184980 succeeded. Hosted/live conditional steps remained SKIPPED."
-    },
-    {
-      "commit": "8c3ec70172d8c136b29a5dda853190af447e3908",
-      "result": "PASS_CODE_CI",
-      "change": "Historical ChatGPT project archive is readable; exact archive CI 38323842573 succeeded. Archive completeness limits are explicit; current GitHub/CI remains authoritative."
-    },
-    {
-      "commit": "fbbf05d7d7a016805353924b06732d0bacf39b81",
-      "result": "PASS_CODE_CI",
-      "change": "Production Data schema v1 input/output validation contract and focused tests implemented; exact full CI 38302547362 succeeded. Complete production Data runtime remains NOT_PROVEN."
-    },
-    {
-      "commit": "2b75359a4bebd262540071733f87cf705259677b",
-      "result": "PASS_CODE_CI",
-      "change": "Independent journal correction records acceptance #1 as PASS_LIVE from preserved fail-closed Vercel gate execution metadata correlated to hosted Neon; full CI 38295293595 succeeded."
-    },
-    {
-      "commit": "aaed44ac0b2640e10368dca8ad8ad5087b0a7f1f",
-      "result": "PASS_HOSTED",
-      "change": "Migration 0019 restored active-lease parity for complete_node_success and requeue_node_retry; expired workers cannot complete or requeue before reclaim. Child verification, full CI 38287719014, hosted application and final clean-state check passed."
-    },
-    {
-      "commit": "5dc127f8c1346c2be8e432284254047c64680753",
-      "result": "PASS_LIVE",
-      "change": "Real paid DeepSeek/OpenClaw Research execution reached hosted terminal SUCCESS with web_search + web_fetch gate checks, official required-domain provenance and linked observed accounting."
+      "change": "Measured paid Research accounting proved 66044ms aggregate runtime, 21101 tokens, USD0.003341 and reconciled reservation; strict production Data failed REQUIRED_FIELD_MISSING."
     }
   ],
-  "known_gaps": {
-    "durable_evidence_bundle": "NOT_BUILT",
-    "phone_result_and_deep_log": "NOT_BUILT",
-    "github_user_task_dispatch_workflow": "NOT_BUILT",
-    "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38644930255_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38644930255_SO_LIVE_ACTIONS_STEPS_SKIPPED",
-    "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
-    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING",
-    "mandatory_llm_latency": "PASS_LIVE",
-    "rejected_research_envelope_accounting": "PASS_CODE_CI",
-    "documented_trusted_proxy_fetch": "PASS_CODE_CI"
-  },
   "forbidden_until_live_research_pass": [],
-  "48h_target": "Hosted Postgres -> Kernel -> Lite DAG -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> accounting -> production Data -> durable evidence -> phone result -> user/GitHub dispatch",
-  "next_action": "E3b1 only: accounted runtime receipt for both normal Research and rejected-envelope billing paths -> focused/full exact CI and child/hosted checks as applicable. Then E3b2 full terminal lifecycle and independent new-process retrieval after producer termination -> Phone -> Dispatch -> final positive bounded exact-one-model live/battle proof. Do not weaken Data validation to repair missing model fields; no further paid retries now. Preserve historical accounting and first failed task spend uncertainty.",
-  "continuation_rule": "Use START_HERE boot order/current exact HEAD/CI/hosted reality. Scope13 PASS_LIVE for measured aggregate native Research duration and verified live billing, not provider HTTP timing. New task8c4196e7 terminal failed strict Data REQUIRED_FIELD_MISSING: no positive full-task/live Data PASS. Historical latency0 unchanged and earlier4daaffb3 spend NOT_PROVEN. E3a safe artifact persistence/retrieval remains storage-only; complete14 NOT_BUILT. E3b1 accounted runtime receipt -> E3b2 lifecycle/survival -> Phone/Dispatch -> final bounded positive/battle. No paid retries now; five external CI skips remain non-proof.",
-  "scope_notes_48h": {
-    "08_lite_dag_research_to_data": "Dependency/finalizer infrastructure is verified. Existing live gate-only Data completion does not prove production Data.",
-    "12_data_result_validation_dedupe_normalization": "D1–D4 production Data contracts, transformer, fenced runtime and production vertical are PASS_CODE_CI. Real local/CI PostgreSQL uses injected synthetic Research runtime; no fresh hosted/paid Production Data result is claimed.",
-    "13_llm_accounting": "New live task8c4196e7-7056-4f20-ac74-a18f62148926 proves actual aggregate native Research duration66044ms equals billing input and sole OBSERVED_USAGE row latency66044; cachehit12800/miss7441/completion860/total21101/costUSD0.003341, RECONCILED actuals/reserved0. This is aggregate spawn-to-close duration, not individual provider HTTP latency. Task ultimately failed strict Data required-field validation, so no positive full vertical/live Data claim. Historical task latency0 remains; earlier failed task4daaffb3 possible provider spend remains NOT_PROVEN."
-  },
-  "data_subgates": {
-    "D1_contract": {
-      "status": "PASS_CODE_CI",
-      "commit": "fbbf05d7d7a016805353924b06732d0bacf39b81",
-      "ci_run_id": 38302547362
-    },
-    "D2_normalization_dedupe": {
-      "status": "PASS_CODE_CI",
-      "commit": "9205d4b2d839b70927e174a09a2f85a7e6606357",
-      "ci_run_id": 38325890102,
-      "files": [
-        "src/data/data-transformer.mjs",
-        "tests/data/data-transformer.test.mjs"
-      ],
-      "focused_cases": {
-        "data_contract": 8,
-        "data_transformer": 21,
-        "total": 29
-      },
-      "independent_review": {
-        "agent": "data_skeptic",
-        "assertions": 140,
-        "seeded_permutations": 100
-      },
-      "source_sha256": "b94e1d56209593c64a4f0e6f85fc6079329836363974eb889bdf001416dbcf09",
-      "tests_sha256": "0d73d5f8c894ef74137077125ccb44fb625a8defac107030c16cc9ebe42bfc68",
-      "note": "Pure deterministic finite-plain-JSON transformer; no LLM call or database mutation. Required values, source provenance and stable representative/reference ordering preserved."
-    },
-    "D3_kernel_runtime": {
-      "status": "PASS_CODE_CI",
-      "commit": "35900bc5ac499a7c3c0d787c71a40935b3dbf3fa",
-      "ci_run_id": 38391284569,
-      "ci_job_id": 115275425642,
-      "files": [
-        "src/data/data-worker.mjs",
-        "src/data/postgres-data-adapter.mjs",
-        "tests/data/data-worker.test.mjs",
-        "tests/data/postgres-data-adapter.test.mjs",
-        "tests/integration/data-postgres-kernel-e2e.mjs",
-        ".github/workflows/v2-ci.yml"
-      ],
-      "local_verification": {
-        "full_unit_cases_passed": 222,
-        "focused_data_cases_passed": 50,
-        "independent_assertions": 81,
-        "postgres_major_version": 16,
-        "migrations_applied": 19,
-        "sql_assertion_files_passed": 16,
-        "research_postgres_exit_code": 0,
-        "data_postgres_session_id": 75514,
-        "data_postgres_exit_code": 0
-      },
-      "note": "Data-only scoped claims, same-task successful Research dependency, authoritative task request fields, active-fence/deadline guarded input, heartbeat/fenced completion/failure, separate node/task status and sanitized errors. Local/CI PostgreSQL integration; no LLM call or hosted mutation."
-    },
-    "D4_production_vertical": {
-      "status": "PASS_CODE_CI",
-      "commit": "b0693ca2abc234348785ab83bf176fad625047a3",
-      "ci_run_id": 38394312147,
-      "ci_job_id": 115285527950,
-      "files": [
-        ".github/workflows/v2-ci.yml",
-        "scripts/live-research-kernel-vertical.mjs",
-        "src/research/research-live-kernel-gate.mjs",
-        "tests/integration/production-data-vertical-e2e.mjs",
-        "tests/integration/research-postgres-kernel-e2e.mjs",
-        "tests/research/research-live-kernel-gate-cleanup-status.test.mjs",
-        "tests/research/research-live-kernel-gate-required-domain.test.mjs",
-        "tests/research/research-live-kernel-gate.test.mjs"
-      ],
-      "local_verification": {
-        "full_unit_cases_passed": 228,
-        "focused_cases_passed": 70,
-        "independent_assertions": 148,
-        "negative_cases": 64,
-        "research_postgres_exit_code": 0,
-        "data_postgres_session_id": 24514,
-        "data_postgres_exit_code": 0,
-        "production_postgres_session_id": 62196,
-        "production_postgres_exit_code": 0
-      },
-      "positive_fixture": {
-        "normalized_research_sources": 2,
-        "research_items": 3,
-        "data_sources": 2,
-        "data_items": 2,
-        "synthetic_research_accounting_rows": 1,
-        "synthetic_research_cost_usd": 0.01,
-        "synthetic_research_tokens": 20,
-        "research_reservation_status": "RECONCILED",
-        "data_accounting_rows": 0,
-        "data_reservation_rows": 0
-      },
-      "hashes": {
-        "gate": "da4df3686231404aa81771a1b4f38a629005fa963631fc1a2dc031bc9a249b5f",
-        "postgres_test": "d338201b92bdeeb770bdf4d2fd26c31c49c37f39ee55b34c7a495a57a084559b",
-        "workflow": "2ae2f2f3e338c1afaaf5e49c49dda7b7a8dbd25b335b511274d6e9a612cc8fb4"
-      },
-      "note": "Actual production Research wiring with synthetic injected runtime -> Kernel -> actual Data worker/transformer -> persisted canonical terminal result. Whole accounting ledger and returned/persisted Research/Data compared. Partial required-field failure terminalizes Data/task; no paid call or hosted write."
-    }
-  },
-  "evidence_scope_note": "A13b exactCI38644184577/job116126865734 and A13c exactCI38644930255/job116129326146 SUCCESS/allcode/fiveexternalSKIPPED each. New paid30779exit1 task8c4196e7 ResearchSUCCESS/tool/domain checks passed, strict DataFAIL_WITH_EVIDENCE REQUIRED_FIELD_MISSING and taskFAIL_WITH_EVIDENCE/NODE_FAILED. Scope13 measured billing PASS_LIVE independently despite failed task; scope12 remains PASS_CODE_CI. Safe E3a artifacte39b062a-8761-4974-a416-c675108e06e4 shabd28674d197716f818956896a4679d0861b493142d86de237378a0a4def475c8 bytes5144 sealed35510exit0 and retrieved new-process22852exit0 at2026-10-14T22:11:07.428Z; hosted0/0/0/artifacts10. This does not prove runtime receipt/full14 lifecycle. Historical0 and initialfailed possible spend uncertainty preserved.",
-  "remaining_execution_gates": "docs/03_48H_EXECUTION_GATES.md",
-  "execution_lanes": {
-    "coordinator_and_publisher": "root",
-    "investigator": "evidence_investigator",
-    "independent_specialist": "evidence_skeptic",
-    "data_writer": "data_implementer (D4 main feature zones)",
-    "verifier": "evidence_verifier (read-only actual unit/review)",
-    "hosted_inspector": "hosted_inspector",
-    "recorder": "evidence_recorder",
-    "note": "A13b writer four production files, investigator three unit files, root one PostgreSQL integration file plus operations/publication. A13c root three files; writer five actual invalid-flag probes. Root exact CI/live execution/independent financial correlation/E3a seal and new-process read. Recorder only state+journal+log from root fresh proof; no network/DB/model/source/secret-file operation.",
-    "postgres_integration_writer": "data_investigator (D4 PostgreSQL zone only after explicit writer handoff)",
-    "evidence_writer": "root (A13 two production files); investigator (two unit files); writer independent probes only/no source writes"
-  },
-  "infrastructure_access_blockers": {
-    "github_actions_secret_public_key": {
-      "status": "BLOCKED",
-      "http_status": 403,
-      "reason": "Resource not accessible by integration",
-      "verified_by": "root",
-      "note": "Authorization from the user does not grant the installed integration missing API permissions; no credential values are recorded."
-    },
-    "github_branch_protection_api": {
-      "status": "BLOCKED",
-      "http_status": 403,
-      "verified_by": "root",
-      "note": "Observed integration access denial. Protection remains unconfigured; this does not block the next Data code gate."
-    }
-  },
-  "execution_recovery": {
-    "d3": {
-      "interrupted_agents": [
-        "data_implementer",
-        "data_skeptic"
-      ],
-      "error": "AGENT_USAGE_LIMIT",
-      "classification": "Agent quota/infrastructure failure, not a reproduced code failure",
-      "owner_after_interruption": "root (sole feature writer/final source edits, Docker/PostgreSQL operator and publisher)",
-      "local_files_survived": true,
-      "verified_checkpoint_before_publication": "897ec28c38ac6fd66ecb0e732676a86a56997e72",
-      "resumed_independent_review": {
-        "agent": "data_skeptic",
-        "completed": true,
-        "assertions": 81,
-        "focused_data_cases": 50,
-        "final_fingerprint_match": true
-      }
-    },
-    "local_postgres": {
-      "responsible_lane": "root",
-      "aborted_action": "Initial stalled/aborted filesystem Docker socket permission request; no verifier Docker operation executed",
-      "recovery": "Root used authorized network-only Docker28.4, created isolated PostgreSQL16 container, applied migrations/SQL and ran Research/Data PostgreSQL integration. verification_engineer remained read-only for unit/foundation/health/review.",
-      "scope": "Local integration, not hosted Neon"
-    }
-  },
-  "evidence_subgates": {
-    "E1_contract": {
-      "status": "PASS_CODE_CI",
-      "commit": "b9b896f33b2a19a6b623045c1a7aae09d68e88a3",
-      "ci_run_id": 38501303395,
-      "ci_job_id": 115648653045,
-      "files": [
-        "src/evidence/evidence-contract.mjs",
-        "tests/evidence/evidence-contract.test.mjs"
-      ],
-      "local_verification": {
-        "focused_cases_passed": 39,
-        "full_unit_cases_passed": 267,
-        "independent_assertions": 168,
-        "seeded_permutations": 100,
-        "permutation_seed": 17
-      },
-      "hashes": {
-        "contract": "b95fe8c1acf6da956f9666a3ce0e8da784bd7b3d88c92fa7acda1dd7ad731ac3",
-        "tests": "a1acd25e80b92c3bcad1db40c496083bb99ba91fd9bdef51505e22814262cc6a"
-      },
-      "review_fixes": [
-        "Retained canonical Data facts and provenance remain validated after redaction; forged values/identity/source metadata rejected.",
-        "Reject impossible calendar dates and compare nanosecond chronology without truncation.",
-        "Require executed successful node/accounting attempts and reconcile task steps to all node attempts."
-      ],
-      "note": "Pure terminal Evidence schema v1 contract, safe projection, canonical UTF8 serialization and SHA256; no SQL/runtime lifecycle implementation or Kernel edit. Pre-fix focused35/full263 were limited-coverage observations, superseded by final39/267 and specialist168. Complete durable Evidence remains NOT_BUILT until E2/E3 proof."
-    },
-    "E2_durable_sql_persist_retrieve": {
-      "status": "PASS_HOSTED",
-      "commit": "495b23b67d1226d4a79c8b640e56080dbbcaeda1",
-      "ci_run_id": 38505501374,
-      "files": [
-        "migrations/0020_evidence_artifact_persistence.sql",
-        "src/evidence/postgres-evidence-store.mjs",
-        "tests/sql/0020_evidence_artifact_persistence_test.sql",
-        "tests/evidence/postgres-evidence-store.test.mjs"
-      ],
-      "verification_child_branch_id": "br-rough-recipe-a4038vhb",
-      "hosted_branch_id": "br-odd-forest-a4leyaqj",
-      "hosted_observed_at": "2026-10-14T03:21:53.544Z",
-      "post_clean_state": {
-        "active_tasks": 0,
-        "running_nodes": 0,
-        "unresolved_reservations": 0,
-        "evidence_artifacts": 0
-      },
-      "proof": "Historical child/hosted SQL persist/retry/read/hash/size/task linkage behavior retained as PASS_HOSTED. Correction: SQL test used a minimal bundle that does not satisfy E1; this is SQL storage proof, not production E1-builder acceptance or runtime survival proof.",
-      "production_builder_acceptance_status": "PASS_HOSTED",
-      "production_builder_acceptance_limit": "Former six nullable/normalized/redacted request gaps corrected by E3a bound raw snapshot, tested with E1 construction/storage on child and parent. Actual runtime receipt/full lifecycle remains unbuilt. Earlier minimal SQL fixture stays historical storage-only proof.",
-      "boundary_repair": {
-        "status": "PASS_CODE_CI",
-        "commit": "aeb8710b54301a500f41762e42ce0f496b36f47d",
-        "ci_run_id": 38569187811,
-        "ci_job_id": 115869571556,
-        "files": [
-          "src/evidence/evidence-contract.mjs",
-          "src/evidence/postgres-evidence-store.mjs",
-          "tests/evidence/evidence-contract.test.mjs",
-          "tests/evidence/postgres-evidence-store.test.mjs",
-          "src/kernel/psql-query.mjs",
-          "tests/kernel/psql-query.test.mjs"
-        ],
-        "verification": {
-          "writer_focused_cases": 53,
-          "writer_full_unit_cases": 281,
-          "root_independent_full_unit_cases": 281,
-          "root_foundation_health_passed": true,
-          "root_diff_check_passed": true,
-          "root_production_postgres_session_id": 62733,
-          "root_production_postgres_exit_code": 0,
-          "migration_0020_sql_assertions_exit_code": 0,
-          "private_stderr_probe_leaked_before": true,
-          "private_stderr_probe_leaked_after": false
-        },
-        "note": "Six-file repair: evidence_writer four Evidence files; root two psql transport files. Canonical bytes, exact receipt identity/cardinality and safe DB error/cause/detail handling. Specialist/verifier acceptance was pending and was not executed for this repair; no claim of their independent pass. No SQL/runtime feature change or hosted behavioral promotion."
-      }
-    },
-    "E3_runtime_receipt_lifecycle_process_survival": {
-      "status": "NOT_BUILT",
-      "note": "E3b1 accounted runtime receipt on normal/rejected-billing paths next, then E3b2 full terminal lifecycle/new-process survival. Ad hoc E3a live snapshot seal/read does not close this runtime gate."
-    },
-    "E3a_bound_raw_snapshot": {
-      "status": "PASS_HOSTED",
-      "commit": "461a10305184e99dee71162c83a43b9305ddf79e",
-      "ci_run_id": 38574279224,
-      "ci_job_id": 115887166239,
-      "files": [
-        "migrations/0021_bound_evidence_snapshot.sql",
-        "src/evidence/postgres-evidence-store.mjs",
-        "tests/evidence/postgres-evidence-store.test.mjs",
-        "tests/integration/evidence-postgres-store-e2e.mjs",
-        "tests/sql/0020_evidence_artifact_persistence_test.sql",
-        "tests/sql/0021_bound_evidence_snapshot_test.sql",
-        ".github/workflows/v2-ci.yml"
-      ],
-      "migration_sha256": "2e3a9046ef7464e4497709ffd3c4db05de19e19c0450f116cdcac6e7477b3512",
-      "local_verification": {
-        "writer_focused_cases": 22,
-        "writer_full_unit_cases": 291,
-        "root_full_unit_cases": 291,
-        "sql_assertion_files_passed": 18,
-        "postgres_session_id": 32125,
-        "postgres_exit_code": 0,
-        "concurrency_and_mvcc_executed": true
-      },
-      "hosted_verification": {
-        "new_child_request_http_status": 422,
-        "new_child_request_reason": "project branch limit",
-        "verification_child_branch_id": "br-rough-recipe-a4038vhb",
-        "child_observed_at": "2026-10-14T13:40:48.927Z",
-        "child_owned_terminal_artifacts": 8,
-        "child_original_five_table_fingerprints_unchanged": true,
-        "parent_branch_id": "br-odd-forest-a4leyaqj",
-        "parent_observed_at": "2026-10-14T13:49:12.091Z",
-        "parent_verified_manifest_artifacts": 8,
-        "producer_session_id": 20165,
-        "producer_exit_code": "NOT_PROVEN",
-        "producer_output_limit": "Output not recovered after pause; durable manifest was verified, but no producer exit0 is claimed.",
-        "independent_read_only_consumer_session_id": 25989,
-        "consumer_exit_code": 0,
-        "consumer_observed_at": "2026-10-14T21:26:27.860Z",
-        "consumer_verified_artifacts": 8,
-        "same_receipt_ids_hashes_and_sizes": true,
-        "producer_local_bundle_required": false,
-        "active_tasks": 0,
-        "running_nodes": 0,
-        "reserved_reservations": 0
-      },
-      "proof_limit": "Owned terminal fixture snapshot/build/persist/retrieval only. Actual accounted runtime receipt and terminal producer lifecycle remain E3b1/E3b2; full durable Evidence scope14 NOT_BUILT.",
-      "latest_live_failure_snapshot": {
-        "task_id": "8c4196e7-7056-4f20-ac74-a18f62148926",
-        "artifact_id": "e39b062a-8761-4974-a416-c675108e06e4",
-        "sha256": "bd28674d197716f818956896a4679d0861b493142d86de237378a0a4def475c8",
-        "bytes": 5144,
-        "seal_session_id": 35510,
-        "seal_exit_code": 0,
-        "separate_new_process_consumer_session_id": 22852,
-        "consumer_exit_code": 0,
-        "consumer_observed_at": "2026-10-14T22:11:07.428Z",
-        "same_receipt_and_latency_verified": true,
-        "historical_latency_zero_verified": true,
-        "proof_limit": "E3a storage snapshot only; automatic accounted runtime receipt/lifecycle absent."
-      }
-    },
-    "E3b1_accounted_runtime_receipt": {
-      "status": "NOT_BUILT"
-    },
-    "E3b2_terminal_lifecycle_process_survival": {
-      "status": "NOT_BUILT"
-    }
-  },
-  "known_gap_notes": {
-    "durable_evidence_bundle": "Latest real-task failure snapshot artifact persisted/sealed and read by separate new process; E3a storage behavior only. Automatic accounted runtime receipt producer remains absent; E3b1 both normal/rejected billing receipts then E3b2 full terminal lifecycle/survival required before full14.",
-    "mandatory_llm_latency": "Closed by task8c4196e7 live normal Research: measured aggregate runner/input/accounting duration each66044ms, one accounted row/reservation reconciled. Historical0 unchanged; no individual provider HTTP latency claim.",
-    "rejected_research_envelope_accounting": "A13b code/local PostgreSQL rejection-path observed/fallback/stale/reclaim/duplicate billing verified, exact CI PASS_CODE_CI. Initial4daaffb3 remains historic ledger0 and possible provider spend NOT_PROVEN; no retroactive repair or free-call claim.",
-    "documented_trusted_proxy_fetch": "A13c opt-in trusted proxy accepted exact CI; native config valid/no warnings and new real Research tool/domain fail-closed checks passed. Default false/private network guard retained; native literal127.0.0.1/localhost blocked as scoped009 probe only, no broad DNS/redirect certification."
-  },
-  "accounting_subgates": {
-    "A13_measured_aggregate_runtime_latency": {
-      "status": "PASS_LIVE",
-      "intended_measurement": "Monotonic native OpenClaw process spawn-to-close elapsed duration for aggregated Research accounting row; not individual provider HTTP latency.",
-      "historical_row_policy": "Preserve existing0; no rewriting.",
-      "new_paid_proof": "PASS_LIVE",
-      "commit": "7f2791cb0480835d30acb5657af6a450f4358353",
-      "ci_run_id": 38642052950,
-      "ci_job_id": 116119732617,
-      "files": [
-        "src/research/research-agent-runner.mjs",
-        "src/research/research-kernel-bindings.mjs",
-        "tests/research/research-agent-runner.test.mjs",
-        "tests/research/research-kernel-bindings.test.mjs"
-      ],
-      "local_verification": {
-        "investigator_focused_cases": 75,
-        "writer_independent_probes": 34,
-        "writer_existing_focused_cases": 30,
-        "root_full_unit_cases": 342,
-        "root_foundation_health_passed": true,
-        "root_local_postgres_session_id": 56075,
-        "root_local_postgres_exit_code": 0,
-        "local_fixture_recovery": "Root cancel_task for one stale owned deadline-heartbeat-guard fixture in isolated LOCAL DB only."
-      },
-      "new_paid_attempt": {
-        "session_id": 12845,
-        "exit_code": 1,
-        "task_id": "4daaffb3-f32c-45e7-b410-3b57e104d156",
-        "error": "INVALID_SUCCESS_ENVELOPE",
-        "reason": "SUCCESS envelope contains unresolved web_fetch",
-        "task_status": "FAIL_WITH_EVIDENCE",
-        "terminal_reason": "NODE_FAILED",
-        "research_status": "FAIL_WITH_EVIDENCE",
-        "data_status": "BLOCKED",
-        "accounting_rows": 0,
-        "unresolved_reservations": 0,
-        "current_ledger_cost_usd": 0,
-        "actual_provider_spend_status": "NOT_PROVEN",
-        "spend_note": "Zero durable ledger is not proof of zero actual provider spend; no free-call claim.",
-        "safe_failure_artifact_id": "5f2a4312-be41-442d-86c5-162173a556f1",
-        "safe_failure_artifact_sha256": "890606c56a9bc16c430ef592504546ba6e9dae349652bb6d96892bea0e466e47",
-        "safe_failure_artifact_bytes": 2953,
-        "runtime_receipt_proof": "NOT_BUILT"
-      },
-      "measured_live_proof": {
-        "task_id": "8c4196e7-7056-4f20-ac74-a18f62148926",
-        "paid_session_id": 30779,
-        "paid_session_exit_code": 1,
-        "native_research_status": "SUCCESS",
-        "tool_and_required_domain_checks_passed": true,
-        "runner_latency_ms": 66044,
-        "billing_input_latency_ms": 66044,
-        "accounting_latency_ms": 66044,
-        "accounting_rows": 1,
-        "accounting_basis": "OBSERVED_USAGE",
-        "prompt_cache_hit_tokens": 12800,
-        "prompt_cache_miss_tokens": 7441,
-        "completion_tokens": 860,
-        "total_tokens": 21101,
-        "cost_usd": 0.003341,
-        "reservation_status": "RECONCILED",
-        "reconciled_actuals_match": true,
-        "task_reserved_remaining": 0,
-        "task_status": "FAIL_WITH_EVIDENCE",
-        "terminal_reason": "NODE_FAILED",
-        "data_status": "FAIL_WITH_EVIDENCE",
-        "data_error": "REQUIRED_FIELD_MISSING",
-        "data_failure_detail": "Auxiliary legacy-ids item has behavior/retiredIds but lacks modelId/modelVersion; strict validation preserved.",
-        "proof_limit": "Accounting PASS_LIVE only, aggregate spawn-to-close timing. No positive task/production Data live result."
-      },
-      "historical_baseline": {
-        "historical_live_task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
-        "observed_at": "2026-10-14T21:23:17.283Z",
-        "accounting_rows": 1,
-        "accounting_basis": "OBSERVED_USAGE",
-        "total_tokens": 16286,
-        "cost_usd": 0.002246,
-        "latency_ms": 0,
-        "unresolved_reservations": 0,
-        "mock_reproduction": {
-          "observed_latency_ms": 0,
-          "fallback_latency_ms": 77,
-          "measurement_present": false
-        }
-      }
-    },
-    "A13b_preserve_billing_on_rejected_envelope": {
-      "status": "PASS_CODE_CI",
-      "commit": "e0bc3470beba219d394e2d422f79a365315dd3cc",
-      "ci_run_id": 38644184577,
-      "ci_job_id": 116126865734,
-      "verification": {
-        "investigator_focused_cases": 105,
-        "full_unit_cases": 353,
-        "writer_billing_boundary_probes": 29,
-        "root_research_postgres_session_id": 44190,
-        "root_research_postgres_exit_code": 0,
-        "root_production_data_session_id": 36318,
-        "root_production_data_exit_code": 0
-      },
-      "note": "Writer four production files; investigator three unit files; root one PostgreSQL integration file/operations. Observed/fallback billing on rejected envelope, stale/reclaim/duplicate behavior proved locally. Historic failed4daaffb3 ledger0/spend uncertainty remains."
-    },
-    "A13c_opt_in_trusted_env_proxy": {
-      "status": "PASS_CODE_CI",
-      "native_no_llm_probe": {
-        "session_id": 52947,
-        "exit_code": 0,
-        "direct_use_env_proxy_false": "ECONNREFUSED",
-        "direct_elapsed_ms": 5248,
-        "proxy_use_env_proxy_true_http_status": 200,
-        "proxy_response_bytes": 23908,
-        "proxy_elapsed_ms": 1914,
-        "ssrf_allow_private_network": false
-      },
-      "plain_node_official_root_and_pricing_http_status": 200,
-      "implementation_requirement": "Documented opt-in trusted env proxy; false default and private-network guard preserved. Full CI before next bounded paid proof.",
-      "commit": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
-      "ci_run_id": 38644930255,
-      "ci_job_id": 116129326146,
-      "verification": {
-        "root_files": 3,
-        "focused_cases": 7,
-        "full_unit_cases": 354,
-        "writer_invalid_flags_rejected_before_db_models": 5,
-        "native_config_session_id": 46249,
-        "native_config_exit_code": 0,
-        "native_config_valid": true,
-        "native_config_warnings": 0,
-        "openclaw_version": "2026.9.8"
-      },
-      "note": "Proxy opt-in documented/default false/private-network guard retained; pin unchanged. Earlier native probe only verifies literal loopback/localhost blocking, not broad DNS/redirect behavior."
-    }
-  }
+  "48h_target": "real GitHub/iPhone goal -> idempotent durable task -> Kernel -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> production Data SUCCESS -> observed accounting/reconciliation -> runtime receipt -> durable Evidence surviving producer -> published deep log -> short phone result",
+  "next_action": "F1 only: reproduce REQUIRED_FIELD_MISSING from paid task 8c4196e7 and repair Research output/admission so the existing strict production Data contract can succeed without weakening Data. Focused tests -> full Node -> PostgreSQL production vertical -> exact full CI. Then F2: exactly one bounded paid current-head run requiring Research SUCCESS, Data SUCCESS, terminal task SUCCESS, one observed accounting row with measured latency, zero unresolved reserve, runtime receipt and durable Evidence surviving fresh-process retrieval. Then automatic Phone/deep-log publication and real external GitHub/user entry (order may swap by infrastructure), then one final external end-to-end proof.",
+  "continuation_rule": "Read START_HERE -> canonical 48h plan -> latest RESULTS_JOURNAL checkpoint JRNL-2026-10-14-011 -> current HEAD/CI -> direct hosted reality. Walking Skeleton remains IN_PROGRESS. Historical Research is PASS_LIVE, but current full production positive E2E is NOT_PROVEN. Do not weaken Data or promote synthetic/manual/code-only proof to paid/live. Do not add out-of-48h roadmap work before F1/F2/P2/I1c/final external proof."
 }

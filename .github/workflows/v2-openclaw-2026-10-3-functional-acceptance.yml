@@ -76,10 +76,13 @@ jobs:
             if (envelope?.ok !== true) throw new Error(`web search envelope failed: ${envelope?.error ?? "unknown"}`);
             if (envelope?.capability !== "web.search") throw new Error("wrong search capability");
             if (envelope?.transport !== "local") throw new Error("web search did not use local capability runtime");
-            if (envelope?.provider !== "duckduckgo") throw new Error(`unexpected provider: ${envelope?.provider}`);
+            if (envelope?.provider !== "duckduckgo") throw new Error(`unexpected envelope provider: ${envelope?.provider}`);
             const result = envelope?.outputs?.[0]?.result;
-            if (!result || result.kind !== "results") throw new Error(`unexpected search result kind: ${result?.kind}`);
-            if (!Array.isArray(result.results) || result.results.length < 1) throw new Error("web search returned no results");
+            if (!result || result.provider !== "duckduckgo") throw new Error(`unexpected result provider: ${result?.provider}`);
+            if (result.query !== "OpenClaw AI agent GitHub") throw new Error("search query was not preserved");
+            if (!Number.isInteger(result.count) || result.count < 1) throw new Error(`invalid result count: ${result.count}`);
+            if (!Array.isArray(result.results) || result.results.length !== result.count) throw new Error("search result array/count mismatch");
+            if (result.externalContent?.untrusted !== true || result.externalContent?.wrapped !== true) throw new Error("search trust markers missing");
             for (const item of result.results) {
               const url = new URL(item.url);
               if (!["http:", "https:"].includes(url.protocol)) throw new Error("non-http search URL");
@@ -105,7 +108,7 @@ jobs:
             const result = envelope?.outputs?.[0]?.result;
             if (!result || result.status !== 200) throw new Error(`unexpected fetch status: ${result?.status}`);
             if (typeof result.text !== "string" || !result.text.toLowerCase().includes("example domain")) throw new Error("expected fetched content missing");
-            if (result.externalContent?.untrusted !== true) throw new Error("external-content trust marker missing");
+            if (result.externalContent?.untrusted !== true) throw new Error("fetch external-content trust marker missing");
           '
 
       - name: Record safe A3 evidence
@@ -125,11 +128,12 @@ jobs:
             openclaw_version: '2026.10.3',
             search: {
               provider: search.provider,
+              result_provider: sr.provider,
               transport: search.transport,
-              kind: sr.kind,
-              count: sr.results.length,
+              count: sr.count,
               urls: sr.results.map((item) => item.url).slice(0, 3),
               external_content_untrusted: sr.externalContent?.untrusted === true,
+              external_content_wrapped: sr.externalContent?.wrapped === true,
             },
             fetch: {
               provider: fetch.provider,

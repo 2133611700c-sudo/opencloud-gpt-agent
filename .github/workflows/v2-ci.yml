@@ -9,6 +9,17 @@ on:
       - main
       - 'v2/openclaw-clean-20261011'
   workflow_dispatch:
+    inputs:
+      live_gate:
+        description: 'Optional manual live gate to execute after foundation'
+        required: true
+        default: none
+        type: choice
+        options:
+          - none
+          - hosted
+          - kernel
+          - smoke
 
 permissions:
   contents: read
@@ -68,16 +79,6 @@ jobs:
         run: |
           npm ci --prefix functions/phone
           npm run --prefix functions/phone build
-      - name: Report live prerequisite presence
-        id: prereqs
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ -n "${DATABASE_URL:-}" ]]; then echo "LIVE_DATABASE_URL=PRESENT"; echo "database_present=true" >> "$GITHUB_OUTPUT"; else echo "LIVE_DATABASE_URL=MISSING"; echo "database_present=false" >> "$GITHUB_OUTPUT"; fi
-          if [[ -n "${DEEPSEEK_API_KEY:-}" ]]; then echo "LIVE_DEEPSEEK_API_KEY=PRESENT"; echo "deepseek_present=true" >> "$GITHUB_OUTPUT"; else echo "LIVE_DEEPSEEK_API_KEY=MISSING"; echo "deepseek_present=false" >> "$GITHUB_OUTPUT"; fi
       - name: Install PostgreSQL client
         run: |
           sudo apt-get update
@@ -104,11 +105,6 @@ jobs:
         run: node tests/integration/evidence-postgres-store-e2e.mjs
       - name: Run PostgreSQL runtime Evidence lifecycle E2E
         run: node tests/integration/evidence-runtime-lifecycle-e2e.mjs
-      - name: Verify hosted Neon persistence when DATABASE_URL exists
-        if: steps.prereqs.outputs.database_present == 'true'
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: node scripts/verify-hosted-postgres.mjs
       - name: Set up supported Node for pinned OpenClaw runtime
         uses: actions/setup-node@v4
         with:
@@ -156,38 +152,186 @@ jobs:
           test "$(stat -c '%a' "$OPENCLAW_CONFIG_PATH")" = "600"
           test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
           openclaw config validate --json
-      - name: Run live Kernel Research vertical when both secrets exist
-        if: steps.prereqs.outputs.database_present == 'true' && steps.prereqs.outputs.deepseek_present == 'true'
+
+  live_request_guard:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live_gate != 'none' }}
+    needs: foundation
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require canonical V2 branch for live execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/v2/openclaw-clean-20261011'
+          case '${{ github.event.inputs.live_gate }}' in
+            hosted|kernel|smoke) ;;
+            *) echo 'Unsupported live gate requested' >&2; exit 1 ;;
+          esac
+
+  live_hosted:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live_gate == 'hosted' }}
+    needs:
+      - foundation
+      - live_request_guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require hosted database secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DATABASE_URL:-}" || { echo 'DATABASE_URL is required for live_gate=hosted' >&2; exit 1; }
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Verify hosted Neon persistence
+        run: node scripts/verify-hosted-postgres.mjs
+
+  live_kernel:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live_gate == 'kernel' }}
+    needs:
+      - foundation
+      - live_request_guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+      OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Require Kernel live secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DATABASE_URL:-}" || { echo 'DATABASE_URL is required for live_gate=kernel' >&2; exit 1; }
+          test -n "${DEEPSEEK_API_KEY:-}" || { echo 'DEEPSEEK_API_KEY is required for live_gate=kernel' >&2; exit 1; }
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Install pinned OpenClaw CLI
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.9.8 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          echo "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.9.8"
+      - name: Prepare isolated OpenClaw V2 trust scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-v2-state"
+          install -d -m 700 "$state_dir"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+      - name: Install matching official DeepSeek provider plugin
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/deepseek-provider@2026.9.8
+          openclaw plugins list | grep -i deepseek
+          test -d "$OPENCLAW_STATE_DIR/npm/projects"
+      - name: Install matching official DuckDuckGo research plugin
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.9.8
+          openclaw plugins list | grep -i duckduckgo
+      - name: Verify Research credential scope has no stored DeepSeek profiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth_json="$(openclaw models auth list --provider deepseek --json)"
+          AUTH_JSON="$auth_json" node --input-type=module -e "const value=JSON.parse(process.env.AUTH_JSON); if (!Array.isArray(value.profiles) || value.profiles.length !== 0) throw new Error('stored DeepSeek auth profiles are present in the Research scope');"
+      - name: Validate generated Research OpenClaw config
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
-          OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
+          OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research.json
+          OPENCLAW_CONFIG_READONLY: '1'
+        run: |
+          set -euo pipefail
+          node scripts/write-research-openclaw-config.mjs "$OPENCLAW_CONFIG_PATH"
+          test "$(stat -c '%a' "$OPENCLAW_CONFIG_PATH")" = "600"
+          test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
+          openclaw config validate --json
+      - name: Run one live Kernel Research vertical
+        id: kernel
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
           node scripts/live-research-kernel-vertical.mjs 2>&1 | tee artifacts/research-kernel-live.json
       - name: Upload safe Kernel Research vertical evidence
-        if: always() && steps.prereqs.outputs.database_present == 'true' && steps.prereqs.outputs.deepseek_present == 'true'
+        if: ${{ always() && steps.kernel.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: openclaw-v2-research-kernel-live
           path: artifacts/research-kernel-live.json
           if-no-files-found: error
           retention-days: 7
-      - name: Run one live DeepSeek provider smoke when secret exists
-        if: steps.prereqs.outputs.deepseek_present == 'true'
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+
+  live_smoke:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live_gate == 'smoke' }}
+    needs:
+      - foundation
+      - live_request_guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Require DeepSeek smoke secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DEEPSEEK_API_KEY:-}" || { echo 'DEEPSEEK_API_KEY is required for live_gate=smoke' >&2; exit 1; }
+      - name: Install pinned OpenClaw CLI
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.9.8 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          echo "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.9.8"
+      - name: Prepare isolated OpenClaw V2 trust scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-v2-state"
+          install -d -m 700 "$state_dir"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+      - name: Install matching official DeepSeek provider plugin
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/deepseek-provider@2026.9.8
+          openclaw plugins list | grep -i deepseek
+          test -d "$OPENCLAW_STATE_DIR/npm/projects"
+      - name: Run one live DeepSeek provider smoke
+        id: smoke
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
           node scripts/live-deepseek-smoke.mjs | tee artifacts/deepseek-live-smoke.json
       - name: Upload safe DeepSeek smoke evidence
-        if: steps.prereqs.outputs.deepseek_present == 'true' && always()
+        if: ${{ always() && steps.smoke.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: openclaw-v2-deepseek-live-smoke

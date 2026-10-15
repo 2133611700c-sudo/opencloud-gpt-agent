@@ -69,6 +69,15 @@ if (state.walking_skeleton_gate !== 'IN_PROGRESS' && !String(state.walking_skele
 if (typeof state.route_id !== 'string' || state.route_id.trim() === '') throw new Error('PROJECT_STATE route_id is required');
 if (typeof state.next_action !== 'string' || state.next_action.trim() === '') throw new Error('PROJECT_STATE next_action is required');
 
+// PROJECT_STATE is a current checkpoint, not an append-only history surface.
+// These older narrative mirrors duplicated canonical completion truth and already
+// drifted once; historical wording belongs in RESULTS_JOURNAL / EXECUTION_LOG.
+for (const deprecatedField of ['acceptance_notes', 'user_intake']) {
+  if (Object.hasOwn(state, deprecatedField)) {
+    throw new Error(`PROJECT_STATE contains deprecated duplicate field: ${deprecatedField}`);
+  }
+}
+
 const scopeEntries = Object.entries(state.scope_map_48h ?? {});
 const acceptanceEntries = Object.entries(state.acceptance_map ?? {});
 if (scopeEntries.length !== 15) throw new Error(`PROJECT_STATE scope_map_48h must contain exactly 15 items; found ${scopeEntries.length}`);
@@ -103,6 +112,51 @@ if (String(state.walking_skeleton_gate).startsWith('PASS')) {
   const unfinished = [...scopeEntries, ...acceptanceEntries].filter(([, value]) => !String(value).startsWith('PASS_'));
   if (unfinished.length > 0) {
     throw new Error(`Walking Skeleton cannot be PASS while ${unfinished.length} mapped gates are unfinished`);
+  }
+
+  const requiredLiveCompletion = [
+    ['route_prerequisites.current_full_positive_e2e', state.route_prerequisites?.current_full_positive_e2e],
+    ['route_prerequisites.automatic_phone_publication', state.route_prerequisites?.automatic_phone_publication],
+    ['route_prerequisites.external_user_ingress', state.route_prerequisites?.external_user_ingress],
+    ['user_http_intake.status', state.user_http_intake?.status],
+    ['48h_completion.status', state['48h_completion']?.status],
+  ];
+  for (const [label, value] of requiredLiveCompletion) {
+    if (value !== 'PASS_LIVE') throw new Error(`Walking Skeleton PASS requires ${label}=PASS_LIVE; got ${String(value)}`);
+  }
+
+  const completionTaskId = state['48h_completion']?.final_external_task_id;
+  const taskIdentities = [
+    ['48h_completion.final_external_task_id', completionTaskId],
+    ['user_http_intake.task_id', state.user_http_intake?.task_id],
+    ['live_capabilities.final_external_paid_success.task_id', state.live_capabilities?.final_external_paid_success?.task_id],
+    ['evidence.final_external_task_id', state.evidence?.final_external_task_id],
+  ];
+  for (const [label, value] of taskIdentities) {
+    if (typeof value !== 'string' || value.trim() === '') throw new Error(`Walking Skeleton PASS requires ${label}`);
+    if (value !== completionTaskId) throw new Error(`Walking Skeleton final task identity drift at ${label}`);
+  }
+
+  const completionArtifactId = state['48h_completion']?.artifact_id;
+  const artifactIdentities = [
+    ['48h_completion.artifact_id', completionArtifactId],
+    ['live_capabilities.final_external_paid_success.artifact_id', state.live_capabilities?.final_external_paid_success?.artifact_id],
+    ['evidence.final_external_artifact_id', state.evidence?.final_external_artifact_id],
+  ];
+  for (const [label, value] of artifactIdentities) {
+    if (typeof value !== 'string' || value.trim() === '') throw new Error(`Walking Skeleton PASS requires ${label}`);
+    if (value !== completionArtifactId) throw new Error(`Walking Skeleton final artifact identity drift at ${label}`);
+  }
+
+  const completionReceiptId = state['48h_completion']?.runtime_receipt_id;
+  const receiptIdentities = [
+    ['48h_completion.runtime_receipt_id', completionReceiptId],
+    ['live_capabilities.final_external_paid_success.runtime_receipt_id', state.live_capabilities?.final_external_paid_success?.runtime_receipt_id],
+    ['evidence.final_external_runtime_receipt_id', state.evidence?.final_external_runtime_receipt_id],
+  ];
+  for (const [label, value] of receiptIdentities) {
+    if (typeof value !== 'string' || value.trim() === '') throw new Error(`Walking Skeleton PASS requires ${label}`);
+    if (value !== completionReceiptId) throw new Error(`Walking Skeleton final runtime receipt identity drift at ${label}`);
   }
 }
 

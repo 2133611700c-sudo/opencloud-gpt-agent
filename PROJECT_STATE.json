@@ -334,14 +334,6 @@
   "48h_target": "real GitHub/iPhone goal -> idempotent durable task -> Kernel -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> production Data SUCCESS -> observed accounting/reconciliation -> runtime receipt -> durable Evidence surviving producer -> published deep log -> short phone result",
   "next_action": "48h Walking Skeleton complete. Preserve checkpoint; next work is post-48h governance/cutover hardening, not another paid acceptance rerun.",
   "continuation_rule": "Treat 48h Walking Skeleton as PASS_LIVE at code head e9059b4 / CI 38735424042 plus final hosted task f48c0505. main remains frozen until separate cutover/rollback authorization.",
-  "acceptance_notes": {
-    "01_positive_real_research_e2e_success": "One paid production Research -> Data -> terminal SUCCESS is proven; its existing Evidence now has automatic hosted Phone/deep-log publication. A new final actual external user ingress-to-paid-Phone chain remains NOT_PROVEN."
-  },
-  "user_intake": {
-    "chosen_route": "AUTHENTICATED_EXTERNAL_USER_HTTP",
-    "actual_external_user_entrypoint": "NOT_PROVEN",
-    "note": "I1c implementation/verification pending; allowed USER HTTP route selected because GitHub webhook admin capability was unavailable. No GitHub webhook completion claimed."
-  },
   "user_http_intake": {
     "status": "PASS_LIVE",
     "function": "openclawv2mobile",

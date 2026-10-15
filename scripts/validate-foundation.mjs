@@ -121,11 +121,16 @@ if (historicalResearchStatus !== 'PASS_LIVE') {
   }
 }
 
-const remaining48hGaps = Object.entries(state.remaining_48h_gaps ?? {});
-if (remaining48hGaps.length !== 4) {
-  throw new Error(`PROJECT_STATE remaining_48h_gaps must contain exactly 4 audited gaps; found ${remaining48hGaps.length}`);
+// Gap inventory evolves as independently verified gates close; its size is not a schema invariant.
+const gapMap = state.remaining_48h_gaps;
+if (!gapMap || typeof gapMap !== 'object' || Array.isArray(gapMap)) {
+  throw new Error('PROJECT_STATE remaining_48h_gaps must be an object');
 }
+const remaining48hGaps = Object.entries(gapMap);
 validateEvidenceMap(remaining48hGaps, 'remaining_48h_gaps');
+if (String(state.walking_skeleton_gate).startsWith('PASS') && remaining48hGaps.length !== 0) {
+  throw new Error('Walking Skeleton cannot be PASS while remaining_48h_gaps is nonempty');
+}
 
 console.log('FOUNDATION_PASS');
 console.log('ROUTE_MAP_PASS');

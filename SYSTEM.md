@@ -161,11 +161,106 @@ Selected metadata alone is never proof of execution.
 7. **Artifact + Evidence Layer** — durable task/result/source/accounting/trace/error artifacts that survive runner termination.
 8. **Phone UX** — terminal status, concise result, cost, next action, and deep-log link suitable for iPhone/GitHub Mobile.
 9. **Perception Layer** — images/screenshots/PDF/scans/downloads through MIME detection, extraction, vision/OCR fallback, structured data, and provenance.
-10. **Browser Runtime** — isolated browser navigation, snapshots, clicks, typing, pagination, screenshots, downloads, sessions, network/error evidence, with search -> fetch -> browser escalation.
+10. **Browser Runtime** — native-first isolated browser execution with durable scoped sessions, authentication handoff/resume, semantic page inspection, robust interaction primitives, uploads/downloads, JS/SPA handling, bounded recovery, Kernel policy enforcement, and complete browser evidence. Search/fetch remain cheaper first-line tools; browser is the interactive escalation path.
 11. **Agent Runtime + Skill Runtime + Sandbox** — native isolated subagents, dynamic skill loading with id/version/hash provenance, bounded tools, sandboxed code execution, incremental specialist enablement.
 12. **Full DAG / Parallelism / Repair / Judge** — branching DAG, bounded concurrency, justified subagents/Swarm, synthesis/conflict handling, failure classification, bounded repair/retest, independent Judge.
 13. **Capability Scale-Out** — certify remaining agent and skill catalog entries through schema, availability, security, deterministic and integration tests before READY.
 14. **Production Cutover + Legacy Deletion** — complete battle suite, production promotion, rollback proof, archive, then approved legacy removal.
+
+### Phase 10 — Browser Runtime canonical future scope
+
+When Phase 10 begins, implement the browser capability as an OpenClaw-native execution surface controlled by the Kernel, not as a separate ad-hoc automation stack. Use the browser primitives supported by the pinned OpenClaw runtime and keep the adapter replaceable if the underlying browser engine changes.
+
+The Browser Runtime must provide:
+
+**Browser/session lifecycle**
+- isolated browser contexts scoped to the task and operator identity;
+- persistent reusable authenticated sessions where policy allows, including cookies, local storage, session storage and other browser state required by the site;
+- explicit session creation, resume, expiry, revocation and destruction;
+- browser restart/recovery without silently losing the authorized session;
+- no plaintext passwords, tokens, cookies or secret values in task results, logs or model prompts.
+
+**Navigation and page control**
+- open URL, redirect handling, back, forward, reload, wait-for-ready and bounded waits;
+- open, close, enumerate and switch tabs/windows/popups;
+- handle modern JavaScript-heavy pages, SPAs, dynamic navigation, iframes and delayed UI rendering;
+- detect navigation loops, browser crashes, blocked pages and challenge/interstitial screens.
+
+**Page understanding**
+- capture URL, title, visible text, links and structured page state;
+- expose DOM/accessibility/UI-tree information sufficient for deterministic element selection;
+- support page, viewport and element screenshots;
+- allow targeted visual inspection when DOM/accessibility information is insufficient;
+- treat all page content as untrusted input and never allow page text to change tool authority, policy or secrets access.
+
+**Interaction primitives**
+- click/double-click, type, clear, keyboard shortcuts/keys, focus and hover where needed;
+- select menus, checkboxes, radio controls, buttons, links and form submission;
+- scroll, paginate and operate infinite-scroll/list interfaces with bounded loops;
+- work with file pickers, uploads and downloads;
+- support element targeting by semantic role/name/label/text first, stable attributes second, and CSS/XPath-style fallback only when necessary;
+- re-resolve elements after DOM changes instead of blindly replaying stale selectors;
+- verify the observable result of material actions rather than assuming a click or submit succeeded.
+
+**Authentication and human handoff**
+- reuse an existing authorized browser session when available and allowed;
+- support ordinary username/password login flows only through approved secret references and policy-controlled entry;
+- treat 2FA, passkeys, CAPTCHA, security challenges and explicit account-consent prompts as human handoff boundaries when automation cannot legitimately complete them;
+- pause with resumable state, let the operator complete the required step, then continue from the same browser session;
+- never bypass CAPTCHA, anti-bot protections, passkeys, 2FA or site security controls.
+
+**Downloads/uploads and perception handoff**
+- record download URL/origin, filename, MIME/type, size and hash;
+- quarantine unknown or executable downloads by default;
+- pass downloaded images/PDF/documents/data into the Phase 9 perception pipeline for interpretation;
+- support task-scoped uploads only from explicitly allowed artifacts/files.
+
+**Kernel integration and authority**
+- browser work runs as bounded Kernel-controlled task/node execution with lease, fencing, attempts, step budget, timeout/deadline and cancellation semantics;
+- a stale or invalid fencing token must cause zero browser-side mutations that are under OpenClaw control;
+- classify browser actions as read-only, reversible/low-risk mutation, or high-impact side effect;
+- require the same approval/policy gates defined elsewhere for payments, public posting, destructive/account-security changes, production actions, sending communications and other high-impact effects;
+- keep browser sessions/task state idempotent enough that safe retries do not duplicate submissions or purchases;
+- search -> fetch -> browser is the normal escalation order; optional computer-use escalation is reserved for cases the browser/API surface cannot complete reliably.
+
+**Failure recovery**
+- bounded retries with explicit failure classes;
+- recover through re-navigation, reload, wait adjustment, semantic re-location, selector fallback or browser restart/session restore when appropriate;
+- never loop indefinitely on the same failing interaction;
+- capture sufficient failure evidence for Repair/Reviewer/Judge rather than hiding or overwriting the original error.
+
+**Browser evidence and observability**
+- action trace with timestamps and target origin/URL;
+- before/after state evidence for material actions when useful;
+- screenshots and selected DOM/accessibility snapshots needed to prove the observed UI state;
+- browser console errors, failed requests and relevant network/status metadata without leaking secrets;
+- download/upload provenance and hashes;
+- session identifier/reference that proves continuity without exposing session credentials;
+- browser errors and challenge messages preserved in durable Evidence/Deep Log.
+
+**Required Phase 10 implementation surfaces**
+- Browser tool/adapter contract for the pinned OpenClaw runtime;
+- Browser Agent capability exposed to the Orchestrator/Planner;
+- Kernel Browser node integration with budgets, leases, fencing, cancellation and approvals;
+- persistent encrypted/scoped browser-session state or an approved equivalent supported by the runtime;
+- human-handoff/resume contract for login/2FA/passkey/CAPTCHA boundaries;
+- Evidence integration for screenshots, UI/DOM observations, network failures, downloads and action trace;
+- deterministic browser fixtures plus live browser acceptance tasks.
+
+**Required acceptance coverage**
+- public JS-heavy page navigation and extraction;
+- multi-step forms and pagination;
+- tab/popup handling;
+- authenticated-session resume after browser/process restart;
+- operator handoff and resume for an authentication challenge;
+- upload and download flow with provenance/hash;
+- retry after DOM mutation/stale selector;
+- blocked/challenge page captured without bypass;
+- stale lease/fencing/cancellation prevents further controlled actions;
+- prompt-injection content on a page cannot expand authority or reveal secrets;
+- a real end-to-end Browser task produces durable Evidence and a usable phone/deep-log result.
+
+Phase 10 exit requires a real JS-heavy interactive workflow to complete end-to-end through `USER/ChatGPT -> Kernel -> Browser Agent -> browser session -> Evidence -> Phone/deep-log`, including at least one resumed authenticated-session scenario and one human-handoff/resume scenario, with no security-control bypass and no unproven success assumptions.
 
 Every phase has the rule: build -> deterministic tests -> live test where relevant -> evidence -> PASS -> next phase.
 

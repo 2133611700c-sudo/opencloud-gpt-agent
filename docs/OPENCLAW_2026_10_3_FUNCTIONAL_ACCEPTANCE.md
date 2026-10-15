@@ -37,8 +37,8 @@ The Final 48 runtime stays separate while this acceptance sequence runs. After O
 | A2 | Plugin, skill, tool inventory | bundled/installed plugins enumerate; skills inventory/check works; expected core command families are callable | PASS_CODE_CI |
 | A3 | Web search + fetch | real public search and fetch return bounded evidence through the 2026.10.3 runtime | PASS_CODE_CI |
 | A4 | Managed browser | dedicated OpenClaw profile starts, opens a public page, snapshots, acts on a harmless control, closes tab, stops cleanly | PASS_CODE_CI |
-| A5 | Existing signed-in browser | `user`/existing-session driver attaches to a real signed-in Chrome context and performs read-only navigation without re-authentication | NOT_PROVEN |
-| A6 | Files + runtime/process tools | bounded workspace read/write/edit and harmless process execution prove policy, path and cleanup behavior | NOT_PROVEN |
+| A5 | Existing signed-in browser | `user`/existing-session driver attaches to a real signed-in Chrome context and performs read-only navigation without re-authentication | BLOCKED |
+| A6 | Files + runtime/process tools | bounded workspace read/write/edit and harmless process execution prove policy, path and cleanup behavior | PASS_CODE_CI |
 | A7 | DeepSeek direct provider | one bounded live DeepSeek 2026.10.3 call proves auth, exact model, output and telemetry envelope | NOT_PROVEN |
 | A8 | DeepSeek Research agent | DeepSeek + DuckDuckGo `web_search`/`web_fetch` completes one cited structured research task through our contract | NOT_PROVEN |
 | A9 | Sub-agents | parent spawns isolated child, child returns result, lifecycle/stop/cleanup evidence is correct | NOT_PROVEN |
@@ -123,6 +123,39 @@ Two preceding diagnostic runs exposed a real contract nuance: an isolated `auth 
 - Hosted database mutations: `0`
 - Artifact: `openclaw-2026-10-3-a4-browser`, id `12013526060`
 - Artifact digest: `sha256:5556f08116c00422225b621e207152ce3d32027a0676f8568b797857c96ac941`
+
+## A5 external prerequisite
+
+- Status: `BLOCKED`, not PASS and not product FAIL.
+- Exact 2026.10.3 existing-session contract requires the built-in `user` browser profile to attach to an already running real user Chrome session.
+- The target Chrome must have remote debugging enabled.
+- Existing login/session state must already exist in that browser profile.
+- The attach prompt requires operator approval.
+- A clean GitHub-hosted CI runner has no authoritative already-signed-in user Chrome session to reuse, so CI cannot honestly satisfy this gate.
+- A5 remains blocked until the acceptance run is executed on the real browser host or an eligible connected browser node. No CI simulation is counted as proof.
+
+## A6 evidence
+
+- Workflow run: `38822514747`
+- Job: `116722176001` — `A6 files + exec + process lifecycle`
+- Exact core observed: `OpenClaw 2026.10.3`
+- Public SDK surface used: `plugin-sdk/agent-harness` / `createOpenClawCodingTools`
+- Required native tools assembled: `read`, `write`, `edit`, `apply_patch`, `exec`, `process`
+- Native `write`: persisted exact bytes — PASS
+- Native `read`: returned expected persisted content — PASS
+- Native `edit`: exact replacement persisted — PASS
+- Native `apply_patch`: file creation persisted — PASS
+- Workspace containment: attempted patch escape denied and outside sentinel remained unchanged — PASS
+- Foreground `exec`: completed with exit code 0 and reported `OPENCLAW_SHELL=exec` — PASS
+- Background `exec`: returned a real running process session — PASS
+- `process list`: observed the exact background session — PASS
+- `process poll`: reached completed/exit 0 and returned both output markers — PASS
+- `process clear`: completed — PASS
+- Provider calls: `0`
+- Hosted database mutations: `0`
+- A preceding diagnostic attempt stopped before capability execution because it assumed an unpublished internal dist path. The corrected run uses the public agent-harness SDK and passed end-to-end.
+- Artifact: `openclaw-2026-10-3-a6-files-runtime`, id `12013123432`
+- Artifact digest: `sha256:8e8fae9a4448aa3304a638709f874874c3155e3b4dd1de556b4681715689fdaa`
 
 ## Execution rules
 

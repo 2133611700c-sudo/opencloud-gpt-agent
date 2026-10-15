@@ -9,6 +9,9 @@ import { assertLiveRuntimeEvidenceProof } from '../../src/evidence/live-runtime-
 import { createPostgresTerminalEvidenceFinalizer } from '../../src/evidence/postgres-terminal-evidence-finalizer.mjs';
 import { createPostgresEvidenceStoreV2 } from '../../src/evidence/postgres-evidence-store-v2.mjs';
 import { createPsqlQuery, postgresEnvFromDatabaseUrl } from '../../src/kernel/psql-query.mjs';
+import { createTaskPhoneRuntime } from '../../src/runtime/task-phone-runtime.mjs';
+import { createTerminalPhonePublication } from '../../src/phone/terminal-phone-publication.mjs';
+import { createPhoneHttpHandler } from '../../src/phone/phone-http-handler.mjs';
 import { normalizeResearchResult } from '../../src/research/research-contract.mjs';
 import {
   createProductionResearchWorker,
@@ -102,26 +105,30 @@ async function producerMain() {
     estimateReservation: async () => ({ costUsd: 0.10, tokens: 100 }),
     runResearchImpl: async () => syntheticResearch({ id, mode }),
   });
-  if (mode === 'failure') {
-    await assert.rejects(
-      () => researchWorker.runTask(taskId),
-      (error) => error?.code === 'REQUIRED_FIELDS_NOT_PROVEN',
-    );
-  } else {
-    const researchExecution = await researchWorker.runTask(taskId);
-    assert.equal(researchExecution.status, 'EXECUTED');
-    assert.equal(researchExecution.execution.status, 'SUCCESS');
-
-    const dataWorker = createDataWorker({
-      kernel: createPostgresDataAdapter({ query }),
-      workerId: `synthetic-e3-data-${id}`,
-      leaseSeconds: 60,
-      heartbeatIntervalMs: 10_000,
-    });
-    const dataExecution = await dataWorker.runTask(taskId);
-    assert.equal(dataExecution.status, 'EXECUTED');
-    assert.equal(dataExecution.execution.taskStatus, 'SUCCESS');
-  }
+  const dataWorker = createDataWorker({
+    kernel: createPostgresDataAdapter({ query }), workerId: `synthetic-e3-data-${id}`,
+    leaseSeconds: 60, heartbeatIntervalMs: 10_000,
+  });
+  const publicBaseUrl = 'https://mobile.openclaw.example';
+  const store = createPostgresEvidenceStoreV2({ query });
+  const handler = createPhoneHttpHandler({ read: store.read, publicBaseUrl });
+  const publisher = createTerminalPhonePublication({
+    finalizer: createPostgresTerminalEvidenceFinalizer({ query }), publicBaseUrl,
+    // Synthetic HTTP transport: code/PG proof, not external HTTPS/live proof.
+    fetchImpl: (url, options) => handler(new Request(url, options)),
+  });
+  const runtime = createTaskPhoneRuntime({
+    researchWorker, dataWorker, publisher,
+    readTaskStatus: async (id) => (await query('SELECT status FROM tasks WHERE id=$1', [id])).rows[0]?.status,
+  });
+  const publication = await runtime.runTask(taskId);
+  assert.equal(publication.published, true);
+  assert.equal(publication.status, mode === 'failure' ? 'FAIL_WITH_EVIDENCE' : 'SUCCESS');
+  assert.match(publication.text, new RegExp(`Task: ${taskId}`));
+  if (mode === 'failure') assert.match(publication.text, /REQUIRED_FIELDS_NOT_PROVEN/);
+  const canonicalBeforeRetry = (await store.read(taskId)).serialized;
+  assert.deepEqual(await runtime.runTask(taskId), publication);
+  assert.equal((await store.read(taskId)).serialized, canonicalBeforeRetry);
 
   const state = await query(
     `SELECT status::text AS status, terminal_reason,
@@ -151,6 +158,8 @@ async function producerMain() {
     artifactId: receipt.artifactId,
     sha256: receipt.sha256,
     sizeBytes: receipt.sizeBytes,
+    phonePublished: publication.published,
+    phoneUrl: publication.phoneUrl,
     runtimeReceiptId: runtimeProof.runtimeReceiptId,
   });
 }

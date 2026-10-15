@@ -162,6 +162,9 @@ async function retrieverMain() {
   const receipt = await store.read(taskId);
   assert.ok(receipt);
   const runtime = receipt.bundle.runtimeReceipts[0];
+  const nodeErrors = receipt.bundle.nodes
+    .filter((node) => node.error != null && Object.keys(node.error).length > 0)
+    .map((node) => ({ nodeKey: node.nodeKey, error: node.error }));
   emit({
     taskId,
     taskStatus: receipt.bundle.task.status,
@@ -175,6 +178,9 @@ async function retrieverMain() {
     model: runtime?.observed?.model ?? null,
     runtimeVersion: runtime?.configured?.runtimeVersion ?? null,
     tools: runtime?.observed?.toolSummary?.tools ?? [],
+    traceEvents: runtime?.trace?.map((event) => event.event) ?? [],
+    terminalReason: receipt.bundle.task.terminalReason,
+    nodeErrors,
   });
 }
 
@@ -248,7 +254,16 @@ if (childRole === 'producer') {
       assert.equal(retrieved.runtimeVersion, '2026.9.8');
       assert.ok(retrieved.tools.includes('web_search'));
       assert.ok(retrieved.tools.includes('web_fetch'));
+      assert.ok(retrieved.traceEvents.includes('ACCOUNTING_RECONCILED'));
     }
+
+    assert.equal(successRead.terminalReason, 'ALL_NODES_SUCCEEDED');
+    assert.deepEqual(successRead.nodeErrors, []);
+    assert.equal(failureRead.terminalReason, 'NODE_FAILED');
+    assert.ok(
+      failureRead.nodeErrors.some(({ nodeKey, error }) => nodeKey === 'data' && error?.code === 'REQUIRED_FIELD_MISSING'),
+      'failure Evidence artifact must preserve the Data terminal error code',
+    );
 
     // Corrupt one local fixture after successful retrieval; the production finalizer
     // must fail closed instead of overwriting or blessing conflicting durable bytes.
@@ -268,7 +283,7 @@ if (childRole === 'producer') {
     assert.equal(cleanliness.rows[0].running_nodes, 0);
     assert.equal(cleanliness.rows[0].unresolved_reservations, 0);
 
-    console.log('runtime Evidence lifecycle E2E: SUCCESS + FAIL_WITH_EVIDENCE persisted by producer processes, independently retrieved after producer exit, receipt linkage verified, persistence conflict fails closed');
+    console.log('runtime Evidence lifecycle E2E: SUCCESS + FAIL_WITH_EVIDENCE artifacts survive producer exit with receipt trace, tool metadata and failure error proof; persistence conflict fails closed');
   } finally {
     if (taskIds.length) {
       mutateLocalFixture(

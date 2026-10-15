@@ -1,0 +1,24 @@
+{
+  "id": "OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015",
+  "type": "virtual_browser_audit",
+  "requested_by": "Sergii",
+  "status": "pending",
+  "goal": "Read-only browser probe of public GitHub pages using the existing OpenClaw Playwright/Chromium execution layer. Verify whether github.com loads normally from the OpenClaw runner without anti-bot blocking. Capture browser-visible text, buttons, links, HTTP status, console/request failures, and screenshots. Check only the public GitHub homepage and the public repository page for 2133611700c-sudo/opencloud-gpt-agent. No sign-in, credential entry, form submission, account action, settings change, public posting, destructive action, or paid action. If blocked or challenged, record the exact browser-visible message and evidence; do not attempt bypasses.",
+  "expected_status": "PASS",
+  "params": {
+    "target_origin": "https://github.com",
+    "routes": [
+      "/",
+      "/2133611700c-sudo/opencloud-gpt-agent"
+    ],
+    "max_attempts": 2
+  },
+  "safety": {
+    "production_code_change": false,
+    "customer_action": false,
+    "secrets_required": false,
+    "public_posting": false,
+    "paid_ads_change": false,
+    "destructive_action": false
+  }
+}

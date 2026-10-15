@@ -95,8 +95,56 @@ Images/screenshots/PDF/scans/downloads -> MIME detection -> extraction -> vision
 Exit: downloaded/observed file is actually interpreted.
 
 ### Phase 10 — Browser Runtime
-Isolated browser; navigation, snapshots, clicks, typing, pagination, screenshots, downloads, network/errors, sessions. Escalation search -> fetch -> browser.
-Exit: real JS-heavy page completes end-to-end.
+Build the interactive web execution layer as an OpenClaw-native Browser Agent controlled by the Kernel.
+
+Scope:
+- isolated browser contexts and durable task/operator-scoped sessions;
+- creation, resume, expiry, revocation and destruction of browser sessions;
+- persisted cookies/local-storage/session-storage or runtime-equivalent authorized session state without exposing secrets;
+- navigation, redirects, back/forward/reload, bounded waits and page-ready handling;
+- multiple tabs/windows/popups plus switching and cleanup;
+- JS-heavy pages, SPAs, dynamic DOM, iframes and delayed rendering;
+- DOM/accessibility/UI-tree inspection, visible text/links and targeted screenshots;
+- click, typing, clear, keys, focus, hover, form controls, selects, checkboxes/radios, scrolling and pagination;
+- file chooser, uploads and downloads with task-scoped provenance;
+- semantic element targeting first, stable attributes second, selector fallback when necessary;
+- selector re-resolution after DOM changes and observable verification after material actions;
+- reuse of authorized sessions and policy-controlled normal login flows;
+- resumable human handoff for 2FA, passkeys, CAPTCHA, security challenges and explicit consent prompts; no bypass of site security controls;
+- browser restart and session restore when recoverable;
+- bounded retries and explicit failure classification instead of infinite loops;
+- capture of console errors, failed requests, challenge/interstitial messages and relevant network/status evidence;
+- quarantine and handoff of downloaded files to the Phase 9 perception pipeline;
+- search -> fetch -> browser as the normal escalation chain, with computer-use escalation only when the browser/API surface is insufficient;
+- Kernel enforcement of lease/fencing, attempts, step budgets, deadlines, cancellation and approval policy for Browser nodes;
+- action risk classification so high-impact side effects use the same approval gates as payments, public posting, destructive/account-security changes, production actions and user communications;
+- idempotency/retry discipline so retries do not duplicate submissions or purchases;
+- prompt-injection resistance: page content is untrusted and cannot expand authority, alter policy or gain secrets access;
+- durable browser Evidence containing action trace, URLs/timestamps, selected before/after state, screenshots/UI snapshots, network failures, upload/download provenance and hashes, and non-secret session continuity references.
+
+Implementation surfaces when this phase begins:
+1. OpenClaw Browser tool/adapter contract.
+2. Browser Agent available to Orchestrator/Planner.
+3. Kernel Browser node with budgets, lease/fencing, cancellation and approvals.
+4. Persistent scoped browser-session state or approved runtime equivalent.
+5. Login/2FA/passkey/CAPTCHA handoff-and-resume contract.
+6. Browser Evidence integration into durable artifacts and Deep Log.
+7. Deterministic browser fixtures and live acceptance tasks.
+
+Acceptance coverage must include:
+- public JS-heavy page navigation/extraction;
+- multi-step forms and pagination;
+- tab/popup handling;
+- authenticated-session resume after browser/process restart;
+- operator handoff and resume for an authentication challenge;
+- upload/download flow with provenance/hash;
+- recovery after DOM mutation/stale selector;
+- blocked/challenge page recorded without bypass;
+- stale lease/fencing/cancellation preventing further controlled actions;
+- prompt-injection page content failing to expand authority or reveal secrets;
+- real Browser task producing durable Evidence and a usable phone/deep-log result.
+
+Exit: a real JS-heavy interactive workflow completes end-to-end through `USER/ChatGPT -> Kernel -> Browser Agent -> browser session -> Evidence -> Phone/deep-log`, including an authenticated-session resume case and a human-handoff/resume case, with no security-control bypass and no assumed success without observable evidence.
 
 ### Phase 11 — Agent Runtime + Skill Runtime + Sandbox
 Native isolated subagents. Dynamic skill loader records skill id/version/hash. Code execution only in sandbox. Add specialists incrementally.

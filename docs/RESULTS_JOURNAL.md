@@ -1327,3 +1327,32 @@ The existing Neon Function gains authenticated `POST /v1/research/tasks`, using 
 A prearmed bounded worker discovers the same request in PostgreSQL and invokes the existing Research/Data/Evidence/Phone runtime exactly once. It creates no second task and loops no paid retry. Abort/deadline is checked after transport completion, including a regression for synchronously late discovery; CLI psql children are bounded by15s SIGKILL and server statements12s/locks10s. Independent review found and verified that boundary plus the new credential redaction policy. Runtime/publication-only recovery includes the intake credential in supplied sensitive values; literal and JSON-escaped credential text is rejected before persistence. Credentials are never task provenance.
 
 Local evidence: full `npm test` and explicit **455/455** unit cases passed; foundation/route-map, health, syntax, bundle build, diff checks and kernel SQL assertions passed. All seven PostgreSQL integrations ran in exact CI order, including new separate-process concurrent HTTP delivery -> exactly one task/2nodes/1edge, correct user provenance and prearmed worker discovery with zero accounting rows. Existing production Data and receipt-bound Evidence SUCCESS/FAIL lifecycle/survival remain passing. New HTTP transports in local/CI tests are synthetic; this is implementation evidence, **not I1c PASS_LIVE**. Exact CI for the new commit, hosted authenticated endpoint deployment and one bounded true external paid chain remain required. No new hosted task/provider execution during this implementation.
+
+
+## JRNL-2026-10-15-006 — 48h Walking Skeleton final PASS_LIVE
+
+### Final accepted boundary
+
+Functional/code head `e9059b4a5646684dd7efcc026a285a9113528b54` passed exact OpenClaw V2 CI `38735424042` / foundation job `116423380776` SUCCESS. It includes authenticated USER HTTP intake, durable idempotency, production Research/Data, Evidence lifecycle and mobile Function build. Secret-dependent Actions live steps remained SKIPPED and are not promoted as evidence. Governance checkpoint `f8f26de6122bff2fe49fd915d2f10e5b0e18081e` then recorded the final live proof and passed exact OpenClaw V2 CI `38739241128` SUCCESS.
+
+### I1c + final external paid E2E
+
+Neon Function `openclawv2mobile` deployment `4` accepted a real authenticated HTTPS `POST /v1/research/tasks`. Persisted provenance is `type=authenticated_http`, `principalId=operator`, request `ba5a6544-5d43-4aa5-9756-7f2a22442a23`; stable idempotency key `user:http:operator:ba5a6544-5d43-4aa5-9756-7f2a22442a23` maps to exactly one durable task `f48c0505-ac37-47be-a8bc-8ccdf879dc85`.
+
+That same task completed `Research SUCCESS -> production Data SUCCESS -> task SUCCESS / ALL_NODES_SUCCEEDED`. Real OpenClaw `2026.9.8`, requested model `deepseek/deepseek-flash`, observed provider/model `deepseek/deepseek-flash`, thinking `max`, native `web_search` + `web_fetch`, four tool calls, zero tool failures and two official DeepSeek sources were persisted.
+
+Observed accounting `a3637b21-c0b7-4b0e-9e2e-94fd2c980fae`: cache hit `12544`, cache miss `6475`, completion `723`, total `19742` tokens, latency `21792ms`, pricing `deepseek-v4.1-flash-2026-09-10`, actual cost `$0.002885`. Reservation `$0.10` / `50000` tokens reconciled to `$0.002885` / `19742`; unresolved reservations = `0`. Runtime receipt `4ea7df6c-5aa4-4ba1-b6b0-2e329614f701`, runtime session `3e7a41b5-c29c-4e7a-af48-8af782990cbb`.
+
+Durable Evidence artifact `b5707132-529c-4d03-8661-3cca73af79e9`, SHA256 `7894d39686b8e1d02ede9a0f3461b61e674ae859e21f720412e0cfd1e63eeb42`, size `6466` bytes. Independent post-producer browser verification opened both HTTPS surfaces for the same task: `/phone` visibly returned `[SUCCESS]`, cost `$0.002885` and the deep-log link; `/deep-log` returned the same task, artifact and SHA.
+
+Post-run Neon inventory: tasks `22`, active tasks `0`, RUNNING nodes `0`, unresolved reservations `0`, accounting rows `9`, Evidence artifacts `15`, runtime receipts `5`. Canonical result: all 15 mandatory scope items and all 9 acceptance gates are satisfied at their recorded CODE_CI/HOSTED/LIVE evidence levels; `walking_skeleton_gate = PASS_LIVE`; `remaining_48h_gaps = {}`. No second paid acceptance retry is warranted. `main` remains frozen.
+
+### Temp checkpoint failure retained as non-production evidence
+
+Temporary workflow run `38739090874` / job `116435827960` failed before any validation, commit or production mutation. Root cause was a Python syntax error in the writer itself: a non-ASCII em dash was placed directly inside a `bytes` literal (`SyntaxError: bytes can only contain ASCII literal characters`). This was isolated writer tooling only; it did not invalidate the live task or canonical V2. The canonical `f8f26de...` checkpoint and CI `38739241128` succeeded independently.
+
+A later temporary journal-sync workflow `38739796697` produced zero jobs because GitHub rejected that temporary workflow definition before execution; it likewise made no repository/runtime mutation. The accepted canonical tree remained `f8f26de...` during that failed staging attempt.
+
+### Remaining work classification
+
+No mandatory 48h gap remains. Post-48h hardening remains separate: GitHub-specific webhook delivery, permanent Actions secret plumbing, branch protection, least-privilege workflow permissions, and explicit future-proof PostgreSQL SSL-mode configuration.

@@ -995,3 +995,208 @@ E3a artifact `e39b062a-8761-4974-a416-c675108e06e4`, SHA256 `bd28674d197716f8189
 **E3b1 accounted runtime receipt for normal/rejected billing -> exact CI and child/hosted checks -> E3b2 terminal lifecycle/new-process survival -> Phone -> Dispatch -> final positive/battle proof.** Final positive live request can be bounded to exactly one model; do not weaken Data validation or retry paid runs now. Extreme1e300 SQL-domain edge was noted read-only, not a real-provider regression or a new repair gate.
 
 Overall IN_PROGRESS. Five external CI skips remain non-proof; permanent secrets NOT_PROVEN/admin403 BLOCKED. Recorder only these three governance files from root fresh HEAD/CI, no network/DB/model/source/secret-file operation.
+
+---
+
+## JRNL-2026-10-14-011 — Full 48h inventory correction after Evidence, Phone and GitHub intake work
+
+**Checkpoint time:** 2026-10-14 America/Chicago
+**Branch:** `v2/openclaw-clean-20261011`
+**Current audited HEAD:** `0b2a10ae6fce7f74cbf1d7b78e2e7d2001599e07` — `feat(v2): persist GitHub issue intake atomically`
+**Exact latest full CI:** `38665444487` — `SUCCESS`, job `116196228371`
+**Canonical scope authority:** `docs/02_48H_WALKING_SKELETON.md`
+**Walking Skeleton:** `IN_PROGRESS`
+
+### Why this checkpoint is required
+
+`PROJECT_STATE.json` and the prior journal checkpoint `JRNL-2026-10-14-010` materially lag the actual branch. `PROJECT_STATE.json` still points to implementation HEAD `2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a` and still labels complete Evidence and Phone as `NOT_BUILT`, while the current branch has since added migrations `0022..0026`, runtime receipts, receipt-bound Evidence lifecycle, phone/deep-log renderers and deterministic GitHub Issue -> PostgreSQL intake. This entry is an append-only correction; it does not rewrite old checkpoints and does not promote any layer beyond direct evidence.
+
+The audit was performed against the current Git ref, exact latest CI, current source/import graph, GitHub Issue proof surface and direct read-only hosted Neon state. The full 14-phase roadmap was intentionally not used to create extra 48h requirements. Browser automation, Vision/OCR/PDF intelligence, code sandbox, Swarm, Repair Agent, independent Judge, all 71 agents, all 311 skills, Redis, Kubernetes and S3/IAM remain explicitly outside mandatory 48h scope.
+
+### Exact current CI truth
+
+Run `38665444487` is a completed `SUCCESS` for HEAD `0b2a10ae6fce7f74cbf1d7b78e2e7d2001599e07`. Its code/local-PostgreSQL steps passed, including:
+
+- foundation validation, full Node tests and health;
+- clean migrations through `0026_lite_intake_expired_redelivery.sql`;
+- all PostgreSQL Kernel assertions;
+- PostgreSQL GitHub intake E2E;
+- Research execution E2E;
+- Data execution E2E;
+- production Data vertical;
+- bound Evidence persistence E2E;
+- runtime Evidence lifecycle E2E;
+- pinned OpenClaw `2026.9.8` installation;
+- matching DeepSeek and DuckDuckGo plugin installation;
+- credential-scope and generated Research config validation.
+
+The same run **SKIPPED** four external proof steps because the required Actions secrets were unavailable: hosted Neon persistence, live Kernel Research, safe live Research artifact upload, live DeepSeek smoke and its upload path. A green workflow therefore proves the code/CI layers above; it does not create a new current-HEAD hosted or paid-provider proof for skipped steps.
+
+### Direct hosted Neon inventory at this audit
+
+Read-only inspection of `little-tree-63040612 / openclaw-v2 / openclaw_v2` returned:
+
+- tasks: `20`;
+- active tasks: `0`;
+- RUNNING nodes: `0`;
+- unresolved `RESERVED` reservations: `0`;
+- `llm_accounting` rows: `7`;
+- `EVIDENCE_BUNDLE_V1` artifacts: `13`;
+- `runtime_receipts` rows: `3`.
+
+The hosted database contains the required Kernel tables plus `runtime_receipts`; migrations/functions for claim, heartbeat, fenced terminal writes, budget reservation, Evidence snapshot/persistence and runtime receipt binding are deployed. Direct inspection of `fail_node_terminal` confirmed the active lease/fencing guard and descendant cascade/finalization are present; a simplistic substring check had initially returned false only because the SQL expression uses qualified columns. No hosted defect is claimed from that false substring probe.
+
+### Corrected 15-item mandatory 48h map
+
+| # | Mandatory 48h scope item | Current status | Direct evidence / exact limitation |
+|---|---|---|---|
+| 1 | Hosted PostgreSQL + migrations | **PASS_HOSTED** | Hosted Neon is operational and current migrations/functions through the Evidence/runtime-receipt/intake era are present; latest clean migration path passes in CI. |
+| 2 | Durable state machine | **PASS_CODE_CI** | Explicit lifecycle/finalization regressions pass. No hidden auto-success is required or claimed. |
+| 3 | Idempotent request intake | **PASS_CODE_CI** | GitHub Issue contract -> canonical `create_lite_research_task`; two concurrent deliveries converge on one durable task, then replay returns the same task. External Issue event wiring is still separate and unproven. |
+| 4 | Atomic lease + unique fencing token | **PASS_HOSTED** | Hosted claim/fencing primitives and active-lease write guards exist; stale token cannot retain mutation authority after reclaim. |
+| 5 | Heartbeat + stale-worker recovery | **PASS_HOSTED** | Expired lease reclaim creates a new token/attempt and stale ownership loses write authority; deployed deadline/lease guards are present. |
+| 6 | attempts / total steps / token+USD / deadline breakers | **PASS_HOSTED** | Breaker semantics are implemented and previously proven hosted where applicable; current CI re-runs deterministic SQL/Kernel assertions. |
+| 7 | Atomic budget reservation + reconciliation | **PASS_LIVE** | Paid task `8c4196e7-7056-4f20-ac74-a18f62148926`: reserve `$0.100000`/`50000`, actual `$0.003341`/`21101`, `RECONCILED`, zero unresolved reserve. |
+| 8 | Lite DAG `Research -> Data/Result` | **PASS_CODE_CI** | Canonical two-node/one-edge DAG, dependency/finalizer and production workers pass exact CI. A paid run also reached Research SUCCESS then Data execution, but no current production full-task live SUCCESS is claimed. |
+| 9 | Real DeepSeek/OpenClaw | **PASS_LIVE** | Historical and current paid Research evidence proves real OpenClaw `2026.9.8` + DeepSeek `deepseek-flash`. |
+| 10 | Real native `web_search` + `web_fetch` | **PASS_LIVE** | Real paid Research proof exercised both required native tools under the fail-closed Research gate. |
+| 11 | Structured Research output + sources | **PASS_LIVE** | Real Research persisted structured sourced output including official DeepSeek URLs and required-domain provenance. |
+| 12 | Data validation / normalization / dedupe | **PASS_CODE_CI** | Production Data D1-D4 is complete at code/CI. Paid task `8c4196e7...` provides useful negative live evidence: strict Data correctly failed `REQUIRED_FIELD_MISSING` instead of manufacturing fields. No positive production Data paid SUCCESS exists yet. |
+| 13 | LLM accounting | **PASS_LIVE** | Paid task `8c4196e7...`: one OBSERVED_USAGE row, cache hit `12800`, miss `7441`, completion `860`, total `21101`, pricing `deepseek-v4.1-flash-2026-09-10`, cost `$0.003341`, aggregate native runtime latency `66044 ms`, reservation fully reconciled. This latency is spawn-to-close Research runtime, not provider HTTP-only latency. |
+| 14 | Durable Evidence artifacts | **PASS_HOSTED** | Hosted durable Evidence storage/lifecycle and receipt-bound Evidence work exist: 13 artifacts and 3 runtime receipts. SUCCESS/FAIL lifecycle survival has hosted synthetic proof. **Not yet PASS_LIVE for one current paid production vertical**; the paid `8c4196e7...` artifact predates runtime receipts and has zero receipts. |
+| 15 | Phone short result + deep-log link | **NOT_PROVEN** | Formatter and safe deep-log renderer are `PASS_CODE_CI`; manual GitHub Mobile-readable failure proof exists as Issue #51 + terminal comment. Runtime does not yet automatically publish the deep log or deliver the terminal phone result, and a success-path live delivery is not proven. |
+
+### Mandatory acceptance map — corrected current truth
+
+| # | Mandatory acceptance test | Current status | Scope note |
+|---|---|---|---|
+| 1 | Positive real research task -> `SUCCESS` | **NOT_PROVEN** for the current complete production vertical | Historical task `eae6daf8-e086-43a5-aea9-b6ec879ce65a` was real paid Research SUCCESS but used old deterministic gate-only Data. Current production paid task `8c4196e7...` reached real Research SUCCESS but strict production Data failed. Therefore do not call the current full Walking Skeleton positive E2E complete. |
+| 2 | Duplicate dispatch -> one task only | **PASS_CODE_CI** | Real concurrent local PostgreSQL processes converge on exactly one task; one creator, one replay. |
+| 3 | Worker crash -> another worker safely continues | **PASS_CODE_CI** | Crash/reclaim deterministic regression exists and remains green. |
+| 4 | Stale worker -> old fencing token zero mutations | **PASS_HOSTED** | Hosted fencing/active-lease guards plus behavioral history support this. |
+| 5 | Budget limit -> immediate terminal stop + zero further model calls | **PASS_CODE_CI** | Breaker/no-new-reservation terminal behavior is covered; do not inflate to a new paid-live proof. |
+| 6 | Data cannot run before Research SUCCESS | **PASS_CODE_CI** | Dependency gate and production Data worker behavior are deterministic and green. |
+| 7 | Failure cascade -> descendant BLOCKED + task terminates | **PASS_CODE_CI** | Kernel failure cascade/finalizer regressions pass; current hosted `fail_node_terminal` includes cascade/finalize. |
+| 8 | Deadline -> unfinished work terminates correctly | **PASS_HOSTED** | Hosted 0018 deadline-heartbeat behavior and later active-lease parity were directly verified. |
+| 9 | Accounting reservation -> actual -> unused release/reconcile | **PASS_LIVE** | Paid `8c4196e7...` directly proves observed usage and zero unresolved reservation after reconciliation. |
+
+### Paid-provider facts that must not be blurred
+
+Historical successful task `eae6daf8-e086-43a5-aea9-b6ec879ce65a` remains valid proof of real DeepSeek/OpenClaw, both web tools, official source provenance and observed billing. It is **not** proof of today's production Data vertical because its Data node used historical `DETERMINISTIC_LIVE_GATE_COMPLETION`. Its accounting latency remains the historical literal `0`; do not rewrite it.
+
+The newer paid task `8c4196e7-7056-4f20-ac74-a18f62148926` is the authoritative measured-accounting proof:
+
+- task: `FAIL_WITH_EVIDENCE / NODE_FAILED`;
+- Research: `SUCCESS`;
+- real official sources: `https://api-docs.deepseek.com/quick_start/pricing` and `https://api-docs.deepseek.com/updates/`;
+- Data: `FAIL_WITH_EVIDENCE / REQUIRED_FIELD_MISSING`;
+- exactly one observed accounting row;
+- total tokens `21101`;
+- cost `$0.003341`;
+- aggregate runtime latency `66044 ms`;
+- reservation actuals match and unresolved reserve is zero.
+
+This is valuable negative live proof of strict production Data. The correct repair is to make Research output satisfy the accepted Data contract for the intended positive acceptance task; **do not weaken Data required-field validation**.
+
+The earlier failed task `4daaffb3-f32c-45e7-b410-3b57e104d156` had no accounting row after an unresolved `web_fetch` envelope failure. Provider spend for that call remains **NOT_PROVEN**; a zero internal ledger is not evidence that the provider charged zero.
+
+### Evidence #14 — what is built versus what is still unproven
+
+Evidence is no longer `NOT_BUILT`. Current repository history after checkpoint010 adds the accounted runtime receipt contract, atomic receipt/accounting adapter, Research runtime receipt binding, receipt-bound Evidence snapshot/store/finalizer, live Evidence gate and success/failure lifecycle survival regressions. Hosted inventory now contains `13` Evidence artifacts and `3` runtime receipts.
+
+However, the latest receipt-bound SUCCESS task inspected directly is `a2452516-78ea-41d7-83e0-ea9199857169`. It is explicitly synthetic:
+
+- idempotency key begins `synthetic-hosted-e3b2-trace-...`;
+- Research summary says `Synthetic hosted E3b2 deterministic trace proof; no paid model call.`;
+- `modelVersion=SYNTHETIC_HOSTED_E3B2`;
+- accounting is only `9` tokens / `$0.000003` with `synthetic-hosted-e3b2-trace-v1` pricing;
+- it has one runtime receipt and a durable SUCCESS Evidence artifact.
+
+This proves hosted receipt-bound lifecycle/survival mechanics. It does **not** prove a real paid provider call passed Research -> production Data -> receipt -> Evidence in one current execution.
+
+Paid task `8c4196e7...` has one durable Evidence artifact but `0` runtime receipts because it predates the E3b receipt layer. Therefore the final paid runtime-Evidence composition remains an explicit `NOT_PROVEN` subgate even though mandatory #14 is built and `PASS_HOSTED` as a subsystem.
+
+### Phone/deep-log #15 — exact proof boundary
+
+Current code has safe production-oriented renderers:
+
+- `src/phone/deep-log-markdown.mjs` renders terminal result, accounting, runtime receipts, public sources and integrity identifiers while excluding prompts, secrets, stdout/stderr and private reasoning;
+- `src/phone/phone-result.mjs` formats `[SUCCESS]` or `[FAIL_WITH_EVIDENCE]`, summary/progress, cost, attempts and an HTTPS deep-log URL, and refuses failure claims while unresolved reservations remain.
+
+A real GitHub Mobile-readable verification surface exists as closed Issue `#51` (`[P1 PROOF] OpenClaw V2 mobile deep log — ccf57cfa`) plus comment `6181620362`. The comment contains:
+
+`[FAIL_WITH_EVIDENCE] -> reason -> progress -> proof of zero unresolved reservations -> cost -> attempts -> https deep-log link`.
+
+That Issue was generated from durable hosted Evidence and explicitly made no new model call. It proves the rendering/public GitHub surface for the failure form. It does **not** prove automatic runtime dispatch, and it does not prove a real paid SUCCESS result delivered to the phone. Source import inspection shows the phone renderers are currently consumed by tests, not by the production live script or an automatic publisher. Therefore overall #15 remains `NOT_PROVEN`, not `PASS_LIVE`.
+
+### GitHub/user intake — exact proof boundary
+
+Current HEAD adds a deterministic GitHub Issue intake contract and PostgreSQL binding:
+
+- `src/intake/github-issue-intake.mjs` validates `opened` Issue events with explicit `[OPENCLAW V2]` contract, sender/repository ownership, budget/token/step/deadline caps and sensitive-key rejection;
+- immutable numeric repository + issue ids form the idempotency key;
+- `src/intake/github-issue-postgres-intake.mjs` passes the normalized contract into `create_lite_research_task`;
+- migration `0026_lite_intake_expired_redelivery.sql` preserves exact redelivery even after the original deadline while still rejecting a new already-expired task;
+- exact CI includes a concurrent PostgreSQL intake E2E proving one durable task and the canonical two-node/one-edge DAG.
+
+But source/workflow inspection finds no production importer/entrypoint that receives an actual GitHub `issues: opened` delivery. The V2 CI workflow listens to `push`, `pull_request` and `workflow_dispatch`, not `issues`. Therefore parser + DB binding are `PASS_CODE_CI`, while the real external iPhone/ChatGPT/GitHub -> V2 trigger remains **NOT_PROVEN / not wired**.
+
+### Four remaining mandatory 48h completion gaps
+
+Do not expand this list with roadmap work outside the 48h plan. The remaining mandatory gaps are exactly:
+
+1. **Positive current production paid vertical:** produce one bounded real task where Research output satisfies the existing strict Data contract and the task reaches production Data `SUCCESS` / terminal `SUCCESS`. Do not weaken Data validation.
+2. **Same paid task -> runtime receipt -> durable Evidence:** on that successful real paid task, prove the current receipt-bound Evidence path before producer termination and retrieve/revalidate it from a fresh process afterward.
+3. **Automatic terminal phone/deep-log delivery:** connect terminal Evidence to the existing safe deep-log renderer/publisher and phone result formatter for both SUCCESS and FAIL_WITH_EVIDENCE; return a stable HTTPS deep-log link without manual proof construction.
+4. **Real external task entry:** wire an actual allowed GitHub/user event into the already-proven intake parser/PostgreSQL binding so a phone/GitHub action creates exactly one durable task without manual invocation.
+
+The final acceptance proof is then **one current-HEAD end-to-end run**, not four unrelated demos:
+
+`real GitHub/iPhone goal -> idempotent durable task -> Kernel -> real DeepSeek/OpenClaw -> real web_search + web_fetch -> production Data SUCCESS -> observed accounting/reconciliation -> runtime receipt -> durable Evidence surviving producer -> published deep log -> short phone result`.
+
+Until that single run exists, the 48-hour Walking Skeleton remains `IN_PROGRESS` even though most subsystems are individually built and strongly tested.
+
+### Exact next route
+
+Use small tested gates and do not spread work:
+
+1. **F1 — positive Research -> production Data contract gate.** Reproduce the current `REQUIRED_FIELD_MISSING` cause from the paid task. Repair the Research acceptance/output shape so every item admitted to the positive Data path satisfies the declared required fields or is excluded by a clearly justified contract rule; do not relax Data. Focused tests -> full Node -> PostgreSQL production vertical -> exact full CI.
+2. **F2 — one bounded paid current-HEAD vertical.** Run exactly one paid model path after F1 is green. Require Research SUCCESS, Data SUCCESS, terminal task SUCCESS, one observed accounting row, measured latency, zero unresolved reserve, runtime receipt and durable Evidence. If RED, stop and diagnose before any second implementation write or paid retry.
+3. **P2 — automatic phone/deep-log publication.** Use the already built renderer/formatter and canonical Evidence. Prove both terminal forms and HTTPS link lifecycle. No bespoke second Evidence model.
+4. **I1c — real external GitHub/user entrypoint.** Wire the already-proven parser/binding to a real allowed event/runtime without changing `main` or pretending a V2-only `issues` workflow on a non-default branch is active.
+5. **FINAL — one actual external battle run** through the entire 48h path above. Only that run may close Walking Skeleton acceptance #1 for the current production composition and the overall 48h target.
+
+The order of P2 and I1c may be swapped if infrastructure access makes one immediately executable, but neither may be marked PASS from code-only or manual proof. F1/F2 remain the earliest functional dependency because the current paid production Data path is not yet positive.
+
+### Explicit non-48h work — do not contaminate completion accounting
+
+The following may remain backlog until the mandatory skeleton is closed and must not be used to claim that 48h has more missing functional scope than it actually has:
+
+- browser automation bonus / Phase 10;
+- Vision/OCR/PDF/perception;
+- code sandbox;
+- Swarm and broad multi-agent runtime;
+- Repair Agent;
+- independent Judge;
+- 71-agent / 311-skill certification;
+- Redis/Kubernetes/S3/IAM work;
+- broad production cutover/governance hardening.
+
+`permissions: write-all`, branch protection, permanent Actions secret plumbing and stale governance metadata are real governance/operations concerns, but they are not new numbered mandatory features in the 15-item 48h scope. They must be tracked without rewriting the canonical plan.
+
+### Documentation drift / recorder rule
+
+`PROJECT_STATE.json` is materially stale at this checkpoint and must not override this journal entry, current HEAD/CI or direct hosted/live evidence. It still identifies `2a1c5fe...`, Evidence `NOT_BUILT`, Phone `NOT_BUILT` and the old E3b route. This is `DRIFT` in governance metadata, not a rollback of implemented capabilities.
+
+A follow-up state synchronization may update `PROJECT_STATE.json`, but it may only copy the evidence boundaries above. In particular it must preserve:
+
+- historical paid Research PASS versus current full production positive E2E `NOT_PROVEN`;
+- production Data `PASS_CODE_CI` plus negative paid strict-validation evidence;
+- Evidence subsystem `PASS_HOSTED` versus current paid receipt-bound Evidence composition `NOT_PROVEN`;
+- Phone renderer/manual Issue proof versus automatic runtime delivery `NOT_PROVEN`;
+- intake parser/binding `PASS_CODE_CI` versus external `issues: opened` wiring `NOT_PROVEN`;
+- latest CI external steps as `SKIPPED`, never promoted from the green workflow conclusion.
+
+### Continuation sentence
+
+> Read `START_HERE.md`, the canonical 48h plan and this checkpoint, then re-read current HEAD/CI and hosted Neon before any write. The 48h skeleton is still IN_PROGRESS. Do not build out-of-scope roadmap features. Earliest functional gap is a positive current production Research -> Data paid vertical without weakening Data, followed by receipt-bound Evidence on that same paid task, automatic phone/deep-log delivery, real external GitHub/user entry, and one final current-HEAD external end-to-end proof.

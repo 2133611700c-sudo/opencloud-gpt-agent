@@ -1200,3 +1200,59 @@ A follow-up state synchronization may update `PROJECT_STATE.json`, but it may on
 ### Continuation sentence
 
 > Read `START_HERE.md`, the canonical 48h plan and this checkpoint, then re-read current HEAD/CI and hosted Neon before any write. The 48h skeleton is still IN_PROGRESS. Do not build out-of-scope roadmap features. Earliest functional gap is a positive current production Research -> Data paid vertical without weakening Data, followed by receipt-bound Evidence on that same paid task, automatic phone/deep-log delivery, real external GitHub/user entry, and one final current-HEAD external end-to-end proof.
+
+
+## JRNL-2026-10-15-001 — F1 admission accepted; F2 paid production task and durable Evidence [PASS_LIVE]
+
+### Exact code/CI boundary and actual handoff
+
+Root supplied fresh canonical GitHub HEAD `89b0b35b4d22484cfaae89fe256b0758f6587eda`, exact CI `38674277175`, job `116224196929`, **SUCCESS**. All code checks, PostgreSQL integrations/production verticals and pinned OpenClaw/plugin/config checks passed. Five external conditional steps remained **SKIPPED**: hosted Neon, live Kernel Research, its artifact upload, live DeepSeek smoke and its artifact upload. The workflow result does not promote those skipped layers. Root separately reported `399` explicit local unit cases plus foundation/health passing.
+
+F1 implementation `ec9afc1` and fixture follow-ups `d0f84ed` / `89b0b35` are **PASS_CODE_CI**. Research admission now requires every persisted SUCCESS item to satisfy all declared `requiredFields`; auxiliary incomplete items are excluded, valid `false`/`0` survive, and zero admitted items yields `REQUIRED_FIELDS_NOT_PROVEN` **after accounting**. Existing strict production Data validation is unchanged. Recorder inspected current admission code/accounting order and the canonical plan/latest journal locally; the root's exact-CI and executed producer/reader reports below are the live evidence handoff, not a recorder network/DB/model execution.
+
+### F2 — exactly one real paid native production run
+
+On `2026-10-15`, native producer session `45928` exited `0` for task `42c391bd-e00a-4374-87e4-563755231971`:
+
+- Research **SUCCESS**; actual production Data **SUCCESS**, `PRODUCTION_DATA_SUCCESS`;
+- terminal task **SUCCESS**, `ALL_NODES_SUCCEEDED`;
+- canonical Data: `1` item, `2` official sources;
+- both native `web_search` and `web_fetch` used;
+- provider `deepseek`, observed model `deepseek-flash`; requested `deepseek/deepseek-flash`, DeepSeek-V4.1-Flash, thinking `max`, OpenClaw pin `2026.9.8` retained.
+
+Exactly **one OBSERVED_USAGE** ledger row: prompt cache hit `9984`, miss `5685`, completion `675`, total `16344` tokens; cost **USD `0.002575`**; pricing `deepseek-v4.1-flash-2026-09-10`. Measured native runner `22941 ms` = accounting input `22941 ms` = persisted ledger `22941 ms`. This measures aggregate Research spawn-to-close runtime, not individual provider HTTP latency.
+
+Reservation **USD `0.100000` / `50000` tokens -> actual USD `0.002575` / `16344` tokens**, **RECONCILED**, remaining reserve `0`. This run introduced no F2 code or schema change and no additional model call was needed for retrieval.
+
+### Same paid task -> runtime receipt -> Evidence surviving producer
+
+- Runtime receipt: `87c0d113-0f51-4972-8ee4-d8cb1a53fd8b`.
+- Runtime session: `82777baa-b97e-4a6b-a5df-0298fd50cf8a`.
+- Durable artifact: `75f60087-b7b8-48cf-9510-a4e043e11e8c`.
+- SHA256: `ce8d73914b6bf54ccaa04e1979f4e2da4d94ce34c81175c898ac1301fa59a7f3`.
+
+Separate **NEW PROCESS** reader session `54857` exited `0` at `2026-10-15T11:45:25.912Z`, after producer exit. It independently re-read the task/artifact and verified hash, canonical Data, official sources, runtime receipt/session/tools and accounting ledger. It made no new model call. This is durable survival/retrieval proof, not an artifact-count inference or reliance on the producer's local bundle.
+
+Hosted baseline active tasks/RUNNING nodes/unresolved RESERVED = `0/0/0`, artifacts `13`, receipts `3`, accounting rows `7`; after F2 and fresh-process read = `0/0/0`, artifacts `14`, receipts `4`, accounting rows `8`. No schema write occurred.
+
+### Current truth changes and retained limits
+
+| Gate | Current truth | Boundary |
+|---|---|---|
+| Mandatory scope #12 production Data | **PASS_LIVE** | Positive paid production Data and terminal task SUCCESS now proven. |
+| Mandatory scope #13 accounting | **PASS_LIVE** | Prior proof retained; F2 also proves observed usage, measured runtime and reconciliation. |
+| Mandatory scope #14 durable Evidence | **PASS_LIVE** | Same paid successful task, runtime receipt, immutable artifact and independent post-producer retrieval. |
+| Acceptance #1 positive real production task -> SUCCESS | **PASS_LIVE** | Paid backend task proved. The complete external ingress-to-Phone composition remains unproven. |
+| Mandatory scope #15 automatic Phone/deep-log delivery / P2 | **NOT_PROVEN** | Existing formatter/renderer/manual GitHub Mobile proof remains code/manual evidence. |
+| I1c actual external GitHub/user entrypoint | **NOT_BUILT / NOT_PROVEN** | Parser/binding proof does not wire an actual allowed external event. |
+| Final complete external end-to-end proof | **NOT_PROVEN** | Automatic publication and external ingress must participate in one real final chain. |
+
+Walking Skeleton remains **IN_PROGRESS**. This entry supersedes the prior checkpoint's F1/F2 gap and acceptance #1 production-task labels without rewriting that historical entry. `PROJECT_STATE.json` uses canonical truth labels for scope #15 and acceptance #1, with composition limits in separate notes. Its verified functional/code HEAD is the exact accepted `89b0b35...`; this governance-only edit does not invent a self-referential commit hash.
+
+Historical paid task `8c4196e7...` still failed strict Data `REQUIRED_FIELD_MISSING` while proving measured accounting; historical task `eae6daf8...` latency `0` is unchanged. Failed task `4daaffb3...` still has provider spend **NOT_PROVEN** despite zero internal accounting rows. Synthetic hosted receipt/Evidence and manual Issue #51/comment proof retain their original limits. Continuous secret plumbing, least-privilege governance and branch protection remain separately tracked; no skipped CI step is treated as live proof.
+
+### Next smallest gate
+
+Proceed to **P2** using immutable canonical Evidence -> automatic Phone/deep-log publication, then **I1c** actual external ingress and **FINAL** one complete external event-to-Phone proof. A new P2 reviewer reproduced mutation of frozen Evidence in `phone-result.mjs` line `133`; the next change is a small immutable-input repair, **not a P2 feature PASS**. Prove both terminal forms and the reachable HTTPS deep-log lifecycle before promotion. Keep strict Data and runtime/model pins; no F2 paid rerun is required merely to update metadata. Do not expand into out-of-48h roadmap work.
+
+Actual recorder handoff: root authorized this isolated local three-file governance update on `work/f2-checkpoint-20261015`; recorder made no source write, commit/push, network request, DB/model call or secret-file read. Journal/execution-log preexisting bytes must remain an exact prefix of the updated files; root owns review, publication and any subsequent CI.

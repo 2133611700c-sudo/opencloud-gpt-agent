@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "project": "OpenClaw V2",
-  "updated_at": "2026-10-14",
+  "updated_at": "2026-10-15",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "3cba302c10584c28a6760cd9594b03c1bb59267f",
-  "verified_code_head": "0b2a10ae6fce7f74cbf1d7b78e2e7d2001599e07",
-  "verified_ci_run_id": 38668413618,
+  "verified_head": "89b0b35b4d22484cfaae89fe256b0758f6587eda",
+  "verified_code_head": "89b0b35b4d22484cfaae89fe256b0758f6587eda",
+  "verified_ci_run_id": 38674277175,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -19,13 +19,13 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38668413618,
+    "ci_run_id": 38674277175,
     "ci_conclusion": "success"
   },
   "current_phase": 8,
-  "current_phase_name": "48h reconciliation: current full production positive E2E NOT_PROVEN; Evidence PASS_HOSTED; automatic Phone/dispatch NOT_PROVEN",
+  "current_phase_name": "48h: paid production Research/Data + receipt-bound durable Evidence PASS_LIVE; automatic Phone/external chain NOT_PROVEN",
   "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "F1_POSITIVE_DATA_THEN_PAID_EVIDENCE_PHONE_INTAKE_FINAL",
+  "route_id": "P2_AUTOMATIC_PHONE_THEN_I1C_EXTERNAL_FINAL",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -48,13 +48,13 @@
     "09_real_deepseek_openclaw": "PASS_LIVE",
     "10_real_native_web_search_fetch": "PASS_LIVE",
     "11_structured_research_sources": "PASS_LIVE",
-    "12_data_result_validation_dedupe_normalization": "PASS_CODE_CI",
+    "12_data_result_validation_dedupe_normalization": "PASS_LIVE",
     "13_llm_accounting": "PASS_LIVE",
-    "14_durable_evidence_artifacts": "PASS_HOSTED",
-    "15_phone_short_result_deep_log": "NOT_PROVEN_AUTOMATIC_RUNTIME_DELIVERY"
+    "14_durable_evidence_artifacts": "PASS_LIVE",
+    "15_phone_short_result_deep_log": "NOT_PROVEN"
   },
   "acceptance_map": {
-    "01_positive_real_research_e2e_success": "NOT_PROVEN_CURRENT_FULL_PRODUCTION_VERTICAL",
+    "01_positive_real_research_e2e_success": "PASS_LIVE",
     "02_duplicate_dispatch_one_task": "PASS_CODE_CI",
     "03_worker_crash_safe_continuation": "PASS_CODE_CI",
     "04_stale_fencing_token_zero_mutations": "PASS_HOSTED",
@@ -66,8 +66,10 @@
   },
   "route_prerequisites": {
     "historical_research_gate": "PASS_LIVE",
-    "current_full_positive_e2e": "NOT_PROVEN_CURRENT_FULL_PRODUCTION_VERTICAL",
-    "note": "Historical paid Research passed before production Data existed. Current acceptance #1 is stricter and remains unproven until one current-head paid Research -> production Data -> receipt-bound Evidence -> phone vertical succeeds."
+    "positive_production_task": "PASS_LIVE",
+    "paid_receipt_bound_evidence": "PASS_LIVE",
+    "current_full_positive_e2e": "NOT_PROVEN",
+    "note": "F1 admission and F2 paid backend/Evidence proof are complete. P2 automatic publication, I1c external ingress and one final external end-to-end proof remain."
   },
   "hosted_postgres": {
     "provider": "Neon",
@@ -77,15 +79,14 @@
     "database_name": "openclaw_v2",
     "status": "PASS_HOSTED",
     "latest_read_only_inventory": {
-      "observed_on": "2026-10-14 America/Chicago",
-      "tasks": 20,
+      "observed_on": "2026-10-15T11:45:25.912Z",
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
-      "llm_accounting_rows": 7,
-      "evidence_artifacts": 13,
-      "runtime_receipts": 3,
-      "scope_note": "Read-only audit inventory. Receipt-bound hosted SUCCESS/FAIL lifecycle proof exists; latest receipt-bound SUCCESS inspected is synthetic and is not paid-provider proof."
+      "llm_accounting_rows": 8,
+      "evidence_artifacts": 14,
+      "runtime_receipts": 4,
+      "scope_note": "Fresh-process F2 reader after native producer exit; baseline artifacts13/receipts3/accounting7, afterward14/4/8, clean0/0/0 both times. No schema write."
     },
     "deployed_invariants": {
       "heartbeat_deadline_guard_0018": true,
@@ -140,16 +141,62 @@
       "internal_accounting_rows": 0,
       "provider_spend": "NOT_PROVEN",
       "note": "Never infer zero provider spend from an absent internal accounting row."
+    },
+    "positive_production_task": "PASS_LIVE",
+    "paid_production_success": {
+      "task_id": "42c391bd-e00a-4374-87e4-563755231971",
+      "task_status": "SUCCESS",
+      "terminal_reason": "ALL_NODES_SUCCEEDED",
+      "research_status": "SUCCESS",
+      "data_status": "SUCCESS",
+      "data_gate": "PRODUCTION_DATA_SUCCESS",
+      "data_items": 1,
+      "official_sources": 2,
+      "producer_session": 45928,
+      "producer_exit_code": 0,
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "tools": [
+        "web_search",
+        "web_fetch"
+      ],
+      "accounting_rows": 1,
+      "accounting_kind": "OBSERVED_USAGE",
+      "prompt_cache_hit_tokens": 9984,
+      "prompt_cache_miss_tokens": 5685,
+      "completion_tokens": 675,
+      "total_tokens": 16344,
+      "cost_usd": 0.002575,
+      "latency_ms": 22941,
+      "latency_scope": "Native Research spawn-to-close aggregate; runner = accounting input = ledger, not provider HTTP-only time.",
+      "pricing_version": "deepseek-v4.1-flash-2026-09-10",
+      "reservation_status": "RECONCILED",
+      "reserved_cost_usd": 0.1,
+      "reserved_tokens": 50000,
+      "actual_cost_usd": 0.002575,
+      "actual_tokens": 16344,
+      "unresolved_reservations": 0
     }
   },
   "evidence": {
-    "subsystem_status": "PASS_HOSTED",
+    "subsystem_status": "PASS_LIVE",
     "artifact_type": "EVIDENCE_BUNDLE_V1",
-    "artifact_count": 13,
-    "runtime_receipt_count": 3,
+    "artifact_count": 14,
+    "runtime_receipt_count": 4,
     "synthetic_receipt_bound_success_task_id": "a2452516-78ea-41d7-83e0-ea9199857169",
-    "paid_receipt_bound_full_vertical": "NOT_PROVEN",
-    "proof_limit": "Hosted persistence/lifecycle/survival is proven. The receipt-bound SUCCESS inspected is synthetic; paid task 8c4196e7 predates runtime receipts and has zero receipts."
+    "paid_receipt_bound_full_vertical": "PASS_LIVE",
+    "proof_limit": "One paid production task has receipt-bound Evidence retrieved independently after producer exit; canonical Data, sources, runtime/tools, ledger and hash verified. Automatic Phone publication and final external chain remain NOT_PROVEN. Historical synthetic and pre-receipt paid proofs retain their original scope.",
+    "paid_task_id": "42c391bd-e00a-4374-87e4-563755231971",
+    "runtime_receipt_id": "87c0d113-0f51-4972-8ee4-d8cb1a53fd8b",
+    "runtime_session_id": "82777baa-b97e-4a6b-a5df-0298fd50cf8a",
+    "artifact_id": "75f60087-b7b8-48cf-9510-a4e043e11e8c",
+    "artifact_sha256": "ce8d73914b6bf54ccaa04e1979f4e2da4d94ce34c81175c898ac1301fa59a7f3",
+    "fresh_process_reader": {
+      "session": 54857,
+      "exit_code": 0,
+      "observed_at": "2026-10-15T11:45:25.912Z",
+      "new_model_calls": 0
+    }
   },
   "phone_and_deep_log": {
     "renderer": "PASS_CODE_CI",
@@ -157,63 +204,61 @@
     "proof_issue": 51,
     "proof_comment_id": 6181620362,
     "automatic_runtime_publication": "NOT_PROVEN",
-    "paid_success_phone_delivery": "NOT_PROVEN"
+    "paid_success_phone_delivery": "NOT_PROVEN",
+    "next_repair": "P2 reviewer reproduced mutation of frozen canonical Evidence in phone-result.mjs line133; repair immutable input handling before automatic publication proof."
   },
   "github_intake": {
     "parser_and_postgres_binding": "PASS_CODE_CI",
     "concurrent_duplicate_one_task": "PASS_CODE_CI",
     "expired_exact_redelivery": "PASS_HOSTED",
     "actual_external_issue_or_webhook_entrypoint": "NOT_PROVEN",
-    "note": "Current V2 CI listens to push, pull_request and workflow_dispatch; it does not provide production issues:opened delivery."
+    "note": "Current V2 CI listens to push, pull_request and workflow_dispatch; it does not provide production issues:opened delivery.",
+    "external_entrypoint_implementation": "NOT_BUILT"
   },
   "latest_ci_external_steps": {
-    "run_id": 38668413618,
-    "hosted_neon": "SKIPPED_MISSING_DATABASE_URL",
-    "live_kernel_research": "SKIPPED_MISSING_SECRETS",
-    "live_deepseek_smoke": "SKIPPED_MISSING_DEEPSEEK_API_KEY",
-    "rule": "SKIPPED is not PASS_HOSTED or PASS_LIVE."
+    "run_id": 38674277175,
+    "job_id": 116224196929,
+    "hosted_neon": "SKIPPED",
+    "live_kernel_research": "SKIPPED",
+    "live_research_artifact_upload": "SKIPPED",
+    "live_deepseek_smoke": "SKIPPED",
+    "live_deepseek_artifact_upload": "SKIPPED",
+    "rule": "All code, PostgreSQL verticals and pinned runtime/plugin/config checks passed; five external conditional steps SKIPPED. Direct F2 live proof is separate."
   },
   "remaining_48h_gaps": {
-    "F1_positive_current_production_paid_vertical": "NOT_PROVEN — repair Research output/admission so strict production Data succeeds; do not weaken Data validation.",
-    "F2_same_paid_task_receipt_bound_evidence": "NOT_PROVEN — same successful paid task must persist runtime receipt + durable Evidence and survive fresh-process retrieval.",
-    "P2_automatic_phone_deep_log_delivery": "NOT_PROVEN — existing safe renderers/manual GitHub Mobile proof are not automatic runtime delivery.",
-    "I1c_real_external_user_github_entry": "NOT_PROVEN — parser/PostgreSQL binding pass CI, but no actual issues:opened/webhook/runtime entrypoint is wired."
+    "P2_automatic_phone_deep_log_delivery": "NOT_PROVEN — use immutable canonical Evidence; repair frozen-input mutation, then automatic success/failure publication and reachable HTTPS link.",
+    "I1c_real_external_user_github_entry": "NOT_BUILT / NOT_PROVEN — actual allowed external event/runtime entrypoint still unwired.",
+    "FINAL_external_end_to_end": "NOT_PROVEN — one real external ingress through paid production/Evidence to automatic Phone/deep log."
   },
   "known_gaps": {
-    "current_positive_production_paid_e2e": "NOT_PROVEN",
-    "paid_receipt_bound_evidence_composition": "NOT_PROVEN",
+    "current_positive_production_paid_e2e": "PASS_LIVE",
+    "paid_receipt_bound_evidence_composition": "PASS_LIVE",
     "automatic_phone_result_and_deep_log": "NOT_PROVEN",
     "external_github_user_task_entry": "NOT_PROVEN",
     "permanent_secret_store": "NOT_PROVEN",
-    "github_actions_database_url": "MISSING_IN_CI_38668413618_SO_HOSTED_ACTIONS_STEP_SKIPPED",
-    "github_actions_deepseek_api_key": "MISSING_IN_CI_38668413618_SO_LIVE_ACTIONS_STEPS_SKIPPED",
+    "github_actions_database_url": "NOT_PROVEN_CONTINUOUS_PLUMBING; HOSTED_STEP_SKIPPED_IN_CI_38674277175",
+    "github_actions_deepseek_api_key": "NOT_PROVEN_CONTINUOUS_PLUMBING; LIVE_STEPS_SKIPPED_IN_CI_38674277175",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
-    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING"
+    "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING",
+    "final_external_e2e": "NOT_PROVEN"
   },
   "latest_verified_innovations": [
     {
-      "commit": "3cba302c10584c28a6760cd9594b03c1bb59267f",
+      "commit": "89b0b35b4d22484cfaae89fe256b0758f6587eda",
       "result": "PASS_CODE_CI",
-      "change": "Append-only JRNL-2026-10-14-011 inventories current 15 scope items, 9 acceptance gates, hosted Neon and paid/synthetic/manual proof boundaries; exact CI 38668413618 SUCCESS with external steps honestly SKIPPED."
+      "change": "F1 Research admission ec9afc1 with production Data/Evidence fixture follow-ups d0f84ed/89b0b35; exact CI38674277175/job116224196929 SUCCESS, five external steps SKIPPED."
     },
     {
-      "commit": "0b2a10ae6fce7f74cbf1d7b78e2e7d2001599e07",
-      "result": "PASS_CODE_CI",
-      "change": "GitHub Issue parser -> PostgreSQL atomic intake binding; concurrent deliveries converge on one durable task. External issue event wiring remains NOT_PROVEN."
-    },
-    {
-      "commit": "a214872",
-      "result": "PASS_CODE_CI",
-      "change": "Safe mobile deep-log renderer and manual GitHub Mobile failure proof exist; automatic runtime publication remains NOT_PROVEN."
-    },
-    {
-      "commit": "2a1c5fe355df6ad0fcc7a46ca8fb48030eaed26a",
+      "checkpoint": "JRNL-2026-10-15-001",
       "result": "PASS_LIVE",
-      "change": "Measured paid Research accounting proved 66044ms aggregate runtime, 21101 tokens, USD0.003341 and reconciled reservation; strict production Data failed REQUIRED_FIELD_MISSING."
+      "change": "F2 single paid production Research/Data terminal SUCCESS with observed accounting, reconciled reserve and receipt-bound Evidence surviving producer; independent fresh-process retrieval. No F2 code/schema change."
     }
   ],
   "forbidden_until_live_research_pass": [],
   "48h_target": "real GitHub/iPhone goal -> idempotent durable task -> Kernel -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> production Data SUCCESS -> observed accounting/reconciliation -> runtime receipt -> durable Evidence surviving producer -> published deep log -> short phone result",
-  "next_action": "F1 only: reproduce REQUIRED_FIELD_MISSING from paid task 8c4196e7 and repair Research output/admission so the existing strict production Data contract can succeed without weakening Data. Focused tests -> full Node -> PostgreSQL production vertical -> exact full CI. Then F2: exactly one bounded paid current-head run requiring Research SUCCESS, Data SUCCESS, terminal task SUCCESS, one observed accounting row with measured latency, zero unresolved reserve, runtime receipt and durable Evidence surviving fresh-process retrieval. Then automatic Phone/deep-log publication and real external GitHub/user entry (order may swap by infrastructure), then one final external end-to-end proof.",
-  "continuation_rule": "Read START_HERE -> canonical 48h plan -> latest RESULTS_JOURNAL checkpoint JRNL-2026-10-14-011 -> current HEAD/CI -> direct hosted reality. Walking Skeleton remains IN_PROGRESS. Historical Research is PASS_LIVE, but current full production positive E2E is NOT_PROVEN. Do not weaken Data or promote synthetic/manual/code-only proof to paid/live. Do not add out-of-48h roadmap work before F1/F2/P2/I1c/final external proof."
+  "next_action": "P2: repair reproduced frozen canonical Evidence mutation in phone-result.mjs; focused/full verification and exact CI, then automatic terminal Phone/deep-log publication from canonical Evidence for success/failure. Then I1c actual allowed external event ingress and final complete external end-to-end proof. Keep model/runtime pins and strict Data; do not repeat paid F2 solely for metadata.",
+  "continuation_rule": "Read START_HERE -> canonical 48h plan -> latest journal JRNL-2026-10-15-001 -> exact HEAD/CI -> direct hosted reality. F1 PASS_CODE_CI; F2 paid production task/accounting/receipt-bound Evidence PASS_LIVE. Walking Skeleton IN_PROGRESS until automatic Phone, actual external ingress and final external proof. Preserve historical failures/latency0, synthetic/manual boundaries and SKIPPED non-proof; no out-of-scope roadmap expansion.",
+  "acceptance_notes": {
+    "01_positive_real_research_e2e_success": "One paid production Research -> Data -> terminal SUCCESS is proven; automatic Phone publication and the final real external ingress-to-Phone composition remain NOT_PROVEN."
+  }
 }

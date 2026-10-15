@@ -84,9 +84,15 @@ const parseBodyRequest = (body) => {
   const match = ISSUE_BLOCK.exec(body);
   if (!match) fail('BODY_FORMAT_INVALID');
 
+  return parseBoundedResearchIntakeJson(match[1]);
+};
+
+// Shared request validation; this function creates no GitHub source identity.
+export function parseBoundedResearchIntakeJson(body) {
+  if (typeof body !== 'string' || Buffer.byteLength(body, 'utf8') > MAX_BODY_BYTES) fail('BODY_INVALID');
   let raw;
   try {
-    raw = JSON.parse(match[1]);
+    raw = JSON.parse(body);
   } catch {
     fail('REQUEST_JSON_INVALID');
   }
@@ -117,7 +123,7 @@ const parseBodyRequest = (body) => {
   const deadline = parseInstant(raw.deadlineAt, 'DEADLINE_INVALID');
 
   return Object.freeze({ research, budgetLimitUsd, tokenBudgetLimit: raw.tokenBudgetLimit, maxTotalSteps: raw.maxTotalSteps, deadline });
-};
+}
 
 export function parseGitHubIssueIntake(event) {
   const root = object(event, 'EVENT_INVALID');

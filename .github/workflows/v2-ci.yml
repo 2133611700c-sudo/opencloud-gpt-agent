@@ -88,6 +88,8 @@ jobs:
           for test_sql in tests/sql/*.sql; do echo "Running ${test_sql}"; psql -h 127.0.0.1 -U openclaw -d openclaw_v2_test -v ON_ERROR_STOP=1 -f "${test_sql}"; done
       - name: Run PostgreSQL GitHub intake E2E
         run: node tests/integration/github-issue-postgres-intake-e2e.mjs
+      - name: Run PostgreSQL authenticated user HTTP intake E2E
+        run: node tests/integration/user-http-postgres-intake-e2e.mjs
       - name: Run PostgreSQL Research execution E2E
         run: node tests/integration/research-postgres-kernel-e2e.mjs
       - name: Run PostgreSQL Data execution E2E

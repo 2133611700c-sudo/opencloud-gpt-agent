@@ -4,6 +4,7 @@ import { createPostgresTerminalEvidenceFinalizer } from '../evidence/postgres-te
 import { createTerminalPhonePublication } from '../phone/terminal-phone-publication.mjs';
 import { createProductionResearchWorker } from '../research/research-production-wiring.mjs';
 import { createTaskPhoneRuntime } from './task-phone-runtime.mjs';
+import { runtimeSensitiveValues } from './runtime-sensitive-values.mjs';
 
 /** Production composition; caller owns the PostgreSQL transport and lifecycle. */
 export function createPostgresTaskPhoneRuntime({ query, publicBaseUrl, workerId, env = process.env, fetchImpl = fetch } = {}) {
@@ -13,7 +14,7 @@ export function createPostgresTaskPhoneRuntime({ query, publicBaseUrl, workerId,
   if (proxyFlag != null && !['true', 'false'].includes(proxyFlag)) throw new TypeError('Invalid trusted proxy configuration');
   const finalizer = createPostgresTerminalEvidenceFinalizer({
     query,
-    sensitiveValues: [env.DEEPSEEK_API_KEY, env.DATABASE_URL].filter((v) => typeof v === 'string' && v.length > 0),
+    sensitiveValues: runtimeSensitiveValues(env),
   });
   const publisher = createTerminalPhonePublication({ finalizer, publicBaseUrl, fetchImpl });
   const researchWorker = createProductionResearchWorker({

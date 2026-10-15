@@ -1272,3 +1272,58 @@ Checkpoint `c7633630a14eccff4a649d0d5bffde09cd06418e`, exact CI `38730914293` / 
 P2 implementation adds automatic existing-task Research -> Data -> terminal Evidence -> HTTPS verification -> short result composition, publication-only recovery, and a read-only Neon Node24 Function using canonical storeV2 plus existing renderers. Fixed configured HTTPS origin, task/artifact/hash identity and exact UTF-8 bodies are checked. HTTP verification rejects redirects, wrong status/content/identity/body, oversize and stalled streams. Concurrent retries converge on the same immutable artifact; terminal publication retries bypass both workers. Intentionally public sanitized read routes perform no task/Evidence writes. Startup DSN errors are sanitized before pool construction; independent reviewer found this defect and verified its fix. Runtime/model/pricing pins and strict Data are unchanged.
 
 Local verification: focused publisher/HTTP/runtime cases and full `npm test` passed; explicit unit run **432/432**; foundation/route-map, health, syntax, function bundle build and diff checks passed. PostgreSQL lifecycle now exercises automatic SUCCESS and FAIL publication plus unchanged-serialized-artifact retry and producer-exit retrieval with synthetic Research/HTTP only. Kernel SQL assertions passed. An initial aggregate local run used alphabetic integration order and encountered an active fixture left by GitHub intake before the isolated production gate; exact CI order is the required sequence, not a production runtime defect. Exact full CI of this new implementation and real Function deployment/HTTPS delivery are still required before promotion. No new paid call, hosted mutation or schema migration for P2 implementation; existing F2 task remains the paid proof.
+
+
+## JRNL-2026-10-15-004 — P2 automatic hosted Phone/deep-log proof [PASS_HOSTED]
+
+### Exact accepted implementation and CI
+
+Root supplied fresh canonical functional/code HEAD `51421c30a13ac611da2fdc98cae63c156bcb6dab`, exact CI `38733089210`, job `116415453011`, **SUCCESS**. All code/PostgreSQL checks, Function build and runtime/plugin/config pins passed; the five external conditional hosted/live/upload steps remained **SKIPPED**. This closes the pending implementation-CI requirement in entry `003`; the direct hosted execution below separately closes P2's hosted proof. No skipped CI step is promoted.
+
+The frozen-input formatter repair `384bb7d...` and safe startup-DSN helper are included. Recorder's actual independent read-only P2 review found the credential-bearing URL parse error at Function initialization, then inspected the fixed helper/index and independently passed its two configuration tests; earlier publisher/HTTP/runtime review passed `29` tests. Root owns implementation, deployment, database/provider operations and exact-CI inspection. No deployment or live operation below was performed by recorder.
+
+### Real deployed HTTPS surface and automatic production composition
+
+Neon Function **`openclawv2mobile`**, Node24, deployment **`3`**, is on parent V2 branch `br-odd-forest-a4leyaqj`, database `openclaw_v2`.
+
+Public base: `https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech`.
+
+Routes: `/tasks/<task UUID>/phone` and `/tasks/<task UUID>/deep-log`. Deployment ZIP SHA256: `cebc86f4db9909be48c8f0c27cc58d2a547f516856671381c11ea35af50f9510`.
+
+Producer session **`10441` exited `0`**, observed `2026-10-15T12:20:02.925Z`. It used the production **`createPostgresTaskPhoneRuntime`** on two existing terminal tasks, automatically executing `terminal task -> finalize canonical Evidence -> exact external HTTPS GET verification of both routes -> return short Phone text`:
+
+| Terminal form | Task | Existing artifact | Artifact SHA256 | Proof limit |
+|---|---|---|---|---|
+| SUCCESS | `42c391bd-e00a-4374-87e4-563755231971` | `75f60087-b7b8-48cf-9510-a4e043e11e8c` | `ce8d73914b6bf54ccaa04e1979f4e2da4d94ce34c81175c898ac1301fa59a7f3` | Actual paid F2 success reused; no new paid call. |
+| FAIL_WITH_EVIDENCE | `ccf57cfa-23d6-4ec4-9e3c-9e0a06480ab4` | `fa56c478-8d11-46cb-9686-bd518b04b887` | `f21e0380971f66e033dff1543f00a1f0ac4824ec00150acacfe4357b5f446695` | Synthetic hosted failure; not paid failure proof. |
+
+For each task, two concurrent retries returned identical publications. Artifact serialized bytes remained unchanged, with **zero claim/account SQL calls**. Active tasks/RUNNING nodes/unresolved RESERVED stayed **`0/0/0`**; artifacts/receipts/accounting stayed **`14/4/8`**. Publication reuses durable terminal truth and cannot infer a new paid task execution from these retries.
+
+After producer exit, separate **HTTP + DB reader session `32165` exited `0`**. All **four** external route bodies exactly matched their expected canonical rendering, with the same task/artifact/hash identities. This proves hosted automatic publication and new-process HTTPS retrieval for both terminal forms. It does not prove an external user request created and executed a new paid task.
+
+### Deployment failures and fail-closed recovery
+
+An initial connector slug containing a hyphen was rejected, and an oversized ZIP regex attempt timed out before deployment mutation. A minified artifact built with pinned esbuild deployed as version `1` using bootstrap environment. Config-only deployment `2` produced mixed old/new bootstrap links; the publisher correctly rejected the mismatching route body with **`PHONE_PUBLICATION_BODY_MISMATCH`**, rather than reporting publication success. Full code plus correct configuration deployment `3` resolved the issue. Multiple external GET checks and the separate post-producer reader passed afterward. Failed preparation/deployment observations are retained here; only deployment `3` carries the accepted hosted proof.
+
+### Current scope and next route
+
+Mandatory scope **#15 = PASS_HOSTED**. F2 scope #12/#14 and accounting #13 remain **PASS_LIVE** with their original paid-run facts; positive production-task acceptance #1 remains **PASS_LIVE**. Overall Walking Skeleton remains **IN_PROGRESS**.
+
+Exactly two functional completion gaps remain: **I1c actual external user entry**, then **one final complete external paid chain**. The allowed route selected for I1c is authenticated external **USER HTTP**, using the existing durable idempotent intake/runtime. GitHub webhook administration was unavailable: connector/hooks returned `400 not allowed`, CLI `401`; no admin capability or actual GitHub webhook delivery is claimed. `github_intake.actual_external_issue_or_webhook_entrypoint` therefore remains **NOT_PROVEN**; a separate external-user-entry field is pending. A working allowed user route must be proved on its own evidence, not relabeled as GitHub completion.
+
+Next: implement/verify authenticated USER HTTP intake, then one bounded actual external request through paid Research, production Data, observed accounting/reconciliation, runtime receipt/durable Evidence and automatic reachable Phone/deep log. P2's existing-task publication proof does not close that final event-to-paid-result chain. No additional paid call is needed merely to repeat the F2/P2 metadata.
+
+Recorder updated only `PROJECT_STATE.json` and appended this journal/execution entry on `work/i1c-authenticated-user-ingress-20261015`; current functional/code HEAD stays `51421c3...`, without self-referential governance hash churn. Prior journal/log bytes remain an exact `git show HEAD:<path>` prefix. No recorder network/DB/model/secret read, source write, commit or push.
+
+
+## JRNL-2026-10-15-005 — I1c authenticated external-user intake implementation
+
+### Route decision
+
+Use the canonical plan's allowed **user/ChatGPT HTTP** path, not fabricated GitHub events. Current accepted functional/code head `51421c30a13ac611da2fdc98cae63c156bcb6dab`, exact CI `38733089210` SUCCESS and P2 deployment3 post-producer retrieval proof permit this next feature. Real GitHub webhook delivery remains unproven because the available connector does not provide repository webhook administration; no main change or synthetic GitHub provenance is used.
+
+The existing Neon Function gains authenticated `POST /v1/research/tasks`, using an intake-only bearer credential, constant-time digest comparison before body/DB work, strict bounded JSON/UTF8 with 20KB and 5s body limits, the existing request/budget/token/step/deadline caps, and server-configured principal provenance. Shared request validation creates no GitHub source. Stable `user:http:<principal>:<request UUID>` maps concurrent duplicate requests to one canonical durable task; exact expired replay is delegated to migration0026 SQL. The acknowledgement returns task and fixed HTTPS result URLs only after durable persistence. No provider call occurs in HTTP intake.
+
+A prearmed bounded worker discovers the same request in PostgreSQL and invokes the existing Research/Data/Evidence/Phone runtime exactly once. It creates no second task and loops no paid retry. Abort/deadline is checked after transport completion, including a regression for synchronously late discovery; CLI psql children are bounded by15s SIGKILL and server statements12s/locks10s. Independent review found and verified that boundary plus the new credential redaction policy. Runtime/publication-only recovery includes the intake credential in supplied sensitive values; literal and JSON-escaped credential text is rejected before persistence. Credentials are never task provenance.
+
+Local evidence: full `npm test` and explicit **455/455** unit cases passed; foundation/route-map, health, syntax, bundle build, diff checks and kernel SQL assertions passed. All seven PostgreSQL integrations ran in exact CI order, including new separate-process concurrent HTTP delivery -> exactly one task/2nodes/1edge, correct user provenance and prearmed worker discovery with zero accounting rows. Existing production Data and receipt-bound Evidence SUCCESS/FAIL lifecycle/survival remain passing. New HTTP transports in local/CI tests are synthetic; this is implementation evidence, **not I1c PASS_LIVE**. Exact CI for the new commit, hosted authenticated endpoint deployment and one bounded true external paid chain remain required. No new hosted task/provider execution during this implementation.

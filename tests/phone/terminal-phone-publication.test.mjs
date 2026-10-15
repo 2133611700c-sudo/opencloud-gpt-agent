@@ -5,6 +5,7 @@ import test from 'node:test';
 import { transformData } from '../../src/data/data-transformer.mjs';
 import { createEvidenceArtifact } from '../../src/evidence/evidence-contract.mjs';
 import { createPhoneHttpHandler } from '../../src/phone/phone-http-handler.mjs';
+import { runtimeSensitiveValues } from '../../src/runtime/runtime-sensitive-values.mjs';
 import {
   createTerminalPhonePublication,
   renderTerminalPhonePublication,
@@ -13,7 +14,7 @@ import {
 const uuid = (number) => `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`;
 const publicBaseUrl = 'https://evidence.example.com';
 const at = '2026-10-14T10:00:00.123456Z';
-const makeReceipt = (status = 'SUCCESS', secret = '') => {
+const makeReceipt = (status = 'SUCCESS', secret = '', sensitiveValues = secret ? [secret] : []) => {
   const taskId = uuid(1);
   const researchId = uuid(2);
   const dataId = uuid(3);
@@ -56,7 +57,7 @@ const makeReceipt = (status = 'SUCCESS', secret = '') => {
       released_at: null, release_reason: null,
     }],
     runtimeReceipts: [],
-  }, { sensitiveValues: secret ? [secret] : [] });
+  }, { sensitiveValues });
   return Object.freeze({ ...artifact, taskId, artifactId: uuid(7), uri: `artifact://postgres/${uuid(7)}` });
 };
 
@@ -106,6 +107,17 @@ test('known and supplied secrets do not reach either rendered response', async (
   assert.equal(publication.text.includes(secret), false);
   assert.equal(rendered.deepLogText.includes(secret), false);
   assert.equal(rendered.deepLogText.includes('apiKey'), false);
+});
+
+test('production redaction policy includes the opaque intake credential in both public surfaces', async () => {
+  const secret = 'opaque-intake-credential-not-a-provider-key';
+  const values = runtimeSensitiveValues({ OPENCLAW_USER_INTAKE_SECRET: secret });
+  const receipt = makeReceipt('SUCCESS', secret, values);
+  const publication = await setup(receipt).publisher.publish(receipt.taskId);
+  const rendered = renderTerminalPhonePublication({ receipt, publicBaseUrl });
+  assert.equal(publication.text.includes(secret), false);
+  assert.equal(rendered.deepLogText.includes(secret), false);
+  assert.equal(receipt.serialized.includes(secret), false);
 });
 
 test('rejects unsafe public origins before finalization', () => {

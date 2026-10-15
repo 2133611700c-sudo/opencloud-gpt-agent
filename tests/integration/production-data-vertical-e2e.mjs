@@ -119,25 +119,45 @@ try {
   assert.equal(Number(reservations[0].actual_cost_usd), 0.01);
   assert.equal(Number(reservations[0].actual_tokens), 20);
 
-  // Research's minimum accepted-item proof cannot silently filter invalid Data input.
+  // Research admission narrows auxiliary/partial items before durable SUCCESS so Data sees only contract-compatible records.
   const partial = researchResult();
   delete partial.items[2].data.modelVersion;
-  const invalid = await runFixture(partial);
-  await assert.rejects(() => invalid.run(), (error) => error.code === 'REQUIRED_FIELD_MISSING');
+  const admitted = await runFixture(partial);
+  const admittedProof = await admitted.run();
+  assert.equal(admitted.calls(), 1);
+  assert.equal(admittedProof.task_status, 'SUCCESS');
+  assert.equal(admittedProof.data_mode, 'PRODUCTION_DATA');
+  assert.equal(admittedProof.data_item_count, 1);
+  const admittedTaskId = admittedProof.task_id;
+  const admittedStored = (await database(`SELECT research.output_data AS research_result, data.output_data AS data_result
+    FROM task_nodes research JOIN task_node_dependencies dependency ON dependency.task_id = research.task_id AND dependency.parent_node_id = research.id
+    JOIN task_nodes data ON data.task_id = dependency.task_id AND data.id = dependency.node_id
+    WHERE research.task_id = $1 AND research.agent_id = 'researcher' AND data.agent_id = 'data'`, [admittedTaskId])).rows[0];
+  assert.deepEqual(admittedStored.research_result.items.map((item) => item.id), ['iz', 'ia']);
+  assert.deepEqual(admittedStored.data_result.items.map((item) => item.id), ['ia']);
+
+  // If no Research item proves the requested Data fields, paid work is still accounted and the DAG fails before Data executes.
+  const invalidResult = researchResult();
+  for (const item of invalidResult.items) delete item.data.modelVersion;
+  const invalid = await runFixture(invalidResult);
+  await assert.rejects(() => invalid.run(), (error) => error.code === 'REQUIRED_FIELDS_NOT_PROVEN');
   assert.equal(invalid.calls(), 1);
   const failedTaskId = fixtures.at(-1);
   const failed = (await database(`SELECT task.status, task.terminal_reason, research.id AS research_node_id,
-    research.status AS research_status, data.id AS data_node_id, data.status AS data_status,
-    data.output_data, data.last_error, task.reserved_cost_usd, task.reserved_tokens
+    research.status AS research_status, research.output_data AS research_output, research.last_error AS research_error,
+    data.id AS data_node_id, data.status AS data_status, data.output_data, data.last_error,
+    task.reserved_cost_usd, task.reserved_tokens
     FROM tasks task JOIN task_nodes research ON research.task_id = task.id AND research.agent_id = 'researcher'
     JOIN task_nodes data ON data.task_id = task.id AND data.agent_id = 'data'
     WHERE task.id = $1`, [failedTaskId])).rows[0];
   assert.equal(failed.status, 'FAIL_WITH_EVIDENCE');
   assert.equal(failed.terminal_reason, 'NODE_FAILED');
-  assert.equal(failed.research_status, 'SUCCESS');
-  assert.equal(failed.data_status, 'FAIL_WITH_EVIDENCE');
+  assert.equal(failed.research_status, 'FAIL_WITH_EVIDENCE');
+  assert.equal(failed.research_output, null);
+  assert.equal(failed.research_error.code, 'REQUIRED_FIELDS_NOT_PROVEN');
+  assert.equal(failed.data_status, 'BLOCKED');
   assert.equal(failed.output_data, null);
-  assert.equal(failed.last_error.code, 'REQUIRED_FIELD_MISSING');
+  assert.equal(failed.last_error.reason, 'UPSTREAM_FAILED');
   assert.equal(Number(failed.reserved_cost_usd), 0);
   assert.equal(Number(failed.reserved_tokens), 0);
   const failedLedger = (await database('SELECT node_id FROM llm_accounting WHERE task_id = $1', [failedTaskId])).rows;

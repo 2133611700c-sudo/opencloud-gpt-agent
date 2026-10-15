@@ -102,22 +102,22 @@ async function producerMain() {
     estimateReservation: async () => ({ costUsd: 0.10, tokens: 100 }),
     runResearchImpl: async () => syntheticResearch({ id, mode }),
   });
-  const researchExecution = await researchWorker.runTask(taskId);
-  assert.equal(researchExecution.status, 'EXECUTED');
-  assert.equal(researchExecution.execution.status, 'SUCCESS');
-
-  const dataWorker = createDataWorker({
-    kernel: createPostgresDataAdapter({ query }),
-    workerId: `synthetic-e3-data-${id}`,
-    leaseSeconds: 60,
-    heartbeatIntervalMs: 10_000,
-  });
   if (mode === 'failure') {
     await assert.rejects(
-      () => dataWorker.runTask(taskId),
-      (error) => error?.code === 'REQUIRED_FIELD_MISSING',
+      () => researchWorker.runTask(taskId),
+      (error) => error?.code === 'REQUIRED_FIELDS_NOT_PROVEN',
     );
   } else {
+    const researchExecution = await researchWorker.runTask(taskId);
+    assert.equal(researchExecution.status, 'EXECUTED');
+    assert.equal(researchExecution.execution.status, 'SUCCESS');
+
+    const dataWorker = createDataWorker({
+      kernel: createPostgresDataAdapter({ query }),
+      workerId: `synthetic-e3-data-${id}`,
+      leaseSeconds: 60,
+      heartbeatIntervalMs: 10_000,
+    });
     const dataExecution = await dataWorker.runTask(taskId);
     assert.equal(dataExecution.status, 'EXECUTED');
     assert.equal(dataExecution.execution.taskStatus, 'SUCCESS');
@@ -261,8 +261,8 @@ if (childRole === 'producer') {
     assert.deepEqual(successRead.nodeErrors, []);
     assert.equal(failureRead.terminalReason, 'NODE_FAILED');
     assert.ok(
-      failureRead.nodeErrors.some(({ nodeKey, error }) => nodeKey === 'data' && error?.code === 'REQUIRED_FIELD_MISSING'),
-      'failure Evidence artifact must preserve the Data terminal error code',
+      failureRead.nodeErrors.some(({ nodeKey, error }) => nodeKey === 'research' && error?.code === 'REQUIRED_FIELDS_NOT_PROVEN'),
+      'failure Evidence artifact must preserve the Research admission terminal error code',
     );
 
     // Corrupt one local fixture after successful retrieval; the production finalizer

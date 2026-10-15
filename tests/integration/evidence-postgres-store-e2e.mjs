@@ -120,11 +120,14 @@ const vertical = async ({ payload = { requiredFields: ['price', 'active'] } } = 
       };
     },
   });
-  await researchWorker.runTask(taskId);
-  const dataWorker = createDataWorker({ kernel: createPostgresDataAdapter({ query }), workerId: `e3a-data-${id}`, leaseSeconds: 60 });
-  if (Array.isArray(payload?.requiredFields) && payload.requiredFields.includes('missing')) {
-    await assert.rejects(() => dataWorker.runTask(taskId), (error) => error.code === 'REQUIRED_FIELD_MISSING');
-  } else assert.equal((await dataWorker.runTask(taskId)).execution.taskStatus, 'SUCCESS');
+  const rejectsAdmission = Array.isArray(payload?.requiredFields) && payload.requiredFields.includes('missing');
+  if (rejectsAdmission) {
+    await assert.rejects(() => researchWorker.runTask(taskId), (error) => error.code === 'REQUIRED_FIELDS_NOT_PROVEN');
+  } else {
+    assert.equal((await researchWorker.runTask(taskId)).execution.status, 'SUCCESS');
+    const dataWorker = createDataWorker({ kernel: createPostgresDataAdapter({ query }), workerId: `e3a-data-${id}`, leaseSeconds: 60 });
+    assert.equal((await dataWorker.runTask(taskId)).execution.taskStatus, 'SUCCESS');
+  }
   return taskId;
 };
 

@@ -12,12 +12,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: openclaw-2026-10-3-a6-${{ github.ref }}
+  group: openclaw-2026-10-3-a7-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  a6_files_runtime_process:
-    name: A6 files + exec + process lifecycle
+  a7_deepseek_live:
+    name: A7 DeepSeek exact-model live smoke
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -47,251 +47,96 @@ jobs:
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
           test "$version_token" = "2026.10.3"
 
-      - name: Prepare isolated A6 state and workspace
+      - name: Prepare isolated A7 state
         shell: bash
         run: |
           set -euo pipefail
-          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-state"
-          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-workspace"
-          agent_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-agent"
+          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a7-state"
+          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a7-workspace"
           config_path="$state_dir/openclaw.json"
           install -d -m 700 "$state_dir"
           install -d -m 700 "$workspace_dir"
-          install -d -m 700 "$agent_dir"
           {
             echo "OPENCLAW_STATE_DIR=$state_dir"
             echo "OPENCLAW_CONFIG_PATH=$config_path"
-            echo "OPENCLAW_A6_WORKSPACE=$workspace_dir"
-            echo "OPENCLAW_A6_AGENT_DIR=$agent_dir"
-            echo "OPENCLAW_EXEC_SHELL_SNAPSHOT=0"
+            echo "OPENCLAW_A7_WORKSPACE=$workspace_dir"
           } >> "$GITHUB_ENV"
-          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a6-baseline.json"
-          openclaw config validate --json > "$RUNNER_TEMP/openclaw-a6-config.json"
+          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a7-baseline.json"
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+          openclaw config validate --json > "$RUNNER_TEMP/openclaw-a7-config.json"
+          openclaw models list --all --provider deepseek --json > "$RUNNER_TEMP/openclaw-a7-catalog.json"
+          CATALOG_JSON="$(cat "$RUNNER_TEMP/openclaw-a7-catalog.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.CATALOG_JSON);
+            const serialized = JSON.stringify(value);
+            if (!serialized.includes("deepseek-flash")) throw new Error("deepseek-flash missing from 2026.10.3 catalog");
+            if (!serialized.includes("deepseek-v4-pro")) throw new Error("deepseek-v4-pro missing from 2026.10.3 catalog");
+          '
 
-      - name: Execute real native file and process tools
+      - name: Require DeepSeek credential without exposing it
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
+          test -n "${DEEPSEEK_API_KEY:-}"
+          test "${#DEEPSEEK_API_KEY}" -ge 8
+          echo "DEEPSEEK_API_KEY_PRESENT=true" >> "$GITHUB_ENV"
+
+      - name: Execute exactly one bounded DeepSeek live call
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${DEEPSEEK_API_KEY_PRESENT:-}" = true
           mkdir -p artifacts
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          import fsp from 'node:fs/promises';
-          import path from 'node:path';
-          import { execFileSync } from 'node:child_process';
-          import { pathToFileURL } from 'node:url';
 
-          const workspace = process.env.OPENCLAW_A6_WORKSPACE;
-          const agentDir = process.env.OPENCLAW_A6_AGENT_DIR;
-          if (!workspace || !agentDir) throw new Error('A6 workspace/agent directory missing');
+          # A7 paid-call budget: exactly one provider request. Do not add retries here.
+          openclaw infer model run \
+            --local \
+            --model deepseek/deepseek-flash \
+            --thinking off \
+            --prompt "Reply with exactly: smoke-ok" \
+            --json > "$RUNNER_TEMP/openclaw-a7-deepseek.json"
 
-          const globalRoot = execFileSync('npm', ['root', '-g'], { encoding: 'utf8' }).trim();
-          const packageRoot = path.join(globalRoot, 'openclaw');
-          const publicHarnessPath = path.join(packageRoot, 'dist', 'plugin-sdk', 'agent-harness.js');
-          if (!fs.existsSync(publicHarnessPath)) {
-            throw new Error(`public agent harness SDK missing: ${publicHarnessPath}`);
-          }
-          const { createOpenClawCodingTools } = await import(pathToFileURL(publicHarnessPath).href);
-          if (typeof createOpenClawCodingTools !== 'function') {
-            throw new Error('public createOpenClawCodingTools export missing');
-          }
+          DEEPSEEK_JSON="$(cat "$RUNNER_TEMP/openclaw-a7-deepseek.json")" node --input-type=module <<'NODE' > artifacts/openclaw-2026.10.3-a7.json
+          const envelope = JSON.parse(process.env.DEEPSEEK_JSON);
+          if (envelope?.ok !== true) throw new Error(`DeepSeek envelope failed: ${envelope?.error ?? 'unknown'}`);
+          if (envelope?.capability !== 'model.run') throw new Error(`unexpected capability: ${envelope?.capability}`);
+          if (envelope?.transport !== 'local') throw new Error(`unexpected transport: ${envelope?.transport}`);
+          if (envelope?.provider !== 'deepseek') throw new Error(`unexpected provider: ${envelope?.provider}`);
+          if (envelope?.model !== 'deepseek-flash') throw new Error(`unexpected model: ${envelope?.model}`);
+          if (!Array.isArray(envelope?.attempts) || envelope.attempts.length !== 0) throw new Error('unexpected fallback attempts');
+          const text = envelope?.outputs?.[0]?.text;
+          if (typeof text !== 'string' || text.trim() !== 'smoke-ok') throw new Error(`unexpected DeepSeek output: ${JSON.stringify(text)}`);
 
-          const config = {
-            tools: {
-              fs: { workspaceOnly: true },
-              exec: {
-                host: 'gateway',
-                mode: 'full',
-                applyPatch: { enabled: true, workspaceOnly: true },
-              },
-            },
-          };
-          const sessionKey = 'agent:main:a6';
-          const tools = createOpenClawCodingTools({
-            workspaceDir: workspace,
-            agentDir,
-            agentId: 'main',
-            sessionKey,
-            modelProvider: 'openai',
-            modelId: 'gpt-5.4',
-            config,
-            exec: {
-              backgroundMs: 20,
-              notifyOnExit: false,
-            },
-            toolConstructionPlan: {
-              includeBaseCodingTools: true,
-              includeShellTools: true,
-              includeChannelTools: false,
-              includeOpenClawTools: false,
-              includePluginTools: false,
-            },
-          });
-
-          const byName = new Map(tools.map((tool) => [tool.name, tool]));
-          const required = ['read', 'write', 'edit', 'apply_patch', 'exec', 'process'];
-          for (const name of required) {
-            if (!byName.has(name)) throw new Error(`native tool missing from public harness: ${name}`);
-          }
-          const readTool = byName.get('read');
-          const writeTool = byName.get('write');
-          const editTool = byName.get('edit');
-          const patchTool = byName.get('apply_patch');
-          const execTool = byName.get('exec');
-          const processTool = byName.get('process');
-          const textOf = (result) => Array.isArray(result?.content)
-            ? (result.content.find((part) => part?.type === 'text')?.text ?? '')
-            : '';
-
-          // 1. write -> persisted exact bytes.
-          const filePath = path.join(workspace, 'a6.txt');
-          const writeResult = await writeTool.execute('a6-write', {
-            path: 'a6.txt',
-            content: 'alpha\nbeta\n',
-          });
-          if (writeResult?.details?.changed !== true) throw new Error('write did not report changed=true');
-          if ((await fsp.readFile(filePath, 'utf8')) !== 'alpha\nbeta\n') throw new Error('write persistence mismatch');
-
-          // 2. read -> expected file content.
-          const readResult = await readTool.execute('a6-read', { path: 'a6.txt' });
-          const readText = typeof readResult?.details?.content === 'string'
-            ? readResult.details.content
-            : textOf(readResult);
-          if (!readText.includes('alpha') || !readText.includes('beta')) throw new Error('read result missing expected content');
-
-          // 3. edit -> exact persisted replacement.
-          const editResult = await editTool.execute('a6-edit', {
-            path: 'a6.txt',
-            edits: [{ oldText: 'beta', newText: 'gamma' }],
-          });
-          if (editResult?.details?.changed !== true) throw new Error('edit did not report changed=true');
-          if ((await fsp.readFile(filePath, 'utf8')) !== 'alpha\ngamma\n') throw new Error('edit persistence mismatch');
-
-          // 4. apply_patch -> create a second file.
-          const patchResult = await patchTool.execute('a6-patch', {
-            input: [
-              '*** Begin Patch',
-              '*** Add File: patched.txt',
-              '+patched-by-a6',
-              '*** End Patch',
-            ].join('\n'),
-          });
-          const patchedPath = path.join(workspace, 'patched.txt');
-          if ((await fsp.readFile(patchedPath, 'utf8')).trim() !== 'patched-by-a6') throw new Error('apply_patch persistence mismatch');
-          if (!Array.isArray(patchResult?.details?.summary?.added) || !patchResult.details.summary.added.some((entry) => entry.endsWith('patched.txt'))) {
-            throw new Error('apply_patch summary missing added file');
-          }
-
-          // 5. containment -> update outside workspace must fail closed and leave bytes unchanged.
-          const sentinelPath = path.resolve(workspace, '..', 'a6-outside-sentinel.txt');
-          await fsp.writeFile(sentinelPath, 'OUTSIDE\n', 'utf8');
-          let escapeDenied = false;
-          try {
-            await patchTool.execute('a6-patch-escape', {
-              input: [
-                '*** Begin Patch',
-                '*** Update File: ../a6-outside-sentinel.txt',
-                '@@',
-                '-OUTSIDE',
-                '+ESCAPED',
-                '*** End Patch',
-              ].join('\n'),
-            });
-          } catch {
-            escapeDenied = true;
-          }
-          if (!escapeDenied) throw new Error('workspace escape patch was not denied');
-          if ((await fsp.readFile(sentinelPath, 'utf8')) !== 'OUTSIDE\n') throw new Error('outside sentinel was mutated');
-
-          // 6. foreground exec -> real shell result and OpenClaw exec marker.
-          const foreground = await execTool.execute('a6-exec-fg', {
-            command: `printf 'A6_EXEC_OK|%s' "$OPENCLAW_SHELL"`,
-            timeoutSeconds: 5,
-          });
-          if (foreground?.details?.status !== 'completed' || foreground?.details?.exitCode !== 0) {
-            throw new Error(`foreground exec failed: ${JSON.stringify(foreground?.details)}`);
-          }
-          const foregroundText = textOf(foreground);
-          if (!foregroundText.includes('A6_EXEC_OK|exec')) throw new Error(`foreground exec marker missing: ${foregroundText}`);
-
-          // 7. background exec -> process list -> poll -> clear.
-          const background = await execTool.execute('a6-exec-bg', {
-            command: `printf 'A6_BG_START\\n'; sleep 0.25; printf 'A6_BG_DONE\\n'`,
-            background: true,
-            timeoutSeconds: 5,
-          });
-          const sessionId = background?.details?.sessionId;
-          if (background?.details?.status !== 'running' || typeof sessionId !== 'string' || !sessionId) {
-            throw new Error(`background exec did not return running session: ${JSON.stringify(background?.details)}`);
-          }
-
-          const listed = await processTool.execute('a6-process-list', { action: 'list' });
-          const sessions = listed?.details?.sessions;
-          if (!Array.isArray(sessions) || !sessions.some((entry) => entry?.sessionId === sessionId)) {
-            throw new Error('process list did not expose background session');
-          }
-
-          let terminal;
-          for (let attempt = 0; attempt < 10; attempt += 1) {
-            terminal = await processTool.execute(`a6-process-poll-${attempt}`, {
-              action: 'poll',
-              sessionId,
-              timeout: 1000,
-            });
-            if (terminal?.details?.status !== 'running') break;
-          }
-          if (terminal?.details?.status !== 'completed' || terminal?.details?.exitCode !== 0) {
-            throw new Error(`background process did not complete cleanly: ${JSON.stringify(terminal?.details)}`);
-          }
-          const aggregated = terminal?.details?.aggregated ?? textOf(terminal);
-          if (typeof aggregated !== 'string' || !aggregated.includes('A6_BG_START') || !aggregated.includes('A6_BG_DONE')) {
-            throw new Error(`background process output incomplete: ${String(aggregated)}`);
-          }
-
-          const cleared = await processTool.execute('a6-process-clear', {
-            action: 'clear',
-            sessionId,
-          });
-          if (cleared?.details?.status !== 'completed') throw new Error('process clear did not complete');
-
-          await fsp.rm(sentinelPath, { force: true });
-          const finalFile = await fsp.readFile(filePath, 'utf8');
+          const hasNativeUsage = envelope?.usage !== undefined || envelope?.outputs?.some?.((item) => item?.usage !== undefined) === true;
+          const hasNativeCost = envelope?.cost !== undefined || envelope?.outputs?.some?.((item) => item?.cost !== undefined) === true;
           const evidence = {
             status: 'PASS',
-            stage: 'A6',
-            capability: 'native_files_exec_process_public_harness',
+            stage: 'A7',
+            capability: 'deepseek_direct_provider_live',
             openclaw_version: '2026.10.3',
-            public_sdk: 'plugin-sdk/agent-harness',
-            required_tools: required,
-            file_tools: {
-              write_persisted: true,
-              read_verified: true,
-              edit_persisted: finalFile === 'alpha\ngamma\n',
-              apply_patch_persisted: true,
-              workspace_escape_denied: true,
-              outside_sentinel_unchanged: true,
-            },
-            runtime_tools: {
-              foreground_exec_completed: true,
-              openclaw_shell_marker: foregroundText.includes('A6_EXEC_OK|exec'),
-              background_exec_session_created: true,
-              process_list_saw_session: true,
-              process_poll_completed: true,
-              process_output_verified: true,
-              process_cleared: true,
-            },
-            provider_calls: 0,
+            plugin_version: '2026.10.3',
+            provider: envelope.provider,
+            model: envelope.model,
+            transport: envelope.transport,
+            exact_output_verified: true,
+            fallback_attempts: envelope.attempts.length,
+            provider_calls: 1,
+            native_infer_usage_exposed: hasNativeUsage,
+            native_infer_cost_exposed: hasNativeCost,
             hosted_database_mutations: 0,
             secret_values_logged: false,
           };
-          await fsp.writeFile('artifacts/openclaw-2026.10.3-a6.json', `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
           process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`);
           NODE
-          cat artifacts/openclaw-2026.10.3-a6.json >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/openclaw-2026.10.3-a7.json >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload safe A6 evidence
+      - name: Upload safe A7 evidence
         uses: actions/upload-artifact@v4
         with:
-          name: openclaw-2026-10-3-a6-files-runtime
-          path: artifacts/openclaw-2026.10.3-a6.json
+          name: openclaw-2026-10-3-a7-deepseek-live
+          path: artifacts/openclaw-2026.10.3-a7.json
           if-no-files-found: error
           retention-days: 14

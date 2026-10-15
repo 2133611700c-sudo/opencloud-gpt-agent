@@ -1,0 +1,224 @@
+name: Temp Final 48h Checkpoint
+
+on:
+  push:
+    branches:
+      - work/final-48h-checkpoint-20261015
+    paths:
+      - .github/workflows/temp-final-48h-checkpoint.yml
+
+permissions:
+  contents: write
+
+jobs:
+  checkpoint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Write final 48h checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          CODE_HEAD = 'e9059b4a5646684dd7efcc026a285a9113528b54'
+          CODE_CI = 38735424042
+          CODE_JOB = 116423380776
+          TASK = 'f48c0505-ac37-47be-a8bc-8ccdf879dc85'
+          REQUEST_ID = 'ba5a6544-5d43-4aa5-9756-7f2a22442a23'
+          ACCOUNTING = 'a3637b21-c0b7-4b0e-9e2e-94fd2c980fae'
+          RECEIPT = '4ea7df6c-5aa4-4ba1-b6b0-2e329614f701'
+          SESSION = '3e7a41b5-c29c-4e7a-af48-8af782990cbb'
+          ARTIFACT = 'b5707132-529c-4d03-8661-3cca73af79e9'
+          ARTIFACT_SHA = '7894d39686b8e1d02ede9a0f3461b61e674ae859e21f720412e0cfd1e63eeb42'
+          BASE = 'https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech'
+
+          state_path = Path('PROJECT_STATE.json')
+          state = json.loads(state_path.read_text())
+          state['updated_at'] = '2026-10-15'
+          state['verified_head'] = CODE_HEAD
+          state['verified_code_head'] = CODE_HEAD
+          state['verified_ci_run_id'] = CODE_CI
+          state['verified_ci_conclusion'] = 'success'
+          state['foundation'] = {'status': 'PASS_CODE_CI', 'ci_run_id': CODE_CI, 'ci_conclusion': 'success'}
+          state['current_phase_name'] = '48h Walking Skeleton COMPLETE — authenticated external USER HTTP -> paid Research/Data -> receipt-bound Evidence -> HTTPS Phone/deep-log PASS_LIVE'
+          state['walking_skeleton_gate'] = 'PASS_LIVE'
+          state['route_id'] = '48H_WALKING_SKELETON_COMPLETE'
+          state['scope_map_48h']['03_idempotent_request_intake'] = 'PASS_LIVE'
+          state['scope_map_48h']['15_phone_short_result_deep_log'] = 'PASS_LIVE'
+          rp = state['route_prerequisites']
+          rp['current_full_positive_e2e'] = 'PASS_LIVE'
+          rp['external_user_ingress'] = 'PASS_LIVE'
+          rp['automatic_phone_publication'] = 'PASS_LIVE'
+          rp['note'] = 'F1/F2/P2/I1c and the final external paid USER HTTP -> Phone/deep-log chain are proven. GitHub-specific webhook ingress remains a separate non-blocking capability, not part of the completed allowed USER ingress proof.'
+
+          inv = state['hosted_postgres']['latest_read_only_inventory']
+          inv.update({
+              'observed_on': '2026-10-15T12:38:53Z',
+              'tasks': 22,
+              'active_tasks': 0,
+              'running_nodes': 0,
+              'unresolved_reservations': 0,
+              'llm_accounting_rows': 9,
+              'evidence_artifacts': 15,
+              'runtime_receipts': 5,
+              'scope_note': 'Post-final external live audit: task SUCCESS, no active/RUNNING/RESERVED state; accounting/artifact/receipt counts increased exactly once from the paid external task.'
+          })
+
+          lc = state['live_capabilities']
+          lc['current_full_production_vertical'] = 'PASS_LIVE'
+          lc['final_external_paid_success'] = {
+              'status': 'PASS_LIVE',
+              'entry_type': 'authenticated_http',
+              'principal_id': 'operator',
+              'request_id': REQUEST_ID,
+              'idempotency_key': f'user:http:operator:{REQUEST_ID}',
+              'task_id': TASK,
+              'task_status': 'SUCCESS',
+              'terminal_reason': 'ALL_NODES_SUCCEEDED',
+              'research_status': 'SUCCESS',
+              'data_status': 'SUCCESS',
+              'provider': 'deepseek',
+              'model': 'deepseek-flash',
+              'runtime_version': '2026.9.8',
+              'requested_model': 'deepseek/deepseek-flash',
+              'thinking': 'max',
+              'tools': ['web_search', 'web_fetch'],
+              'tool_calls': 4,
+              'tool_failures': 0,
+              'accounting_id': ACCOUNTING,
+              'prompt_cache_hit_tokens': 12544,
+              'prompt_cache_miss_tokens': 6475,
+              'completion_tokens': 723,
+              'total_tokens': 19742,
+              'cost_usd': 0.002885,
+              'latency_ms': 21792,
+              'pricing_version': 'deepseek-v4.1-flash-2026-09-10',
+              'reservation_status': 'RECONCILED',
+              'reserved_cost_usd': 0.1,
+              'reserved_tokens': 50000,
+              'actual_cost_usd': 0.002885,
+              'actual_tokens': 19742,
+              'unresolved_reservations': 0,
+              'runtime_receipt_id': RECEIPT,
+              'runtime_session_id': SESSION,
+              'artifact_id': ARTIFACT,
+              'artifact_sha256': ARTIFACT_SHA,
+              'phone_url': f'{BASE}/tasks/{TASK}/phone',
+              'deep_log_url': f'{BASE}/tasks/{TASK}/deep-log',
+              'https_phone_verified': True,
+              'https_deep_log_verified': True,
+          }
+
+          ev = state['evidence']
+          ev['artifact_count'] = 15
+          ev['runtime_receipt_count'] = 5
+          ev['proof_limit'] = 'Final paid external authenticated USER HTTP task has receipt-bound durable Evidence plus independently re-opened public HTTPS Phone/deep-log on the same task/artifact/hash. Historical proof boundaries remain preserved.'
+          ev['final_external_task_id'] = TASK
+          ev['final_external_runtime_receipt_id'] = RECEIPT
+          ev['final_external_artifact_id'] = ARTIFACT
+          ev['final_external_artifact_sha256'] = ARTIFACT_SHA
+
+          phone = state['phone_and_deep_log']
+          phone['automatic_runtime_publication'] = 'PASS_LIVE'
+          phone['paid_success_phone_delivery'] = 'PASS_LIVE'
+          hp = phone.get('hosted_proof', {})
+          hp['deployment_id'] = 4
+          hp['success_task_id'] = TASK
+          hp['success_artifact_id'] = ARTIFACT
+          hp['success_artifact_sha256'] = ARTIFACT_SHA
+          hp['observed_at'] = '2026-10-15T12:38:53Z'
+          hp['proof_note'] = 'Deployment 4 accepted the authenticated external USER request; final paid task completed and public HTTPS /phone plus /deep-log were independently opened and matched the same task/artifact/hash.'
+          phone['hosted_proof'] = hp
+
+          state['user_http_intake'] = {
+              'status': 'PASS_LIVE',
+              'function': 'openclawv2mobile',
+              'deployment_id': 4,
+              'principal_id': 'operator',
+              'request_id': REQUEST_ID,
+              'task_id': TASK,
+              'idempotency_proof': 'Two function invocations at 2026-10-15T12:38:22Z converged to one durable task for the stable user:http:operator request key; database count for that idempotency key is exactly 1.',
+              'credential_persistence': 'No intake credential field exists in persisted request payload; source stores only type/requestId/principalId.'
+          }
+
+          state['latest_ci_external_steps'] = {
+              'run_id': CODE_CI,
+              'job_id': CODE_JOB,
+              'hosted_neon': 'SKIPPED',
+              'live_kernel_research': 'SKIPPED',
+              'live_research_artifact_upload': 'SKIPPED',
+              'live_deepseek_smoke': 'SKIPPED',
+              'live_deepseek_artifact_upload': 'SKIPPED',
+              'rule': 'Exact code CI passed all mandatory local/PostgreSQL/intake/Data/Evidence/runtime/function-build gates; conditional secret-backed Actions steps remained SKIPPED. Separate direct hosted/live final proof supplies PASS_LIVE.'
+          }
+
+          state['remaining_48h_gaps'] = {}
+          kg = state['known_gaps']
+          kg['automatic_phone_result_and_deep_log'] = 'PASS_LIVE'
+          kg['external_user_http_task_entry'] = 'PASS_LIVE'
+          kg['final_external_e2e'] = 'PASS_LIVE'
+          kg['external_github_user_task_entry'] = 'NOT_PROVEN — GitHub-specific webhook/admin wiring remains separate from the completed allowed authenticated USER HTTP ingress.'
+          state['next_action'] = '48h Walking Skeleton complete. Preserve this checkpoint. Next work is post-48h governance/cutover hardening, not another paid acceptance rerun.'
+          state['continuation_rule'] = 'Treat the 48h Walking Skeleton as PASS_LIVE at code head e9059b4 / CI 38735424042 plus final hosted task f48c0505. Do not repeat paid acceptance merely to refresh metadata. main remains frozen until separate cutover/rollback authorization.'
+          state['48h_completion'] = {
+              'status': 'PASS_LIVE',
+              'completed_on': '2026-10-15',
+              'code_head': CODE_HEAD,
+              'exact_code_ci_run_id': CODE_CI,
+              'final_external_task_id': TASK,
+              'request_id': REQUEST_ID,
+              'artifact_id': ARTIFACT,
+              'artifact_sha256': ARTIFACT_SHA,
+              'runtime_receipt_id': RECEIPT,
+              'phone_url': f'{BASE}/tasks/{TASK}/phone',
+              'deep_log_url': f'{BASE}/tasks/{TASK}/deep-log'
+          }
+          state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + '\n')
+
+          journal_path = Path('docs/RESULTS_JOURNAL.md')
+          journal_before = journal_path.read_bytes()
+          marker = b'## JRNL-2026-10-15-006 — 48h Walking Skeleton final external PASS_LIVE'
+          if marker in journal_before:
+              raise SystemExit('final journal marker already exists')
+          entry = f'''\n\n## JRNL-2026-10-15-006 — 48h Walking Skeleton final external PASS_LIVE\n\nCanonical code head `{CODE_HEAD}` already passed exact OpenClaw V2 CI `{CODE_CI}` / foundation job `{CODE_JOB}` SUCCESS, including authenticated USER HTTP PostgreSQL intake E2E, production Data, Evidence lifecycle and mobile Function build. Conditional hosted/live Actions steps remained SKIPPED and are not used as live proof.\n\nAfter that code checkpoint, Neon Function `openclawv2mobile` deployment `4` accepted a real authenticated external USER HTTP request. Persisted source is `type=authenticated_http`, `principalId=operator`, `requestId={REQUEST_ID}`; its stable idempotency key maps to exactly one durable task `{TASK}`. Function telemetry shows two request invocations at `2026-10-15T12:38:22Z`; the database contains exactly one task for that key, with no credential persisted in request payload. This closes I1c with an allowed real USER ingress; GitHub-specific webhook/admin wiring remains a separate non-blocking capability.\n\nThe same external task completed `Research SUCCESS -> production Data SUCCESS -> task SUCCESS / ALL_NODES_SUCCEEDED`. Real runtime receipt `{RECEIPT}` observed OpenClaw `2026.9.8`, requested model `deepseek/deepseek-flash`, observed provider/model `deepseek/deepseek-flash`, thinking `max`, native tools `web_search` + `web_fetch`, 4 tool calls and zero tool failures. Accounting `{ACCOUNTING}` is OBSERVED_USAGE: cache hit `12544`, cache miss `6475`, completion `723`, total `19742`, latency `21792ms`, pricing `deepseek-v4.1-flash-2026-09-10`, cost `$0.002885`. Reservation `$0.10` / `50000` tokens reconciled to actual `$0.002885` / `19742`; unresolved RESERVED = `0`.\n\nDurable Evidence artifact `{ARTIFACT}` SHA256 `{ARTIFACT_SHA}` contains the same SUCCESS task, strict production Data result, official DeepSeek sources, accounting and receipt. Public HTTPS Phone and deep-log routes were independently opened after completion: `{BASE}/tasks/{TASK}/phone` visibly returned `[SUCCESS]`, the same task and `$0.002885`; its deep-log link loaded over HTTPS and showed the same task, artifact `{ARTIFACT}` and SHA `{ARTIFACT_SHA}`. Function telemetry also records two post-run invocations at `2026-10-15T12:38:53Z`.\n\nPost-final read-only Neon inventory: tasks `22`, active tasks `0`, RUNNING nodes `0`, unresolved reservations `0`, accounting rows `9`, Evidence artifacts `15`, runtime receipts `5`. Therefore all 15 mandatory 48h scope items and all 9 acceptance gates have sufficient code/hosted/live evidence for the canonical Walking Skeleton. `walking_skeleton_gate = PASS_LIVE`; `remaining_48h_gaps = {{}}`. No second paid retry is warranted. `main` remains frozen.\n\nAudit note: Function logs emit the current `pg` SSL-mode future-compatibility warning; current runtime treats the configured modes as verify-full. This is post-48h dependency hardening, not a failure of the proved chain.\n'''.encode()
+          journal_after = journal_before + entry
+          assert journal_after.startswith(journal_before)
+          journal_path.write_bytes(journal_after)
+
+          log_path = Path('docs/EXECUTION_LOG.md')
+          log_before = log_path.read_bytes()
+          log_marker = b'48H-FINAL-PASS-LIVE-20261015'
+          if log_marker in log_before:
+              raise SystemExit('final execution marker already exists')
+          log_entry = f'''\n\n### 48H-FINAL-PASS-LIVE-20261015\n- Code head `{CODE_HEAD}`; exact CI `{CODE_CI}` SUCCESS.\n- External authenticated USER request `{REQUEST_ID}` -> one durable task `{TASK}` -> Research SUCCESS -> Data SUCCESS -> terminal SUCCESS.\n- Real DeepSeek accounting: `19742` tokens, `$0.002885`, `21792ms`; receipt `{RECEIPT}`; reservation reconciled, unresolved `0`.\n- Evidence `{ARTIFACT}` / `{ARTIFACT_SHA}`; public HTTPS phone/deep-log independently verified on same task/artifact.\n- Final hosted cleanliness: active `0`, RUNNING `0`, RESERVED `0`; 48h Walking Skeleton `PASS_LIVE`. `main` untouched.\n'''.encode()
+          log_after = log_before + log_entry
+          assert log_after.startswith(log_before)
+          log_path.write_bytes(log_after)
+          PY
+      - name: Validate final checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run validate:foundation
+          npm test
+          npm run health
+          git diff --check
+      - name: Commit checkpoint and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'OpenClaw V2 checkpoint bot'
+          git config user.email '2133611700c@gmail.com'
+          git rm .github/workflows/temp-final-48h-checkpoint.yml
+          git add PROJECT_STATE.json docs/RESULTS_JOURNAL.md docs/EXECUTION_LOG.md
+          git diff --cached --check
+          git commit -m 'docs(v2): close 48h walking skeleton with final live proof'
+          git push origin HEAD:work/final-48h-checkpoint-20261015

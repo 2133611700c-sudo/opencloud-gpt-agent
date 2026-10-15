@@ -26,7 +26,9 @@ const event = () => ({
     title: '[OPENCLAW V2] Verify intake binding',
     created_at: '2026-10-15T00:30:00Z',
     user: { id: 237693146, login: 'owner' },
-    body: `\`\`\`openclaw-v2\n${JSON.stringify(request, null, 2)}\n\`\`\``,
+    body: `\`\`\`openclaw-v2
+${JSON.stringify(request, null, 2)}
+\`\`\``,
   },
 });
 

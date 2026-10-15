@@ -33,7 +33,9 @@ const event = {
     title: '[OPENCLAW V2] Concurrent intake E2E',
     created_at: createdAt,
     user: { id: 237693146, login: 'owner' },
-    body: `\`\`\`openclaw-v2\n${JSON.stringify(request, null, 2)}\n\`\`\``,
+    body: `\`\`\`openclaw-v2
+${JSON.stringify(request, null, 2)}
+\`\`\``,
   },
 };
 
@@ -108,7 +110,9 @@ try {
 
   const changed = structuredClone(event);
   const changedRequest = { ...request, budgetLimitUsd: '0.126000' };
-  changed.issue.body = `\`\`\`openclaw-v2\n${JSON.stringify(changedRequest, null, 2)}\n\`\`\``;
+  changed.issue.body = `\`\`\`openclaw-v2
+${JSON.stringify(changedRequest, null, 2)}
+\`\`\``;
   await assert.rejects(persistGitHubIssueIntake({ event: changed, kernel }), (error) => error?.code === 'PSQL_QUERY_FAILED');
   assert.equal((await query('SELECT count(*)::int AS count FROM tasks WHERE idempotency_key=$1', [idempotencyKey])).rows[0].count, 1);
 

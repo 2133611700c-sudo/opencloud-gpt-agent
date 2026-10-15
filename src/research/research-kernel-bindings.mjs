@@ -58,8 +58,9 @@ const latencyMsFor = (research) => {
 const RESEARCH_RUNTIME_VERSION = '2026.9.8';
 const RESEARCH_THINKING_LEVEL = 'max';
 const RECEIPT_TOOLS = new Set(['web_search', 'web_fetch']);
+const SAFE_REJECTION_CODE = /^[A-Z][A-Z0-9_]{0,127}$/;
 
-const runtimeReceiptFor = (research, requestedModel) => {
+const runtimeReceiptFor = (research, requestedModel, rejectionCode = null) => {
   const telemetry = research?.telemetry;
   let observed = null;
 
@@ -95,6 +96,10 @@ const runtimeReceiptFor = (research, requestedModel) => {
     }
   }
 
+  const safeRejectionCode = typeof rejectionCode === 'string' && SAFE_REJECTION_CODE.test(rejectionCode)
+    ? rejectionCode
+    : null;
+
   return Object.freeze({
     observed: observed == null ? null : Object.freeze(observed),
     configured: Object.freeze({
@@ -103,7 +108,10 @@ const runtimeReceiptFor = (research, requestedModel) => {
       thinkingLevel: RESEARCH_THINKING_LEVEL,
     }),
     trace: Object.freeze([]),
-    error: null,
+    error: safeRejectionCode == null ? null : Object.freeze({
+      code: safeRejectionCode,
+      reason: 'REJECTED_RESEARCH_OUTPUT',
+    }),
   });
 };
 
@@ -133,7 +141,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
       },
       heartbeat: () => db.heartbeat({ nodeId: claim.nodeId, workerId: claim.workerId, leaseToken: claim.leaseToken }),
       runResearch: ({ request: input, signal }) => runResearch({ request: input, model, signal }),
-      accountUsage: async ({ reservationId, research }) => {
+      accountUsage: async ({ reservationId, research, rejectionCode = null }) => {
         const rawUsage = research?.telemetry?.usage;
         const rawCostUsd = research?.telemetry?.costUsd;
         const latencyMs = latencyMsFor(research);
@@ -171,7 +179,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
             providerRequestId: research?.telemetry?.sessionId ?? null,
             latencyMs,
             reason,
-            runtimeReceipt: runtimeReceiptFor(research, model),
+            runtimeReceipt: runtimeReceiptFor(research, model, rejectionCode),
           });
           if (!accounted) throw Object.assign(new Error('fallback model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
           return accounted;
@@ -201,7 +209,7 @@ export function createResearchKernelExecutor({ kernel, runResearch, pricingVersi
           totalTokens: usage.total,
           actualCostUsd: observedCostUsd,
           latencyMs,
-          runtimeReceipt: runtimeReceiptFor(research, model),
+          runtimeReceipt: runtimeReceiptFor(research, model, rejectionCode),
         });
         if (!accounted) throw Object.assign(new Error('model accounting was rejected by fencing'), { code: 'ACCOUNTING_FENCE_REJECTED' });
         return accounted;

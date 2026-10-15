@@ -12,14 +12,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: openclaw-2026-10-3-a4-${{ github.ref }}
+  group: openclaw-2026-10-3-a6-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  a4_managed_browser:
-    name: A4 managed browser lifecycle + action
+  a6_files_runtime_process:
+    name: A6 files + exec + process lifecycle
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -47,271 +47,219 @@ jobs:
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
           test "$version_token" = "2026.10.3"
 
-      - name: Detect Chromium browser
+      - name: Prepare isolated A6 state and workspace
         shell: bash
         run: |
           set -euo pipefail
-          browser_bin=""
-          for candidate in google-chrome google-chrome-stable chromium chromium-browser microsoft-edge microsoft-edge-stable; do
-            if command -v "$candidate" >/dev/null 2>&1; then
-              browser_bin="$(command -v "$candidate")"
-              break
-            fi
-          done
-          test -n "$browser_bin"
-          test -x "$browser_bin"
-          browser_version="$($browser_bin --version | head -n 1 | tr -d '\r')"
-          test -n "$browser_version"
-          printf 'Browser binary: %s\n' "$browser_bin"
-          printf 'Browser version: %s\n' "$browser_version"
-          {
-            echo "OPENCLAW_A4_BROWSER_BIN=$browser_bin"
-            echo "OPENCLAW_A4_BROWSER_VERSION=$browser_version"
-          } >> "$GITHUB_ENV"
-
-      - name: Prepare isolated A4 state
-        shell: bash
-        run: |
-          set -euo pipefail
-          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a4-state"
-          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a4-workspace"
+          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-state"
+          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-workspace"
           config_path="$state_dir/openclaw.json"
           install -d -m 700 "$state_dir"
           install -d -m 700 "$workspace_dir"
           {
             echo "OPENCLAW_STATE_DIR=$state_dir"
             echo "OPENCLAW_CONFIG_PATH=$config_path"
-            echo "OPENCLAW_A4_WORKSPACE=$workspace_dir"
+            echo "OPENCLAW_A6_WORKSPACE=$workspace_dir"
+            echo "OPENCLAW_EXEC_SHELL_SNAPSHOT=0"
           } >> "$GITHUB_ENV"
-          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a4-baseline.json"
-          openclaw config set gateway.mode local
-          openclaw config set gateway.port 18984
-          openclaw plugins enable browser
-          openclaw config set browser.enabled true
-          openclaw config set browser.defaultProfile openclaw
-          openclaw config set browser.headless true
-          openclaw config set browser.executablePath "$OPENCLAW_A4_BROWSER_BIN"
-          openclaw config validate --json > "$RUNNER_TEMP/openclaw-a4-config.json"
+          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a6-baseline.json"
+          openclaw config validate --json > "$RUNNER_TEMP/openclaw-a6-config.json"
 
-      - name: Execute real managed browser acceptance
+      - name: Execute real native file and process tools
         shell: bash
         run: |
           set -euo pipefail
-          port=18984
-          gateway_token="$(openssl rand -hex 32)"
-          gateway_log="$RUNNER_TEMP/openclaw-a4-gateway.log"
-          page_url="https://www.selenium.dev/selenium/web/web-form.html"
-          test_value="OpenClaw A4 managed browser"
-
-          cleanup() {
-            openclaw browser \
-              --url "ws://127.0.0.1:${port}" \
-              --token "$gateway_token" \
-              --browser-profile openclaw \
-              stop >/dev/null 2>&1 || true
-            if [ -n "${gateway_pid:-}" ]; then
-              kill -TERM "$gateway_pid" >/dev/null 2>&1 || true
-              wait "$gateway_pid" >/dev/null 2>&1 || true
-            fi
-          }
-          trap cleanup EXIT
-
-          openclaw gateway run \
-            --port "$port" \
-            --bind loopback \
-            --auth token \
-            --token "$gateway_token" \
-            --allow-unconfigured \
-            >"$gateway_log" 2>&1 &
-          gateway_pid=$!
-
-          ready=false
-          for _ in $(seq 1 60); do
-            if curl --silent --fail --max-time 1 "http://127.0.0.1:${port}/readyz" >/dev/null 2>&1; then
-              ready=true
-              break
-            fi
-            if ! kill -0 "$gateway_pid" >/dev/null 2>&1; then
-              cat "$gateway_log" >&2
-              exit 1
-            fi
-            sleep 0.5
-          done
-          if [ "$ready" != true ]; then
-            cat "$gateway_log" >&2
-            exit 1
-          fi
-
-          browser=(
-            openclaw browser
-            --url "ws://127.0.0.1:${port}"
-            --token "$gateway_token"
-            --browser-profile openclaw
-            --json
-          )
-
-          "${browser[@]}" start --headless > "$RUNNER_TEMP/openclaw-a4-start.json"
-          START_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-start.json")" node --input-type=module -e '
-            const s = JSON.parse(process.env.START_JSON);
-            if (s?.enabled !== true) throw new Error("browser not enabled");
-            if (s?.running !== true) throw new Error("browser did not start");
-            if (s?.profile !== "openclaw") throw new Error(`unexpected profile: ${s?.profile}`);
-            if (s?.driver !== "openclaw") throw new Error(`unexpected driver: ${s?.driver}`);
-            if (s?.headless !== true) throw new Error("browser is not headless in CI");
-            if (s?.cdpReady === false) throw new Error("CDP explicitly not ready");
-            if (typeof (s?.detectedExecutablePath ?? s?.executablePath) !== "string") throw new Error("browser executable not reported");
-          '
-
-          "${browser[@]}" open "$page_url" --label a4form > "$RUNNER_TEMP/openclaw-a4-open.json"
-          OPEN_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-open.json")" PAGE_URL="$page_url" node --input-type=module -e '
-            const tab = JSON.parse(process.env.OPEN_JSON);
-            if (typeof tab?.targetId !== "string" || !tab.targetId) throw new Error("opened tab has no targetId");
-            if (tab?.label !== "a4form") throw new Error(`tab label mismatch: ${tab?.label}`);
-            if (typeof tab?.url !== "string" || !tab.url.startsWith("https://www.selenium.dev/")) throw new Error(`unexpected opened URL: ${tab?.url}`);
-          '
-
-          "${browser[@]}" tabs > "$RUNNER_TEMP/openclaw-a4-tabs-open.json"
-          TABS_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-tabs-open.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.TABS_JSON);
-            if (!Array.isArray(value?.tabs)) throw new Error("tabs response invalid");
-            const tab = value.tabs.find((entry) => entry?.label === "a4form");
-            if (!tab) throw new Error("a4form tab not found");
-            if (typeof tab.url !== "string" || !tab.url.includes("selenium/web/web-form.html")) throw new Error(`a4form URL mismatch: ${tab.url}`);
-          '
-
-          "${browser[@]}" wait --load domcontentloaded --target-id a4form --timeout-ms 20000 > "$RUNNER_TEMP/openclaw-a4-wait.json"
-          "${browser[@]}" snapshot --target-id a4form --interactive --compact > "$RUNNER_TEMP/openclaw-a4-snapshot.json"
-          SNAPSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-snapshot.json")" node --input-type=module -e '
-            const s = JSON.parse(process.env.SNAPSHOT_JSON);
-            if (s?.ok !== true || s?.format !== "ai") throw new Error("AI snapshot did not succeed");
-            if (typeof s?.snapshot !== "string" || s.snapshot.trim().length === 0) throw new Error("snapshot is empty");
-            if (!s?.refs || typeof s.refs !== "object") throw new Error("snapshot refs missing");
-            if (!Number.isInteger(s?.stats?.refs) || s.stats.refs < 1) throw new Error("snapshot has no refs");
-            if (!Number.isInteger(s?.stats?.interactive) || s.stats.interactive < 1) throw new Error("snapshot has no interactive refs");
-          '
-
-          input_ref="$(SNAPSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-snapshot.json")" node --input-type=module -e '
-            const s = JSON.parse(process.env.SNAPSHOT_JSON);
-            const entries = Object.entries(s.refs ?? {});
-            const exact = entries.find(([, v]) => v?.role === "textbox" && /text input/i.test(v?.name ?? ""));
-            const fallback = entries.find(([, v]) => v?.role === "textbox");
-            const hit = exact ?? fallback;
-            if (!hit) process.exit(2);
-            process.stdout.write(hit[0]);
-          ')"
-          test -n "$input_ref"
-
-          "${browser[@]}" type "$input_ref" "$test_value" --target-id a4form > "$RUNNER_TEMP/openclaw-a4-type.json"
-          TYPE_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-type.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.TYPE_JSON);
-            if (value?.ok !== true) throw new Error("type action failed");
-          '
-
-          "${browser[@]}" evaluate \
-            --fn '(el) => el.value' \
-            --ref "$input_ref" \
-            --target-id a4form \
-            > "$RUNNER_TEMP/openclaw-a4-evaluate.json"
-          EVAL_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-evaluate.json")" TEST_VALUE="$test_value" node --input-type=module -e '
-            const value = JSON.parse(process.env.EVAL_JSON);
-            if (value?.ok !== true) throw new Error("evaluate action failed");
-            if (value?.result !== process.env.TEST_VALUE) throw new Error(`typed value mismatch: ${JSON.stringify(value?.result)}`);
-          '
-
-          "${browser[@]}" screenshot a4form --full-page > "$RUNNER_TEMP/openclaw-a4-screenshot.json"
-          screenshot_path="$(SCREENSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-screenshot.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.SCREENSHOT_JSON);
-            if (typeof value?.path !== "string" || !value.path) process.exit(2);
-            process.stdout.write(value.path);
-          ')"
-          test -f "$screenshot_path"
-          test -s "$screenshot_path"
-          screenshot_bytes="$(stat -c '%s' "$screenshot_path")"
-          test "$screenshot_bytes" -gt 1000
-
           mkdir -p artifacts
-          cp "$screenshot_path" artifacts/openclaw-2026.10.3-a4-browser.png
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import fsp from 'node:fs/promises';
+          import path from 'node:path';
+          import { execFileSync } from 'node:child_process';
+          import { pathToFileURL } from 'node:url';
 
-          "${browser[@]}" close a4form > "$RUNNER_TEMP/openclaw-a4-close.json"
-          CLOSE_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-close.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.CLOSE_JSON);
-            if (value?.ok !== true) throw new Error("tab close failed");
-          '
+          const workspace = process.env.OPENCLAW_A6_WORKSPACE;
+          if (!workspace) throw new Error('OPENCLAW_A6_WORKSPACE missing');
+          const globalRoot = execFileSync('npm', ['root', '-g'], { encoding: 'utf8' }).trim();
+          const packageRoot = path.join(globalRoot, 'openclaw');
+          const coreModulePath = path.join(packageRoot, 'dist', 'agents', 'core-coding-tools.js');
+          if (!fs.existsSync(coreModulePath)) throw new Error(`missing shipped core tool module: ${coreModulePath}`);
+          const { createCoreCodingTools } = await import(pathToFileURL(coreModulePath).href);
+          if (typeof createCoreCodingTools !== 'function') throw new Error('createCoreCodingTools export missing');
 
-          "${browser[@]}" tabs > "$RUNNER_TEMP/openclaw-a4-tabs-closed.json"
-          TABS_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-tabs-closed.json")" node --input-type=module -e '
-            const value = JSON.parse(process.env.TABS_JSON);
-            if (!Array.isArray(value?.tabs)) throw new Error("tabs response invalid after close");
-            if (value.tabs.some((entry) => entry?.label === "a4form")) throw new Error("a4form tab still open");
-          '
+          const scopeKey = `agent:a6:${process.pid}`;
+          const tools = createCoreCodingTools({
+            codingRoot: workspace,
+            containmentRoot: workspace,
+            includeBaseCodingTools: true,
+            shellTools: 'full',
+            workspaceOnly: true,
+            readOnly: false,
+            applyPatchEnabled: true,
+            applyPatchWorkspaceOnly: true,
+            execDefaults: {
+              host: 'gateway',
+              security: 'full',
+              ask: 'off',
+              allowBackground: true,
+              backgroundMs: 20,
+              notifyOnExit: false,
+              scopeKey,
+            },
+            processDefaults: { scopeKey },
+          });
 
-          "${browser[@]}" stop > "$RUNNER_TEMP/openclaw-a4-stop.json"
-          STOP_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-stop.json")" node --input-type=module -e '
-            const s = JSON.parse(process.env.STOP_JSON);
-            if (s?.running !== false) throw new Error("browser did not stop");
-          '
+          const byName = new Map(tools.map((tool) => [tool.name, tool]));
+          const required = ['read', 'write', 'edit', 'apply_patch', 'exec', 'process'];
+          for (const name of required) {
+            if (!byName.has(name)) throw new Error(`native tool missing from core factory: ${name}`);
+          }
+          const readTool = byName.get('read');
+          const writeTool = byName.get('write');
+          const editTool = byName.get('edit');
+          const patchTool = byName.get('apply_patch');
+          const execTool = byName.get('exec');
+          const processTool = byName.get('process');
 
-          if kill -0 "$gateway_pid" >/dev/null 2>&1; then
-            kill -TERM "$gateway_pid"
-            for _ in $(seq 1 20); do
-              if ! kill -0 "$gateway_pid" >/dev/null 2>&1; then
-                break
-              fi
-              sleep 0.25
-            done
-          fi
-          wait "$gateway_pid" >/dev/null 2>&1 || true
-          if kill -0 "$gateway_pid" >/dev/null 2>&1; then
-            echo "Gateway still running after stop" >&2
-            exit 1
-          fi
-          gateway_pid=""
+          const textOf = (result) => Array.isArray(result?.content)
+            ? (result.content.find((part) => part?.type === 'text')?.text ?? '')
+            : '';
 
-          START_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-start.json")" \
-          SNAPSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-snapshot.json")" \
-          EVAL_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-evaluate.json")" \
-          SCREENSHOT_BYTES="$screenshot_bytes" \
-          BROWSER_VERSION="$OPENCLAW_A4_BROWSER_VERSION" \
-          node --input-type=module <<'NODE' > artifacts/openclaw-2026.10.3-a4.json
-          const start = JSON.parse(process.env.START_JSON);
-          const snapshot = JSON.parse(process.env.SNAPSHOT_JSON);
-          const evaluated = JSON.parse(process.env.EVAL_JSON);
+          // 1) Native write -> persisted bytes.
+          const filePath = path.join(workspace, 'a6.txt');
+          const writeResult = await writeTool.execute('a6-write', {
+            path: 'a6.txt',
+            content: 'alpha\nbeta\n',
+          });
+          if (writeResult?.details?.changed !== true) throw new Error('write did not report changed=true');
+          if ((await fsp.readFile(filePath, 'utf8')) !== 'alpha\nbeta\n') throw new Error('write persistence mismatch');
+
+          // 2) Native read -> returned exact file data.
+          const readResult = await readTool.execute('a6-read', { path: 'a6.txt' });
+          const readText = typeof readResult?.details?.content === 'string'
+            ? readResult.details.content
+            : textOf(readResult);
+          if (!readText.includes('alpha') || !readText.includes('beta')) throw new Error('read result missing expected content');
+
+          // 3) Native edit -> targeted replacement and persisted verification.
+          const editResult = await editTool.execute('a6-edit', {
+            path: 'a6.txt',
+            edits: [{ oldText: 'beta', newText: 'gamma' }],
+          });
+          if (editResult?.details?.changed !== true) throw new Error('edit did not report changed=true');
+          if ((await fsp.readFile(filePath, 'utf8')) !== 'alpha\ngamma\n') throw new Error('edit persistence mismatch');
+
+          // 4) Native apply_patch -> second file created inside workspace.
+          const patchResult = await patchTool.execute('a6-patch', {
+            input: '*** Begin Patch\n*** Add File: patched.txt\n+patched-by-a6\n*** End Patch',
+          });
+          const patchedPath = path.join(workspace, 'patched.txt');
+          if ((await fsp.readFile(patchedPath, 'utf8')).trim() !== 'patched-by-a6') throw new Error('apply_patch persistence mismatch');
+          if (!Array.isArray(patchResult?.details?.summary?.added) || !patchResult.details.summary.added.some((entry) => entry.endsWith('patched.txt'))) {
+            throw new Error('apply_patch summary missing added file');
+          }
+
+          // 5) Workspace containment must fail closed for a path escape.
+          const escapePath = path.resolve(workspace, '..', 'a6-escape.txt');
+          await fsp.rm(escapePath, { force: true });
+          let escapeDenied = false;
+          try {
+            await writeTool.execute('a6-escape', {
+              path: '../a6-escape.txt',
+              content: 'must-not-exist\n',
+            });
+          } catch {
+            escapeDenied = true;
+          }
+          if (!escapeDenied) throw new Error('workspace escape write was not denied');
+          if (fs.existsSync(escapePath)) throw new Error('workspace escape file was created');
+
+          // 6) Foreground exec -> exact output and OpenClaw exec marker.
+          const foreground = await execTool.execute('a6-exec-fg', {
+            command: `printf 'A6_EXEC_OK|%s' "$OPENCLAW_SHELL"`,
+            timeoutSeconds: 5,
+          });
+          if (foreground?.details?.status !== 'completed' || foreground?.details?.exitCode !== 0) {
+            throw new Error(`foreground exec failed: ${JSON.stringify(foreground?.details)}`);
+          }
+          const foregroundText = textOf(foreground);
+          if (!foregroundText.includes('A6_EXEC_OK|exec')) throw new Error(`foreground exec marker missing: ${foregroundText}`);
+
+          // 7) Background exec -> process list -> poll terminal -> clear.
+          const background = await execTool.execute('a6-exec-bg', {
+            command: `printf 'A6_BG_START\\n'; sleep 0.25; printf 'A6_BG_DONE\\n'`,
+            background: true,
+            timeoutSeconds: 5,
+          });
+          const sessionId = background?.details?.sessionId;
+          if (background?.details?.status !== 'running' || typeof sessionId !== 'string' || !sessionId) {
+            throw new Error(`background exec did not return running session: ${JSON.stringify(background?.details)}`);
+          }
+
+          const listed = await processTool.execute('a6-process-list', { action: 'list' });
+          const sessions = listed?.details?.sessions;
+          if (!Array.isArray(sessions) || !sessions.some((entry) => entry?.sessionId === sessionId)) {
+            throw new Error('process list did not expose background session');
+          }
+
+          let terminal;
+          for (let attempt = 0; attempt < 10; attempt += 1) {
+            terminal = await processTool.execute(`a6-process-poll-${attempt}`, {
+              action: 'poll',
+              sessionId,
+              timeout: 1000,
+            });
+            if (terminal?.details?.status !== 'running') break;
+          }
+          if (terminal?.details?.status !== 'completed' || terminal?.details?.exitCode !== 0) {
+            throw new Error(`background process did not complete cleanly: ${JSON.stringify(terminal?.details)}`);
+          }
+          const aggregated = terminal?.details?.aggregated ?? textOf(terminal);
+          if (typeof aggregated !== 'string' || !aggregated.includes('A6_BG_START') || !aggregated.includes('A6_BG_DONE')) {
+            throw new Error(`background process output incomplete: ${String(aggregated)}`);
+          }
+
+          const cleared = await processTool.execute('a6-process-clear', {
+            action: 'clear',
+            sessionId,
+          });
+          if (cleared?.details?.status !== 'completed') throw new Error('process clear did not complete');
+
+          const finalFile = await fsp.readFile(filePath, 'utf8');
           const evidence = {
             status: 'PASS',
-            stage: 'A4',
-            capability: 'managed_browser_lifecycle_and_action',
+            stage: 'A6',
+            capability: 'native_files_exec_process',
             openclaw_version: '2026.10.3',
-            profile: start.profile,
-            driver: start.driver,
-            headless: start.headless,
-            cdp_ready: start.cdpReady !== false,
-            browser_version: process.env.BROWSER_VERSION,
-            public_page: 'https://www.selenium.dev/selenium/web/web-form.html',
-            snapshot: {
-              refs: snapshot.stats?.refs ?? 0,
-              interactive: snapshot.stats?.interactive ?? 0,
+            core_factory_required_tools: required,
+            file_tools: {
+              write_persisted: true,
+              read_verified: true,
+              edit_persisted: finalFile === 'alpha\ngamma\n',
+              apply_patch_persisted: true,
+              workspace_escape_denied: escapeDenied && !fs.existsSync(escapePath),
             },
-            harmless_form_action_verified: evaluated.result === 'OpenClaw A4 managed browser',
-            screenshot_bytes: Number(process.env.SCREENSHOT_BYTES),
-            tab_closed: true,
-            browser_stopped: true,
-            gateway_stopped: true,
-            model_provider_calls: 0,
+            runtime_tools: {
+              foreground_exec_completed: true,
+              openclaw_shell_marker: foregroundText.includes('A6_EXEC_OK|exec'),
+              background_exec_session_created: true,
+              process_list_saw_session: true,
+              process_poll_completed: true,
+              process_output_verified: true,
+              process_cleared: true,
+            },
+            provider_calls: 0,
             hosted_database_mutations: 0,
             secret_values_logged: false,
           };
+          await fsp.writeFile('artifacts/openclaw-2026.10.3-a6.json', `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
           process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`);
           NODE
+          cat artifacts/openclaw-2026.10.3-a6.json >> "$GITHUB_STEP_SUMMARY"
 
-          trap - EXIT
-          cat artifacts/openclaw-2026.10.3-a4.json >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload safe A4 evidence
+      - name: Upload safe A6 evidence
         uses: actions/upload-artifact@v4
         with:
-          name: openclaw-2026-10-3-a4-browser
-          path: |
-            artifacts/openclaw-2026.10.3-a4.json
-            artifacts/openclaw-2026.10.3-a4-browser.png
+          name: openclaw-2026-10-3-a6-files-runtime
+          path: artifacts/openclaw-2026.10.3-a6.json
           if-no-files-found: error
           retention-days: 14

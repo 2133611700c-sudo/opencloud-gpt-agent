@@ -1,0 +1,41 @@
+name: Temp Least Privilege Writer
+
+on:
+  push:
+    branches:
+      - work/least-privilege-20261015
+    paths:
+      - .github/workflows/temp-least-privilege-writer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply exact least-privilege changes
+        run: python scripts/temp-least-privilege-writer.py
+      - name: Validate foundation and Node suite
+        run: |
+          set -euo pipefail
+          npm run validate:foundation
+          npm test
+          npm run health
+          git diff --check
+      - name: Commit verified tree without temporary writer files
+        run: |
+          set -euo pipefail
+          git config user.name 'OpenClaw V2 least privilege bot'
+          git config user.email '2133611700c@gmail.com'
+          git rm .github/workflows/temp-least-privilege-writer.yml scripts/temp-least-privilege-writer.py
+          git add .github/workflows/v2-ci.yml scripts/validate-foundation.mjs
+          git diff --cached --check
+          git commit -m 'security(v2): reduce CI token permissions'
+          git push origin HEAD:work/least-privilege-20261015

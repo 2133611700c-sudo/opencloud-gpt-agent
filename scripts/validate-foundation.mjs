@@ -106,15 +106,26 @@ if (String(state.walking_skeleton_gate).startsWith('PASS')) {
   }
 }
 
-const liveResearchStatus = state.acceptance_map?.['01_positive_real_research_e2e_success'];
-if (liveResearchStatus !== 'PASS_LIVE') {
+// The historical paid Research prerequisite and the final current-production positive
+// E2E are intentionally separate. Production Data/Evidence/Phone were allowed only
+// after the historical Research gate passed; acceptance #1 may later return to
+// NOT_PROVEN when the map is tightened to require the complete current composition.
+const historicalResearchStatus = state.route_prerequisites?.historical_research_gate
+  ?? state.acceptance_map?.['01_positive_real_research_e2e_success'];
+if (historicalResearchStatus !== 'PASS_LIVE') {
   const forbidden = new Set(state.forbidden_until_live_research_pass ?? []);
   for (const requiredBlock of ['production_data_result_runtime', 'durable_evidence_feature_layer', 'phone_ux']) {
     if (!forbidden.has(requiredBlock)) {
-      throw new Error(`PROJECT_STATE must block ${requiredBlock} until live Research is PASS_LIVE`);
+      throw new Error(`PROJECT_STATE must block ${requiredBlock} until the historical live Research prerequisite is PASS_LIVE`);
     }
   }
 }
+
+const remaining48hGaps = Object.entries(state.remaining_48h_gaps ?? {});
+if (remaining48hGaps.length !== 4) {
+  throw new Error(`PROJECT_STATE remaining_48h_gaps must contain exactly 4 audited gaps; found ${remaining48hGaps.length}`);
+}
+validateEvidenceMap(remaining48hGaps, 'remaining_48h_gaps');
 
 console.log('FOUNDATION_PASS');
 console.log('ROUTE_MAP_PASS');

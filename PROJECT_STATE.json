@@ -4,9 +4,9 @@
   "updated_at": "2026-10-15",
   "repository": "2133611700c-sudo/opencloud-gpt-agent",
   "active_branch": "v2/openclaw-clean-20261011",
-  "verified_head": "51421c30a13ac611da2fdc98cae63c156bcb6dab",
-  "verified_code_head": "51421c30a13ac611da2fdc98cae63c156bcb6dab",
-  "verified_ci_run_id": 38733089210,
+  "verified_head": "e9059b4a5646684dd7efcc026a285a9113528b54",
+  "verified_code_head": "e9059b4a5646684dd7efcc026a285a9113528b54",
+  "verified_ci_run_id": 38735424042,
   "verified_ci_conclusion": "success",
   "operational_router": "START_HERE.md",
   "canonical_48h_plan": "docs/02_48H_WALKING_SKELETON.md",
@@ -19,13 +19,13 @@
   "legacy_policy": "FROZEN_UNTIL_CUTOVER_AND_ROLLBACK_PASS",
   "foundation": {
     "status": "PASS_CODE_CI",
-    "ci_run_id": 38733089210,
+    "ci_run_id": 38735424042,
     "ci_conclusion": "success"
   },
   "current_phase": 8,
-  "current_phase_name": "48h: paid production Data/Evidence PASS_LIVE; automatic Phone/deep-log PASS_HOSTED; external user ingress/final chain NOT_PROVEN",
-  "walking_skeleton_gate": "IN_PROGRESS",
-  "route_id": "I1C_AUTHENTICATED_EXTERNAL_USER_HTTP_THEN_FINAL",
+  "current_phase_name": "48h Walking Skeleton COMPLETE — external authenticated USER HTTP -> paid Research/Data -> durable Evidence -> HTTPS Phone/deep-log PASS_LIVE",
+  "walking_skeleton_gate": "PASS_LIVE",
+  "route_id": "48H_WALKING_SKELETON_COMPLETE",
   "truth_labels": [
     "PASS_CODE_CI",
     "PASS_HOSTED",
@@ -39,7 +39,7 @@
   "scope_map_48h": {
     "01_hosted_postgres_and_migrations": "PASS_HOSTED",
     "02_durable_state_machine": "PASS_CODE_CI",
-    "03_idempotent_request_intake": "PASS_CODE_CI",
+    "03_idempotent_request_intake": "PASS_LIVE",
     "04_atomic_lease_unique_fencing": "PASS_HOSTED",
     "05_heartbeat_stale_worker_recovery": "PASS_HOSTED",
     "06_attempt_step_budget_deadline_breakers": "PASS_HOSTED",
@@ -51,7 +51,7 @@
     "12_data_result_validation_dedupe_normalization": "PASS_LIVE",
     "13_llm_accounting": "PASS_LIVE",
     "14_durable_evidence_artifacts": "PASS_LIVE",
-    "15_phone_short_result_deep_log": "PASS_HOSTED"
+    "15_phone_short_result_deep_log": "PASS_LIVE"
   },
   "acceptance_map": {
     "01_positive_real_research_e2e_success": "PASS_LIVE",
@@ -68,10 +68,10 @@
     "historical_research_gate": "PASS_LIVE",
     "positive_production_task": "PASS_LIVE",
     "paid_receipt_bound_evidence": "PASS_LIVE",
-    "current_full_positive_e2e": "NOT_PROVEN",
-    "note": "F1/F2 complete; P2 automatic terminal publication verified on hosted HTTPS for existing paid success and synthetic failure. I1c authenticated external USER HTTP entry and one final external paid chain remain.",
-    "automatic_phone_publication": "PASS_HOSTED",
-    "external_user_ingress": "NOT_PROVEN"
+    "current_full_positive_e2e": "PASS_LIVE",
+    "note": "F1/F2/P2/I1c and final external paid USER HTTP -> Phone/deep-log are proven. GitHub-specific webhook ingress remains separate and non-blocking.",
+    "automatic_phone_publication": "PASS_LIVE",
+    "external_user_ingress": "PASS_LIVE"
   },
   "hosted_postgres": {
     "provider": "Neon",
@@ -81,14 +81,15 @@
     "database_name": "openclaw_v2",
     "status": "PASS_HOSTED",
     "latest_read_only_inventory": {
-      "observed_on": "2026-10-15T12:20:02.925Z",
+      "observed_on": "2026-10-15T12:38:53Z",
+      "tasks": 22,
       "active_tasks": 0,
       "running_nodes": 0,
       "unresolved_reservations": 0,
-      "llm_accounting_rows": 8,
-      "evidence_artifacts": 14,
-      "runtime_receipts": 4,
-      "scope_note": "P2 production runtime publication/retries plus separate HTTP+DB reader after producer exit; active/RUNNING/RESERVED0/0/0, artifacts14/receipts4/accounting8 unchanged, zero claim/account SQL calls. No new paid call or schema change."
+      "llm_accounting_rows": 9,
+      "evidence_artifacts": 15,
+      "runtime_receipts": 5,
+      "scope_note": "Final external task added exactly one accounting row, Evidence artifact and runtime receipt; active/RUNNING/RESERVED all zero."
     },
     "deployed_invariants": {
       "heartbeat_deadline_guard_0018": true,
@@ -108,7 +109,7 @@
     "real_web_search_fetch": "PASS_LIVE",
     "structured_research_sources": "PASS_LIVE",
     "llm_accounting": "PASS_LIVE",
-    "current_full_production_vertical": "NOT_PROVEN",
+    "current_full_production_vertical": "PASS_LIVE",
     "historical_paid_success": {
       "task_id": "eae6daf8-e086-43a5-aea9-b6ec879ce65a",
       "task_status": "SUCCESS",
@@ -178,16 +179,61 @@
       "actual_cost_usd": 0.002575,
       "actual_tokens": 16344,
       "unresolved_reservations": 0
+    },
+    "final_external_paid_success": {
+      "status": "PASS_LIVE",
+      "entry_type": "authenticated_http",
+      "principal_id": "operator",
+      "request_id": "ba5a6544-5d43-4aa5-9756-7f2a22442a23",
+      "idempotency_key": "user:http:operator:ba5a6544-5d43-4aa5-9756-7f2a22442a23",
+      "task_id": "f48c0505-ac37-47be-a8bc-8ccdf879dc85",
+      "task_status": "SUCCESS",
+      "terminal_reason": "ALL_NODES_SUCCEEDED",
+      "research_status": "SUCCESS",
+      "data_status": "SUCCESS",
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "runtime_version": "2026.9.8",
+      "requested_model": "deepseek/deepseek-flash",
+      "thinking": "max",
+      "tools": [
+        "web_search",
+        "web_fetch"
+      ],
+      "tool_calls": 4,
+      "tool_failures": 0,
+      "accounting_id": "a3637b21-c0b7-4b0e-9e2e-94fd2c980fae",
+      "prompt_cache_hit_tokens": 12544,
+      "prompt_cache_miss_tokens": 6475,
+      "completion_tokens": 723,
+      "total_tokens": 19742,
+      "cost_usd": 0.002885,
+      "latency_ms": 21792,
+      "pricing_version": "deepseek-v4.1-flash-2026-09-10",
+      "reservation_status": "RECONCILED",
+      "reserved_cost_usd": 0.1,
+      "reserved_tokens": 50000,
+      "actual_cost_usd": 0.002885,
+      "actual_tokens": 19742,
+      "unresolved_reservations": 0,
+      "runtime_receipt_id": "4ea7df6c-5aa4-4ba1-b6b0-2e329614f701",
+      "runtime_session_id": "3e7a41b5-c29c-4e7a-af48-8af782990cbb",
+      "artifact_id": "b5707132-529c-4d03-8661-3cca73af79e9",
+      "artifact_sha256": "7894d39686b8e1d02ede9a0f3461b61e674ae859e21f720412e0cfd1e63eeb42",
+      "phone_url": "https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech/tasks/f48c0505-ac37-47be-a8bc-8ccdf879dc85/phone",
+      "deep_log_url": "https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech/tasks/f48c0505-ac37-47be-a8bc-8ccdf879dc85/deep-log",
+      "https_phone_verified": true,
+      "https_deep_log_verified": true
     }
   },
   "evidence": {
     "subsystem_status": "PASS_LIVE",
     "artifact_type": "EVIDENCE_BUNDLE_V1",
-    "artifact_count": 14,
-    "runtime_receipt_count": 4,
+    "artifact_count": 15,
+    "runtime_receipt_count": 5,
     "synthetic_receipt_bound_success_task_id": "a2452516-78ea-41d7-83e0-ea9199857169",
     "paid_receipt_bound_full_vertical": "PASS_LIVE",
-    "proof_limit": "Paid F2 production task has receipt-bound Evidence surviving producer exit. P2 now automatically publishes canonical HTTPS Phone/deep-log for that same unchanged artifact plus synthetic hosted failure; final external user ingress-to-paid-Phone chain remains NOT_PROVEN. Historical proofs retain their original scope.",
+    "proof_limit": "Final paid external authenticated USER HTTP task has receipt-bound durable Evidence plus independently reopened HTTPS Phone/deep-log on the same task/artifact/hash.",
     "paid_task_id": "42c391bd-e00a-4374-87e4-563755231971",
     "runtime_receipt_id": "87c0d113-0f51-4972-8ee4-d8cb1a53fd8b",
     "runtime_session_id": "82777baa-b97e-4a6b-a5df-0298fd50cf8a",
@@ -198,35 +244,41 @@
       "exit_code": 0,
       "observed_at": "2026-10-15T11:45:25.912Z",
       "new_model_calls": 0
-    }
+    },
+    "final_external_task_id": "f48c0505-ac37-47be-a8bc-8ccdf879dc85",
+    "final_external_runtime_receipt_id": "4ea7df6c-5aa4-4ba1-b6b0-2e329614f701",
+    "final_external_artifact_id": "b5707132-529c-4d03-8661-3cca73af79e9",
+    "final_external_artifact_sha256": "7894d39686b8e1d02ede9a0f3461b61e674ae859e21f720412e0cfd1e63eeb42"
   },
   "phone_and_deep_log": {
     "renderer": "PASS_CODE_CI",
     "manual_github_mobile_failure_surface": "PASS_CODE_CI",
     "proof_issue": 51,
     "proof_comment_id": 6181620362,
-    "automatic_runtime_publication": "PASS_HOSTED",
-    "paid_success_phone_delivery": "PASS_HOSTED",
+    "automatic_runtime_publication": "PASS_LIVE",
+    "paid_success_phone_delivery": "PASS_LIVE",
     "hosted_failure_phone_delivery": "PASS_HOSTED",
     "hosted_proof": {
       "function": "openclawv2mobile",
       "branch_id": "br-odd-forest-a4leyaqj",
       "database_name": "openclaw_v2",
-      "deployment_id": 3,
+      "deployment_id": 4,
       "runtime": "Node24",
       "public_base_url": "https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech",
       "route_template": "/tasks/<task UUID>/(phone|deep-log)",
       "deployment_zip_sha256": "cebc86f4db9909be48c8f0c27cc58d2a547f516856671381c11ea35af50f9510",
       "producer_session": 10441,
       "producer_exit_code": 0,
-      "observed_at": "2026-10-15T12:20:02.925Z",
+      "observed_at": "2026-10-15T12:38:53Z",
       "fresh_process_http_db_reader_session": 32165,
       "fresh_process_reader_exit_code": 0,
-      "success_task_id": "42c391bd-e00a-4374-87e4-563755231971",
+      "success_task_id": "f48c0505-ac37-47be-a8bc-8ccdf879dc85",
       "synthetic_failure_task_id": "ccf57cfa-23d6-4ec4-9e3c-9e0a06480ab4",
       "failure_artifact_id": "fa56c478-8d11-46cb-9686-bd518b04b887",
       "failure_artifact_sha256": "f21e0380971f66e033dff1543f00a1f0ac4824ec00150acacfe4357b5f446695",
-      "proof_note": "Production createPostgresTaskPhoneRuntime automatically finalized existing terminal Evidence, verified exact HTTPS bodies/identity and returned Phone text for both terminal forms. Two concurrent retries per task identical; serialized artifacts/counts unchanged; claim/account SQL calls0. Independent HTTP+DB reader after producer exit verified all four route bodies/IDs/hashes. Existing success is paid F2; failure synthetic, no new paid run."
+      "proof_note": "Deployment 4 accepted final authenticated USER request; /phone and /deep-log independently opened over HTTPS and matched task/artifact/hash.",
+      "success_artifact_id": "b5707132-529c-4d03-8661-3cca73af79e9",
+      "success_artifact_sha256": "7894d39686b8e1d02ede9a0f3461b61e674ae859e21f720412e0cfd1e63eeb42"
     }
   },
   "github_intake": {
@@ -238,31 +290,28 @@
     "external_entrypoint_implementation": "NOT_BUILT"
   },
   "latest_ci_external_steps": {
-    "run_id": 38733089210,
-    "job_id": 116415453011,
+    "run_id": 38735424042,
+    "job_id": 116423380776,
     "hosted_neon": "SKIPPED",
     "live_kernel_research": "SKIPPED",
     "live_research_artifact_upload": "SKIPPED",
     "live_deepseek_smoke": "SKIPPED",
     "live_deepseek_artifact_upload": "SKIPPED",
-    "rule": "All code, PostgreSQL verticals, Function build and pinned runtime/plugin/config checks passed; five external conditional steps SKIPPED. Direct F2 live and P2 hosted proofs are separate."
+    "rule": "Exact code CI passed mandatory code/PostgreSQL/intake/Data/Evidence/runtime/function-build gates. Direct hosted/live final proof independently supplies PASS_LIVE."
   },
-  "remaining_48h_gaps": {
-    "I1c_real_external_user_entry": "NOT_PROVEN — implement and prove authenticated allowed external USER HTTP intake with durable idempotency; GitHub-specific webhook wiring remains unproven.",
-    "FINAL_external_end_to_end": "NOT_PROVEN — one actual external user request through paid production Research/Data/accounting/Evidence to automatic HTTPS Phone/deep log."
-  },
+  "remaining_48h_gaps": {},
   "known_gaps": {
     "current_positive_production_paid_e2e": "PASS_LIVE",
     "paid_receipt_bound_evidence_composition": "PASS_LIVE",
-    "automatic_phone_result_and_deep_log": "PASS_HOSTED",
-    "external_github_user_task_entry": "NOT_PROVEN",
+    "automatic_phone_result_and_deep_log": "PASS_LIVE",
+    "external_github_user_task_entry": "NOT_PROVEN — GitHub-specific webhook/admin wiring remains separate from completed authenticated USER HTTP ingress.",
     "permanent_secret_store": "NOT_PROVEN",
     "github_actions_database_url": "NOT_PROVEN_CONTINUOUS_PLUMBING; HOSTED_STEP_SKIPPED_IN_CI_38733089210",
     "github_actions_deepseek_api_key": "NOT_PROVEN_CONTINUOUS_PLUMBING; LIVE_STEPS_SKIPPED_IN_CI_38733089210",
     "branch_protection": "NOT_BUILT_FINAL_GOVERNANCE_WORK_AFTER_BATTLE_SUITE",
     "workflow_permissions": "NOT_PROVEN_FINAL_LEAST_PRIVILEGE_HARDENING_PENDING",
-    "final_external_e2e": "NOT_PROVEN",
-    "external_user_http_task_entry": "NOT_PROVEN"
+    "final_external_e2e": "PASS_LIVE",
+    "external_user_http_task_entry": "PASS_LIVE"
   },
   "latest_verified_innovations": [
     {
@@ -283,8 +332,8 @@
   ],
   "forbidden_until_live_research_pass": [],
   "48h_target": "real GitHub/iPhone goal -> idempotent durable task -> Kernel -> real DeepSeek/OpenClaw -> real web_search/web_fetch -> production Data SUCCESS -> observed accounting/reconciliation -> runtime receipt -> durable Evidence surviving producer -> published deep log -> short phone result",
-  "next_action": "I1c: implement and verify an authenticated allowed external USER HTTP entrypoint using existing durable idempotent intake and automatic task-to-Phone runtime. Keep GitHub-specific entry proof NOT_PROVEN; webhook admin was unavailable. Then one bounded final actual external request -> paid Research -> production Data -> accounting/reconciliation -> receipt-bound Evidence -> automatic reachable Phone/deep-log proof. Do not rerun paid F2 merely for publication.",
-  "continuation_rule": "Read START_HERE -> canonical 48h plan -> latest journal JRNL-2026-10-15-004 -> exact HEAD/CI -> direct hosted reality. F1 PASS_CODE_CI; F2 paid backend/Evidence PASS_LIVE; P2 automatic HTTPS Phone/deep-log PASS_HOSTED. Walking Skeleton IN_PROGRESS until I1c actual external USER HTTP entry and final complete external paid chain. Preserve GitHub-specific NOT_PROVEN, historical failures/latency0 and SKIPPED boundaries; no out-of-scope expansion.",
+  "next_action": "48h Walking Skeleton complete. Preserve checkpoint; next work is post-48h governance/cutover hardening, not another paid acceptance rerun.",
+  "continuation_rule": "Treat 48h Walking Skeleton as PASS_LIVE at code head e9059b4 / CI 38735424042 plus final hosted task f48c0505. main remains frozen until separate cutover/rollback authorization.",
   "acceptance_notes": {
     "01_positive_real_research_e2e_success": "One paid production Research -> Data -> terminal SUCCESS is proven; its existing Evidence now has automatic hosted Phone/deep-log publication. A new final actual external user ingress-to-paid-Phone chain remains NOT_PROVEN."
   },
@@ -292,5 +341,28 @@
     "chosen_route": "AUTHENTICATED_EXTERNAL_USER_HTTP",
     "actual_external_user_entrypoint": "NOT_PROVEN",
     "note": "I1c implementation/verification pending; allowed USER HTTP route selected because GitHub webhook admin capability was unavailable. No GitHub webhook completion claimed."
+  },
+  "user_http_intake": {
+    "status": "PASS_LIVE",
+    "function": "openclawv2mobile",
+    "deployment_id": 4,
+    "principal_id": "operator",
+    "request_id": "ba5a6544-5d43-4aa5-9756-7f2a22442a23",
+    "task_id": "f48c0505-ac37-47be-a8bc-8ccdf879dc85",
+    "idempotency_proof": "Two function invocations at 12:38:22Z converged to exactly one durable task for the stable idempotency key.",
+    "credential_persistence": "Persisted request source contains only type/requestId/principalId; no intake credential persisted."
+  },
+  "48h_completion": {
+    "status": "PASS_LIVE",
+    "completed_on": "2026-10-15",
+    "code_head": "e9059b4a5646684dd7efcc026a285a9113528b54",
+    "exact_code_ci_run_id": 38735424042,
+    "final_external_task_id": "f48c0505-ac37-47be-a8bc-8ccdf879dc85",
+    "request_id": "ba5a6544-5d43-4aa5-9756-7f2a22442a23",
+    "artifact_id": "b5707132-529c-4d03-8661-3cca73af79e9",
+    "artifact_sha256": "7894d39686b8e1d02ede9a0f3461b61e674ae859e21f720412e0cfd1e63eeb42",
+    "runtime_receipt_id": "4ea7df6c-5aa4-4ba1-b6b0-2e329614f701",
+    "phone_url": "https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech/tasks/f48c0505-ac37-47be-a8bc-8ccdf879dc85/phone",
+    "deep_log_url": "https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech/tasks/f48c0505-ac37-47be-a8bc-8ccdf879dc85/deep-log"
   }
 }

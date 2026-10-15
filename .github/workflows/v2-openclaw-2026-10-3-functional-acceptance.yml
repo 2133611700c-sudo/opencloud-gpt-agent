@@ -53,13 +53,16 @@ jobs:
           set -euo pipefail
           state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-state"
           workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-workspace"
+          agent_dir="$RUNNER_TEMP/openclaw-2026.10.3-a6-agent"
           config_path="$state_dir/openclaw.json"
           install -d -m 700 "$state_dir"
           install -d -m 700 "$workspace_dir"
+          install -d -m 700 "$agent_dir"
           {
             echo "OPENCLAW_STATE_DIR=$state_dir"
             echo "OPENCLAW_CONFIG_PATH=$config_path"
             echo "OPENCLAW_A6_WORKSPACE=$workspace_dir"
+            echo "OPENCLAW_A6_AGENT_DIR=$agent_dir"
             echo "OPENCLAW_EXEC_SHELL_SNAPSHOT=0"
           } >> "$GITHUB_ENV"
           openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a6-baseline.json"
@@ -78,40 +81,56 @@ jobs:
           import { pathToFileURL } from 'node:url';
 
           const workspace = process.env.OPENCLAW_A6_WORKSPACE;
-          if (!workspace) throw new Error('OPENCLAW_A6_WORKSPACE missing');
+          const agentDir = process.env.OPENCLAW_A6_AGENT_DIR;
+          if (!workspace || !agentDir) throw new Error('A6 workspace/agent directory missing');
+
           const globalRoot = execFileSync('npm', ['root', '-g'], { encoding: 'utf8' }).trim();
           const packageRoot = path.join(globalRoot, 'openclaw');
-          const coreModulePath = path.join(packageRoot, 'dist', 'agents', 'core-coding-tools.js');
-          if (!fs.existsSync(coreModulePath)) throw new Error(`missing shipped core tool module: ${coreModulePath}`);
-          const { createCoreCodingTools } = await import(pathToFileURL(coreModulePath).href);
-          if (typeof createCoreCodingTools !== 'function') throw new Error('createCoreCodingTools export missing');
+          const publicHarnessPath = path.join(packageRoot, 'dist', 'plugin-sdk', 'agent-harness.js');
+          if (!fs.existsSync(publicHarnessPath)) {
+            throw new Error(`public agent harness SDK missing: ${publicHarnessPath}`);
+          }
+          const { createOpenClawCodingTools } = await import(pathToFileURL(publicHarnessPath).href);
+          if (typeof createOpenClawCodingTools !== 'function') {
+            throw new Error('public createOpenClawCodingTools export missing');
+          }
 
-          const scopeKey = `agent:a6:${process.pid}`;
-          const tools = createCoreCodingTools({
-            codingRoot: workspace,
-            containmentRoot: workspace,
-            includeBaseCodingTools: true,
-            shellTools: 'full',
-            workspaceOnly: true,
-            readOnly: false,
-            applyPatchEnabled: true,
-            applyPatchWorkspaceOnly: true,
-            execDefaults: {
-              host: 'gateway',
-              security: 'full',
-              ask: 'off',
-              allowBackground: true,
+          const config = {
+            tools: {
+              fs: { workspaceOnly: true },
+              exec: {
+                host: 'gateway',
+                mode: 'full',
+                applyPatch: { enabled: true, workspaceOnly: true },
+              },
+            },
+          };
+          const sessionKey = 'agent:main:a6';
+          const tools = createOpenClawCodingTools({
+            workspaceDir: workspace,
+            agentDir,
+            agentId: 'main',
+            sessionKey,
+            modelProvider: 'openai',
+            modelId: 'gpt-5.4',
+            config,
+            exec: {
               backgroundMs: 20,
               notifyOnExit: false,
-              scopeKey,
             },
-            processDefaults: { scopeKey },
+            toolConstructionPlan: {
+              includeBaseCodingTools: true,
+              includeShellTools: true,
+              includeChannelTools: false,
+              includeOpenClawTools: false,
+              includePluginTools: false,
+            },
           });
 
           const byName = new Map(tools.map((tool) => [tool.name, tool]));
           const required = ['read', 'write', 'edit', 'apply_patch', 'exec', 'process'];
           for (const name of required) {
-            if (!byName.has(name)) throw new Error(`native tool missing from core factory: ${name}`);
+            if (!byName.has(name)) throw new Error(`native tool missing from public harness: ${name}`);
           }
           const readTool = byName.get('read');
           const writeTool = byName.get('write');
@@ -119,12 +138,11 @@ jobs:
           const patchTool = byName.get('apply_patch');
           const execTool = byName.get('exec');
           const processTool = byName.get('process');
-
           const textOf = (result) => Array.isArray(result?.content)
             ? (result.content.find((part) => part?.type === 'text')?.text ?? '')
             : '';
 
-          // 1) Native write -> persisted bytes.
+          // 1. write -> persisted exact bytes.
           const filePath = path.join(workspace, 'a6.txt');
           const writeResult = await writeTool.execute('a6-write', {
             path: 'a6.txt',
@@ -133,14 +151,14 @@ jobs:
           if (writeResult?.details?.changed !== true) throw new Error('write did not report changed=true');
           if ((await fsp.readFile(filePath, 'utf8')) !== 'alpha\nbeta\n') throw new Error('write persistence mismatch');
 
-          // 2) Native read -> returned exact file data.
+          // 2. read -> expected file content.
           const readResult = await readTool.execute('a6-read', { path: 'a6.txt' });
           const readText = typeof readResult?.details?.content === 'string'
             ? readResult.details.content
             : textOf(readResult);
           if (!readText.includes('alpha') || !readText.includes('beta')) throw new Error('read result missing expected content');
 
-          // 3) Native edit -> targeted replacement and persisted verification.
+          // 3. edit -> exact persisted replacement.
           const editResult = await editTool.execute('a6-edit', {
             path: 'a6.txt',
             edits: [{ oldText: 'beta', newText: 'gamma' }],
@@ -148,9 +166,14 @@ jobs:
           if (editResult?.details?.changed !== true) throw new Error('edit did not report changed=true');
           if ((await fsp.readFile(filePath, 'utf8')) !== 'alpha\ngamma\n') throw new Error('edit persistence mismatch');
 
-          // 4) Native apply_patch -> second file created inside workspace.
+          // 4. apply_patch -> create a second file.
           const patchResult = await patchTool.execute('a6-patch', {
-            input: '*** Begin Patch\n*** Add File: patched.txt\n+patched-by-a6\n*** End Patch',
+            input: [
+              '*** Begin Patch',
+              '*** Add File: patched.txt',
+              '+patched-by-a6',
+              '*** End Patch',
+            ].join('\n'),
           });
           const patchedPath = path.join(workspace, 'patched.txt');
           if ((await fsp.readFile(patchedPath, 'utf8')).trim() !== 'patched-by-a6') throw new Error('apply_patch persistence mismatch');
@@ -158,22 +181,28 @@ jobs:
             throw new Error('apply_patch summary missing added file');
           }
 
-          // 5) Workspace containment must fail closed for a path escape.
-          const escapePath = path.resolve(workspace, '..', 'a6-escape.txt');
-          await fsp.rm(escapePath, { force: true });
+          // 5. containment -> update outside workspace must fail closed and leave bytes unchanged.
+          const sentinelPath = path.resolve(workspace, '..', 'a6-outside-sentinel.txt');
+          await fsp.writeFile(sentinelPath, 'OUTSIDE\n', 'utf8');
           let escapeDenied = false;
           try {
-            await writeTool.execute('a6-escape', {
-              path: '../a6-escape.txt',
-              content: 'must-not-exist\n',
+            await patchTool.execute('a6-patch-escape', {
+              input: [
+                '*** Begin Patch',
+                '*** Update File: ../a6-outside-sentinel.txt',
+                '@@',
+                '-OUTSIDE',
+                '+ESCAPED',
+                '*** End Patch',
+              ].join('\n'),
             });
           } catch {
             escapeDenied = true;
           }
-          if (!escapeDenied) throw new Error('workspace escape write was not denied');
-          if (fs.existsSync(escapePath)) throw new Error('workspace escape file was created');
+          if (!escapeDenied) throw new Error('workspace escape patch was not denied');
+          if ((await fsp.readFile(sentinelPath, 'utf8')) !== 'OUTSIDE\n') throw new Error('outside sentinel was mutated');
 
-          // 6) Foreground exec -> exact output and OpenClaw exec marker.
+          // 6. foreground exec -> real shell result and OpenClaw exec marker.
           const foreground = await execTool.execute('a6-exec-fg', {
             command: `printf 'A6_EXEC_OK|%s' "$OPENCLAW_SHELL"`,
             timeoutSeconds: 5,
@@ -184,7 +213,7 @@ jobs:
           const foregroundText = textOf(foreground);
           if (!foregroundText.includes('A6_EXEC_OK|exec')) throw new Error(`foreground exec marker missing: ${foregroundText}`);
 
-          // 7) Background exec -> process list -> poll terminal -> clear.
+          // 7. background exec -> process list -> poll -> clear.
           const background = await execTool.execute('a6-exec-bg', {
             command: `printf 'A6_BG_START\\n'; sleep 0.25; printf 'A6_BG_DONE\\n'`,
             background: true,
@@ -224,19 +253,22 @@ jobs:
           });
           if (cleared?.details?.status !== 'completed') throw new Error('process clear did not complete');
 
+          await fsp.rm(sentinelPath, { force: true });
           const finalFile = await fsp.readFile(filePath, 'utf8');
           const evidence = {
             status: 'PASS',
             stage: 'A6',
-            capability: 'native_files_exec_process',
+            capability: 'native_files_exec_process_public_harness',
             openclaw_version: '2026.10.3',
-            core_factory_required_tools: required,
+            public_sdk: 'plugin-sdk/agent-harness',
+            required_tools: required,
             file_tools: {
               write_persisted: true,
               read_verified: true,
               edit_persisted: finalFile === 'alpha\ngamma\n',
               apply_patch_persisted: true,
-              workspace_escape_denied: escapeDenied && !fs.existsSync(escapePath),
+              workspace_escape_denied: true,
+              outside_sentinel_unchanged: true,
             },
             runtime_tools: {
               foreground_exec_completed: true,

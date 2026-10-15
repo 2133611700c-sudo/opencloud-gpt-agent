@@ -85,7 +85,7 @@ export async function executeClaimedResearchNode({
       if (billing) {
         if (heartbeatManager.failure) throw heartbeatManager.failure;
         try {
-          const receipt = await account({ claim: lease, reservationId, research: billing.research });
+          const receipt = await account({ claim: lease, reservationId, research: billing.research, rejectionCode: billing.originalCode });
           const accountingId = ownText(receipt, 'accountingId');
           if (accountingId === null || accountingId.trim() === '') throw new Error();
           accounted = true;

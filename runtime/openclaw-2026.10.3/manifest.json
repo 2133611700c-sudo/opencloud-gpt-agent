@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "lane": "openclaw-2026.10.3-sidecar",
+  "status": "CANDIDATE",
+  "source": {
+    "repository": "openclaw/openclaw",
+    "release_tag": "v2026.10.3",
+    "release_id": 411695418,
+    "published_at": "2026-10-13T13:49:25Z",
+    "prerelease": false
+  },
+  "pins": {
+    "core": "openclaw@2026.10.3",
+    "deepseek_provider": "@openclaw/deepseek-provider@2026.10.3",
+    "duckduckgo_plugin": "@openclaw/duckduckgo-plugin@2026.10.3"
+  },
+  "coexistence": {
+    "canonical_final48_branch": "v2/openclaw-clean-20261011",
+    "final48_runtime": "openclaw@2026.9.8",
+    "candidate_branch": "work/openclaw-2026.10.3-sidecar",
+    "replaces_final48_runtime": false,
+    "main_modified": false,
+    "hosted_runtime_modified": false,
+    "paid_provider_calls_allowed": false
+  },
+  "promotion_policy": "DO_NOT_REPLACE_FINAL48_RUNTIME_UNTIL_FINAL48_CLOSURE_AND_SEPARATE_COMPATIBILITY_PROOF"
+}

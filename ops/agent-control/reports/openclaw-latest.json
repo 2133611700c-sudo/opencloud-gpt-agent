@@ -14,6 +14,6 @@
   "artifact_name": "openclaw-38780089295-0",
   "dedupe_key": "virtual_browser_audit:pass",
   "error": null,
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "d2cdbbe9a8e1d2bb7f98131172d29695b2166156",
   "dispatch_file": ""
 }

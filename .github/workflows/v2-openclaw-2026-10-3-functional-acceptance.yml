@@ -102,24 +102,23 @@ jobs:
           trap cleanup EXIT
 
           healthy=0
-          for _ in $(seq 1 30); do
-            if openclaw health --json --timeout 2500 > "$RUNNER_TEMP/openclaw-health.json" 2>/dev/null; then
-              if HEALTH_JSON="$(cat "$RUNNER_TEMP/openclaw-health.json")" node --input-type=module -e '
-                const value = JSON.parse(process.env.HEALTH_JSON);
-                if (value?.ok !== true) process.exit(1);
-              '; then
-                healthy=1
-                break
-              fi
+          for _ in $(seq 1 45); do
+            if curl --fail --silent --show-error "http://127.0.0.1:${OPENCLAW_ACCEPTANCE_GATEWAY_PORT}/healthz" > "$RUNNER_TEMP/openclaw-healthz.txt" \
+              && curl --fail --silent --show-error "http://127.0.0.1:${OPENCLAW_ACCEPTANCE_GATEWAY_PORT}/startupz" > "$RUNNER_TEMP/openclaw-startupz.txt" \
+              && openclaw gateway health --port "$OPENCLAW_ACCEPTANCE_GATEWAY_PORT" --json > "$RUNNER_TEMP/openclaw-gateway-health.json" 2>/dev/null; then
+              healthy=1
+              break
             fi
             sleep 1
           done
 
           if [ "$healthy" -ne 1 ]; then
-            echo 'Gateway did not reach healthy state' >&2
-            tail -n 120 "$gateway_log" >&2 || true
+            echo 'Gateway did not satisfy local liveness/startup/RPC health contract' >&2
+            tail -n 160 "$gateway_log" >&2 || true
             exit 1
           fi
+
+          curl --fail --silent --show-error "http://127.0.0.1:${OPENCLAW_ACCEPTANCE_GATEWAY_PORT}/readyz" > "$RUNNER_TEMP/openclaw-readyz.txt"
 
           kill -TERM "$gateway_pid"
           wait "$gateway_pid"
@@ -139,7 +138,11 @@ jobs:
             openclaw_version: '2026.10.3',
             config_validate: 'PASS',
             doctor_error_gate: 'PASS',
-            gateway_loopback_start_health_stop: 'PASS',
+            gateway_http_healthz: 'PASS',
+            gateway_http_startupz: 'PASS',
+            gateway_http_readyz: 'PASS',
+            gateway_local_rpc_health: 'PASS',
+            gateway_clean_stop: 'PASS',
             provider_calls: 0,
             hosted_database_mutations: 0,
             secret_values_logged: false,

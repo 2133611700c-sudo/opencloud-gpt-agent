@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 'work/openclaw-2026.10.3-functional-acceptance'
+    paths:
+      - '.github/workflows/v2-openclaw-2026-10-3-functional-acceptance.yml'
   workflow_dispatch:
 
 permissions:
@@ -80,7 +82,7 @@ jobs:
             if (!Array.isArray(result.results) || result.results.length < 1) throw new Error("web search returned no results");
             for (const item of result.results) {
               const url = new URL(item.url);
-              if (!['http:', 'https:'].includes(url.protocol)) throw new Error("non-http search URL");
+              if (!["http:", "https:"].includes(url.protocol)) throw new Error("non-http search URL");
               if (typeof item.title !== "string" || item.title.trim() === "") throw new Error("search title missing");
             }
           '
@@ -136,7 +138,7 @@ jobs:
               final_url: fr.finalUrl,
               extractor: fr.extractor,
               external_content_untrusted: fr.externalContent?.untrusted === true,
-              text_contains_expected_marker: fr.text.toLowerCase().includes('example domain'),
+              text_contains_expected_marker: fr.text.toLowerCase().includes("example domain"),
             },
             model_provider_calls: 0,
             paid_search_calls: 0,

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "task_id": "OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015",
+  "task_type": "virtual_browser_audit",
+  "task_file": "ops/agent-control/tasks/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015.json",
+  "created_by": "Sergii",
+  "objective": "Read-only browser probe of public GitHub pages using the existing OpenClaw Playwright/Chromium execution layer. Verify whether github.com loads normally from the OpenClaw runner without anti-bot blocking. Capture browser-visible text, buttons, links, HTTP status, console/request failures, and screenshots. Check only the public GitHub homepage and the public repository page for 2133611700c-sudo/opencloud-gpt-agent. No sign-in, credential entry, form submission, account action, settings change, public posting, destructive action, or paid action. If blocked or challenged, record the exact browser-visible message and evidence; do not attempt bypasses.",
+  "run_id": "38780089295",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/38780089295",
+  "status": "success",
+  "expected_status": "PASS",
+  "started_at": "2026-10-15T17:46:52.241Z",
+  "finished_at": "2026-10-15T17:47:06.187Z",
+  "summary": "virtual_browser_audit completed successfully",
+  "actions_taken": [
+    "validated task file ops/agent-control/tasks/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015.json",
+    "executed task type virtual_browser_audit",
+    "wrote markdown report ops/agent-control/reports/virtual_browser_audit/20261015T174652Z.md"
+  ],
+  "files_changed": [],
+  "commits": [],
+  "pull_request": null,
+  "tests": [
+    {
+      "name": "schema validation",
+      "status": "pass"
+    },
+    {
+      "name": "result schema",
+      "status": "pass"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "openclaw-38780089295-0",
+      "report_file": "ops/agent-control/reports/virtual_browser_audit/20261015T174652Z.md"
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "next_step": "No action required.",
+  "actor": "2133611700c-sudo",
+  "git_sha": "86101cb8213be7c26d43ccf0ba5fd14ab991e930",
+  "dispatch_file": "",
+  "details": {
+    "target_origin": "https://github.com",
+    "routes": [
+      "/",
+      "/2133611700c-sudo/opencloud-gpt-agent"
+    ],
+    "attempts_used": 1,
+    "out_dir": "ops/agent-control/reports/_runtime/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015"
+  }
+}

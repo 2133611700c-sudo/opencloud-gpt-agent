@@ -1,0 +1,2664 @@
+{
+  "summary": {
+    "ok": true,
+    "target": "https://github.com",
+    "generated_at": "2026-10-15T17:47:06.161Z",
+    "pages_checked": 4,
+    "failed_pages": []
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "url": "https://github.com/",
+      "ok": true,
+      "status": 200,
+      "ms": 4865,
+      "title": "GitHub · Change is constant. GitHub keeps you ahead. · GitHub · GitHub",
+      "body_text_excerpt": "Skip to content\nNavigation Menu\nPlatform\nSolutions\nResources\nOpen Source\nEnterprise\nPricing\nSearch\n/\nSign in\nSign up\nMona the Octocat, Copilot, and Ducky float jubilantly upward from behind the GitHub product demo accompanied by a purple glow and a scattering of stars.\nThe future of building happens together\n\nTools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.\n\nEnter your email\nSign up for GitHub\nDownload GitHub Copilot app\nGitHub features\nA demonstration animation of a code editor using GitHub Copilot Chat, where the user requests GitHub Copilot to refactor duplicated logic and extract it into a reusable function for a given code snippet.\nCodePlanCollaborateAutomateSecure\n\nWrite, test, and fix code quickly with GitHub Copilot, from simple boilerplate to complex features.\n\nGITHUB CUSTOMERS\nAccelerate your entire workflow\n\nFrom your first line of code to final deployment, GitHub provides AI and automation tools to help you build and ship better software faster.\n\nA Copilot chat window with the 'Ask' mode enabled. The user switches from 'Ask' mode to 'Agent' mode from a dropdown menu, then sends the prompt 'Update the website to allow searching for running races by name.' Copilot analyzes the codebase, then explains the required edits for three files before generating them. Copilot then confirms completion and summarizes the implemented changes for the new functionality allowing users to search races by name and view paginated, filtered results.\nYour AI partner everywhere. Copilot is ready to work with you at each step of the software development lifecycle.\nExplore GitHub Copilot\n\nDuolingo boosts developer speed by 25% with GitHub Copilot\n\nRead customer story\n\n2025 Gartner® Magic Quadrant™ for AI Code Assistants\n\nRead industry report\nAutomate your path to production\n\nShip faster with secure, reliable CI/CD.\n\nExplore GitHub Actions\nCode instantly from anywhere\n\nLaunch a full, cloud-based development environment in seconds.\n\nExplore GitHub Codespaces\nKeep momentum on the go\n\nManage projects and assign tasks to Copilot, all from your mobile device.\n\nExplore GitHub Mobile\nShape your toolchain\n\nExtend your stack with apps, actions, and AI models.\n\nExplore GitHub Marketplace\nBuilt-in application security where found means fixed\n\nUse AI to find and fix vulnerabilities so your team can ship more secure software faster.\n\nApply fixes in seconds. Spend less time debugging and more time building features with Copilot Autofix.\nExplore GitHub Advanced Security\n\nSecurity debt, solved. Leverage security campaigns and Copilot Autofix to reduce application vulnerabilities.\n\nLearn about GitHub Code Security\n\nDependencies you can depend on. Update vulnerable dependencies with supported fixes for breaking changes.\n\nLearn about Dependabot\n\nYour secrets, your business. Detect, prevent, and remediate leaked secrets across your organization.\n\nLearn about GitHub Secret Protection\n\n70% MTTR reduction\nwith Copilot Autofix1\n\n8.3M secret leaks stopped\nin the past 12 months with push protection1\n\nWork together, achieve more\n\nFrom planning and discussion to code review, GitHub keeps your team’s conversation and context next to your code.\n\nPlan with clarity. Organize everything from high-level roadmaps to everyday tasks.\nExplore GitHub Projects\n“\nIt helps us onboard new software engineers and get them productive right away. We have all our source code, issues, and pull requests in one place... GitHub is a complete platform that frees us from menial tasks and enables us to do our best work.\nFABIAN FAULHABER\nApplication manager at Mercedes-Benz\nKeep track of your tasks\n\nCreate issues and manage projects with tools that adapt to your code.\n\nExplore GitHub Issues\nShare ideas and ask questions\n\nCreate space for open-ended conversations alongside your project.\n\nExplore GitHub Discussions\nReview code changes together\n\nAssign initial reviews to Copilot for greater speed and quality.\n\nExplore code review\nFund open source projects\n\nBecome an open source partner and support the tools and libraries that power your work.\n\nExplore GitHub Sponsors\nFrom startups to enterprises, GitHub scales with teams of any size in any industry.\nBy industryBy sizeBy use case\nTechnology\n\nFigma streamlines development and strengthens security\n\nRead customer story\nAutomotive\n\nMercedes-Benz standardizes source code and automates onboarding\n\nRead customer story\nFinancial services\n\nMercado Libre cuts coding time by 50%\n\nRead customer story\nExplore customer stories\nView all solutions\nA subtle purple glow fades in as Mona the Octocat, Copilot, and Ducky dramatically fall into place next to one another while gazing optimistically into the distance.\nMillions of developers and businesses call GitHub home\n\nWhether you’re scaling your development process or just learning how to code, GitHub is where you belong. Join the world’s most widely adopted developer platform to build the technologies that shape what’s next.\n\nEnter your email\nSign up for GitHub\nDownload GitHub Copilot app\nFootnotes\n\nGitHub internal customer data, 2025.\n\nSite-wide Links\nTHE DEVELOPER NEWSLETTER\n\nGet tips, technical guides, and best practices. Twice a month. Right in your inbox.\n\nSubscribe\nPLATFORM\nFeatures\nEnterprise\nCopilot\nAI\nSecurity\nPricing\nTeam\nResources\nRoadmap\nCompare GitHub\nECOSYSTEM\nDeveloper API\nPartners\nEducation\nGitHub CLI\nGitHub Desktop\nGitHub Mobile\nGitHub Marketplace\nMCP Registry\nSUPPORT\nDocs\nCommunity Forum\nProfessional Services\nPremium Support\nSkills\nStatus\nContact GitHub\nWhat is Git?\nSitemap\nCOMPANY\nAbout\nWhy GitHub\nCustomer Stories\nBlog\nThe ReadME Project\nCareers\nInclusion\nSocial Impact\nShop\n© 2026 GITHUB, INC.\nTERMS\nPRIVACY\nMANAGE COOKIES\nDO NOT SHARE MY PERSONAL INFORMATION\nGitHub on LinkedIn\nGitHub on Instagram\nGitHub on YouTube\nGitHub on X\nGitHub on TikTok\nGitHub on Twitch\nGitHub’s organization on GitHub\nEnglish",
+      "body_text_chars": 5911,
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "https://github.com/#start-of-content"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/mcp"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/actions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/codespaces"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-review"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-quality"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/code-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/secret-protection"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/why-github"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/changelog"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/team"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/startups"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/nonprofits"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/app-modernization"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devsecops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/ci-cd"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/healthcare"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/financial-services"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/manufacturing"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/government"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=ai"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=software-development"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/customer-stories"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/events"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/whitepapers"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/executive-insights"
+        },
+        {
+          "text": "",
+          "href": "https://skills.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://support.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/orgs/community/discussions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trust-center"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/partners"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/open-source/sponsors"
+        },
+        {
+          "text": "",
+          "href": "https://securitylab.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://maintainers.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://stars.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://archiveprogram.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/topics"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trending"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/collections"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot/copilot-business"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/premium-support"
+        },
+        {
+          "text": "Pricing",
+          "href": "https://github.com/pricing"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login"
+        },
+        {
+          "text": "Sign up",
+          "href": "https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F&source=header-home"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Download GitHub Copilot app",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "Explore GitHub Copilot",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "Read customer story",
+          "href": "https://github.com/customer-stories/duolingo"
+        },
+        {
+          "text": "Read industry report",
+          "href": "https://www.gartner.com/reprints/?id=1-2LVTG7RP&ct=250915&st=sb"
+        },
+        {
+          "text": "Explore GitHub Actions",
+          "href": "https://github.com/features/actions"
+        },
+        {
+          "text": "Explore GitHub Codespaces",
+          "href": "https://github.com/features/codespaces"
+        },
+        {
+          "text": "Explore GitHub Mobile",
+          "href": "https://github.com/mobile"
+        },
+        {
+          "text": "Explore GitHub Marketplace",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "Explore GitHub Advanced Security",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "Learn about GitHub Code Security",
+          "href": "https://github.com/security/advanced-security/code-security"
+        },
+        {
+          "text": "Learn about Dependabot",
+          "href": "https://github.com/security/advanced-security/software-supply-chain"
+        },
+        {
+          "text": "Learn about GitHub Secret Protection",
+          "href": "https://github.com/security/advanced-security/secret-protection"
+        },
+        {
+          "text": "1",
+          "href": "https://github.com/#footnote-1"
+        },
+        {
+          "text": "1",
+          "href": "https://github.com/#footnote-1"
+        },
+        {
+          "text": "Explore GitHub Projects",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "Explore GitHub Issues",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "Explore GitHub Discussions",
+          "href": "https://github.com/features/discussions"
+        },
+        {
+          "text": "Explore code review",
+          "href": "https://github.com/features/code-review"
+        },
+        {
+          "text": "Explore GitHub Sponsors",
+          "href": "https://github.com/sponsors"
+        },
+        {
+          "text": "Technology Figma streamlines development and strengthens security Read customer story",
+          "href": "https://github.com/customer-stories/figma"
+        },
+        {
+          "text": "Automotive Mercedes-Benz standardizes source code and automates onboarding Read customer story",
+          "href": "https://github.com/customer-stories/mercedes-benz"
+        },
+        {
+          "text": "Financial services Mercado Libre cuts coding time by 50% Read customer story",
+          "href": "https://github.com/customer-stories/mercado-libre"
+        },
+        {
+          "text": "Explore customer stories",
+          "href": "https://github.com/customer-stories"
+        },
+        {
+          "text": "View all solutions",
+          "href": "https://github.com/solutions"
+        },
+        {
+          "text": "Download GitHub Copilot app",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/#footnote-1-ref-0"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/#hero"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Subscribe",
+          "href": "https://github.com/newsletter"
+        },
+        {
+          "text": "Features",
+          "href": "https://github.com/features"
+        },
+        {
+          "text": "Enterprise",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "Copilot",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "AI",
+          "href": "https://github.com/features/ai"
+        },
+        {
+          "text": "Security",
+          "href": "https://github.com/security"
+        },
+        {
+          "text": "Pricing",
+          "href": "https://github.com/pricing"
+        },
+        {
+          "text": "Team",
+          "href": "https://github.com/team"
+        },
+        {
+          "text": "Resources",
+          "href": "https://github.com/resources"
+        },
+        {
+          "text": "Roadmap",
+          "href": "https://github.com/github/roadmap"
+        },
+        {
+          "text": "Compare GitHub",
+          "href": "https://github.com/resources/articles/devops-tools-comparison"
+        },
+        {
+          "text": "Developer API",
+          "href": "https://docs.github.com/integrations/concepts/about-building-integrations"
+        },
+        {
+          "text": "Partners",
+          "href": "https://github.com/partners"
+        },
+        {
+          "text": "Education",
+          "href": "https://github.com/education"
+        },
+        {
+          "text": "GitHub CLI",
+          "href": "https://cli.github.com/"
+        },
+        {
+          "text": "GitHub Desktop",
+          "href": "https://github.com/apps/desktop"
+        },
+        {
+          "text": "GitHub Mobile",
+          "href": "https://github.com/mobile"
+        },
+        {
+          "text": "GitHub Marketplace",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "MCP Registry",
+          "href": "https://github.com/mcp"
+        },
+        {
+          "text": "Docs",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "Community Forum",
+          "href": "https://github.community/"
+        },
+        {
+          "text": "Professional Services",
+          "href": "https://github.com/services"
+        },
+        {
+          "text": "Premium Support",
+          "href": "https://github.com/enterprise/premium-support"
+        },
+        {
+          "text": "Skills",
+          "href": "https://skills.github.com/"
+        },
+        {
+          "text": "Status",
+          "href": "https://www.githubstatus.com/"
+        },
+        {
+          "text": "Contact GitHub",
+          "href": "https://support.github.com/?tags=dotcom-footer"
+        },
+        {
+          "text": "What is Git?",
+          "href": "https://github.com/git-guides"
+        },
+        {
+          "text": "Sitemap",
+          "href": "https://github.com/sitemap"
+        },
+        {
+          "text": "About",
+          "href": "https://github.com/about"
+        },
+        {
+          "text": "Why GitHub",
+          "href": "https://github.com/why-github"
+        },
+        {
+          "text": "Customer Stories",
+          "href": "https://github.com/customer-stories?type=enterprise"
+        },
+        {
+          "text": "Blog",
+          "href": "https://github.blog/"
+        },
+        {
+          "text": "The ReadME Project",
+          "href": "https://github.com/readme"
+        },
+        {
+          "text": "Careers",
+          "href": "https://github.careers/"
+        },
+        {
+          "text": "Inclusion",
+          "href": "https://github.com/about/diversity"
+        },
+        {
+          "text": "Social Impact",
+          "href": "https://socialimpact.github.com/"
+        },
+        {
+          "text": "Shop",
+          "href": "https://thegithubshop.com/"
+        },
+        {
+          "text": "TERMS",
+          "href": "https://docs.github.com/site-policy/github-terms/github-terms-of-service"
+        },
+        {
+          "text": "PRIVACY",
+          "href": "https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement"
+        },
+        {
+          "text": "GitHub on LinkedIn",
+          "href": "https://www.linkedin.com/company/github"
+        },
+        {
+          "text": "GitHub on Instagram",
+          "href": "https://www.instagram.com/github"
+        },
+        {
+          "text": "GitHub on YouTube",
+          "href": "https://www.youtube.com/github"
+        },
+        {
+          "text": "GitHub on X",
+          "href": "https://x.com/github"
+        },
+        {
+          "text": "GitHub on TikTok",
+          "href": "https://www.tiktok.com/@github"
+        },
+        {
+          "text": "GitHub on Twitch",
+          "href": "https://www.twitch.tv/github"
+        },
+        {
+          "text": "GitHub’s organization on GitHub",
+          "href": "https://github.com/github"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 30,
+      "buttons": [
+        "Platform",
+        "Solutions",
+        "Resources",
+        "Open Source",
+        "Enterprise",
+        "Search\n/",
+        "Sign up for GitHub",
+        "Code",
+        "Plan",
+        "Collaborate",
+        "Automate",
+        "Secure",
+        "Code",
+        "Automate your path to production",
+        "Code instantly from anywhere",
+        "Keep momentum on the go",
+        "Shape your toolchain",
+        "Keep track of your tasks",
+        "Share ideas and ask questions",
+        "Review code changes together",
+        "Fund open source projects",
+        "By industry",
+        "By size",
+        "By use case",
+        "By industry",
+        "Sign up for GitHub",
+        "MANAGE COOKIES",
+        "DO NOT SHARE MY PERSONAL INFORMATION",
+        "English"
+      ],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://github.githubassets.com/assets/code-1_desktop-6d44c7cb53b4aebb.mp4",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015/desktop-home.png"
+    },
+    {
+      "viewport": "desktop",
+      "route": "/2133611700c-sudo/opencloud-gpt-agent",
+      "url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent",
+      "ok": true,
+      "status": 200,
+      "ms": 2803,
+      "title": "GitHub - 2133611700c-sudo/opencloud-gpt-agent · GitHub",
+      "body_text_excerpt": "Skip to content\nNavigation Menu\nPlatform\nSolutions\nResources\nOpen Source\nEnterprise\nPricing\nSearch\n/\nSign in\nSign up\n2133611700c-sudo\nopencloud-gpt-agent\nRepository navigation\nCode\nIssues\n15\n (15)\nPull requests\n4\n (4)\nActions\nProjects\nSecurity and quality\nInsights\nopencloud-gpt-agent\nPublic\nNotifications\nFork0\n (0)\nStar0\n (0)\nmain\n89 Branches\n0 Tags\nCode\nLatest commit\n2133611700c-sudo\nops(agent): add GitHub public browser probe\n86101cb\n · \nHistory\n178 Commits\nFolders and files\nName Last commit message Last commit date\n\n.github\n \nfeat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…\n \n\ndocs\n \nfeat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…\n \n\nops\n \nops(agent): add GitHub public browser probe\n \n\nproducts\n \nOpenClaw: sanitized Call2Me webhook collector\n \n\nscripts\n \nfeat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…\n \n\ntests\n \nfeat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…\n \n\n.gitignore\n \nfix: standardize openclaw task dispatch and evidence\n \n\nAGENTS.md\n \ndocs(control): add read-first supervisor board (#41)\n \n\nREADME.md\n \nfeat: add chatgpt github openclaw control path\n \n\npackage-lock.json\n \nfix: standardize openclaw task dispatch and evidence\n \n\npackage.json\n \nfix: standardize openclaw task dispatch and evidence\n \nRepository files navigation\nREADME\nSecurity\nOpenCloud GPT Agent\n\nThis repository is the OpenClaw execution layer for ChatGPT-driven, read-only task dispatch with evidence-first closure.\n\nPrimary architecture reference:\n\nops/agent-control/CHATGPT_GITHUB_OPENCLAW_ARCHITECTURE.md\nSupported flow\n\nChatGPT supervisor -> GitHub task JSON -> GitHub Actions -> OpenClaw runner -> evidence report -> STATUS.md\n\nPrimary task path:\n\nCreate a safe task JSON in ops/agent-control/tasks/.\nCreate a dispatch JSON in ops/agent-control/dispatch/.\nPush the branch.\nopenclaw-chatgpt-dispatch.yml validates the request and calls openclaw-task-runner.yml.\nopenclaw-task-runner.yml validates the exact task file, uploads artifacts, writes openclaw-latest.json, updates the managed OpenClaw section in STATUS.md, and commits evidence as github-actions[bot].\n\nSecondary paths:\n\nDirect task push to ops/agent-control/tasks/*.json triggers openclaw-task-runner.yml.\nDirect task push only auto-runs tasks with \"status\": \"pending\".\nIf the same push also adds a dispatch request for that task, the direct task push path is skipped to avoid duplicate execution.\nManual dispatch is available through GitHub CLI:\ngh workflow run openclaw-task-runner.yml \\\n --repo 2133611700c-sudo/opencloud-gpt-agent \\\n --ref main \\\n -f task_file=ops/agent-control/tasks/<TASK>.json \\\n -f force_rerun=true \\\n -f run_windows_smoke=false\nRuntime policy\nThis project is intentionally separate from Handyment, messageinfo, and USCIS Helper.\nNode.js baseline: 22.x for local and CI execution.\nPackage manager: npm with committed package-lock.json; use npm ci in automation.\nBrowser automation: Playwright (^1.60.0).\nOpenClaw scope boundary\nOpenClaw: browser automation, evidence generation, workflow-driven monitoring tasks.\nOpenCV/OpenCL: not installed or supported by default in this repository.\nAdd OpenCV/OpenCL only when there is a direct runtime import/use case committed in code and approved by task contract.\nWindows operation\nPrefer native Windows PowerShell for local runs when WSL is also installed.\nPrimary runbook: ops/agent-control/WINDOWS_RUNBOOK.md.\nLocal verification\nnpm ci\nnpm test\nnpm run verify:openclaw\nnpm run verify:openclaw:acceptance\nTask creation\nnode scripts/create-openclaw-task.mjs \\\n --id OC-TEST-001 \\\n --origin https://www.bls.gov \\\n --routes \"/,/ooh/\" \\\n --goal \"Read-only official source audit\"\nEvidence files\nops/agent-control/reports/openclaw-latest.json\nops/agent-control/reports/<task-type>/<timestamp>.md\nops/agent-control/STATUS.md\nSafety defaults\nNo customer actions.\nNo public posting.\nNo paid ads changes.\nNo destructive actions.\nNo workflow path may select tasks by last-modified time.\nAbout\nNo description, website, or topics provided.\nResources\nReadme\nSecurity policy\nSecurity policy\nActivity\nStars\n0 stars\nWatchers\n0 watching\nForks\n0 forks\nReport repository\nReleases\nNo releases published\nContributors\n2\n (2)\n2133611700c-sudo\ngithub-actions[bot]\nLanguages\nJavaScript\n91.1%\nHTML\n7.2%\nCSS\n1.7%\nFooter\n© 2026 GitHub, Inc.\nFooter navigation\nTerms\nPrivacy\nSecurity\nStatus\nCommunity\nDocs\nContact\nManage cookies\nDo not share my personal information",
+      "body_text_chars": 4472,
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#start-of-content"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/mcp"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/actions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/codespaces"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-review"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-quality"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/code-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/secret-protection"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/why-github"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/changelog"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/team"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/startups"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/nonprofits"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/app-modernization"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devsecops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/ci-cd"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/healthcare"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/financial-services"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/manufacturing"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/government"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=ai"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=software-development"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/customer-stories"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/events"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/whitepapers"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/executive-insights"
+        },
+        {
+          "text": "",
+          "href": "https://skills.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://support.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/orgs/community/discussions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trust-center"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/partners"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/open-source/sponsors"
+        },
+        {
+          "text": "",
+          "href": "https://securitylab.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://maintainers.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://stars.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://archiveprogram.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/topics"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trending"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/collections"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot/copilot-business"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/premium-support"
+        },
+        {
+          "text": "Pricing",
+          "href": "https://github.com/pricing"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Sign up",
+          "href": "https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E&source=header-repo&source_repo=2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "2133611700c-sudo",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "opencloud-gpt-agent",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Code",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Issues 15 (15)",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/issues"
+        },
+        {
+          "text": "Pull requests 4 (4)",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/pulls"
+        },
+        {
+          "text": "Actions",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions"
+        },
+        {
+          "text": "Projects",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/projects"
+        },
+        {
+          "text": "Security and quality",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/security"
+        },
+        {
+          "text": "Insights",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/pulse"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "opencloud-gpt-agent",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Notifications",
+          "href": "https://github.com/login?return_to=%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Fork0 (0)",
+          "href": "https://github.com/login?return_to=%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Star0 (0)",
+          "href": "https://github.com/login?return_to=%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Readme",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#readme-ov-file"
+        },
+        {
+          "text": "Security policy",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#security-ov-file"
+        },
+        {
+          "text": "Activity",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/activity"
+        },
+        {
+          "text": "0 forks",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/forks"
+        },
+        {
+          "text": "Report repository",
+          "href": "https://github.com/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent&report=2133611700c-sudo+%28user%29"
+        },
+        {
+          "text": "89 Branches",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/branches"
+        },
+        {
+          "text": "0 Tags",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tags"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/branches"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tags"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "2133611700c-sudo",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commits?author=2133611700c-sudo"
+        },
+        {
+          "text": "ops(agent): add GitHub public browser probe",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/86101cb8213be7c26d43ccf0ba5fd14ab991e930"
+        },
+        {
+          "text": "86101cb",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/86101cb8213be7c26d43ccf0ba5fd14ab991e930"
+        },
+        {
+          "text": "178 Commits",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commits/main/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commits/main/"
+        },
+        {
+          "text": ".github",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/.github"
+        },
+        {
+          "text": ".github",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/.github"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": "docs",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/docs"
+        },
+        {
+          "text": "docs",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/docs"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": "ops",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/ops"
+        },
+        {
+          "text": "ops",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/ops"
+        },
+        {
+          "text": "ops(agent): add GitHub public browser probe",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/86101cb8213be7c26d43ccf0ba5fd14ab991e930"
+        },
+        {
+          "text": "products",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/products"
+        },
+        {
+          "text": "products",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/products"
+        },
+        {
+          "text": "OpenClaw: sanitized Call2Me webhook collector",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/3e3d56b9c402b3861493e5cde7189f40d5d2820e"
+        },
+        {
+          "text": "scripts",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/scripts"
+        },
+        {
+          "text": "scripts",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/scripts"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": "tests",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/tests"
+        },
+        {
+          "text": "tests",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/tests"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": ".gitignore",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/.gitignore"
+        },
+        {
+          "text": ".gitignore",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/.gitignore"
+        },
+        {
+          "text": "fix: standardize openclaw task dispatch and evidence",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/de3fcea7e6dc4894d70b5d1567b0b22bae7a4349"
+        },
+        {
+          "text": "AGENTS.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/AGENTS.md"
+        },
+        {
+          "text": "AGENTS.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/AGENTS.md"
+        },
+        {
+          "text": "docs(control): add read-first supervisor board (",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/c068e1846b25e7ed6b9b5985fdaf47f5fcbdd382"
+        },
+        {
+          "text": "#41",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/pull/41"
+        },
+        {
+          "text": ")",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/c068e1846b25e7ed6b9b5985fdaf47f5fcbdd382"
+        },
+        {
+          "text": "README.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/README.md"
+        },
+        {
+          "text": "README.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/README.md"
+        },
+        {
+          "text": "feat: add chatgpt github openclaw control path",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/f59d830565a49dc6a0acbc0b83f4587e6b8b0016"
+        },
+        {
+          "text": "package-lock.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package-lock.json"
+        },
+        {
+          "text": "package-lock.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package-lock.json"
+        },
+        {
+          "text": "fix: standardize openclaw task dispatch and evidence",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/de3fcea7e6dc4894d70b5d1567b0b22bae7a4349"
+        },
+        {
+          "text": "package.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package.json"
+        },
+        {
+          "text": "package.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package.json"
+        },
+        {
+          "text": "fix: standardize openclaw task dispatch and evidence",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/de3fcea7e6dc4894d70b5d1567b0b22bae7a4349"
+        },
+        {
+          "text": "README",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#"
+        },
+        {
+          "text": "Security",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#opencloud-gpt-agent"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#supported-flow"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#runtime-policy"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#openclaw-scope-boundary"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#windows-operation"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#local-verification"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#task-creation"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#evidence-files"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#safety-defaults"
+        },
+        {
+          "text": "Readme",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#readme-ov-file"
+        },
+        {
+          "text": "Security policy",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#security-ov-file"
+        },
+        {
+          "text": "Activity",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/activity"
+        },
+        {
+          "text": "0 forks",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/forks"
+        },
+        {
+          "text": "Report repository",
+          "href": "https://github.com/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent&report=2133611700c-sudo+%28user%29"
+        },
+        {
+          "text": "Releases",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/releases"
+        },
+        {
+          "text": "Contributors",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/graphs/contributors"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "2133611700c-sudo",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/github-actions[bot]"
+        },
+        {
+          "text": "github-actions[bot]",
+          "href": "https://github.com/github-actions[bot]"
+        },
+        {
+          "text": "JavaScript 91.1%",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/search?l=javascript"
+        },
+        {
+          "text": "HTML 7.2%",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/search?l=html"
+        },
+        {
+          "text": "CSS 1.7%",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/search?l=css"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Terms",
+          "href": "https://docs.github.com/site-policy/github-terms/github-terms-of-service"
+        },
+        {
+          "text": "Privacy",
+          "href": "https://docs.github.com/site-policy/privacy-policies/github-privacy-statement"
+        },
+        {
+          "text": "Security",
+          "href": "https://github.com/security"
+        },
+        {
+          "text": "Status",
+          "href": "https://www.githubstatus.com/"
+        },
+        {
+          "text": "Community",
+          "href": "https://github.community/"
+        },
+        {
+          "text": "Docs",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "Contact",
+          "href": "https://support.github.com/?tags=dotcom-footer"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 16,
+      "buttons": [
+        "Platform",
+        "Solutions",
+        "Resources",
+        "Open Source",
+        "Enterprise",
+        "Search\n/",
+        "More items",
+        "main",
+        "Go to file",
+        "Code",
+        "View all files",
+        "More items",
+        "Manage cookies",
+        "Do not share my personal information"
+      ],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "request_failures": [
+        {
+          "url": "https://github.githubassets.com/assets/code-1_desktop-6d44c7cb53b4aebb.mp4",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://collector.github.com/github/collect",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015/desktop-2133611700c-sudo_opencloud-gpt-agent.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "url": "https://github.com/",
+      "ok": true,
+      "status": 200,
+      "ms": 3368,
+      "title": "GitHub · Change is constant. GitHub keeps you ahead. · GitHub · GitHub",
+      "body_text_excerpt": "Skip to content\nNavigation Menu\nSign in\nMona the Octocat, Copilot, and Ducky float jubilantly upward from behind the GitHub product demo accompanied by a purple glow and a scattering of stars.\nThe future of building happens together\n\nTools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.\n\nEnter your email\nSign up for GitHub\nDownload GitHub Copilot app\nGitHub features\nA demonstration animation of a code editor using GitHub Copilot Chat, where the user requests GitHub Copilot to refactor duplicated logic and extract it into a reusable function for a given code snippet.\nCode\n\nWrite, test, and fix code quickly with GitHub Copilot, from simple boilerplate to complex features.\n\nGITHUB CUSTOMERS\nAccelerate your entire workflow\n\nFrom your first line of code to final deployment, GitHub provides AI and automation tools to help you build and ship better software faster.\n\nA Copilot chat window with the 'Ask' mode enabled. The user switches from 'Ask' mode to 'Agent' mode from a dropdown menu, then sends the prompt 'Update the website to allow searching for running races by name.' Copilot analyzes the codebase, then explains the required edits for three files before generating them. Copilot then confirms completion and summarizes the implemented changes for the new functionality allowing users to search races by name and view paginated, filtered results.\nYour AI partner everywhere. Copilot is ready to work with you at each step of the software development lifecycle.\nExplore GitHub Copilot\n\nDuolingo boosts developer speed by 25% with GitHub Copilot\n\nRead customer story\n\n2025 Gartner® Magic Quadrant™ for AI Code Assistants\n\nRead industry report\nAutomate your path to production\n\nShip faster with secure, reliable CI/CD.\n\nExplore GitHub Actions\nCode instantly from anywhere\n\nLaunch a full, cloud-based development environment in seconds.\n\nExplore GitHub Codespaces\nKeep momentum on the go\n\nManage projects and assign tasks to Copilot, all from your mobile device.\n\nExplore GitHub Mobile\nShape your toolchain\n\nExtend your stack with apps, actions, and AI models.\n\nExplore GitHub Marketplace\nBuilt-in application security where found means fixed\n\nUse AI to find and fix vulnerabilities so your team can ship more secure software faster.\n\nApply fixes in seconds. Spend less time debugging and more time building features with Copilot Autofix.\nExplore GitHub Advanced Security\n\nSecurity debt, solved. Leverage security campaigns and Copilot Autofix to reduce application vulnerabilities.\n\nLearn about GitHub Code Security\n\nDependencies you can depend on. Update vulnerable dependencies with supported fixes for breaking changes.\n\nLearn about Dependabot\n\nYour secrets, your business. Detect, prevent, and remediate leaked secrets across your organization.\n\nLearn about GitHub Secret Protection\n\n70% MTTR reduction\nwith Copilot Autofix1\n\n8.3M secret leaks stopped\nin the past 12 months with push protection1\n\nWork together, achieve more\n\nFrom planning and discussion to code review, GitHub keeps your team’s conversation and context next to your code.\n\nPlan with clarity. Organize everything from high-level roadmaps to everyday tasks.\nExplore GitHub Projects\n“\nIt helps us onboard new software engineers and get them productive right away. We have all our source code, issues, and pull requests in one place... GitHub is a complete platform that frees us from menial tasks and enables us to do our best work.\nFABIAN FAULHABER\nApplication manager at Mercedes-Benz\nKeep track of your tasks\n\nCreate issues and manage projects with tools that adapt to your code.\n\nExplore GitHub Issues\nShare ideas and ask questions\n\nCreate space for open-ended conversations alongside your project.\n\nExplore GitHub Discussions\nReview code changes together\n\nAssign initial reviews to Copilot for greater speed and quality.\n\nExplore code review\nFund open source projects\n\nBecome an open source partner and support the tools and libraries that power your work.\n\nExplore GitHub Sponsors\nFrom startups to enterprises, GitHub scales with teams of any size in any industry.\nBy industryBy sizeBy use case\nTechnology\n\nFigma streamlines development and strengthens security\n\nRead customer story\nAutomotive\n\nMercedes-Benz standardizes source code and automates onboarding\n\nRead customer story\nFinancial services\n\nMercado Libre cuts coding time by 50%\n\nRead customer story\nExplore customer stories\nView all solutions\nA subtle purple glow fades in as Mona the Octocat, Copilot, and Ducky dramatically fall into place next to one another while gazing optimistically into the distance.\nMillions of developers and businesses call GitHub home\n\nWhether you’re scaling your development process or just learning how to code, GitHub is where you belong. Join the world’s most widely adopted developer platform to build the technologies that shape what’s next.\n\nEnter your email\nSign up for GitHub\nDownload GitHub Copilot app\nFootnotes\n\nGitHub internal customer data, 2025.\n\nSite-wide Links\nTHE DEVELOPER NEWSLETTER\n\nGet tips, technical guides, and best practices. Twice a month. Right in your inbox.\n\nSubscribe\nPLATFORM\nFeatures\nEnterprise\nCopilot\nAI\nSecurity\nPricing\nTeam\nResources\nRoadmap\nCompare GitHub\nECOSYSTEM\nDeveloper API\nPartners\nEducation\nGitHub CLI\nGitHub Desktop\nGitHub Mobile\nGitHub Marketplace\nMCP Registry\nSUPPORT\nDocs\nCommunity Forum\nProfessional Services\nPremium Support\nSkills\nStatus\nContact GitHub\nWhat is Git?\nSitemap\nCOMPANY\nAbout\nWhy GitHub\nCustomer Stories\nBlog\nThe ReadME Project\nCareers\nInclusion\nSocial Impact\nShop\n© 2026 GITHUB, INC.\nTERMS\nPRIVACY\nMANAGE COOKIES\nDO NOT SHARE MY PERSONAL INFORMATION\nGitHub on LinkedIn\nGitHub on Instagram\nGitHub on YouTube\nGitHub on X\nGitHub on TikTok\nGitHub on Twitch\nGitHub’s organization on GitHub\nEnglish",
+      "body_text_chars": 5805,
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "https://github.com/#start-of-content"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/mcp"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/actions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/codespaces"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-review"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-quality"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/code-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/secret-protection"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/why-github"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/changelog"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/team"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/startups"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/nonprofits"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/app-modernization"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devsecops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/ci-cd"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/healthcare"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/financial-services"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/manufacturing"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/government"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=ai"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=software-development"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/customer-stories"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/events"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/whitepapers"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/executive-insights"
+        },
+        {
+          "text": "",
+          "href": "https://skills.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://support.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/orgs/community/discussions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trust-center"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/partners"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/open-source/sponsors"
+        },
+        {
+          "text": "",
+          "href": "https://securitylab.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://maintainers.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://stars.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://archiveprogram.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/topics"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trending"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/collections"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot/copilot-business"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/premium-support"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/pricing"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F&source=header-home"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Download GitHub Copilot app",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "Explore GitHub Copilot",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "Read customer story",
+          "href": "https://github.com/customer-stories/duolingo"
+        },
+        {
+          "text": "Read industry report",
+          "href": "https://www.gartner.com/reprints/?id=1-2LVTG7RP&ct=250915&st=sb"
+        },
+        {
+          "text": "Explore GitHub Actions",
+          "href": "https://github.com/features/actions"
+        },
+        {
+          "text": "Explore GitHub Codespaces",
+          "href": "https://github.com/features/codespaces"
+        },
+        {
+          "text": "Explore GitHub Mobile",
+          "href": "https://github.com/mobile"
+        },
+        {
+          "text": "Explore GitHub Marketplace",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "Explore GitHub Advanced Security",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "Learn about GitHub Code Security",
+          "href": "https://github.com/security/advanced-security/code-security"
+        },
+        {
+          "text": "Learn about Dependabot",
+          "href": "https://github.com/security/advanced-security/software-supply-chain"
+        },
+        {
+          "text": "Learn about GitHub Secret Protection",
+          "href": "https://github.com/security/advanced-security/secret-protection"
+        },
+        {
+          "text": "1",
+          "href": "https://github.com/#footnote-1"
+        },
+        {
+          "text": "1",
+          "href": "https://github.com/#footnote-1"
+        },
+        {
+          "text": "Explore GitHub Projects",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "Explore GitHub Issues",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "Explore GitHub Discussions",
+          "href": "https://github.com/features/discussions"
+        },
+        {
+          "text": "Explore code review",
+          "href": "https://github.com/features/code-review"
+        },
+        {
+          "text": "Explore GitHub Sponsors",
+          "href": "https://github.com/sponsors"
+        },
+        {
+          "text": "Technology Figma streamlines development and strengthens security Read customer story",
+          "href": "https://github.com/customer-stories/figma"
+        },
+        {
+          "text": "Automotive Mercedes-Benz standardizes source code and automates onboarding Read customer story",
+          "href": "https://github.com/customer-stories/mercedes-benz"
+        },
+        {
+          "text": "Financial services Mercado Libre cuts coding time by 50% Read customer story",
+          "href": "https://github.com/customer-stories/mercado-libre"
+        },
+        {
+          "text": "Explore customer stories",
+          "href": "https://github.com/customer-stories"
+        },
+        {
+          "text": "View all solutions",
+          "href": "https://github.com/solutions"
+        },
+        {
+          "text": "Download GitHub Copilot app",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/#footnote-1-ref-0"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/#hero"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Subscribe",
+          "href": "https://github.com/newsletter"
+        },
+        {
+          "text": "Features",
+          "href": "https://github.com/features"
+        },
+        {
+          "text": "Enterprise",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "Copilot",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "AI",
+          "href": "https://github.com/features/ai"
+        },
+        {
+          "text": "Security",
+          "href": "https://github.com/security"
+        },
+        {
+          "text": "Pricing",
+          "href": "https://github.com/pricing"
+        },
+        {
+          "text": "Team",
+          "href": "https://github.com/team"
+        },
+        {
+          "text": "Resources",
+          "href": "https://github.com/resources"
+        },
+        {
+          "text": "Roadmap",
+          "href": "https://github.com/github/roadmap"
+        },
+        {
+          "text": "Compare GitHub",
+          "href": "https://github.com/resources/articles/devops-tools-comparison"
+        },
+        {
+          "text": "Developer API",
+          "href": "https://docs.github.com/integrations/concepts/about-building-integrations"
+        },
+        {
+          "text": "Partners",
+          "href": "https://github.com/partners"
+        },
+        {
+          "text": "Education",
+          "href": "https://github.com/education"
+        },
+        {
+          "text": "GitHub CLI",
+          "href": "https://cli.github.com/"
+        },
+        {
+          "text": "GitHub Desktop",
+          "href": "https://github.com/apps/desktop"
+        },
+        {
+          "text": "GitHub Mobile",
+          "href": "https://github.com/mobile"
+        },
+        {
+          "text": "GitHub Marketplace",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "MCP Registry",
+          "href": "https://github.com/mcp"
+        },
+        {
+          "text": "Docs",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "Community Forum",
+          "href": "https://github.community/"
+        },
+        {
+          "text": "Professional Services",
+          "href": "https://github.com/services"
+        },
+        {
+          "text": "Premium Support",
+          "href": "https://github.com/enterprise/premium-support"
+        },
+        {
+          "text": "Skills",
+          "href": "https://skills.github.com/"
+        },
+        {
+          "text": "Status",
+          "href": "https://www.githubstatus.com/"
+        },
+        {
+          "text": "Contact GitHub",
+          "href": "https://support.github.com/?tags=dotcom-footer"
+        },
+        {
+          "text": "What is Git?",
+          "href": "https://github.com/git-guides"
+        },
+        {
+          "text": "Sitemap",
+          "href": "https://github.com/sitemap"
+        },
+        {
+          "text": "About",
+          "href": "https://github.com/about"
+        },
+        {
+          "text": "Why GitHub",
+          "href": "https://github.com/why-github"
+        },
+        {
+          "text": "Customer Stories",
+          "href": "https://github.com/customer-stories?type=enterprise"
+        },
+        {
+          "text": "Blog",
+          "href": "https://github.blog/"
+        },
+        {
+          "text": "The ReadME Project",
+          "href": "https://github.com/readme"
+        },
+        {
+          "text": "Careers",
+          "href": "https://github.careers/"
+        },
+        {
+          "text": "Inclusion",
+          "href": "https://github.com/about/diversity"
+        },
+        {
+          "text": "Social Impact",
+          "href": "https://socialimpact.github.com/"
+        },
+        {
+          "text": "Shop",
+          "href": "https://thegithubshop.com/"
+        },
+        {
+          "text": "TERMS",
+          "href": "https://docs.github.com/site-policy/github-terms/github-terms-of-service"
+        },
+        {
+          "text": "PRIVACY",
+          "href": "https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement"
+        },
+        {
+          "text": "GitHub on LinkedIn",
+          "href": "https://www.linkedin.com/company/github"
+        },
+        {
+          "text": "GitHub on Instagram",
+          "href": "https://www.instagram.com/github"
+        },
+        {
+          "text": "GitHub on YouTube",
+          "href": "https://www.youtube.com/github"
+        },
+        {
+          "text": "GitHub on X",
+          "href": "https://x.com/github"
+        },
+        {
+          "text": "GitHub on TikTok",
+          "href": "https://www.tiktok.com/@github"
+        },
+        {
+          "text": "GitHub on Twitch",
+          "href": "https://www.twitch.tv/github"
+        },
+        {
+          "text": "GitHub’s organization on GitHub",
+          "href": "https://github.com/github"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 30,
+      "buttons": [
+        "Sign up for GitHub",
+        "Code",
+        "Automate your path to production",
+        "Code instantly from anywhere",
+        "Keep momentum on the go",
+        "Shape your toolchain",
+        "Keep track of your tasks",
+        "Share ideas and ask questions",
+        "Review code changes together",
+        "Fund open source projects",
+        "By industry",
+        "By size",
+        "By use case",
+        "By industry",
+        "Sign up for GitHub",
+        "MANAGE COOKIES",
+        "DO NOT SHARE MY PERSONAL INFORMATION",
+        "English"
+      ],
+      "console_errors": [],
+      "request_failures": [
+        {
+          "url": "https://github.githubassets.com/assets/code-1_mobile-56dc14fe27999221.mp4",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015/mobile-home.png"
+    },
+    {
+      "viewport": "mobile",
+      "route": "/2133611700c-sudo/opencloud-gpt-agent",
+      "url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent",
+      "ok": true,
+      "status": 200,
+      "ms": 2029,
+      "title": "GitHub - 2133611700c-sudo/opencloud-gpt-agent · GitHub",
+      "body_text_excerpt": "Skip to content\nNavigation Menu\nSign in\n2133611700c-sudo\nopencloud-gpt-agent\nRepository navigation\nCode\nIssues\n15\n (15)\nMore\nitems\nopencloud-gpt-agent\nPublic\nNotifications\nFork0\n (0)\nStar0\n (0)\nAbout\nNo description, website, or topics provided.\nResources\nReadme\nSecurity policy\nSecurity policy\nActivity\nStars\n0 stars\nWatchers\n0 watching\nForks\n0 forks\nReport repository\nmain\nCode\nLatest commit\n2133611700c-sudo\nHistory\nFolders and files\nName Last commit date\n\n.github\n \n\ndocs\n \n\nops\n \n\nproducts\n \n\nscripts\n \n\ntests\n \n\n.gitignore\n \n\nAGENTS.md\n \n\nREADME.md\n \n\npackage-lock.json\n \n\nView all files\nRepository files navigation\nREADME\nSecurity\nOpenCloud GPT Agent\n\nThis repository is the OpenClaw execution layer for ChatGPT-driven, read-only task dispatch with evidence-first closure.\n\nPrimary architecture reference:\n\nops/agent-control/CHATGPT_GITHUB_OPENCLAW_ARCHITECTURE.md\nSupported flow\n\nChatGPT supervisor -> GitHub task JSON -> GitHub Actions -> OpenClaw runner -> evidence report -> STATUS.md\n\nPrimary task path:\n\nCreate a safe task JSON in ops/agent-control/tasks/.\nCreate a dispatch JSON in ops/agent-control/dispatch/.\nPush the branch.\nopenclaw-chatgpt-dispatch.yml validates the request and calls openclaw-task-runner.yml.\nopenclaw-task-runner.yml validates the exact task file, uploads artifacts, writes openclaw-latest.json, updates the managed OpenClaw section in STATUS.md, and commits evidence as github-actions[bot].\n\nSecondary paths:\n\nDirect task push to ops/agent-control/tasks/*.json triggers openclaw-task-runner.yml.\nDirect task push only auto-runs tasks with \"status\": \"pending\".\nIf the same push also adds a dispatch request for that task, the direct task push path is skipped to avoid duplicate execution.\nManual dispatch is available through GitHub CLI:\ngh workflow run openclaw-task-runner.yml \\\n --repo 2133611700c-sudo/opencloud-gpt-agent \\\n --ref main \\\n -f task_file=ops/agent-control/tasks/<TASK>.json \\\n -f force_rerun=true \\\n -f run_windows_smoke=false\nRuntime policy\nThis project is intentionally separate from Handyment, messageinfo, and USCIS Helper.\nNode.js baseline: 22.x for local and CI execution.\nPackage manager: npm with committed package-lock.json; use npm ci in automation.\nBrowser automation: Playwright (^1.60.0).\nOpenClaw scope boundary\nOpenClaw: browser automation, evidence generation, workflow-driven monitoring tasks.\nOpenCV/OpenCL: not installed or supported by default in this repository.\nAdd OpenCV/OpenCL only when there is a direct runtime import/use case committed in code and approved by task contract.\nWindows operation\nPrefer native Windows PowerShell for local runs when WSL is also installed.\nPrimary runbook: ops/agent-control/WINDOWS_RUNBOOK.md.\nLocal verification\nnpm ci\nnpm test\nnpm run verify:openclaw\nnpm run verify:openclaw:acceptance\nTask creation\nnode scripts/create-openclaw-task.mjs \\\n --id OC-TEST-001 \\\n --origin https://www.bls.gov \\\n --routes \"/,/ooh/\" \\\n --goal \"Read-only official source audit\"\nEvidence files\nops/agent-control/reports/openclaw-latest.json\nops/agent-control/reports/<task-type>/<timestamp>.md\nops/agent-control/STATUS.md\nSafety defaults\nNo customer actions.\nNo public posting.\nNo paid ads changes.\nNo destructive actions.\nNo workflow path may select tasks by last-modified time.\nReleases\nNo releases published\nContributors\n2\n (2)\n2133611700c-sudo\ngithub-actions[bot]\nLanguages\nJavaScript\n91.1%\nHTML\n7.2%\nCSS\n1.7%\nFooter\n© 2026 GitHub, Inc.\nFooter navigation\nTerms\nPrivacy\nSecurity\nStatus\nCommunity\nDocs\nContact\nManage cookies\nDo not share my personal information",
+      "body_text_chars": 3576,
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#start-of-content"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/ai/github-app"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/mcp"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/actions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/codespaces"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/issues"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-review"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/code-quality"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/code-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security/secret-protection"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/why-github"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/"
+        },
+        {
+          "text": "",
+          "href": "https://github.blog/changelog"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/marketplace"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/team"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/startups"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/nonprofits"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/app-modernization"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devsecops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case/ci-cd"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/use-case"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/healthcare"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/financial-services"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/manufacturing"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry/government"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/industry"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=ai"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=software-development"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=devops"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles?topic=security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/articles"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/customer-stories"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/events"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources/whitepapers"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/solutions/executive-insights"
+        },
+        {
+          "text": "",
+          "href": "https://skills.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://support.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/orgs/community/discussions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trust-center"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/partners"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/resources"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/open-source/sponsors"
+        },
+        {
+          "text": "",
+          "href": "https://securitylab.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://maintainers.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://stars.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://archiveprogram.github.com/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/topics"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/trending"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/collections"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/security/advanced-security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/features/copilot/copilot-business"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/enterprise/premium-support"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/pricing"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E&source=header-repo&source_repo=2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Reload",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "2133611700c-sudo",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "opencloud-gpt-agent",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Code",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Issues 15 (15)",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/issues"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/pulls"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/projects"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/security"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/pulse"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "opencloud-gpt-agent",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent"
+        },
+        {
+          "text": "Notifications",
+          "href": "https://github.com/login?return_to=%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Fork0 (0)",
+          "href": "https://github.com/login?return_to=%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Star0 (0)",
+          "href": "https://github.com/login?return_to=%2F2133611700c-sudo%2Fopencloud-gpt-agent"
+        },
+        {
+          "text": "Readme",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#readme-ov-file"
+        },
+        {
+          "text": "Security policy",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#security-ov-file"
+        },
+        {
+          "text": "Activity",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/activity"
+        },
+        {
+          "text": "0 forks",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/forks"
+        },
+        {
+          "text": "Report repository",
+          "href": "https://github.com/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent&report=2133611700c-sudo+%28user%29"
+        },
+        {
+          "text": "89 Branches",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/branches"
+        },
+        {
+          "text": "0 Tags",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tags"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/branches"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tags"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "2133611700c-sudo",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commits?author=2133611700c-sudo"
+        },
+        {
+          "text": "ops(agent): add GitHub public browser probe",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/86101cb8213be7c26d43ccf0ba5fd14ab991e930"
+        },
+        {
+          "text": "86101cb",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/86101cb8213be7c26d43ccf0ba5fd14ab991e930"
+        },
+        {
+          "text": "178 Commits",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commits/main/"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commits/main/"
+        },
+        {
+          "text": ".github",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/.github"
+        },
+        {
+          "text": ".github",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/.github"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": "docs",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/docs"
+        },
+        {
+          "text": "docs",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/docs"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": "ops",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/ops"
+        },
+        {
+          "text": "ops",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/ops"
+        },
+        {
+          "text": "ops(agent): add GitHub public browser probe",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/86101cb8213be7c26d43ccf0ba5fd14ab991e930"
+        },
+        {
+          "text": "products",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/products"
+        },
+        {
+          "text": "products",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/products"
+        },
+        {
+          "text": "OpenClaw: sanitized Call2Me webhook collector",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/3e3d56b9c402b3861493e5cde7189f40d5d2820e"
+        },
+        {
+          "text": "scripts",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/scripts"
+        },
+        {
+          "text": "scripts",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/scripts"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": "tests",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/tests"
+        },
+        {
+          "text": "tests",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/tree/main/tests"
+        },
+        {
+          "text": "feat(agent): phone-first OpenClaw orchestration with ECC and DeepSeek…",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/a5128f790683043d7debb5f8c5cf694c7086cb07"
+        },
+        {
+          "text": ".gitignore",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/.gitignore"
+        },
+        {
+          "text": ".gitignore",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/.gitignore"
+        },
+        {
+          "text": "fix: standardize openclaw task dispatch and evidence",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/de3fcea7e6dc4894d70b5d1567b0b22bae7a4349"
+        },
+        {
+          "text": "AGENTS.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/AGENTS.md"
+        },
+        {
+          "text": "AGENTS.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/AGENTS.md"
+        },
+        {
+          "text": "docs(control): add read-first supervisor board (",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/c068e1846b25e7ed6b9b5985fdaf47f5fcbdd382"
+        },
+        {
+          "text": "#41",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/pull/41"
+        },
+        {
+          "text": ")",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/c068e1846b25e7ed6b9b5985fdaf47f5fcbdd382"
+        },
+        {
+          "text": "README.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/README.md"
+        },
+        {
+          "text": "README.md",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/README.md"
+        },
+        {
+          "text": "feat: add chatgpt github openclaw control path",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/f59d830565a49dc6a0acbc0b83f4587e6b8b0016"
+        },
+        {
+          "text": "package-lock.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package-lock.json"
+        },
+        {
+          "text": "package-lock.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package-lock.json"
+        },
+        {
+          "text": "fix: standardize openclaw task dispatch and evidence",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/de3fcea7e6dc4894d70b5d1567b0b22bae7a4349"
+        },
+        {
+          "text": "package.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package.json"
+        },
+        {
+          "text": "package.json",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/blob/main/package.json"
+        },
+        {
+          "text": "fix: standardize openclaw task dispatch and evidence",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/commit/de3fcea7e6dc4894d70b5d1567b0b22bae7a4349"
+        },
+        {
+          "text": "README",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#"
+        },
+        {
+          "text": "Security",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#opencloud-gpt-agent"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#supported-flow"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#runtime-policy"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#openclaw-scope-boundary"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#windows-operation"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#local-verification"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#task-creation"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#evidence-files"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#safety-defaults"
+        },
+        {
+          "text": "Readme",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#readme-ov-file"
+        },
+        {
+          "text": "Security policy",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent#security-ov-file"
+        },
+        {
+          "text": "Activity",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/activity"
+        },
+        {
+          "text": "0 forks",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/forks"
+        },
+        {
+          "text": "Report repository",
+          "href": "https://github.com/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2F2133611700c-sudo%2Fopencloud-gpt-agent&report=2133611700c-sudo+%28user%29"
+        },
+        {
+          "text": "Releases",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/releases"
+        },
+        {
+          "text": "Contributors",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/graphs/contributors"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "2133611700c-sudo",
+          "href": "https://github.com/2133611700c-sudo"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/github-actions[bot]"
+        },
+        {
+          "text": "github-actions[bot]",
+          "href": "https://github.com/github-actions[bot]"
+        },
+        {
+          "text": "JavaScript 91.1%",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/search?l=javascript"
+        },
+        {
+          "text": "HTML 7.2%",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/search?l=html"
+        },
+        {
+          "text": "CSS 1.7%",
+          "href": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/search?l=css"
+        },
+        {
+          "text": "",
+          "href": "https://github.com/"
+        },
+        {
+          "text": "Terms",
+          "href": "https://docs.github.com/site-policy/github-terms/github-terms-of-service"
+        },
+        {
+          "text": "Privacy",
+          "href": "https://docs.github.com/site-policy/privacy-policies/github-privacy-statement"
+        },
+        {
+          "text": "Security",
+          "href": "https://github.com/security"
+        },
+        {
+          "text": "Status",
+          "href": "https://www.githubstatus.com/"
+        },
+        {
+          "text": "Community",
+          "href": "https://github.community/"
+        },
+        {
+          "text": "Docs",
+          "href": "https://docs.github.com/"
+        },
+        {
+          "text": "Contact",
+          "href": "https://support.github.com/?tags=dotcom-footer"
+        }
+      ],
+      "phone_links": 0,
+      "external_links": 16,
+      "buttons": [
+        "More\nitems",
+        "main",
+        "Go to file",
+        "Code",
+        "View all files",
+        "More items",
+        "Manage cookies",
+        "Do not share my personal information"
+      ],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "request_failures": [
+        {
+          "url": "https://github.githubassets.com/assets/code-1_mobile-56dc14fe27999221.mp4",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://collector.github.com/github/collect",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "screenshot": "/home/runner/work/opencloud-gpt-agent/opencloud-gpt-agent/ops/agent-control/reports/_runtime/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015/mobile-2133611700c-sudo_opencloud-gpt-agent.png"
+    }
+  ]
+}

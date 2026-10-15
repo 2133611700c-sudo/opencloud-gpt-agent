@@ -1,68 +1,19 @@
 {
   "schema_version": 1,
-  "task_id": "OC-CHATGPT-INTEGRATION-HEARTBEAT",
-  "task_type": "heartbeat",
-  "task_file": "ops/agent-control/tasks/OC-CHATGPT-INTEGRATION-HEARTBEAT.json",
+  "task_id": "OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015",
+  "task_type": "virtual_browser_audit",
+  "task_file": "ops/agent-control/tasks/OC-GITHUB-PUBLIC-BROWSER-PROBE-20261015.json",
   "status": "PASS",
   "expected_status": "PASS",
-  "timestamp_utc": "2026-10-11T14:36:13.615Z",
-  "run_id": "38147817646",
-  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/38147817646",
-  "git_sha": "e38fb8f8eb6af602479dd38ff619a7925e03dccf",
+  "timestamp_utc": "2026-10-15T17:46:52.241Z",
+  "run_id": "38780089295",
+  "run_url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/38780089295",
+  "git_sha": "86101cb8213be7c26d43ccf0ba5fd14ab991e930",
   "actor": "2133611700c-sudo",
-  "report_file": "ops/agent-control/reports/heartbeat/20261011T143613Z.md",
-  "artifact_name": "openclaw-mobile-38147817646",
-  "dedupe_key": "heartbeat:pass",
+  "report_file": "ops/agent-control/reports/virtual_browser_audit/20261015T174652Z.md",
+  "artifact_name": "openclaw-38780089295-0",
+  "dedupe_key": "virtual_browser_audit:pass",
   "error": null,
-  "evidence_commit_sha": "c038a0dd3d7f8919e82e2f26aca79c2c6740e305",
-  "dispatch_file": "ops/agent-control/dispatch/20261011-main-phone-cloud-heartbeat.json",
-  "dispatch_report_file": "ops/agent-control/reports/dispatch/20261011T143613Z.md",
-  "orchestration_plan_file": "ops/agent-control/reports/orchestration/20261011T143613Z-OC-CHATGPT-INTEGRATION-HEARTBEAT.json",
-  "orchestration_model": {
-    "primary": "deepseek/deepseek-flash",
-    "fallbacks": [
-      "deepseek/deepseek-v4-pro"
-    ],
-    "reasoning_effort": "low",
-    "context_window": 1000000,
-    "max_output_tokens": 384000
-  },
-  "orchestration_agents": [
-    "chief-of-staff",
-    "planner",
-    "agent-evaluator"
-  ],
-  "orchestration_skills": [
-    "agent-harness-construction",
-    "agent-security-hardening",
-    "verification-loop",
-    "agent-self-evaluation",
-    "plan-orchestrate",
-    "team-agent-orchestration",
-    "parallel-execution-optimizer",
-    "agentic-engineering",
-    "repo-scan",
-    "github-ops",
-    "continuous-learning-v2",
-    "skill-comply"
-  ],
-  "orchestration_execution_rule": "PLAN_BUILD_JUDGE",
-  "deepseek_advisory": {
-    "model": "deepseek/deepseek-flash",
-    "plan_file": "ops/agent-control/reports/deepseek_advisory/OC-CHATGPT-INTEGRATION-HEARTBEAT/plan.json",
-    "judge_file": "ops/agent-control/reports/deepseek_advisory/OC-CHATGPT-INTEGRATION-HEARTBEAT/judge.json",
-    "judge_status": "SKIPPED_SIMPLE",
-    "judge_verdict": null,
-    "selected_skill_names": [
-      "agent-security-hardening",
-      "verification-loop",
-      "github-ops",
-      "repo-scan",
-      "plan-orchestrate",
-      "team-agent-orchestration",
-      "skill-comply",
-      "continuous-learning-v2"
-    ],
-    "loaded_skill_names": []
-  }
+  "evidence_commit_sha": "",
+  "dispatch_file": ""
 }

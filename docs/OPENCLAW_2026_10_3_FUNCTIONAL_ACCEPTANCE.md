@@ -32,7 +32,7 @@ The Final 48 runtime stays separate while this acceptance sequence runs. After O
 | Stage | Capability family | Minimum acceptance evidence | Current status |
 | --- | --- | --- | --- |
 | A0 | Exact install + package compatibility | exact 2026.10.3 core and matching provider/search plugins install; existing V2 tests/config remain green | PASS_CODE_CI |
-| A1 | Core CLI + config + Gateway + Doctor | isolated baseline config validates; Gateway starts/stops; health/Doctor complete without hidden credentials or hosted mutations | NOT_PROVEN |
+| A1 | Core CLI + config + Gateway + Doctor | isolated baseline config validates; Gateway starts/stops; health/Doctor complete without persistent credentials or hosted mutations | PASS_CODE_CI |
 | A2 | Plugin, skill, tool inventory | bundled/installed plugins enumerate; skills inventory/check works; expected core command families are callable | NOT_PROVEN |
 | A3 | Web search + fetch | real public search and fetch return bounded evidence through the 2026.10.3 runtime | NOT_PROVEN |
 | A4 | Managed browser | dedicated OpenClaw profile starts, opens a public page, snapshots, acts on a harmless control, closes tab, stops cleanly | NOT_PROVEN |
@@ -51,6 +51,23 @@ The Final 48 runtime stays separate while this acceptance sequence runs. After O
 | A17 | Channels/messaging | one selected channel is configured in an isolated acceptance scope and sends/receives a bounded test | NOT_PROVEN |
 | A18 | Media/document functions | selected image/document/audio/media actions execute with bounded local fixtures and evidence | NOT_PROVEN |
 | A19 | Kernel integration readiness | proven OpenClaw capabilities are mapped to Kernel permissions, budgets, leases/fencing, Evidence and accounting without bypass | NOT_PROVEN |
+
+## A1 evidence
+
+- Workflow run: `38799300778`
+- Exact core observed: `OpenClaw 2026.10.3`
+- Baseline setup and `config validate`: PASS
+- `doctor --lint --severity-min error --json`: PASS
+- Gateway `/healthz`: PASS
+- Gateway `/startupz`: PASS
+- Gateway `/readyz`: PASS
+- `gateway health --port ... --token <ephemeral>`: PASS
+- clean `SIGTERM` stop: PASS
+- provider calls: `0`
+- hosted database mutations: `0`
+- persistent credentials created: `false`
+
+Two preceding diagnostic runs exposed a real contract nuance: an isolated `auth none` Gateway reached `ready`, but the CLI health RPC path in this CI context was rejected as `device-required`. A1 therefore proves the documented shared-auth path with a generated one-run token while HTTP liveness/readiness is proved independently. This behavior is retained as evidence and is not counted as a product crash or silently discarded.
 
 ## Execution rules
 

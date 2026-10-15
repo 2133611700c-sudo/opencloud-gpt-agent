@@ -1,4 +1,5 @@
 import { LeaseHeartbeatManager } from '../kernel/heartbeat.mjs';
+import { admitResearchResultForData } from './research-result-admission.mjs';
 import { isProxy } from 'node:util/types';
 import { getRejectedResearchBilling } from './research-agent-runner.mjs';
 
@@ -104,13 +105,19 @@ export async function executeClaimedResearchNode({
     accounted = true;
 
     if (heartbeatManager.failure) throw heartbeatManager.failure;
-    const completed = await complete({ claim: lease, result: research.result });
+    const admittedResult = request && typeof request === 'object' && !Array.isArray(request)
+      ? admitResearchResultForData({ request, result: research.result })
+      : research.result;
+    const completed = await complete({ claim: lease, result: admittedResult });
     if (completed !== true) {
       throw new ResearchExecutionAdapterError('fenced success completion was rejected', { code: 'SUCCESS_FENCE_REJECTED' });
     }
     terminalized = true;
 
-    return Object.freeze({ status: 'SUCCESS', reservationId, research });
+    const admittedResearch = admittedResult === research.result
+      ? research
+      : Object.freeze({ ...research, result: admittedResult });
+    return Object.freeze({ status: 'SUCCESS', reservationId, research: admittedResearch });
   } catch (error) {
     if (!terminalized) {
       try {

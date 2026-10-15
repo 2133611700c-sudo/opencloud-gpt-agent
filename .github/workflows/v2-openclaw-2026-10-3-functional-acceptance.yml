@@ -12,14 +12,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: openclaw-2026-10-3-a3-${{ github.ref }}
+  group: openclaw-2026-10-3-a4-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  a3_web_runtime:
-    name: A3 real web search + fetch
+  a4_managed_browser:
+    name: A4 managed browser lifecycle + action
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -31,152 +31,287 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          installed=false
+          for attempt in 1 2 3; do
+            if npm install -g openclaw@2026.10.3 --allow-scripts=openclaw; then
+              installed=true
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 5))
+            fi
+          done
+          test "$installed" = true
           version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
           printf '%s\n' "$version_output"
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
           test "$version_token" = "2026.10.3"
 
-      - name: Prepare isolated A3 state
+      - name: Detect Chromium browser
         shell: bash
         run: |
           set -euo pipefail
-          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a3-state"
-          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a3-workspace"
+          browser_bin=""
+          for candidate in google-chrome google-chrome-stable chromium chromium-browser microsoft-edge microsoft-edge-stable; do
+            if command -v "$candidate" >/dev/null 2>&1; then
+              browser_bin="$(command -v "$candidate")"
+              break
+            fi
+          done
+          test -n "$browser_bin"
+          test -x "$browser_bin"
+          browser_version="$($browser_bin --version | head -n 1 | tr -d '\r')"
+          test -n "$browser_version"
+          printf 'Browser binary: %s\n' "$browser_bin"
+          printf 'Browser version: %s\n' "$browser_version"
+          {
+            echo "OPENCLAW_A4_BROWSER_BIN=$browser_bin"
+            echo "OPENCLAW_A4_BROWSER_VERSION=$browser_version"
+          } >> "$GITHUB_ENV"
+
+      - name: Prepare isolated A4 state
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-2026.10.3-a4-state"
+          workspace_dir="$RUNNER_TEMP/openclaw-2026.10.3-a4-workspace"
           config_path="$state_dir/openclaw.json"
           install -d -m 700 "$state_dir"
           install -d -m 700 "$workspace_dir"
           {
             echo "OPENCLAW_STATE_DIR=$state_dir"
             echo "OPENCLAW_CONFIG_PATH=$config_path"
-            echo "OPENCLAW_A3_WORKSPACE=$workspace_dir"
+            echo "OPENCLAW_A4_WORKSPACE=$workspace_dir"
           } >> "$GITHUB_ENV"
-          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a3-baseline.json"
+          openclaw setup --baseline --skip-bootstrap --workspace "$workspace_dir" --json > "$RUNNER_TEMP/openclaw-a4-baseline.json"
+          openclaw config set gateway.mode local
+          openclaw config set gateway.port 18984
+          openclaw plugins enable browser
+          openclaw config set browser.enabled true
+          openclaw config set browser.defaultProfile openclaw
+          openclaw config set browser.headless true
+          openclaw config set browser.executablePath "$OPENCLAW_A4_BROWSER_BIN"
+          openclaw config validate --json > "$RUNNER_TEMP/openclaw-a4-config.json"
 
-      - name: Install exact official web providers
+      - name: Execute real managed browser acceptance
         shell: bash
         run: |
           set -euo pipefail
-          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
-          openclaw plugins install @openclaw/firecrawl-plugin@2026.10.3
-          openclaw config set tools.web.search.provider duckduckgo
-          openclaw config set tools.web.fetch.provider firecrawl
-          openclaw config validate --json > "$RUNNER_TEMP/openclaw-a3-config.json"
-          openclaw infer web providers --json > "$RUNNER_TEMP/openclaw-a3-providers.json"
+          port=18984
+          gateway_token="$(openssl rand -hex 32)"
+          gateway_log="$RUNNER_TEMP/openclaw-a4-gateway.log"
+          page_url="https://www.selenium.dev/selenium/web/web-form.html"
+          test_value="OpenClaw A4 managed browser"
 
-          PROVIDERS_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-providers.json")" node --input-type=module -e '
-            const output = JSON.parse(process.env.PROVIDERS_JSON);
-            if (!output || !Array.isArray(output.search) || !Array.isArray(output.fetch)) throw new Error("web provider inventory shape invalid");
-            if (!output.search.some((row) => row.id === "duckduckgo" && row.selected === true)) throw new Error("duckduckgo search provider not selected");
-            if (!output.fetch.some((row) => row.id === "firecrawl" && row.selected === true)) throw new Error("firecrawl fetch provider not selected");
+          cleanup() {
+            openclaw browser \
+              --url "ws://127.0.0.1:${port}" \
+              --token "$gateway_token" \
+              --browser-profile openclaw \
+              stop >/dev/null 2>&1 || true
+            if [ -n "${gateway_pid:-}" ]; then
+              kill -TERM "$gateway_pid" >/dev/null 2>&1 || true
+              wait "$gateway_pid" >/dev/null 2>&1 || true
+            fi
+          }
+          trap cleanup EXIT
+
+          openclaw gateway run \
+            --port "$port" \
+            --bind loopback \
+            --auth token \
+            --token "$gateway_token" \
+            --allow-unconfigured \
+            >"$gateway_log" 2>&1 &
+          gateway_pid=$!
+
+          ready=false
+          for _ in $(seq 1 60); do
+            if curl --silent --fail --max-time 1 "http://127.0.0.1:${port}/readyz" >/dev/null 2>&1; then
+              ready=true
+              break
+            fi
+            if ! kill -0 "$gateway_pid" >/dev/null 2>&1; then
+              cat "$gateway_log" >&2
+              exit 1
+            fi
+            sleep 0.5
+          done
+          if [ "$ready" != true ]; then
+            cat "$gateway_log" >&2
+            exit 1
+          fi
+
+          browser=(
+            openclaw browser
+            --url "ws://127.0.0.1:${port}"
+            --token "$gateway_token"
+            --browser-profile openclaw
+            --json
+          )
+
+          "${browser[@]}" start --headless > "$RUNNER_TEMP/openclaw-a4-start.json"
+          START_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-start.json")" node --input-type=module -e '
+            const s = JSON.parse(process.env.START_JSON);
+            if (s?.enabled !== true) throw new Error("browser not enabled");
+            if (s?.running !== true) throw new Error("browser did not start");
+            if (s?.profile !== "openclaw") throw new Error(`unexpected profile: ${s?.profile}`);
+            if (s?.driver !== "openclaw") throw new Error(`unexpected driver: ${s?.driver}`);
+            if (s?.headless !== true) throw new Error("browser is not headless in CI");
+            if (s?.cdpReady === false) throw new Error("CDP explicitly not ready");
+            if (typeof (s?.detectedExecutablePath ?? s?.executablePath) !== "string") throw new Error("browser executable not reported");
           '
 
-      - name: Execute real OpenClaw web search
-        shell: bash
-        run: |
-          set -euo pipefail
-          openclaw infer web search \
-            --provider duckduckgo \
-            --query "OpenClaw AI agent GitHub" \
-            --limit 3 \
-            --json > "$RUNNER_TEMP/openclaw-a3-search.json"
-
-          SEARCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-search.json")" node --input-type=module -e '
-            const envelope = JSON.parse(process.env.SEARCH_JSON);
-            if (envelope?.ok !== true) throw new Error(`web search envelope failed: ${envelope?.error ?? "unknown"}`);
-            if (envelope?.capability !== "web.search") throw new Error("wrong search capability");
-            if (envelope?.transport !== "local") throw new Error("web search did not use local capability runtime");
-            if (envelope?.provider !== "duckduckgo") throw new Error(`unexpected envelope provider: ${envelope?.provider}`);
-            const result = envelope?.outputs?.[0]?.result;
-            if (!result || result.provider !== "duckduckgo") throw new Error(`unexpected result provider: ${result?.provider}`);
-            if (result.query !== "OpenClaw AI agent GitHub") throw new Error("search query was not preserved");
-            if (!Number.isInteger(result.count) || result.count < 1) throw new Error(`invalid result count: ${result.count}`);
-            if (!Array.isArray(result.results) || result.results.length !== result.count) throw new Error("search result array/count mismatch");
-            if (result.externalContent?.untrusted !== true || result.externalContent?.wrapped !== true) throw new Error("search trust markers missing");
-            for (const item of result.results) {
-              const url = new URL(item.url);
-              if (!["http:", "https:"].includes(url.protocol)) throw new Error("non-http search URL");
-              if (typeof item.title !== "string" || item.title.trim() === "") throw new Error("search title missing");
-            }
+          "${browser[@]}" open "$page_url" --label a4form > "$RUNNER_TEMP/openclaw-a4-open.json"
+          OPEN_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-open.json")" PAGE_URL="$page_url" node --input-type=module -e '
+            const tab = JSON.parse(process.env.OPEN_JSON);
+            if (typeof tab?.targetId !== "string" || !tab.targetId) throw new Error("opened tab has no targetId");
+            if (tab?.label !== "a4form") throw new Error(`tab label mismatch: ${tab?.label}`);
+            if (typeof tab?.url !== "string" || !tab.url.startsWith("https://www.selenium.dev/")) throw new Error(`unexpected opened URL: ${tab?.url}`);
           '
 
-      - name: Execute real OpenClaw web fetch
-        shell: bash
-        run: |
-          set -euo pipefail
-          fetch_url="https://raw.githubusercontent.com/openclaw/openclaw/v2026.10.3/README.md"
-          openclaw infer web fetch \
-            --provider firecrawl \
-            --url "$fetch_url" \
-            --format text \
-            --json > "$RUNNER_TEMP/openclaw-a3-fetch.json"
-
-          FETCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-fetch.json")" FETCH_URL="$fetch_url" node --input-type=module -e '
-            const envelope = JSON.parse(process.env.FETCH_JSON);
-            if (envelope?.ok !== true) throw new Error(`web fetch envelope failed: ${envelope?.error ?? "unknown"}`);
-            if (envelope?.capability !== "web.fetch") throw new Error("wrong fetch capability");
-            if (envelope?.transport !== "local") throw new Error("web fetch did not use local capability runtime");
-            if (envelope?.provider !== "firecrawl") throw new Error(`unexpected fetch provider: ${envelope?.provider}`);
-            const result = envelope?.outputs?.[0]?.result;
-            if (!result) throw new Error("fetch result missing");
-            if (typeof result.status === "number" && result.status !== 200) throw new Error(`unexpected fetch status: ${result.status}`);
-            if (result.extractor !== "firecrawl") throw new Error(`unexpected fetch extractor: ${result.extractor}`);
-            if (result.extractMode !== "text") throw new Error(`unexpected fetch mode: ${result.extractMode}`);
-            if (typeof result.finalUrl !== "string" || !result.finalUrl.startsWith("https://")) throw new Error("fetch final URL invalid");
-            if (typeof result.text !== "string" || result.text.trim().length < 100) throw new Error("fetched content too short");
-            if (!result.text.toLowerCase().includes("openclaw")) throw new Error("expected OpenClaw marker missing from fetched content");
-            if (result.externalContent?.untrusted !== true || result.externalContent?.wrapped !== true) throw new Error("fetch trust markers missing");
+          "${browser[@]}" tabs > "$RUNNER_TEMP/openclaw-a4-tabs-open.json"
+          TABS_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-tabs-open.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.TABS_JSON);
+            if (!Array.isArray(value?.tabs)) throw new Error("tabs response invalid");
+            const tab = value.tabs.find((entry) => entry?.label === "a4form");
+            if (!tab) throw new Error("a4form tab not found");
+            if (typeof tab.url !== "string" || !tab.url.includes("selenium/web/web-form.html")) throw new Error(`a4form URL mismatch: ${tab.url}`);
           '
 
-      - name: Record safe A3 evidence
-        shell: bash
-        run: |
-          set -euo pipefail
+          "${browser[@]}" wait --load domcontentloaded --target-id a4form --timeout-ms 20000 > "$RUNNER_TEMP/openclaw-a4-wait.json"
+          "${browser[@]}" snapshot --target-id a4form --interactive --compact > "$RUNNER_TEMP/openclaw-a4-snapshot.json"
+          SNAPSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-snapshot.json")" node --input-type=module -e '
+            const s = JSON.parse(process.env.SNAPSHOT_JSON);
+            if (s?.ok !== true || s?.format !== "ai") throw new Error("AI snapshot did not succeed");
+            if (typeof s?.snapshot !== "string" || s.snapshot.trim().length === 0) throw new Error("snapshot is empty");
+            if (!s?.refs || typeof s.refs !== "object") throw new Error("snapshot refs missing");
+            if (!Number.isInteger(s?.stats?.refs) || s.stats.refs < 1) throw new Error("snapshot has no refs");
+            if (!Number.isInteger(s?.stats?.interactive) || s.stats.interactive < 1) throw new Error("snapshot has no interactive refs");
+          '
+
+          input_ref="$(SNAPSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-snapshot.json")" node --input-type=module -e '
+            const s = JSON.parse(process.env.SNAPSHOT_JSON);
+            const entries = Object.entries(s.refs ?? {});
+            const exact = entries.find(([, v]) => v?.role === "textbox" && /text input/i.test(v?.name ?? ""));
+            const fallback = entries.find(([, v]) => v?.role === "textbox");
+            const hit = exact ?? fallback;
+            if (!hit) process.exit(2);
+            process.stdout.write(hit[0]);
+          ')"
+          test -n "$input_ref"
+
+          "${browser[@]}" type "$input_ref" "$test_value" --target-id a4form > "$RUNNER_TEMP/openclaw-a4-type.json"
+          TYPE_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-type.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.TYPE_JSON);
+            if (value?.ok !== true) throw new Error("type action failed");
+          '
+
+          "${browser[@]}" evaluate \
+            --fn '(el) => el.value' \
+            --ref "$input_ref" \
+            --target-id a4form \
+            > "$RUNNER_TEMP/openclaw-a4-evaluate.json"
+          EVAL_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-evaluate.json")" TEST_VALUE="$test_value" node --input-type=module -e '
+            const value = JSON.parse(process.env.EVAL_JSON);
+            if (value?.ok !== true) throw new Error("evaluate action failed");
+            if (value?.result !== process.env.TEST_VALUE) throw new Error(`typed value mismatch: ${JSON.stringify(value?.result)}`);
+          '
+
+          "${browser[@]}" screenshot a4form --full-page > "$RUNNER_TEMP/openclaw-a4-screenshot.json"
+          screenshot_path="$(SCREENSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-screenshot.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.SCREENSHOT_JSON);
+            if (typeof value?.path !== "string" || !value.path) process.exit(2);
+            process.stdout.write(value.path);
+          ')"
+          test -f "$screenshot_path"
+          test -s "$screenshot_path"
+          screenshot_bytes="$(stat -c '%s' "$screenshot_path")"
+          test "$screenshot_bytes" -gt 1000
+
           mkdir -p artifacts
-          SEARCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-search.json")" FETCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-fetch.json")" node --input-type=module <<'NODE' > artifacts/openclaw-2026.10.3-a3.json
-          const search = JSON.parse(process.env.SEARCH_JSON);
-          const fetch = JSON.parse(process.env.FETCH_JSON);
-          const sr = search.outputs[0].result;
-          const fr = fetch.outputs[0].result;
+          cp "$screenshot_path" artifacts/openclaw-2026.10.3-a4-browser.png
+
+          "${browser[@]}" close a4form > "$RUNNER_TEMP/openclaw-a4-close.json"
+          CLOSE_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-close.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.CLOSE_JSON);
+            if (value?.ok !== true) throw new Error("tab close failed");
+          '
+
+          "${browser[@]}" tabs > "$RUNNER_TEMP/openclaw-a4-tabs-closed.json"
+          TABS_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-tabs-closed.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.TABS_JSON);
+            if (!Array.isArray(value?.tabs)) throw new Error("tabs response invalid after close");
+            if (value.tabs.some((entry) => entry?.label === "a4form")) throw new Error("a4form tab still open");
+          '
+
+          "${browser[@]}" stop > "$RUNNER_TEMP/openclaw-a4-stop.json"
+          STOP_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-stop.json")" node --input-type=module -e '
+            const s = JSON.parse(process.env.STOP_JSON);
+            if (s?.running !== false) throw new Error("browser did not stop");
+          '
+
+          if kill -0 "$gateway_pid" >/dev/null 2>&1; then
+            kill -TERM "$gateway_pid"
+            for _ in $(seq 1 20); do
+              if ! kill -0 "$gateway_pid" >/dev/null 2>&1; then
+                break
+              fi
+              sleep 0.25
+            done
+          fi
+          wait "$gateway_pid" >/dev/null 2>&1 || true
+          if kill -0 "$gateway_pid" >/dev/null 2>&1; then
+            echo "Gateway still running after stop" >&2
+            exit 1
+          fi
+          gateway_pid=""
+
+          START_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-start.json")" \
+          SNAPSHOT_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-snapshot.json")" \
+          EVAL_JSON="$(cat "$RUNNER_TEMP/openclaw-a4-evaluate.json")" \
+          SCREENSHOT_BYTES="$screenshot_bytes" \
+          BROWSER_VERSION="$OPENCLAW_A4_BROWSER_VERSION" \
+          node --input-type=module <<'NODE' > artifacts/openclaw-2026.10.3-a4.json
+          const start = JSON.parse(process.env.START_JSON);
+          const snapshot = JSON.parse(process.env.SNAPSHOT_JSON);
+          const evaluated = JSON.parse(process.env.EVAL_JSON);
           const evidence = {
             status: 'PASS',
-            stage: 'A3',
-            capability: 'real_web_search_and_fetch',
+            stage: 'A4',
+            capability: 'managed_browser_lifecycle_and_action',
             openclaw_version: '2026.10.3',
-            search: {
-              provider: search.provider,
-              result_provider: sr.provider,
-              transport: search.transport,
-              count: sr.count,
-              urls: sr.results.map((item) => item.url).slice(0, 3),
-              external_content_untrusted: sr.externalContent?.untrusted === true,
-              external_content_wrapped: sr.externalContent?.wrapped === true,
+            profile: start.profile,
+            driver: start.driver,
+            headless: start.headless,
+            cdp_ready: start.cdpReady !== false,
+            browser_version: process.env.BROWSER_VERSION,
+            public_page: 'https://www.selenium.dev/selenium/web/web-form.html',
+            snapshot: {
+              refs: snapshot.stats?.refs ?? 0,
+              interactive: snapshot.stats?.interactive ?? 0,
             },
-            fetch: {
-              provider: fetch.provider,
-              transport: fetch.transport,
-              status: fr.status ?? null,
-              final_url: fr.finalUrl,
-              extractor: fr.extractor,
-              external_content_untrusted: fr.externalContent?.untrusted === true,
-              external_content_wrapped: fr.externalContent?.wrapped === true,
-              content_length: typeof fr.text === 'string' ? fr.text.length : 0,
-              text_contains_expected_marker: typeof fr.text === 'string' && fr.text.toLowerCase().includes('openclaw'),
-            },
+            harmless_form_action_verified: evaluated.result === 'OpenClaw A4 managed browser',
+            screenshot_bytes: Number(process.env.SCREENSHOT_BYTES),
+            tab_closed: true,
+            browser_stopped: true,
+            gateway_stopped: true,
             model_provider_calls: 0,
-            paid_search_calls: 0,
-            firecrawl_access: 'keyless-starter',
             hosted_database_mutations: 0,
             secret_values_logged: false,
           };
           process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`);
           NODE
-          cat artifacts/openclaw-2026.10.3-a3.json >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload safe A3 evidence
+          trap - EXIT
+          cat artifacts/openclaw-2026.10.3-a4.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload safe A4 evidence
         uses: actions/upload-artifact@v4
         with:
-          name: openclaw-2026-10-3-a3-web
-          path: artifacts/openclaw-2026.10.3-a3.json
+          name: openclaw-2026-10-3-a4-browser
+          path: |
+            artifacts/openclaw-2026.10.3-a4.json
+            artifacts/openclaw-2026.10.3-a4-browser.png
           if-no-files-found: error
           retention-days: 14

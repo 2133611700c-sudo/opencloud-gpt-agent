@@ -1,7 +1,7 @@
 import { LeaseHeartbeatManager } from '../kernel/heartbeat.mjs';
+import { admitResearchResultForData } from './research-result-admission.mjs';
 import { isProxy } from 'node:util/types';
 import { getRejectedResearchBilling } from './research-agent-runner.mjs';
-import { admitResearchResultForData } from './research-result-admission.mjs';
 
 export class ResearchExecutionAdapterError extends Error {
   constructor(message, { code = 'RESEARCH_EXECUTION_ADAPTER_ERROR', cause } = {}) {

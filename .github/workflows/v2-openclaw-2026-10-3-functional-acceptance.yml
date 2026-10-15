@@ -104,13 +104,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          fetch_url="https://raw.githubusercontent.com/openclaw/openclaw/v2026.10.3/README.md"
           openclaw infer web fetch \
             --provider firecrawl \
-            --url "https://example.com/" \
+            --url "$fetch_url" \
             --format text \
             --json > "$RUNNER_TEMP/openclaw-a3-fetch.json"
 
-          FETCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-fetch.json")" node --input-type=module -e '
+          FETCH_JSON="$(cat "$RUNNER_TEMP/openclaw-a3-fetch.json")" FETCH_URL="$fetch_url" node --input-type=module -e '
             const envelope = JSON.parse(process.env.FETCH_JSON);
             if (envelope?.ok !== true) throw new Error(`web fetch envelope failed: ${envelope?.error ?? "unknown"}`);
             if (envelope?.capability !== "web.fetch") throw new Error("wrong fetch capability");
@@ -121,7 +122,9 @@ jobs:
             if (typeof result.status === "number" && result.status !== 200) throw new Error(`unexpected fetch status: ${result.status}`);
             if (result.extractor !== "firecrawl") throw new Error(`unexpected fetch extractor: ${result.extractor}`);
             if (result.extractMode !== "text") throw new Error(`unexpected fetch mode: ${result.extractMode}`);
-            if (typeof result.text !== "string" || !result.text.toLowerCase().includes("example domain")) throw new Error("expected fetched content missing");
+            if (typeof result.finalUrl !== "string" || !result.finalUrl.startsWith("https://")) throw new Error("fetch final URL invalid");
+            if (typeof result.text !== "string" || result.text.trim().length < 100) throw new Error("fetched content too short");
+            if (!result.text.toLowerCase().includes("openclaw")) throw new Error("expected OpenClaw marker missing from fetched content");
             if (result.externalContent?.untrusted !== true || result.externalContent?.wrapped !== true) throw new Error("fetch trust markers missing");
           '
 
@@ -157,11 +160,12 @@ jobs:
               extractor: fr.extractor,
               external_content_untrusted: fr.externalContent?.untrusted === true,
               external_content_wrapped: fr.externalContent?.wrapped === true,
-              text_contains_expected_marker: fr.text.toLowerCase().includes("example domain"),
+              content_length: typeof fr.text === 'string' ? fr.text.length : 0,
+              text_contains_expected_marker: typeof fr.text === 'string' && fr.text.toLowerCase().includes('openclaw'),
             },
             model_provider_calls: 0,
             paid_search_calls: 0,
-            firecrawl_access: "keyless-starter",
+            firecrawl_access: 'keyless-starter',
             hosted_database_mutations: 0,
             secret_values_logged: false,
           };

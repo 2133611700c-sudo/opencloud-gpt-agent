@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: openclaw-2026-10-3-functional-acceptance-${{ github.ref }}
+  group: openclaw-2026-10-3-a2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

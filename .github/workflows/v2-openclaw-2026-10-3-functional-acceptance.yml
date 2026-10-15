@@ -80,10 +80,13 @@ jobs:
         run: |
           set -euo pipefail
           gateway_log="$RUNNER_TEMP/openclaw-gateway.log"
+          gateway_token="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")"
+
           openclaw gateway run \
             --port "$OPENCLAW_ACCEPTANCE_GATEWAY_PORT" \
             --bind loopback \
-            --auth none \
+            --auth token \
+            --token "$gateway_token" \
             --allow-unconfigured \
             >"$gateway_log" 2>&1 &
           gateway_pid="$!"
@@ -105,7 +108,7 @@ jobs:
           for _ in $(seq 1 45); do
             if curl --fail --silent --show-error "http://127.0.0.1:${OPENCLAW_ACCEPTANCE_GATEWAY_PORT}/healthz" > "$RUNNER_TEMP/openclaw-healthz.txt" \
               && curl --fail --silent --show-error "http://127.0.0.1:${OPENCLAW_ACCEPTANCE_GATEWAY_PORT}/startupz" > "$RUNNER_TEMP/openclaw-startupz.txt" \
-              && openclaw gateway health --port "$OPENCLAW_ACCEPTANCE_GATEWAY_PORT" --json > "$RUNNER_TEMP/openclaw-gateway-health.json" 2>/dev/null; then
+              && curl --fail --silent --show-error "http://127.0.0.1:${OPENCLAW_ACCEPTANCE_GATEWAY_PORT}/readyz" > "$RUNNER_TEMP/openclaw-readyz.txt"; then
               healthy=1
               break
             fi
@@ -113,17 +116,26 @@ jobs:
           done
 
           if [ "$healthy" -ne 1 ]; then
-            echo 'Gateway did not satisfy local liveness/startup/RPC health contract' >&2
+            echo 'Gateway did not satisfy HTTP liveness/startup/readiness contract' >&2
             tail -n 160 "$gateway_log" >&2 || true
             exit 1
           fi
 
-          curl --fail --silent --show-error "http://127.0.0.1:${OPENCLAW_ACCEPTANCE_GATEWAY_PORT}/readyz" > "$RUNNER_TEMP/openclaw-readyz.txt"
+          openclaw gateway health \
+            --port "$OPENCLAW_ACCEPTANCE_GATEWAY_PORT" \
+            --token "$gateway_token" \
+            --json > "$RUNNER_TEMP/openclaw-gateway-health.json"
+
+          GATEWAY_HEALTH_JSON="$(cat "$RUNNER_TEMP/openclaw-gateway-health.json")" node --input-type=module -e '
+            const value = JSON.parse(process.env.GATEWAY_HEALTH_JSON);
+            if (value?.ok !== true) throw new Error("gateway health RPC did not return ok=true");
+          '
 
           kill -TERM "$gateway_pid"
           wait "$gateway_pid"
           trap - EXIT
           ! kill -0 "$gateway_pid" 2>/dev/null
+          unset gateway_token
 
       - name: Record safe A1 evidence
         shell: bash
@@ -141,10 +153,11 @@ jobs:
             gateway_http_healthz: 'PASS',
             gateway_http_startupz: 'PASS',
             gateway_http_readyz: 'PASS',
-            gateway_local_rpc_health: 'PASS',
+            gateway_local_rpc_health_with_ephemeral_token: 'PASS',
             gateway_clean_stop: 'PASS',
             provider_calls: 0,
             hosted_database_mutations: 0,
+            persistent_credentials_created: false,
             secret_values_logged: false,
           };
           process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`);

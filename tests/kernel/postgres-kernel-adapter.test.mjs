@@ -11,6 +11,18 @@ const scripted = (rows) => {
   return { query, calls };
 };
 
+test('lite task creation binds the canonical atomic intake function exactly', async () => {
+  const db = scripted([{ task_id:'task-1', created:true }]);
+  const kernel = createPostgresKernelAdapter({ query: db.query });
+  const result = await kernel.createLiteResearchTask({
+    idempotencyKey:'github:issue:1:2', goal:'goal', requestPayload:{ maxResults:3 },
+    budgetLimitUsd:'0.125000', tokenBudgetLimit:12000, maxTotalSteps:6, deadlineAt:'2026-10-15T01:00:00.000Z',
+  });
+  assert.deepEqual(result, { taskId:'task-1', created:true });
+  assert.equal(db.calls[0].text, 'SELECT * FROM create_lite_research_task($1,$2,$3::jsonb,$4,$5,$6,$7::timestamptz)');
+  assert.deepEqual(db.calls[0].values, ['github:issue:1:2','goal','{"maxResults":3}','0.125000',12000,6,'2026-10-15T01:00:00.000Z']);
+});
+
 test('claim maps SQL row into canonical lease claim', async () => {
   const db = scripted([{ node_id:'n', task_id:'t', lease_token:'l', agent_id:'researcher', input_payload:{q:'x'}, attempt:2 }]);
   const kernel = createPostgresKernelAdapter({ query: db.query });

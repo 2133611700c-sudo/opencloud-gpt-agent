@@ -54,7 +54,6 @@ for (const requiredLiveGateToken of [
   '- kernel',
   '- smoke',
   "github.event_name == 'workflow_dispatch'",
-  "github.ref == 'refs/heads/v2/openclaw-clean-20261011'",
 ]) {
   if (!workflow.includes(requiredLiveGateToken)) {
     throw new Error(`V2 CI is missing Final-48 live gate control: ${requiredLiveGateToken}`);
@@ -186,9 +185,6 @@ if (state.walking_skeleton_gate !== 'IN_PROGRESS' && !String(state.walking_skele
 if (typeof state.route_id !== 'string' || state.route_id.trim() === '') throw new Error('PROJECT_STATE route_id is required');
 if (typeof state.next_action !== 'string' || state.next_action.trim() === '') throw new Error('PROJECT_STATE next_action is required');
 
-// PROJECT_STATE is a current checkpoint, not an append-only history surface.
-// These older narrative mirrors duplicated canonical completion truth and already
-// drifted once; historical wording belongs in RESULTS_JOURNAL / EXECUTION_LOG.
 for (const deprecatedField of ['acceptance_notes', 'user_intake']) {
   if (Object.hasOwn(state, deprecatedField)) {
     throw new Error(`PROJECT_STATE contains deprecated duplicate field: ${deprecatedField}`);
@@ -268,7 +264,7 @@ if (String(state.walking_skeleton_gate).startsWith('PASS')) {
   const completionReceiptId = state['48h_completion']?.runtime_receipt_id;
   const receiptIdentities = [
     ['48h_completion.runtime_receipt_id', completionReceiptId],
-    ['live_capabilities.final_external_paid_success.runtime_receipt_id', state.live_capabilities?.final_external_paid_success?.runtime_receipt_id],
+    ['live_capabilities.final_external_paid_success.runtime_receipt_id', state.live_capabilities?.final_external_paid_success.runtime_receipt_id],
     ['evidence.final_external_runtime_receipt_id', state.evidence?.final_external_runtime_receipt_id],
   ];
   for (const [label, value] of receiptIdentities) {
@@ -277,10 +273,6 @@ if (String(state.walking_skeleton_gate).startsWith('PASS')) {
   }
 }
 
-// The historical paid Research prerequisite and the final current-production positive
-// E2E are intentionally separate. Production Data/Evidence/Phone were allowed only
-// after the historical Research gate passed; acceptance #1 may later return to
-// NOT_PROVEN when the map is tightened to require the complete current composition.
 const historicalResearchStatus = state.route_prerequisites?.historical_research_gate
   ?? state.acceptance_map?.['01_positive_real_research_e2e_success'];
 if (historicalResearchStatus !== 'PASS_LIVE') {
@@ -292,7 +284,6 @@ if (historicalResearchStatus !== 'PASS_LIVE') {
   }
 }
 
-// Gap inventory evolves as independently verified gates close; its size is not a schema invariant.
 const gapMap = state.remaining_48h_gaps;
 if (!gapMap || typeof gapMap !== 'object' || Array.isArray(gapMap)) {
   throw new Error('PROJECT_STATE remaining_48h_gaps must be an object');

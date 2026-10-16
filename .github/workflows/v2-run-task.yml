@@ -108,5 +108,9 @@ jobs:
           retention-days: 7
       - name: Delete the run branch
         if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
-        run: git push origin --delete "$GITHUB_REF_NAME" || echo 'RUN_BRANCH_ALREADY_GONE'
+        run: |
+          set -uo pipefail
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$GITHUB_REF_NAME" && echo RUN_BRANCH_DELETED || { echo RUN_BRANCH_DELETE_FAILED >&2; exit 1; }

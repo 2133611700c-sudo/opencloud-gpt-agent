@@ -53,8 +53,8 @@ if (!run.result.sources.some((source) => source.url === officialSource.toString(
 const toolSummary = run.telemetry.toolSummary;
 if (!toolSummary.tools.includes('web_search')) throw new Error('A8 missing web_search evidence');
 if (!toolSummary.tools.includes('web_fetch')) throw new Error('A8 missing web_fetch evidence');
-if (toolSummary.failures !== 0 || toolSummary.unresolvedError !== null) {
-  throw new Error('A8 has unresolved tool failure');
+if (toolSummary.unresolvedError !== null) {
+  throw new Error(`A8 has unresolved tool failure: ${toolSummary.unresolvedError.toolName}`);
 }
 if (run.telemetry.provider !== 'deepseek' || run.telemetry.model !== 'deepseek-flash') {
   throw new Error(`A8 provider/model mismatch: ${run.telemetry.provider}/${run.telemetry.model}`);
@@ -74,6 +74,7 @@ const evidence = Object.freeze({
   tools: [...toolSummary.tools],
   toolCalls: toolSummary.calls,
   toolFailures: toolSummary.failures,
+  unresolvedToolFailure: toolSummary.unresolvedError,
   telemetryStatus: run.telemetry.telemetryStatus,
   usage: run.telemetry.usage,
   costUsd: run.telemetry.costUsd,

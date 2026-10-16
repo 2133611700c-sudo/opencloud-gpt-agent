@@ -21,13 +21,26 @@ Current verified observations:
 
 | # | Root function | Status | DeepSeek key involved? | Evidence | Notes |
 |---|---|---|---|---|---|
-| 1 | `acp` | PENDING | No for protocol smoke | runs `38883528473`, `38885737474`; source-test run `38884163886` still active | Attempt 1 invalid harness. Attempt 2 proved package/CLI/Gateway startup but ACP lifecycle step was gated by the test health probe, so function result remains inconclusive pending the already-running source test. |
+| 1 | `acp` | PASS | No | GitHub run `38884163886`, job `116917768975`: 5 test files / 44 tests PASS | Exact upstream `v2026.10.3` built and official ACP client/session/process tests passed. Earlier invalid/inconclusive harness attempts are retained below. |
 | 2 | `agent` | PENDING | Yes | — | Real agent run with DeepSeek required. |
 | 3 | `agents` | PENDING | Yes for spawned/selected agent execution | — | Agent inventory/routing plus execution required. |
 | 4 | `approvals` | PENDING | No model key required | — | Approval lifecycle smoke. |
 | 5 | `attach` | PENDING | No for attach/session transport smoke | — | Attach to a live session/runtime and prove transport. |
 
 ## Detailed results
+
+### F01 `acp` — FINAL — PASS
+- GitHub Actions run: `38884163886`.
+- Job: `116917768975`.
+- Exact upstream tag: `v2026.10.3` at commit `59cb44796b0f1f0daa0e37af8b1495abb45d9bc1`.
+- Node: `24.21.0`.
+- `pnpm install --frozen-lockfile`: PASS.
+- `pnpm build`: PASS.
+- `node openclaw.mjs acp --help`: PASS.
+- Official upstream ACP test selection: 5 test files passed, 44 tests passed.
+- Covered behavior included child-environment sanitization, permission handling, read/search scope enforcement, prompt/resource/image mapping, session bridge creation, transcript/thinking replay, session rate limiting, completion settlement, partial tool-output streaming, interactive process lifecycle, and CLI initialize/exit behavior.
+- DeepSeek credential: NOT USED. This ACP functional acceptance did not require a model request.
+- Result: `PASS`.
 
 ### F01 `acp` — attempt 1 — HARNESS_INVALID
 - GitHub Actions run: `38883528473`.
@@ -47,5 +60,5 @@ Current verified observations:
 - Isolated Gateway process started successfully and logged `[gateway] ready`.
 - The test step that waited on its health probe exited nonzero even though Gateway logs showed the Gateway was already ready.
 - Because that step failed first, `Exercise ACP client-to-bridge lifecycle` was skipped.
-- Classification: ACP command surface and Gateway prerequisite are proven callable; ACP protocol lifecycle itself is not yet proven or disproven by this attempt.
+- Classification: ACP command surface and Gateway prerequisite are proven callable; this attempt by itself was inconclusive.
 - No repair was applied after observing this result.

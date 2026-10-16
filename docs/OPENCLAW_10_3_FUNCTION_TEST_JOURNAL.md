@@ -22,7 +22,7 @@ Current verified observations:
 | # | Root function | Status | DeepSeek key involved? | Evidence | Notes |
 |---|---|---|---|---|---|
 | 1 | `acp` | PASS | No | GitHub run `38884163886`, job `116917768975`: 5 test files / 44 tests PASS | Exact upstream `v2026.10.3` built and official ACP client/session/process tests passed. Earlier invalid/inconclusive harness attempts are retained below. |
-| 2 | `agent` | PENDING | Yes | — | Real agent run with DeepSeek required. |
+| 2 | `agent` | PENDING | Yes | run `38886910739` = HARNESS_INVALID before job allocation | Real agent run with DeepSeek still required. |
 | 3 | `agents` | PENDING | Yes for spawned/selected agent execution | — | Agent inventory/routing plus execution required. |
 | 4 | `approvals` | PENDING | No model key required | — | Approval lifecycle smoke. |
 | 5 | `attach` | PENDING | No for attach/session transport smoke | — | Attach to a live session/runtime and prove transport. |
@@ -62,3 +62,10 @@ Current verified observations:
 - Because that step failed first, `Exercise ACP client-to-bridge lifecycle` was skipped.
 - Classification: ACP command surface and Gateway prerequisite are proven callable; this attempt by itself was inconclusive.
 - No repair was applied after observing this result.
+
+### F02 `agent` — attempt 1 — HARNESS_INVALID
+- GitHub Actions run: `38886910739`.
+- GitHub reported the workflow run as failed before allocating any job; `jobs=[]`.
+- Therefore OpenClaw was not installed or invoked and DeepSeek credential availability was not tested in this attempt.
+- Classification: test-harness/workflow admission failure, not an OpenClaw `agent` functional result.
+- No repair was applied to this run after observation.

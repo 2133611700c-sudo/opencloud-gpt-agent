@@ -1,25 +1,19 @@
 name: OpenClaw V2 Run Task
 
-# One run = one durable task, started by the Telegram door or by hand.
+# One run = one durable task. The Telegram door (or a human) creates the branch
+# run/<task-uuid>/<epoch>[-tg<chat-id>] at the canonical branch head; the push starts this workflow
+# from the file stored on that branch, so the default branch is never involved.
 # The task already exists in PostgreSQL (created by intake); this workflow only executes it.
 on:
-  workflow_dispatch:
-    inputs:
-      task_id:
-        description: 'Durable task UUID created by intake'
-        required: true
-        type: string
-      chat_id:
-        description: 'Telegram chat id to notify (optional)'
-        required: false
-        default: ''
-        type: string
+  push:
+    branches:
+      - 'run/**'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: v2-task-${{ inputs.task_id }}
+  group: v2-task-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -33,13 +27,15 @@ jobs:
       OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
       OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
       OPENCLAW_PUBLIC_BASE_URL: ${{ vars.OPENCLAW_PUBLIC_BASE_URL || 'https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech' }}
-      OPENCLAW_TASK_ID: ${{ inputs.task_id }}
     steps:
-      - name: Validate task id and branch
+      - name: Parse run branch and validate secrets
         shell: bash
         run: |
           set -euo pipefail
-          [[ "$OPENCLAW_TASK_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] || { echo 'task_id must be a UUID' >&2; exit 1; }
+          re='^run/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/([0-9]{9,12})(-tg([0-9]{1,20}))?$'
+          [[ "$GITHUB_REF_NAME" =~ $re ]] || { echo 'branch must be run/<task-uuid>/<epoch>[-tg<chat>]' >&2; exit 1; }
+          echo "OPENCLAW_TASK_ID=${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
+          echo "NOTIFY_CHAT_ID=${BASH_REMATCH[4]:-}" >> "$GITHUB_ENV"
           test -n "${DATABASE_URL:-}" || { echo 'DATABASE_URL is required' >&2; exit 1; }
           test -n "${DEEPSEEK_API_KEY:-}" || { echo 'DEEPSEEK_API_KEY is required' >&2; exit 1; }
       - uses: actions/checkout@v4
@@ -94,19 +90,23 @@ jobs:
           mkdir -p artifacts
           node scripts/run-task-to-phone.mjs 2>artifacts/task.err | tee artifacts/result.txt
       - name: Telegram result
-        if: ${{ always() && inputs.chat_id != '' }}
+        if: ${{ always() && env.NOTIFY_CHAT_ID != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.OPENCLAW_TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ inputs.chat_id }}
+          TELEGRAM_CHAT_ID: ${{ env.NOTIFY_CHAT_ID }}
           MESSAGE_FILE: artifacts/result.txt
           TASK_OUTCOME: ${{ steps.task.outcome }}
-          TASK_ID: ${{ inputs.task_id }}
+          TASK_ID: ${{ env.OPENCLAW_TASK_ID }}
         run: node scripts/notify-telegram.mjs
       - name: Upload run evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: openclaw-v2-task-${{ inputs.task_id }}
+          name: openclaw-v2-task-${{ env.OPENCLAW_TASK_ID }}
           path: artifacts/
           if-no-files-found: ignore
           retention-days: 7
+      - name: Delete the run branch
+        if: ${{ always() }}
+        shell: bash
+        run: git push origin --delete "$GITHUB_REF_NAME" || echo 'RUN_BRANCH_ALREADY_GONE'

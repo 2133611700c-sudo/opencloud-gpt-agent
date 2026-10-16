@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { createTelegramHandler } from '../../src/intake/telegram-handler.mjs';
-import { createWorkflowDispatcher } from '../../src/intake/github-dispatch.mjs';
+import { createBranchDispatcher } from '../../src/intake/github-dispatch.mjs';
 import { buildTelegramResearchBody, parseTelegramUpdate, telegramRequestId } from '../../src/intake/telegram-intake.mjs';
 
 const SECRET = 'telegram_webhook_secret_0123456789';
@@ -100,18 +100,22 @@ test('helpers: deterministic request id, command parsing, bounded body', () => {
   assert.equal(body.deadlineAt, new Date(1_760_000_000_000 + 3_600_000).toISOString());
 });
 
-test('workflow dispatcher posts ref and inputs and requires HTTP 204', async () => {
-  let seen;
-  const ok = createWorkflowDispatcher({
-    token: 'x'.repeat(30), repository: 'o/r', workflow: 'v2-run-task.yml', ref: 'v2/openclaw-clean-20261011',
-    fetchImpl: async (url, init) => { seen = { url, body: JSON.parse(init.body) }; return new Response(null, { status: 204 }); },
+test('branch dispatcher creates run/<task>/<epoch>-tg<chat> at the canonical head and requires 201', async () => {
+  const sha = 'a'.repeat(40);
+  const seen = [];
+  const make = (createStatus) => createBranchDispatcher({
+    token: 'x'.repeat(30), repository: 'o/r', baseRef: 'v2/openclaw-clean-20261011', now: () => 1_760_000_000_000,
+    fetchImpl: async (url, init = {}) => {
+      seen.push({ url, method: init.method ?? 'GET', body: init.body ? JSON.parse(init.body) : null });
+      return url.includes('/git/ref/heads/') ? Response.json({ object: { sha } }) : new Response('{}', { status: createStatus });
+    },
   });
-  await ok({ taskId: TASK, chatId: CHAT });
-  assert.equal(seen.url, 'https://api.github.com/repos/o/r/actions/workflows/v2-run-task.yml/dispatches');
-  assert.deepEqual(seen.body, { ref: 'v2/openclaw-clean-20261011', inputs: { task_id: TASK, chat_id: CHAT } });
-  const bad = createWorkflowDispatcher({
-    token: 'x'.repeat(30), repository: 'o/r', workflow: 'v2-run-task.yml', ref: 'main',
-    fetchImpl: async () => new Response('{}', { status: 404 }),
-  });
-  await assert.rejects(() => bad({ taskId: TASK, chatId: CHAT }), /WORKFLOW_DISPATCH_FAILED_404/);
+  const name = await make(201)({ taskId: TASK, chatId: CHAT });
+  assert.equal(name, `run/${TASK}/1760000000-tg${CHAT}`);
+  assert.equal(seen[0].url, 'https://api.github.com/repos/o/r/git/ref/heads/v2/openclaw-clean-20261011');
+  assert.deepEqual(seen[1].body, { ref: `refs/heads/${name}`, sha });
+  assert.equal(await make(201)({ taskId: TASK }), `run/${TASK}/1760000000`);
+  await assert.rejects(() => make(422)({ taskId: TASK, chatId: CHAT }), /RUN_BRANCH_CREATE_FAILED_422/);
+  await assert.rejects(() => make(201)({ taskId: 'not-a-uuid' }), /UUID/);
+  assert.throws(() => createBranchDispatcher({ token: 'x'.repeat(30), repository: 'o/r', baseRef: 'run/x' }), /canonical/);
 });

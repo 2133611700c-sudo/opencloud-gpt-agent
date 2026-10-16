@@ -5,7 +5,7 @@ import { createPhoneHttpHandler } from '../../src/phone/phone-http-handler.mjs';
 import { createPostgresKernelAdapter } from '../../src/kernel/postgres-kernel-adapter.mjs';
 import { createUserHttpHandler } from '../../src/intake/user-http-handler.mjs';
 import { createTelegramHandler } from '../../src/intake/telegram-handler.mjs';
-import { createWorkflowDispatcher } from '../../src/intake/github-dispatch.mjs';
+import { createBranchDispatcher } from '../../src/intake/github-dispatch.mjs';
 import { phoneDatabaseOptions } from './database-config.mjs';
 
 const pool = new Pool(phoneDatabaseOptions(process.env.DATABASE_URL));
@@ -30,11 +30,10 @@ const telegram = env.OPENCLAW_TELEGRAM_WEBHOOK_SECRET && env.OPENCLAW_TELEGRAM_A
     allowedChatId: env.OPENCLAW_TELEGRAM_ALLOWED_CHAT_ID,
     botToken: env.OPENCLAW_TELEGRAM_BOT_TOKEN,
     publicBaseUrl: env.OPENCLAW_PUBLIC_BASE_URL,
-    dispatch: createWorkflowDispatcher({
+    dispatch: createBranchDispatcher({
       token: env.OPENCLAW_GITHUB_DISPATCH_TOKEN,
       repository: env.OPENCLAW_GITHUB_REPOSITORY ?? '2133611700c-sudo/opencloud-gpt-agent',
-      workflow: 'v2-run-task.yml',
-      ref: env.OPENCLAW_GITHUB_REF ?? 'v2/openclaw-clean-20261011',
+      baseRef: env.OPENCLAW_GITHUB_REF ?? 'v2/openclaw-clean-20261011',
     }),
   })
   : null;

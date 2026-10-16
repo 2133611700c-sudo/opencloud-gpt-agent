@@ -1,0 +1,44 @@
+name: OpenClaw F01 ACP Acceptance v2
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-f01-acp-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acp:
+    name: F01 acp protocol and process acceptance v2
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact OpenClaw 2026.10.3
+        uses: actions/checkout@v4
+        with:
+          repository: openclaw/openclaw
+          ref: v2026.10.3
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install exact upstream dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build exact upstream release
+        run: pnpm build
+      - name: Verify ACP CLI is callable
+        run: node openclaw.mjs acp --help
+      - name: Run ACP client and protocol tests
+        run: |
+          pnpm exec vitest run src/acp/client.test.ts src/acp/client.process.test.ts src/acp/translator.session-setup.test.ts src/cli/acp-cli-exit.process.test.ts
+      - name: Record exact release identity
+        run: |
+          echo "tag=v2026.10.3"
+          git rev-parse HEAD

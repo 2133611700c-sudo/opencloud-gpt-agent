@@ -10,15 +10,19 @@ jobs:
   prerequisites:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    environment: openclaw-v2-live
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
     steps:
-      - name: Require canonical V2 branch
+      - name: Require approved V2 branch
         shell: bash
         run: |
           set -euo pipefail
-          test "$GITHUB_REF" = 'refs/heads/v2/openclaw-clean-20261011'
+          case "$GITHUB_REF" in
+            refs/heads/v2/openclaw-clean-20261011|refs/heads/v2/openclaw-10-3-cutover) ;;
+            *) echo "Live prerequisites blocked on unapproved ref: $GITHUB_REF" >&2; exit 1 ;;
+          esac
       - name: Check required V2 live secrets
         shell: bash
         run: |
@@ -45,3 +49,9 @@ jobs:
           fi
 
           echo "Live prerequisite gate passed. Secret values were not printed." >> "$GITHUB_STEP_SUMMARY"
+
+# Risks and control:
+# - live credentials resolve only from the canonical GitHub Environment;
+# - this gate prints only PRESENT/MISSING and never secret values;
+# - pre-merge execution is restricted to the exact 2026.10.3 cutover branch;
+# - canonical execution remains restricted to the canonical V2 branch.

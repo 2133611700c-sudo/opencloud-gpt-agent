@@ -1,0 +1,115 @@
+name: OpenClaw Vendor Phone Call
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_file:
+        description: Vendor call task under ops/agent-control/vendor-calls
+        required: true
+        type: string
+  push:
+    paths:
+      - "ops/agent-control/vendor-calls/*.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: openclaw-vendor-phone-call-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  call:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BLAND_API_KEY: ${{ secrets.BLAND_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Resolve task files
+        id: tasks
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TASK_FILE="${{ inputs.task_file }}"
+            case "$TASK_FILE" in
+              ops/agent-control/vendor-calls/*.json) ;;
+              *) echo "Invalid task path: $TASK_FILE" >&2; exit 1 ;;
+            esac
+            printf '%s\n' "$TASK_FILE" > /tmp/vendor-call-tasks.txt
+          else
+            git diff-tree --no-commit-id --name-only --diff-filter=AM -r "$GITHUB_SHA" -- 'ops/agent-control/vendor-calls/*.json' > /tmp/vendor-call-tasks.txt
+          fi
+          if [ ! -s /tmp/vendor-call-tasks.txt ]; then
+            echo "No vendor call task files found" >&2
+            exit 1
+          fi
+          cat /tmp/vendor-call-tasks.txt
+
+      - name: Verify telephony credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BLAND_API_KEY:-}" ]; then
+            echo "BLAND_API_KEY repository secret is not configured" >&2
+            exit 1
+          fi
+
+      - name: Execute approved vendor calls
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r TASK_FILE; do
+            [ -n "$TASK_FILE" ] || continue
+            STATUS="$(node -e "const fs=require('node:fs'); const t=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write(String(t.status || 'pending'));" "$TASK_FILE")"
+            if [ "$STATUS" != "pending" ]; then
+              echo "Skipping $TASK_FILE because status=$STATUS"
+              continue
+            fi
+            VENDOR_CALL_TASK_FILE="$TASK_FILE" node scripts/openclaw-vendor-phone-call.mjs
+          done < /tmp/vendor-call-tasks.txt
+
+      - name: Upload private call evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: vendor-phone-call-${{ github.run_id }}
+          path: ops/agent-control/reports/vendor_phone_call/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Commit sanitized summaries
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! compgen -G 'ops/agent-control/reports/vendor_phone_call/*.md' > /dev/null; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/agent-control/reports/vendor_phone_call/*.md
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "ops(agent): add vendor phone call evidence"
+          for ATTEMPT in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            git rebase --abort || true
+            if [ "$ATTEMPT" -eq 3 ]; then
+              exit 1
+            fi
+            sleep "$ATTEMPT"
+          done

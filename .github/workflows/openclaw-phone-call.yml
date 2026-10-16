@@ -1,0 +1,178 @@
+name: OpenClaw Phone Call
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_file:
+        description: Phone task under ops/agent-control/tasks or ops/agent-control/phone-calls
+        required: false
+        type: string
+      preflight_only:
+        description: Verify Call2Me agent, owned number and wallet without creating a call
+        required: false
+        default: false
+        type: boolean
+      number_preview_only:
+        description: Search US local number inventory and prices without purchase or checkout
+        required: false
+        default: false
+        type: boolean
+      number_area_code:
+        description: Optional area code for number preview
+        required: false
+        default: ''
+        type: string
+  push:
+    paths:
+      - "ops/agent-control/phone-calls/*.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: openclaw-phone-call-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  call:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CALL2ME_API_KEY: ${{ secrets.CALL2ME_API_KEY }}
+      CALL2ME_AGENT_ID: agent_f2949915a3f2
+      CALL2ME_FROM_NUMBER: ${{ vars.CALL2ME_FROM_NUMBER }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Validate execution mode
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.preflight_only }}" = "true" ] && [ "${{ inputs.number_preview_only }}" = "true" ]; then
+            echo "CODE: choose only one read-only mode" >&2
+            exit 2
+          fi
+
+      - name: Verify Call2Me credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CALL2ME_API_KEY:-}" ]; then
+            echo "BLOCKED_PRIVILEGE: CALL2ME_API_KEY repository secret is not configured" >&2
+            exit 20
+          fi
+          echo "call2me_api_key_present=true"
+
+      - name: Zero-spend production preflight
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.preflight_only }}
+        shell: bash
+        run: node scripts/openclaw-phone-preflight.mjs
+
+      - name: Zero-spend number inventory and price preview
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.number_preview_only }}
+        shell: bash
+        env:
+          CALL2ME_NUMBER_COUNTRY: US
+          CALL2ME_NUMBER_TYPE: local
+          CALL2ME_NUMBER_AREA_CODE: ${{ inputs.number_area_code }}
+          CALL2ME_NUMBER_LIMIT: '10'
+        run: node scripts/openclaw-phone-number-preview.mjs
+
+      - name: Resolve phone task files
+        if: ${{ !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TASK_FILE="${{ inputs.task_file }}"
+            case "$TASK_FILE" in
+              ops/agent-control/tasks/*.json|ops/agent-control/phone-calls/*.json) ;;
+              *) echo "Invalid task path: $TASK_FILE" >&2; exit 1 ;;
+            esac
+            printf '%s\n' "$TASK_FILE" > /tmp/phone-call-tasks.txt
+          else
+            git diff-tree --no-commit-id --name-only --diff-filter=AM -r "$GITHUB_SHA" -- 'ops/agent-control/phone-calls/*.json' > /tmp/phone-call-tasks.txt
+          fi
+          if [ ! -s /tmp/phone-call-tasks.txt ]; then
+            echo "No phone_call task files found" >&2
+            exit 1
+          fi
+          cat /tmp/phone-call-tasks.txt
+
+      - name: Execute approved phone calls
+        if: ${{ !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r TASK_FILE; do
+            [ -n "$TASK_FILE" ] || continue
+            STATUS="$(node -e "const fs=require('node:fs'); const t=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write(String(t.status || 'pending'));" "$TASK_FILE")"
+            TYPE="$(node -e "const fs=require('node:fs'); const t=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write(String(t.type || ''));" "$TASK_FILE")"
+            if [ "$TYPE" != "phone_call" ]; then
+              echo "Skipping $TASK_FILE because type=$TYPE"
+              continue
+            fi
+            if [ "$STATUS" != "pending" ]; then
+              echo "Skipping $TASK_FILE because status=$STATUS"
+              continue
+            fi
+            PHONE_CALL_TASK_FILE="$TASK_FILE" node scripts/openclaw-phone-call.mjs
+          done < /tmp/phone-call-tasks.txt
+
+      - name: Recover evidence through documented vCon endpoint
+        if: ${{ success() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
+        shell: bash
+        run: node scripts/openclaw-phone-vcon-fallback.mjs
+
+      - name: Upload private phone evidence
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: openclaw-phone-private-${{ github.run_id }}
+          path: ${{ runner.temp }}/openclaw-phone-private/*.private.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Upload sanitized phone evidence
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: openclaw-phone-sanitized-${{ github.run_id }}
+          path: |
+            ops/agent-control/reports/phone_call/*.result.json
+            ops/agent-control/reports/phone_call/*.md
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit sanitized phone summaries
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && (inputs.preflight_only || inputs.number_preview_only)) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! compgen -G 'ops/agent-control/reports/phone_call/*.md' > /dev/null; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/agent-control/reports/phone_call/*.md
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "ops(agent): add phone call evidence"
+          for ATTEMPT in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            git rebase --abort || true
+            if [ "$ATTEMPT" -eq 3 ]; then exit 1; fi
+            sleep "$ATTEMPT"
+          done

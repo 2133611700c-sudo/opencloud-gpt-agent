@@ -22,6 +22,7 @@ jobs:
       - name: Full unit and regression suite
         run: npm test
       - run: node --check scripts/openclaw-task-runner.mjs
+      - run: node --check scripts/openclaw-phone-call.mjs
       - run: node --check scripts/openclaw-job-lead-collector.mjs
       - run: node --check scripts/openclaw-cloud-orchestrator.mjs
       - run: node --check scripts/openclaw-deepseek-advisor.mjs

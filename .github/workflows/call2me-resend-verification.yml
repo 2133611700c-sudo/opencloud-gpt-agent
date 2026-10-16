@@ -1,0 +1,28 @@
+name: Call2Me Resend Verification
+
+on:
+  push:
+    branches:
+      - feat/openclaw-vendor-phone-calls
+    paths:
+      - 'ops/agent-control/triggers/call2me-resend-verification.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  resend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Resend Call2Me verification email
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --show-error --silent \
+            -X POST 'https://api.call2me.app/v1/auth/resend-verification' \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"2133611700c@gmail.com"}' \
+            | tee /tmp/response.json
+          jq -e '.' /tmp/response.json >/dev/null

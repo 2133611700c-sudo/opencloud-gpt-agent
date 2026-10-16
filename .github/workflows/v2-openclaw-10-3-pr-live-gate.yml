@@ -1,0 +1,116 @@
+name: OpenClaw V2 10.3 PR Live Gate
+
+on:
+  push:
+    branches:
+      - 'v2/openclaw-10-3-cutover'
+    paths:
+      - '.github/workflows/v2-openclaw-10-3-pr-live-gate.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openclaw-v2-shared-hosted-state
+  cancel-in-progress: false
+
+jobs:
+  live-kernel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+      OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Require live secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DATABASE_URL:-}" || { echo 'DATABASE_URL is required' >&2; exit 1; }
+          test -n "${DEEPSEEK_API_KEY:-}" || { echo 'DEEPSEEK_API_KEY is required' >&2; exit 2; }
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Install pinned OpenClaw CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          echo "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.10.3"
+
+      - name: Prepare isolated OpenClaw V2 trust scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-v2-state"
+          install -d -m 700 "$state_dir"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+
+      - name: Install matching official DeepSeek provider plugin
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+          openclaw plugins list | grep -i deepseek
+          test -d "$OPENCLAW_STATE_DIR/npm/projects"
+
+      - name: Install matching official DuckDuckGo research plugin
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
+          openclaw plugins list | grep -i duckduckgo
+
+      - name: Verify Research credential scope has no stored DeepSeek profiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth_json="$(openclaw models auth list --provider deepseek --json)"
+          AUTH_JSON="$auth_json" node --input-type=module -e "const value=JSON.parse(process.env.AUTH_JSON); if (!Array.isArray(value.profiles) || value.profiles.length !== 0) throw new Error('stored DeepSeek auth profiles are present in the Research scope');"
+
+      - name: Validate generated Research OpenClaw config
+        env:
+          OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research.json
+          OPENCLAW_CONFIG_READONLY: '1'
+        run: |
+          set -euo pipefail
+          node scripts/write-research-openclaw-config.mjs "$OPENCLAW_CONFIG_PATH"
+          test "$(stat -c '%a' "$OPENCLAW_CONFIG_PATH")" = "600"
+          test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
+          openclaw config validate --json
+
+      - name: Run one live Kernel Research vertical
+        id: kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          node scripts/live-research-kernel-vertical.mjs 2>&1 | tee artifacts/research-kernel-live.json
+
+      - name: Upload safe Kernel Research vertical evidence
+        if: ${{ always() && steps.kernel.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-v2-10-3-pr-kernel-live
+          path: artifacts/research-kernel-live.json
+          if-no-files-found: error
+          retention-days: 7
+
+# Risks and control:
+# - this is a bounded one-shot acceptance gate for PR #55 only;
+# - it uses the existing repository secrets contract and never prints secret values;
+# - it preserves the V2 rule that Research state contains no stored DeepSeek auth profile;
+# - remove this temporary workflow before merging PR #55.

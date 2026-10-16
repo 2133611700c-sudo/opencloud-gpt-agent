@@ -18,6 +18,7 @@ jobs:
   live-kernel:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: openclaw-v2-live
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
@@ -111,7 +112,6 @@ jobs:
 
 # Risks and control:
 # - this is a bounded one-shot acceptance gate for PR #55 only;
-# - it uses the existing repository secrets contract and never prints secret values;
+# - it uses the canonical GitHub Environment openclaw-v2-live and never prints secret values;
 # - it preserves the V2 rule that Research state contains no stored DeepSeek auth profile;
-# - its separate concurrency group is safe because the normal push-triggered V2 CI uses local Postgres and skips all hosted/live jobs;
 # - remove this temporary workflow before merging PR #55.

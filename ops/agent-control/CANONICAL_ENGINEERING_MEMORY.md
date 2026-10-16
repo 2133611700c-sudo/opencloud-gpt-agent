@@ -47,6 +47,30 @@ For every delegated lane:
 
 Delegation does not transfer responsibility. The supervisor remains accountable for correctness, integration, evidence quality, and the final result.
 
+## Rule 8 — One canonical memory system, concise reporting, complete handoff
+Do not create duplicate journals, duplicate status boards, or parallel truth stores when the project already has a canonical place for the information. Put every material fact in the existing authoritative artifact for that fact and keep chat responses concise, factual, and decision-relevant.
+
+For OpenClaw V2, the canonical memory map is:
+- `START_HERE.md` — stable execution router and mandatory boot order.
+- `PROJECT_STATE.json` — current machine-readable project checkpoint, verified baseline, gate map, current route, blockers, and next action.
+- `docs/RESULTS_JOURNAL.md` — append-only route-level evidence, corrections, decisions, major errors, recoveries, and checkpoint history.
+- `docs/EXECUTION_LOG.md` — detailed engineering history and implementation lessons.
+- Git history, CI runs, runtime logs, hosted checks, and evidence artifacts — primary proof; these override stale summaries.
+- `CANONICAL_ENGINEERING_MEMORY.md` — stable operating rules that govern how work is analyzed, delegated, changed, verified, recorded, and handed off.
+
+Do not split error, decision, risk, verification, session, or improvement history into new files merely for neatness if the existing V2 artifacts can represent them clearly. Create a new ledger only when volume or structure makes the existing canonical artifacts objectively insufficient; record why the split is necessary and link it from the router/state.
+
+When the project owner requests transfer to a new chat/session, the current session MUST complete the handoff before stopping:
+1. Re-read current branch HEAD and exact latest CI/runtime evidence.
+2. Reconcile `PROJECT_STATE.json` with actual repository/hosted/live state.
+3. Append a checkpoint or correction to `docs/RESULTS_JOURNAL.md` if material truth, route, error state, or evidence changed.
+4. Update this canonical memory if a rule, lesson, prohibition, or operating doctrine changed.
+5. Preserve exact unresolved items, blockers, risks, forbidden detours, branch/SHA/run identifiers, and the single next allowed action.
+6. Produce a self-contained handoff that tells the new chat exactly what to read first and what must not be assumed.
+7. Never rely on chat memory alone for a fact needed to continue the project.
+
+Reporting rule: answer the owner briefly and plainly. Show the full important state, result, blocker, evidence, and next action, but do not spend time or tokens on repetition, filler, narration of obvious tool use, or irrelevant detail.
+
 ## Canonical verification discipline
 - VERIFIED: supported by repository state, logs, CI, primary documentation, live test, or equivalent direct evidence.
 - HYPOTHESIS: plausible but not yet proven.

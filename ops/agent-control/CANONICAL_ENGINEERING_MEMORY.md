@@ -2,7 +2,7 @@
 
 Status: DRAFT — rules are being created live with the project owner.
 Purpose: permanent operating memory for ChatGPT/OpenClaw work in this repository.
-Update rule: this file MUST be updated in the same work cycle whenever a confirmed architectural change, important lesson, serious error, new prohibition, new acceptance criterion, or new operating rule appears.
+Update rule: this file MUST be updated in the same work cycle whenever a confirmed architectural change, important lesson, serious error, new prohibition, new acceptance criterion, new operating rule, or credential/access-map change appears.
 
 ## Rule 1 — No invention
 Do not invent, fabricate, improvise missing facts, or add unsupported assumptions. Act only from the concrete situation after understanding the context and building a real map of the system. If understanding is incomplete, do not fill gaps with guesses or present an assumption as fact.
@@ -22,13 +22,13 @@ Execute the task end-to-end whenever technically possible: investigate, compare 
 ## Rule 6 — Maintain permanent project operational memory
 Every serious project must maintain a continuously updated operational memory. At minimum it must include:
 - Current status / entry board: current verified state, what works, what is broken, blockers, current goal, latest verified SHA/run/evidence, and one next action.
-- Error ledger: symptom, root cause, how it was found, how it was fixed, verification test, and prevention of recurrence.
-- Decision log: decision, alternatives considered, why it was chosen, and conditions for reconsideration.
-- Change/improvement log: what changed and what real system value it produced.
-- Verification log: exact tests executed, SHA/environment, evidence, and PASS | FAIL | BLOCKED.
-- Risk register: known technical, architectural, financial, operational, and dependency risks with mitigation/control.
+- Error history: symptom, root cause, how it was found, how it was fixed, verification test, and prevention of recurrence.
+- Decision history: decision, alternatives considered, why it was chosen, and conditions for reconsideration.
+- Change/improvement history: what changed and what real system value it produced.
+- Verification history: exact tests executed, SHA/environment, evidence, and PASS | FAIL | BLOCKED.
+- Risk state: known technical, architectural, financial, operational, and dependency risks with mitigation/control.
 - Project metrics: open blockers, failed acceptance gates, flaky tests, unresolved defects, verified capabilities, regressions.
-- Session/daily journal: entry state, discoveries, changes, verified results, unknowns, and next action.
+- Session/checkpoint history: entry state, discoveries, changes, verified results, unknowns, and next action.
 
 The entry board must let a new session understand the project quickly without reconstructing history from chat. Do not rewrite history to fit a later conclusion. Supersede older claims explicitly and preserve the evidence chain.
 
@@ -48,7 +48,7 @@ For every delegated lane:
 Delegation does not transfer responsibility. The supervisor remains accountable for correctness, integration, evidence quality, and the final result.
 
 ## Rule 8 — One canonical memory system, concise reporting, complete handoff
-Do not create duplicate journals, duplicate status boards, or parallel truth stores when the project already has a canonical place for the information. Put every material fact in the existing authoritative artifact for that fact and keep chat responses concise, factual, and decision-relevant.
+Do not create duplicate journals, duplicate status boards, or parallel truth stores when the project already has a canonical place for the information. Put every material fact in the existing authoritative artifact for that fact and keep owner-facing responses concise, factual, and decision-relevant.
 
 For OpenClaw V2, the canonical memory map is:
 - `START_HERE.md` — stable execution router and mandatory boot order.
@@ -56,7 +56,8 @@ For OpenClaw V2, the canonical memory map is:
 - `docs/RESULTS_JOURNAL.md` — append-only route-level evidence, corrections, decisions, major errors, recoveries, and checkpoint history.
 - `docs/EXECUTION_LOG.md` — detailed engineering history and implementation lessons.
 - Git history, CI runs, runtime logs, hosted checks, and evidence artifacts — primary proof; these override stale summaries.
-- `CANONICAL_ENGINEERING_MEMORY.md` — stable operating rules that govern how work is analyzed, delegated, changed, verified, recorded, and handed off.
+- `ops/agent-control/CANONICAL_ENGINEERING_MEMORY.md` — stable operating rules governing analysis, delegation, change, verification, recording, and handoff.
+- `ops/agent-control/ACCESS_REGISTRY.md` — canonical credential-reference and runtime-access map.
 
 Do not split error, decision, risk, verification, session, or improvement history into new files merely for neatness if the existing V2 artifacts can represent them clearly. Create a new ledger only when volume or structure makes the existing canonical artifacts objectively insufficient; record why the split is necessary and link it from the router/state.
 
@@ -65,11 +66,29 @@ When the project owner requests transfer to a new chat/session, the current sess
 2. Reconcile `PROJECT_STATE.json` with actual repository/hosted/live state.
 3. Append a checkpoint or correction to `docs/RESULTS_JOURNAL.md` if material truth, route, error state, or evidence changed.
 4. Update this canonical memory if a rule, lesson, prohibition, or operating doctrine changed.
-5. Preserve exact unresolved items, blockers, risks, forbidden detours, branch/SHA/run identifiers, and the single next allowed action.
-6. Produce a self-contained handoff that tells the new chat exactly what to read first and what must not be assumed.
-7. Never rely on chat memory alone for a fact needed to continue the project.
+5. Update `ACCESS_REGISTRY.md` if any credential reference, storage location, consumer, or verification state changed.
+6. Preserve exact unresolved items, blockers, risks, forbidden detours, branch/SHA/run identifiers, and the single next allowed action.
+7. Produce a self-contained handoff that tells the new chat exactly what to read first and what must not be assumed.
+8. Never rely on chat memory alone for a fact needed to continue the project.
 
 Reporting rule: answer the owner briefly and plainly. Show the full important state, result, blocker, evidence, and next action, but do not spend time or tokens on repetition, filler, narration of obvious tool use, or irrelevant detail.
+
+## Rule 9 — Canonical access/credential registry
+Maintain one canonical access registry for every project so credentials and runtime access are never repeatedly rediscovered.
+
+The registry must contain, for every credential or protected runtime variable:
+- exact variable/key/reference name;
+- purpose;
+- native storage location or authoritative source;
+- services/agents/workflows that consume it;
+- verification status (present/working/not proven/revoked/obsolete as applicable);
+- the last material verification/change recorded in the project journal/state when relevant.
+
+Do not infer that a credential exists because code mentions its name. A working status requires direct evidence from the native secret store, runtime, provider, or successful authenticated execution.
+
+Do not waste time repeatedly asking the owner to locate a credential whose canonical storage location is already known and accessible through available tools. Use the available native access path first. If a value cannot be read by design but can be used by the native runtime, verify it through a safe runtime/authenticated test and record the result.
+
+When a credential is added, moved, rotated, revoked, replaced, or begins serving a new consumer, update the registry in the same work cycle.
 
 ## Canonical verification discipline
 - VERIFIED: supported by repository state, logs, CI, primary documentation, live test, or equivalent direct evidence.

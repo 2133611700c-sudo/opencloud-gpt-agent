@@ -5,9 +5,10 @@ Scope: first five root functions only, tested one-by-one.
 Rules:
 - Exact version: `openclaw@2026.10.3`.
 - One function is tested and closed before moving to the next.
-- Status values: `PASS`, `FAIL`, `BLOCKED`, `PENDING`.
+- Status values: `PASS`, `FAIL`, `BLOCKED`, `INCONCLUSIVE`, `PENDING`.
 - No credential value is written to Git, artifacts, logs, or this journal.
 - For provider-dependent functions, record whether a valid DeepSeek credential was available to the test runtime and whether a real model request succeeded.
+- During the five-function test pass, observed problems are recorded but not repaired.
 
 ## Secret / provider tracking
 
@@ -20,7 +21,7 @@ Current verified observations:
 
 | # | Root function | Status | DeepSeek key involved? | Evidence | Notes |
 |---|---|---|---|---|---|
-| 1 | `acp` | PENDING | No for protocol smoke | GitHub run `38883528473` = HARNESS_INVALID | First attempt never reached ACP because the source tree was not built. |
+| 1 | `acp` | PENDING | No for protocol smoke | runs `38883528473`, `38885737474`; source-test run `38884163886` still active | Attempt 1 invalid harness. Attempt 2 proved package/CLI/Gateway startup but ACP lifecycle step was gated by the test health probe, so function result remains inconclusive pending the already-running source test. |
 | 2 | `agent` | PENDING | Yes | — | Real agent run with DeepSeek required. |
 | 3 | `agents` | PENDING | Yes for spawned/selected agent execution | — | Agent inventory/routing plus execution required. |
 | 4 | `approvals` | PENDING | No model key required | — | Approval lifecycle smoke. |
@@ -34,6 +35,17 @@ Current verified observations:
 - Node: `24.21.0`.
 - `pnpm install --frozen-lockfile`: PASS.
 - The failure occurred at `node openclaw.mjs acp --help` before ACP protocol execution.
-- Exact cause: the source checkout had no built `dist/entry.(m)js`; upstream instructed running `pnpm build` or installing a built package.
+- Exact cause: the source checkout had no built `dist/entry.(m)js`.
 - Classification: test-harness defect, not an ACP functional failure.
-- Next action: add the build step and rerun only F01.
+
+### F01 `acp` — attempt 2 — INCONCLUSIVE / HARNESS_GATED
+- GitHub Actions run: `38885737474`.
+- Published `openclaw@2026.10.3` installed successfully.
+- `openclaw --version`: PASS, reported `OpenClaw 2026.10.3 (59cb447)`.
+- `openclaw acp --help`: PASS.
+- `openclaw acp client --help`: PASS.
+- Isolated Gateway process started successfully and logged `[gateway] ready`.
+- The test step that waited on its health probe exited nonzero even though Gateway logs showed the Gateway was already ready.
+- Because that step failed first, `Exercise ACP client-to-bridge lifecycle` was skipped.
+- Classification: ACP command surface and Gateway prerequisite are proven callable; ACP protocol lifecycle itself is not yet proven or disproven by this attempt.
+- No repair was applied after observing this result.

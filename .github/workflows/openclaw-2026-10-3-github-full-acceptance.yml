@@ -1,0 +1,86 @@
+name: OpenClaw 2026.10.3 GitHub Full Acceptance
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-2026-10-3-github-full-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openclaw-2026-10-3-github-full-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wave1_live_core:
+    name: Wave 1 - DeepSeek Research and native sub-agents
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: openclaw-v2-live
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify GitHub Environment credential is present
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DEEPSEEK_API_KEY:-}" || { echo 'DEEPSEEK_API_KEY_MISSING' >&2; exit 1; }
+          test "${#DEEPSEEK_API_KEY}" -ge 8
+          echo 'DEEPSEEK_API_KEY_PRESENT=true'
+
+      - name: Install exact OpenClaw 10.3 and matching plugins
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          printf '%s\n' "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = '2026.10.3'
+          state_dir="$RUNNER_TEMP/openclaw-wave1-state"
+          install -d -m 700 "$state_dir"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          openclaw setup --baseline --skip-bootstrap --workspace "$GITHUB_WORKSPACE" --json > "$RUNNER_TEMP/openclaw-baseline.json"
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
+          openclaw plugins install @openclaw/firecrawl-plugin@2026.10.3
+          openclaw config validate --json > "$RUNNER_TEMP/openclaw-config.json"
+          openclaw doctor --lint --severity-min error --json > "$RUNNER_TEMP/openclaw-doctor.json"
+
+      - name: A8 - live Research agent with DeepSeek plus web_search and web_fetch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf a8-output
+          node scripts/a8-vercel-acceptance.mjs
+          test -s a8-output/a8-evidence.json
+          cat a8-output/a8-evidence.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: A9 - native sub-agent spawn, completion, parent resume and cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .a9-install-state
+          bash scripts/a9-vercel-build.sh | tee "$RUNNER_TEMP/a9-safe-output.log"
+          grep -q 'A9_PASS' "$RUNNER_TEMP/a9-safe-output.log"
+
+      - name: Upload safe Wave 1 evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-2026-10-3-github-wave1
+          path: |
+            a8-output/a8-evidence.json
+          if-no-files-found: warn
+          retention-days: 14

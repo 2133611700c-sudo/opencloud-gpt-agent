@@ -1,0 +1,68 @@
+name: OpenClaw F02 Agent DeepSeek Live
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-f02-agent-deepseek.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agent-deepseek-live:
+    name: F02 agent real DeepSeek execution
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: openclaw-v2-live
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-f02-state
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+
+      - name: Install published OpenClaw 2026.10.3
+        run: npm install -g openclaw@2026.10.3
+
+      - name: Prepare isolated state
+        run: mkdir -p "$OPENCLAW_STATE_DIR"
+
+      - name: Install exact DeepSeek provider plugin
+        run: openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+
+      - name: Verify DeepSeek catalog
+        run: openclaw models list --all --provider deepseek
+
+      - name: Report key availability without exposing value
+        run: |
+          if [ -n "${DEEPSEEK_API_KEY:-}" ]; then
+            echo "DEEPSEEK_API_KEY=PRESENT"
+            echo "DEEPSEEK_API_KEY_LENGTH=${#DEEPSEEK_API_KEY}"
+          else
+            echo "DEEPSEEK_API_KEY=MISSING"
+          fi
+
+      - name: Run real OpenClaw agent against DeepSeek
+        run: |
+          set +e
+          openclaw agent exec "Reply with exactly F02_AGENT_OK and nothing else." \
+            --model deepseek/deepseek-flash \
+            --code-mode direct \
+            --thinking low \
+            --timeout 120 \
+            --json \
+            > "$RUNNER_TEMP/f02-agent.json" \
+            2> "$RUNNER_TEMP/f02-agent.stderr"
+          rc=$?
+          echo "OPENCLAW_AGENT_EXIT_CODE=$rc"
+          cat "$RUNNER_TEMP/f02-agent.json"
+          if [ -s "$RUNNER_TEMP/f02-agent.stderr" ]; then
+            echo "--- STDERR ---"
+            tail -n 80 "$RUNNER_TEMP/f02-agent.stderr"
+          fi
+          exit $rc

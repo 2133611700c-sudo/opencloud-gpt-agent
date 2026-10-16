@@ -1,0 +1,55 @@
+name: OpenClaw F01 ACP Package Smoke
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-f01-acp-package-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acp-package-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - name: Install published OpenClaw 2026.10.3
+        run: npm install -g openclaw@2026.10.3
+      - name: Verify exact version and ACP CLI
+        run: |
+          openclaw --version
+          openclaw acp --help
+          openclaw acp client --help
+      - name: Start isolated local Gateway
+        env:
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-f01-state
+          OPENCLAW_SKIP_CHANNELS: '1'
+        run: |
+          mkdir -p "$OPENCLAW_STATE_DIR"
+          openclaw gateway --allow-unconfigured --auth none --bind loopback --port 18789 > "$RUNNER_TEMP/gateway.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/gateway.pid"
+          for i in $(seq 1 30); do
+            if openclaw health --url ws://127.0.0.1:18789 >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/gateway.log"
+          exit 1
+      - name: Exercise ACP client-to-bridge lifecycle
+        env:
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-f01-state
+          OPENCLAW_SKIP_CHANNELS: '1'
+        run: |
+          printf 'exit\n' | openclaw acp client --server-args --url ws://127.0.0.1:18789
+      - name: Stop Gateway
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/gateway.pid" ]; then kill "$(cat "$RUNNER_TEMP/gateway.pid")" || true; fi

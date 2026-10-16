@@ -39,7 +39,7 @@ The Final 48 runtime stays separate while this acceptance sequence runs. After O
 | A4 | Managed browser | dedicated OpenClaw profile starts, opens a public page, snapshots, acts on a harmless control, closes tab, stops cleanly | PASS_CODE_CI |
 | A5 | Existing signed-in browser | `user`/existing-session driver attaches to a real signed-in Chrome context and performs read-only navigation without re-authentication | BLOCKED |
 | A6 | Files + runtime/process tools | bounded workspace read/write/edit and harmless process execution prove policy, path and cleanup behavior | PASS_CODE_CI |
-| A7 | DeepSeek direct provider | one bounded live DeepSeek 2026.10.3 call proves auth, exact model, output and telemetry envelope | NOT_PROVEN |
+| A7 | DeepSeek direct provider | one bounded live DeepSeek 2026.10.3 call proves auth, exact model, output and telemetry envelope | PASS_LIVE |
 | A8 | DeepSeek Research agent | DeepSeek + DuckDuckGo `web_search`/`web_fetch` completes one cited structured research task through our contract | NOT_PROVEN |
 | A9 | Sub-agents | parent spawns isolated child, child returns result, lifecycle/stop/cleanup evidence is correct | NOT_PROVEN |
 | A10 | Tool Search + Code Mode | hidden catalog discovery and a bounded multi-tool JavaScript program execute under policy | NOT_PROVEN |
@@ -156,6 +156,27 @@ Two preceding diagnostic runs exposed a real contract nuance: an isolated `auth 
 - A preceding diagnostic attempt stopped before capability execution because it assumed an unpublished internal dist path. The corrected run uses the public agent-harness SDK and passed end-to-end.
 - Artifact: `openclaw-2026-10-3-a6-files-runtime`, id `12013123432`
 - Artifact digest: `sha256:8e8fae9a4448aa3304a638709f874874c3155e3b4dd1de556b4681715689fdaa`
+
+## A7 evidence
+
+- Status: `PASS_LIVE`.
+- Execution surface: isolated, non-persistent Vercel Sandbox; no production deployment, no `main` write and no hosted database mutation.
+- Acceptance project: `openclaw-a7-acceptance` (`prj_Zt6VMXdhTwwaCRxDEsNrdxfu4U7s`).
+- Sandbox/session: `openclaw-a7-live-universal` / `sbx_pd2hr7Bo3hugZA1A9CzbIKlsGUKc`.
+- Runtime observed: Node `24.21.0`, OpenClaw `2026.10.3 (59cb447)`.
+- DeepSeek plugin: `@openclaw/deepseek-provider@2026.10.3`, enabled.
+- `doctor --lint --severity-min error --json`: PASS; `36` checks run, `0` findings.
+- Provider discovery with the runtime credential returned `deepseek/deepseek-v4-pro` and `deepseek/deepseek-flash` as available models.
+- Ephemeral token-auth Gateway reached `/readyz`: PASS.
+- Real bounded provider call used `deepseek/deepseek-flash` through `infer model run --gateway`.
+- Provider/model observed in the returned envelope: `deepseek` / `deepseek-flash`.
+- Transport observed: `gateway`.
+- Exact expected output `smoke-ok`: PASS.
+- Fallback attempts: `0`.
+- Successful sandbox command: `cmd_969667db38c840ab842610d003cf`, exit code `0`.
+- The DeepSeek credential was injected only into the live process environment; it was not written to Git, config, logs, summaries or artifacts.
+- Earlier GitHub Actions A7 runs did not prove or disprove the provider: one stopped on a stale local-catalog assertion and the next stopped on missing GitHub Actions secret plumbing before the live call. GitHub-secret CI repeatability therefore remains infrastructure `NOT_PROVEN`, while the OpenClaw 2026.10.3 DeepSeek capability itself is `PASS_LIVE`.
+- A fresh `--local` lane was also diagnosed: provider refresh discovers the model, but the local prepared catalog remains empty; the documented Gateway transport is the proven live path for this acceptance environment.
 
 ## Execution rules
 

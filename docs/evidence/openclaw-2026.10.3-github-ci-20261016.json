@@ -1,0 +1,186 @@
+{
+  "code_head": "34eda7ba3f9eed8e99b62938e5fa8c69cbace52f",
+  "ci": {
+    "run_id": 38982467992,
+    "url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/38982467992",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 117246307542,
+        "name": "foundation",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Initialize containers",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify OpenClaw GitHub machine identity",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate foundation",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run Node tests",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run health check",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build mobile Evidence Function",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install PostgreSQL client",
+            "conclusion": "success"
+          },
+          {
+            "name": "Apply PostgreSQL migrations",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL kernel assertions",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL GitHub intake E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL authenticated user HTTP intake E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL Research execution E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL Data execution E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL production Data vertical",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL bound Evidence persistence E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run PostgreSQL runtime Evidence lifecycle E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up supported Node for pinned OpenClaw runtime",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install pinned OpenClaw CLI",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare isolated OpenClaw V2 trust scope",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install matching official DeepSeek provider plugin",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install matching official DuckDuckGo research plugin",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify fresh foundation scope starts without credentials",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate generated Research OpenClaw config",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up supported Node for pinned OpenClaw runtime",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Stop containers",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 117246790668,
+        "name": "live_request_guard",
+        "conclusion": "skipped",
+        "steps": []
+      },
+      {
+        "id": 117246791065,
+        "name": "live_kernel",
+        "conclusion": "skipped",
+        "steps": []
+      },
+      {
+        "id": 117246791410,
+        "name": "live_hosted",
+        "conclusion": "skipped",
+        "steps": []
+      },
+      {
+        "id": 117246791815,
+        "name": "live_smoke",
+        "conclusion": "skipped",
+        "steps": []
+      }
+    ]
+  },
+  "prerequisites": {
+    "run_id": 38982588772,
+    "url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/actions/runs/38982588772",
+    "conclusion": "failure",
+    "job_id": 117246640352,
+    "effective_runner_credentials": {
+      "DATABASE_URL": "MISSING",
+      "DEEPSEEK_API_KEY": "MISSING"
+    },
+    "inventory_of_stored_github_secrets": "UNKNOWN_HTTP403",
+    "evidence_note": "Both workflow environment fields in job logs are empty at 2026-10-16T23:39:41Z; Check required V2 live secrets exits 1. Echoed script branches are not themselves treated as executed presence output."
+  },
+  "pull_request": {
+    "number": 55,
+    "draft": true,
+    "head": "34eda7ba3f9eed8e99b62938e5fa8c69cbace52f",
+    "url": "https://github.com/2133611700c-sudo/opencloud-gpt-agent/pull/55"
+  },
+  "live_kernel": "BLOCKED_SECRET_AUTH",
+  "verdict": "PARTIALLY_WORKING"
+}

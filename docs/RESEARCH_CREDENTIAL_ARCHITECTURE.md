@@ -61,8 +61,10 @@ Full sanitized command/output/exit/hash evidence is retained in [the committed a
 
 ## Open gates
 
-The last observed GitHub live job reported both required credentials missing. Current GitHub secret presence is UNKNOWN: root's configuration attempts using the supplied explicit PAT through `gh` returned HTTP403. This establishes an access/configuration blocker, not proof that the key is absent or invalid.
+The last observed GitHub live job reported both required credentials missing. Current stored GitHub secret inventory is UNKNOWN: root's configuration attempts using the supplied explicit PAT through `gh` returned HTTP403. This establishes an access/configuration blocker, not proof that the key is absent or invalid.
 
-At documentation baseline `fd3eec621fd6f301b00b10e2db7fe33a68f5ad0b`, candidate credential implementation passed 482/482 local tests, foundation/route/health, installed config validation and the real bootstrap helper. New exact GitHub CI is pending. No new GitHub-hosted stored-profile Research/Kernel PASS, full application E2E or PR #55 cutover readiness is claimed.
+At documentation baseline `fd3eec621fd6f301b00b10e2db7fe33a68f5ad0b`, candidate credential implementation passed 482/482 local tests, foundation/route/health, installed config validation and the real bootstrap helper. Functional code head `34eda7ba3f9eed8e99b62938e5fa8c69cbace52f` passed exact GitHub CI `38982467992`. Conditional live jobs were skipped. No new GitHub-hosted stored-profile Research/Kernel PASS, full application E2E or PR #55 cutover readiness is claimed.
 
-Next route: finish the smallest credential-contract implementation and regression checks; obtain exact GitHub CI evidence; establish usable GitHub secret plumbing; run bounded stored-profile validation in a fresh GitHub job; then verify the required composed Kernel path and record its exact run/task/receipt/artifact identities. Preserve the historical 48H checkpoint and frozen `main`. Do not repeat paid attempts automatically or promote skipped gates.
+Fresh prerequisite run `38982588772` confirms both credentials are missing from the effective runner environment. See [GitHub evidence](evidence/openclaw-2026.10.3-github-ci-20261016.json).
+
+Next route: establish usable GitHub secret plumbing; run bounded stored-profile validation in a fresh GitHub job; then verify the required composed Kernel path and record its exact run/task/receipt/artifact identities. Preserve the historical 48H checkpoint and frozen `main`. Do not repeat paid attempts automatically or promote skipped gates.

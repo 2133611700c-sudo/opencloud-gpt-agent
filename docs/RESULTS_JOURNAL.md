@@ -1364,3 +1364,7 @@ Stored auth, profile-specific provider connectivity and deterministic model exec
 ### Next route
 
 Finish coherent candidate stored-auth code/workflow changes and regression checks -> exact GitHub CI -> usable verified GitHub credential plumbing -> fresh-job stored-profile acceptance -> required bounded Kernel composition with linked evidence. Record exact commit/run/task/artifact identities after execution. No cutover-ready or complete claim, automatic paid retry, historical48H rerun, main change or recorder DB/model/network operation.
+
+### Credential candidate exact CI and fresh GitHub prerequisite evidence
+
+Functional code head `34eda7ba3f9eed8e99b62938e5fa8c69cbace52f` passes GitHub CI38982467992/foundation117246307542. Local482/482 pass. Fresh prerequisite38982588772/job117246640352 fails because both effective environment credentials are empty. Secret inventory is still inaccessibleHTTP403; stored-only OpenClaw profile/probe/exec proof remains PASS in the separate acceptance scope. No GitHub live Kernel PASS or cutover promotion. Next action is supported secret provisioning, then presence and bounded Kernel gates.

@@ -434,18 +434,24 @@
       }
     },
     "github": {
-      "secret_presence": "UNKNOWN",
+      "secret_presence": "MISSING_IN_EFFECTIVE_RUNNER_ENV",
       "secret_write": "BLOCKED_HTTP403",
       "secret_write_observation": "Root explicit PAT via gh configuration attempt returned HTTP403; do not infer secret absence or invalidity",
       "last_live_job_observation": "DATABASE_URL and DEEPSEEK_API_KEY reported missing in the last observed live job",
-      "candidate_exact_ci": "PENDING",
+      "candidate_exact_ci": "PASS_CODE_CI",
       "stored_profile_research": "NOT_PROVEN",
-      "kernel_live": "NOT_PROVEN",
+      "kernel_live": "BLOCKED_SECRET_AUTH",
       "full_application_e2e": "NOT_PROVEN",
-      "cutover_readiness": "NOT_PROVEN"
+      "cutover_readiness": "NOT_PROVEN",
+      "verified_code_head": "34eda7ba3f9eed8e99b62938e5fa8c69cbace52f",
+      "ci_run_id": 38982467992,
+      "ci_conclusion": "success",
+      "secret_store_inventory": "UNKNOWN_HTTP403",
+      "prerequisite_run_id": 38982588772,
+      "prerequisite_job_id": 117246640352
     },
     "independent_environment_provider_smoke": "OPTIONAL_SEPARATE_DIAGNOSTIC_NOT_RESEARCH_PROOF",
-    "next_action": "Obtain exact GitHub CI for the stored-auth candidate; restore Secrets API access and verify the live environment; then run the bounded GitHub stored-profile/Kernel gates. Keep PR55 draft.",
+    "next_action": "Restore GitHub Environment credentials DEEPSEEK_API_KEY and canonical DATABASE_URL through authorized Secrets API access. Then rerun presence gate and bounded stored-profile/Kernel acceptance. Do not rerun missing-secret paid gates or merge PR55.",
     "local_code_validation": {
       "status": "PASS",
       "node_tests": 482,

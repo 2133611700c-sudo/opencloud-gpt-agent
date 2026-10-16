@@ -82,6 +82,9 @@ const requireJob = (jobName, gateName) => {
   if (!section.includes('live_request_guard')) {
     throw new Error(`${jobName} must depend on the canonical live request guard`);
   }
+  if (!section.includes('environment: openclaw-v2-live')) {
+    throw new Error(`${jobName} must resolve live credentials only from openclaw-v2-live`);
+  }
   return section;
 };
 
@@ -122,11 +125,27 @@ if (countOccurrences(workflow, 'live-deepseek-smoke.mjs') !== 1) {
   throw new Error('V2 CI must contain exactly one provider smoke command');
 }
 
+const approvedLiveRefs = [
+  'refs/heads/v2/openclaw-clean-20261011',
+  'refs/heads/v2/openclaw-10-3-cutover',
+];
+const assertExactLiveRefAllowlist = (section, label) => {
+  if (!section.includes('case "$GITHUB_REF" in')) {
+    throw new Error(`${label} must enforce a GITHUB_REF allowlist`);
+  }
+  for (const ref of approvedLiveRefs) {
+    if (!section.includes(ref)) {
+      throw new Error(`${label} must allow exact ref ${ref}`);
+    }
+  }
+  if (!section.includes('*) echo')) {
+    throw new Error(`${label} must fail closed for every unapproved ref`);
+  }
+};
+
 const liveGuardMatch = workflow.match(/\n  live_request_guard:\n([\s\S]*?)\n  live_hosted:/);
 if (!liveGuardMatch) throw new Error('V2 CI live request guard is missing');
-if (!liveGuardMatch[1].includes("test \"$GITHUB_REF\" = 'refs/heads/v2/openclaw-clean-20261011'")) {
-  throw new Error('V2 live request guard must reject non-canonical branches');
-}
+assertExactLiveRefAllowlist(liveGuardMatch[1], 'V2 live request guard');
 
 const prerequisiteWorkflow = await readFile('.github/workflows/v2-live-prerequisites.yml', 'utf8');
 if (!prerequisiteWorkflow.includes('workflow_dispatch:')) {
@@ -135,9 +154,10 @@ if (!prerequisiteWorkflow.includes('workflow_dispatch:')) {
 if (/^\s*push:\s*$/m.test(prerequisiteWorkflow) || /^\s*pull_request:\s*$/m.test(prerequisiteWorkflow)) {
   throw new Error('V2 live prerequisite workflow must not run on push or pull_request');
 }
-if (!prerequisiteWorkflow.includes("test \"$GITHUB_REF\" = 'refs/heads/v2/openclaw-clean-20261011'")) {
-  throw new Error('V2 live prerequisite workflow must reject non-canonical branches');
+if (!prerequisiteWorkflow.includes('environment: openclaw-v2-live')) {
+  throw new Error('V2 live prerequisite workflow must resolve credentials only from openclaw-v2-live');
 }
+assertExactLiveRefAllowlist(prerequisiteWorkflow, 'V2 live prerequisite workflow');
 for (const secretName of ['DATABASE_URL', 'DEEPSEEK_API_KEY']) {
   if (!prerequisiteWorkflow.includes(`${secretName}: PRESENT`) || !prerequisiteWorkflow.includes(`${secretName}: MISSING`)) {
     throw new Error(`V2 live prerequisite workflow must report only presence for ${secretName}`);

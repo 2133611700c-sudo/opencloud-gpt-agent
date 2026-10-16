@@ -79,7 +79,7 @@ test('production wiring traverses scoped Postgres claim -> native Research -> ca
   assert.equal(accounting.values[10], 10);
   assert.deepEqual(JSON.parse(accounting.values[15]), {
     observed: { provider: 'deepseek', model: 'deepseek-flash', sessionId: 'provider-session-1', toolSummary: { calls: 2, failures: 0, tools: ['web_search', 'web_fetch'], totalToolTimeMs: 7 } },
-    configured: { runtimeVersion: '2026.9.8', requestedModel: 'deepseek/deepseek-flash', thinkingLevel: 'max' },
+    configured: { runtimeVersion: '2026.10.3', requestedModel: 'deepseek/deepseek-flash', thinkingLevel: 'max' },
     trace: [],
     error: null,
   });

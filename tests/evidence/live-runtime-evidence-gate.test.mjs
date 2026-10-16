@@ -26,7 +26,7 @@ const durableReceipt = () => ({
         provider: 'deepseek', model: 'deepseek-flash', sessionId: 'session-1',
         toolSummary: { calls: 2, failures: 0, tools: ['web_search', 'web_fetch'], totalToolTimeMs: 10 },
       },
-      configured: { runtimeVersion: '2026.9.8', requestedModel: model, thinkingLevel: 'max' },
+      configured: { runtimeVersion: '2026.10.3', requestedModel: model, thinkingLevel: 'max' },
       error: null,
     }],
   },

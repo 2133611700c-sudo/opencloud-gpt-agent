@@ -112,11 +112,11 @@ jobs:
       - name: Install pinned OpenClaw CLI
         run: |
           set -euo pipefail
-          npm install -g openclaw@2026.9.8 --allow-scripts=openclaw
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
           version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
           echo "$version_output"
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
-          test "$version_token" = "2026.9.8"
+          test "$version_token" = "2026.10.3"
       - name: Prepare isolated OpenClaw V2 trust scope
         shell: bash
         run: |
@@ -128,13 +128,13 @@ jobs:
       - name: Install matching official DeepSeek provider plugin
         run: |
           set -euo pipefail
-          openclaw plugins install @openclaw/deepseek-provider@2026.9.8
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
           openclaw plugins list | grep -i deepseek
           test -d "$OPENCLAW_STATE_DIR/npm/projects"
       - name: Install matching official DuckDuckGo research plugin
         run: |
           set -euo pipefail
-          openclaw plugins install @openclaw/duckduckgo-plugin@2026.9.8
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
           openclaw plugins list | grep -i duckduckgo
       - name: Verify Research credential scope has no stored DeepSeek profiles
         shell: bash
@@ -225,11 +225,11 @@ jobs:
       - name: Install pinned OpenClaw CLI
         run: |
           set -euo pipefail
-          npm install -g openclaw@2026.9.8 --allow-scripts=openclaw
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
           version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
           echo "$version_output"
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
-          test "$version_token" = "2026.9.8"
+          test "$version_token" = "2026.10.3"
       - name: Prepare isolated OpenClaw V2 trust scope
         shell: bash
         run: |
@@ -241,13 +241,13 @@ jobs:
       - name: Install matching official DeepSeek provider plugin
         run: |
           set -euo pipefail
-          openclaw plugins install @openclaw/deepseek-provider@2026.9.8
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
           openclaw plugins list | grep -i deepseek
           test -d "$OPENCLAW_STATE_DIR/npm/projects"
       - name: Install matching official DuckDuckGo research plugin
         run: |
           set -euo pipefail
-          openclaw plugins install @openclaw/duckduckgo-plugin@2026.9.8
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
           openclaw plugins list | grep -i duckduckgo
       - name: Verify Research credential scope has no stored DeepSeek profiles
         shell: bash
@@ -304,11 +304,11 @@ jobs:
       - name: Install pinned OpenClaw CLI
         run: |
           set -euo pipefail
-          npm install -g openclaw@2026.9.8 --allow-scripts=openclaw
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
           version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
           echo "$version_output"
           version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
-          test "$version_token" = "2026.9.8"
+          test "$version_token" = "2026.10.3"
       - name: Prepare isolated OpenClaw V2 trust scope
         shell: bash
         run: |
@@ -320,7 +320,7 @@ jobs:
       - name: Install matching official DeepSeek provider plugin
         run: |
           set -euo pipefail
-          openclaw plugins install @openclaw/deepseek-provider@2026.9.8
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
           openclaw plugins list | grep -i deepseek
           test -d "$OPENCLAW_STATE_DIR/npm/projects"
       - name: Run one live DeepSeek provider smoke

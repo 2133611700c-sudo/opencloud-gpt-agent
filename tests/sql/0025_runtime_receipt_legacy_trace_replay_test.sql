@@ -11,7 +11,7 @@ DECLARE
   v_replay RECORD;
   v_call_key TEXT;
   v_observed JSONB := jsonb_build_object('provider','deepseek','model','deepseek-flash','sessionId','legacy-session');
-  v_configured JSONB := jsonb_build_object('runtimeVersion','2026.9.8','requestedModel','deepseek/deepseek-flash','thinkingLevel','max');
+  v_configured JSONB := jsonb_build_object('runtimeVersion','2026.10.3','requestedModel','deepseek/deepseek-flash','thinkingLevel','max');
 
   v_new_task UUID := gen_random_uuid();
   v_new_node UUID := gen_random_uuid();

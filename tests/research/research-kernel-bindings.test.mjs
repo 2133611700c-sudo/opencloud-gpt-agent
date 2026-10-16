@@ -36,7 +36,7 @@ test('binds full observed DeepSeek usage and completion to one fence', async () 
   assert.equal(calls[1][1].latencyMs,9);
   assert.deepEqual(calls[1][1].runtimeReceipt, {
     observed:{ provider:'deepseek', model:'deepseek-flash', sessionId:'s', toolSummary:{ calls:2, failures:0, tools:['web_search','web_fetch'], totalToolTimeMs:7 } },
-    configured:{ runtimeVersion:'2026.9.8', requestedModel:'deepseek/deepseek-flash', thinkingLevel:'max' },
+    configured:{ runtimeVersion:'2026.10.3', requestedModel:'deepseek/deepseek-flash', thinkingLevel:'max' },
     trace:[], error:null,
   });
 });
@@ -124,7 +124,7 @@ test('rejected-envelope fallback emits configured receipt without inventing obse
   assert.equal(calls[1][1].reason,'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY');
   assert.deepEqual(calls[1][1].runtimeReceipt, {
     observed:null,
-    configured:{ runtimeVersion:'2026.9.8', requestedModel:'deepseek/deepseek-flash', thinkingLevel:'max' },
+    configured:{ runtimeVersion:'2026.10.3', requestedModel:'deepseek/deepseek-flash', thinkingLevel:'max' },
     trace:[], error:null,
   });
 });

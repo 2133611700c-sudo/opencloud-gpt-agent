@@ -9,7 +9,7 @@ DECLARE
   v_count INTEGER;
   v_receipt JSONB := jsonb_build_object(
     'observed',jsonb_build_object('provider','deepseek','model','deepseek-flash','sessionId','session-1','toolSummary',jsonb_build_object('calls',2,'failures',0,'tools',jsonb_build_array('web_search','web_fetch'),'totalToolTimeMs',7)),
-    'configured',jsonb_build_object('runtimeVersion','2026.9.8','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),
+    'configured',jsonb_build_object('runtimeVersion','2026.10.3','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),
     'trace','[]'::jsonb,'error',NULL
   );
 BEGIN
@@ -42,7 +42,7 @@ BEGIN
   SELECT * INTO v_snapshot FROM load_terminal_evidence_input_v2(v_task);
   IF NOT FOUND OR jsonb_array_length(v_snapshot.snapshot->'runtimeReceipts')<>1
      OR v_snapshot.snapshot #>> '{runtimeReceipts,0,observed,provider}' <> 'deepseek'
-     OR v_snapshot.snapshot #>> '{runtimeReceipts,0,configured,runtimeVersion}' <> '2026.9.8'
+     OR v_snapshot.snapshot #>> '{runtimeReceipts,0,configured,runtimeVersion}' <> '2026.10.3'
      OR v_snapshot.snapshot #>> '{runtimeReceipts,0,recorded_at}' !~ 'Z$' THEN
     RAISE EXCEPTION 'terminal Evidence snapshot did not bind durable runtime receipt';
   END IF;
@@ -55,7 +55,7 @@ BEGIN
   SELECT * INTO v_fb FROM record_llm_call_reservation_fallback_with_runtime_receipt_v1(
     v_fb_res,'research:'||v_fb_task||':'||v_fb_node||':'||v_fb_lease,v_fb_node,'worker-fallback',v_fb_lease,
     'deepseek','deepseek-flash','fixture-v1',NULL,15,'REJECTED_RESEARCH_BILLING_UNTRUSTWORTHY',
-    jsonb_build_object('observed',NULL,'configured',jsonb_build_object('runtimeVersion','2026.9.8','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),'trace','[]'::jsonb,'error',NULL));
+    jsonb_build_object('observed',NULL,'configured',jsonb_build_object('runtimeVersion','2026.10.3','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),'trace','[]'::jsonb,'error',NULL));
   IF NOT FOUND OR v_fb.accounting_id IS NULL OR v_fb.runtime_receipt_id IS NULL
      OR (SELECT accounting_basis FROM llm_accounting WHERE id=v_fb.accounting_id)<>'RESERVATION_FALLBACK'
      OR (SELECT count(*) FROM runtime_receipts WHERE task_id=v_fb_task)<>1 THEN
@@ -73,7 +73,7 @@ BEGIN
     'deepseek','deepseek-flash','fixture-v1','session-stale',0,3,2,5,0.000002,10);
   UPDATE task_nodes SET lease_until=NOW()-INTERVAL '1 second' WHERE id=v_stale_node;
   SELECT count(*) INTO v_count FROM record_runtime_receipt_v1(v_stale_acc.accounting_id,'research:'||v_stale_task||':'||v_stale_node||':'||v_stale_lease,
-    v_stale_node,'worker-stale',v_stale_lease,jsonb_build_object('observed',jsonb_build_object('provider','deepseek','model','deepseek-flash','sessionId','session-stale'),'configured',jsonb_build_object('runtimeVersion','2026.9.8'),'trace','[]'::jsonb,'error',NULL));
+    v_stale_node,'worker-stale',v_stale_lease,jsonb_build_object('observed',jsonb_build_object('provider','deepseek','model','deepseek-flash','sessionId','session-stale'),'configured',jsonb_build_object('runtimeVersion','2026.10.3'),'trace','[]'::jsonb,'error',NULL));
   IF v_count<>0 OR EXISTS(SELECT 1 FROM runtime_receipts WHERE task_id=v_stale_task) THEN
     RAISE EXCEPTION 'expired lease created a runtime receipt';
   END IF;

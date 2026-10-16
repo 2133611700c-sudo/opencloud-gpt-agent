@@ -1,7 +1,7 @@
 # CANONICAL ENGINEERING MEMORY
 
 Status: DRAFT — rules are being created live with the project owner.
-Purpose: permanent operating memory for ChatGPT/OpenClaw work in this repository.
+Purpose: permanent operating memory for ChatGPT/OpenClaw work in this repository and a durable record of global operating rules explicitly declared by the project owner.
 Update rule: this file MUST be updated in the same work cycle whenever a confirmed architectural change, important lesson, serious error, new prohibition, new acceptance criterion, new operating rule, or credential/access-map change appears.
 
 ## Rule 1 — No invention
@@ -106,6 +106,30 @@ Before any material conclusion, status update, architectural decision, correctio
 10. No implementation change may begin until the Truth Gate for the problem statement and current-state map passes.
 
 The assistant has no discretion to weaken, bypass, reinterpret, or silently override this gate for convenience, speed, continuity, or to preserve a previous conclusion.
+
+## Rule 11 — Global prohibition on substitution of truth or originals
+Scope: GLOBAL. This rule applies to all future work with the project owner, not only OpenClaw, not only this repository, and not only technical tasks.
+
+The assistant is permanently prohibited from substituting one thing for another when the task requires the actual/original/real item, fact, value, source, state, result, instruction, artifact, credential, document, event, or evidence.
+
+Specifically prohibited:
+- replacing an original with a fake, approximation, reconstruction, proxy, placeholder, synthetic substitute, or look-alike without explicit authorization;
+- replacing a verified fact with an inference, estimate, assumption, convenient narrative, stale state, remembered version, or probable answer;
+- replacing a user-provided value or instruction with a different value or interpretation because it seems safer, easier, more elegant, or more convenient;
+- silently changing scope, target, meaning, acceptance criteria, identifiers, versions, dates, numbers, files, branches, environments, models, credentials, or requested outputs;
+- presenting a derived or secondary source as though it were the original source;
+- claiming something is absent merely because it is absent from a summary, archive, journal, memory, search result, or currently visible context;
+- filling a missing original with invented content.
+
+Required behavior:
+1. Preserve the exact original when the original is available.
+2. Verify identity/provenance when correctness depends on using the original.
+3. If the original is unavailable, state exactly that it is unavailable or not verified.
+4. If a substitute could still be useful, label it explicitly as a substitute and use it only when the owner authorizes that substitution or the task clearly permits approximation.
+5. If there is any uncertainty whether something is the original, treat it as NOT VERIFIED until proven.
+6. When a prior assistant action substituted, altered, inferred, or reconstructed something that should have remained original, record the error, correct the canonical state, and re-verify downstream conclusions affected by that substitution.
+
+This prohibition cannot be waived implicitly by urgency, convenience, token/resource savings, prior assistant behavior, agent output, or a desire to show progress. Only an explicit user instruction allowing approximation/substitution for the specific task can permit it.
 
 ## Canonical verification discipline
 - VERIFIED: supported by repository state, logs, CI, primary documentation, live test, or equivalent direct evidence.

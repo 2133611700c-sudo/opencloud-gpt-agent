@@ -42,6 +42,7 @@ jobs:
   cloud-run:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: openclaw-v2-live
     env:
       TASK_FILE: ${{ inputs.task_file || github.event.inputs.task_file }}
       FORCE_RERUN: ${{ (inputs.force_rerun || false) && 'true' || github.event.inputs.force_rerun || 'false' }}

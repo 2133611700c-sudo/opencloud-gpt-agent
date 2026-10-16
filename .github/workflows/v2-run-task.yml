@@ -1,0 +1,116 @@
+name: OpenClaw V2 Run Task
+
+# One run = one durable task. The Telegram door (or a human) creates the branch
+# run/<task-uuid>/<epoch>[-tg<chat-id>] at the canonical branch head; the push starts this workflow
+# from the file stored on that branch, so the default branch is never involved.
+# The task already exists in PostgreSQL (created by intake); this workflow only executes it.
+on:
+  push:
+    branches:
+      - 'run/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: v2-task-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  run_task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: openclaw-v2-live
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+      OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
+      OPENCLAW_PUBLIC_BASE_URL: ${{ vars.OPENCLAW_PUBLIC_BASE_URL || 'https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech' }}
+    steps:
+      - name: Parse run branch and validate secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          re='^run/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/([0-9]{9,12})(-tg([0-9]{1,20}))?$'
+          [[ "$GITHUB_REF_NAME" =~ $re ]] || { echo 'branch must be run/<task-uuid>/<epoch>[-tg<chat>]' >&2; exit 1; }
+          echo "OPENCLAW_TASK_ID=${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
+          echo "NOTIFY_CHAT_ID=${BASH_REMATCH[4]:-}" >> "$GITHUB_ENV"
+          test -n "${DATABASE_URL:-}" || { echo 'DATABASE_URL is required' >&2; exit 1; }
+          test -n "${DEEPSEEK_API_KEY:-}" || { echo 'DEEPSEEK_API_KEY is required' >&2; exit 1; }
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Install pinned OpenClaw CLI
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          echo "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.10.3"
+      - name: Prepare isolated OpenClaw V2 trust scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-v2-state"
+          install -d -m 700 "$state_dir"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+      - name: Install matching official plugins
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
+          openclaw plugins list | grep -iE "deepseek|duckduckgo"
+      - name: Verify no stored DeepSeek profiles in the Research scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth_json="$(openclaw models auth list --provider deepseek --json)"
+          AUTH_JSON="$auth_json" node --input-type=module -e "const v=JSON.parse(process.env.AUTH_JSON); if (!Array.isArray(v.profiles) || v.profiles.length !== 0) throw new Error('stored DeepSeek auth profiles are present');"
+      - name: Validate generated Research OpenClaw config
+        env:
+          OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research.json
+          OPENCLAW_CONFIG_READONLY: '1'
+        run: |
+          set -euo pipefail
+          node scripts/write-research-openclaw-config.mjs "$OPENCLAW_CONFIG_PATH"
+          openclaw config validate --json
+      - name: Execute the durable task to phone publication
+        id: task
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          node scripts/run-task-to-phone.mjs 2>artifacts/task.err | tee artifacts/result.txt
+      - name: Telegram result
+        if: ${{ always() && env.NOTIFY_CHAT_ID != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.OPENCLAW_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ env.NOTIFY_CHAT_ID }}
+          MESSAGE_FILE: artifacts/result.txt
+          TASK_OUTCOME: ${{ steps.task.outcome }}
+          TASK_ID: ${{ env.OPENCLAW_TASK_ID }}
+        run: node scripts/notify-telegram.mjs
+      - name: Upload run evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-v2-task-${{ env.OPENCLAW_TASK_ID }}
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Delete the run branch
+        if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$GITHUB_REF_NAME" && echo RUN_BRANCH_DELETED || { echo RUN_BRANCH_DELETE_FAILED >&2; exit 1; }

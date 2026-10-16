@@ -4,6 +4,8 @@ import { createPostgresEvidenceStoreV2 } from '../../src/evidence/postgres-evide
 import { createPhoneHttpHandler } from '../../src/phone/phone-http-handler.mjs';
 import { createPostgresKernelAdapter } from '../../src/kernel/postgres-kernel-adapter.mjs';
 import { createUserHttpHandler } from '../../src/intake/user-http-handler.mjs';
+import { createTelegramHandler } from '../../src/intake/telegram-handler.mjs';
+import { createBranchDispatcher } from '../../src/intake/github-dispatch.mjs';
 import { phoneDatabaseOptions } from './database-config.mjs';
 
 const pool = new Pool(phoneDatabaseOptions(process.env.DATABASE_URL));
@@ -17,8 +19,29 @@ const intake = createUserHttpHandler({
   principalId: process.env.OPENCLAW_USER_INTAKE_PRINCIPAL,
   publicBaseUrl: process.env.OPENCLAW_PUBLIC_BASE_URL,
 });
+const env = process.env;
+// Telegram door is optional: it exists only when every secret is configured.
+const telegram = env.OPENCLAW_TELEGRAM_WEBHOOK_SECRET && env.OPENCLAW_TELEGRAM_ALLOWED_CHAT_ID
+  && env.OPENCLAW_TELEGRAM_BOT_TOKEN && env.OPENCLAW_GITHUB_DISPATCH_TOKEN
+  ? createTelegramHandler({
+    kernel: createPostgresKernelAdapter({ query: (sql, values) => pool.query(sql, values) }),
+    principalId: env.OPENCLAW_USER_INTAKE_PRINCIPAL,
+    webhookSecret: env.OPENCLAW_TELEGRAM_WEBHOOK_SECRET,
+    allowedChatId: env.OPENCLAW_TELEGRAM_ALLOWED_CHAT_ID,
+    botToken: env.OPENCLAW_TELEGRAM_BOT_TOKEN,
+    publicBaseUrl: env.OPENCLAW_PUBLIC_BASE_URL,
+    dispatch: createBranchDispatcher({
+      token: env.OPENCLAW_GITHUB_DISPATCH_TOKEN,
+      repository: env.OPENCLAW_GITHUB_REPOSITORY ?? '2133611700c-sudo/opencloud-gpt-agent',
+      baseRef: env.OPENCLAW_GITHUB_REF ?? 'v2/openclaw-clean-20261011',
+    }),
+  })
+  : null;
 export default {
   fetch(request) {
-    return new URL(request.url).pathname === '/v1/research/tasks' ? intake(request) : handler(request);
+    const { pathname } = new URL(request.url);
+    if (pathname === '/v1/research/tasks') return intake(request);
+    if (pathname === '/telegram') return telegram ? telegram(request) : new Response('Not found', { status: 404 });
+    return handler(request);
   },
 };

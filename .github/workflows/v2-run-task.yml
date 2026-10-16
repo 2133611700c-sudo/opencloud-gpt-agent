@@ -1,0 +1,112 @@
+name: OpenClaw V2 Run Task
+
+# One run = one durable task, started by the Telegram door or by hand.
+# The task already exists in PostgreSQL (created by intake); this workflow only executes it.
+on:
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: 'Durable task UUID created by intake'
+        required: true
+        type: string
+      chat_id:
+        description: 'Telegram chat id to notify (optional)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-task-${{ inputs.task_id }}
+  cancel-in-progress: false
+
+jobs:
+  run_task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: openclaw-v2-live
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
+      OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
+      OPENCLAW_PUBLIC_BASE_URL: ${{ vars.OPENCLAW_PUBLIC_BASE_URL || 'https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech' }}
+      OPENCLAW_TASK_ID: ${{ inputs.task_id }}
+    steps:
+      - name: Validate task id and branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$OPENCLAW_TASK_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] || { echo 'task_id must be a UUID' >&2; exit 1; }
+          test -n "${DATABASE_URL:-}" || { echo 'DATABASE_URL is required' >&2; exit 1; }
+          test -n "${DEEPSEEK_API_KEY:-}" || { echo 'DEEPSEEK_API_KEY is required' >&2; exit 1; }
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Install pinned OpenClaw CLI
+        run: |
+          set -euo pipefail
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          version_output="$(openclaw --version | tail -n 1 | tr -d '\r')"
+          echo "$version_output"
+          version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
+          test "$version_token" = "2026.10.3"
+      - name: Prepare isolated OpenClaw V2 trust scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_dir="$RUNNER_TEMP/openclaw-v2-state"
+          install -d -m 700 "$state_dir"
+          echo "OPENCLAW_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          echo "OPENCLAW_V2_STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+      - name: Install matching official plugins
+        run: |
+          set -euo pipefail
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
+          openclaw plugins list | grep -iE "deepseek|duckduckgo"
+      - name: Verify no stored DeepSeek profiles in the Research scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth_json="$(openclaw models auth list --provider deepseek --json)"
+          AUTH_JSON="$auth_json" node --input-type=module -e "const v=JSON.parse(process.env.AUTH_JSON); if (!Array.isArray(v.profiles) || v.profiles.length !== 0) throw new Error('stored DeepSeek auth profiles are present');"
+      - name: Validate generated Research OpenClaw config
+        env:
+          OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research.json
+          OPENCLAW_CONFIG_READONLY: '1'
+        run: |
+          set -euo pipefail
+          node scripts/write-research-openclaw-config.mjs "$OPENCLAW_CONFIG_PATH"
+          openclaw config validate --json
+      - name: Execute the durable task to phone publication
+        id: task
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          node scripts/run-task-to-phone.mjs 2>artifacts/task.err | tee artifacts/result.txt
+      - name: Telegram result
+        if: ${{ always() && inputs.chat_id != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.OPENCLAW_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ inputs.chat_id }}
+          MESSAGE_FILE: artifacts/result.txt
+          TASK_OUTCOME: ${{ steps.task.outcome }}
+          TASK_ID: ${{ inputs.task_id }}
+        run: node scripts/notify-telegram.mjs
+      - name: Upload run evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-v2-task-${{ inputs.task_id }}
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

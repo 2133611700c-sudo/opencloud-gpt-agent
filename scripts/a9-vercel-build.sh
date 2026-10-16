@@ -29,15 +29,32 @@ if ! node scripts/a9-vercel-acceptance.mjs; then
   echo '=== A9 SAFE FAILURE DIAGNOSTICS ===' >&2
   node --input-type=module -e '
     import { readFileSync } from "node:fs";
-    const secret = process.env.DEEPSEEK_API_KEY ?? "";
-    for (const file of ["/tmp/a9-agent-stdout.json", "/tmp/a9-agent-stderr.txt"]) {
+    const secrets = [process.env.DEEPSEEK_API_KEY ?? ""];
+    try {
+      const cfg = JSON.parse(readFileSync(process.env.OPENCLAW_CONFIG_PATH, "utf8"));
+      if (typeof cfg?.gateway?.auth?.token === "string") secrets.push(cfg.gateway.auth.token);
+    } catch {}
+    const redact = (input) => {
+      let body = String(input ?? "");
+      for (const secret of secrets) if (secret) body = body.split(secret).join("[REDACTED]");
+      body = body.replace(/([?&](?:token|key)=)[^&\s]+/gi, "$1[REDACTED]");
+      return body.length > 32000 ? `${body.slice(0, 32000)}\n...[truncated]` : body;
+    };
+    for (const file of [
+      "/tmp/a9-agent-stdout.json",
+      "/tmp/a9-agent-stderr.txt",
+      "/tmp/a9-gateway-stdout.txt",
+      "/tmp/a9-gateway-stderr.txt",
+    ]) {
       try {
-        let body = readFileSync(file, "utf8");
-        if (secret) body = body.split(secret).join("[REDACTED]");
-        if (body.length > 16000) body = `${body.slice(0, 16000)}\n...[truncated]`;
-        console.error(`--- ${file} ---\n${body}`);
+        console.error(`--- ${file} ---\n${redact(readFileSync(file, "utf8"))}`);
       } catch {}
     }
   '
+  echo '--- A9 state file inventory ---' >&2
+  find "$state_dir" -maxdepth 7 -type f -printf '%p %s bytes\n' 2>/dev/null | sed "s#$PWD#.#g" | tail -n 200 >&2 || true
+  echo '--- A9 sessions snapshot ---' >&2
+  openclaw sessions --all-agents --json 2>/dev/null | head -c 32000 >&2 || true
+  printf '\n' >&2
   exit 1
 fi

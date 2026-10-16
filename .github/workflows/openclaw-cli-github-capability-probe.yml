@@ -1,0 +1,67 @@
+name: OpenClaw CLI GitHub Capability Probe
+
+on:
+  push:
+    paths:
+      - ".github/workflows/openclaw-cli-github-capability-probe.yml"
+      - "ops/agent-control/cli-probe/*.request.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install OpenClaw CLI
+        run: npm install --global openclaw@2026.10.3
+
+      - name: Verify CLIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ops/agent-control/reports/cli_probe
+          openclaw --version | tee ops/agent-control/reports/cli_probe/openclaw-version.txt
+          gh --version | head -n 1 | tee ops/agent-control/reports/cli_probe/gh-version.txt
+          grep -q "2026.10.3" ops/agent-control/reports/cli_probe/openclaw-version.txt
+
+      - name: Probe GitHub Actions Secrets API with runner token
+        id: secrets_probe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p ops/agent-control/reports/cli_probe
+          HTTP_CODE="$(curl -sS -o /tmp/secrets-public-key.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/secrets/public-key")"
+          echo "http_code=${HTTP_CODE}" | tee ops/agent-control/reports/cli_probe/secrets-api-status.txt
+          if [ "$HTTP_CODE" = "200" ]; then
+            jq '{key_id, has_key:(.key|type=="string" and length>0)}' /tmp/secrets-public-key.json > ops/agent-control/reports/cli_probe/secrets-api-result.json
+            echo "capability=AVAILABLE" | tee -a ops/agent-control/reports/cli_probe/secrets-api-status.txt
+          else
+            jq '{message, documentation_url, status}' /tmp/secrets-public-key.json 2>/dev/null > ops/agent-control/reports/cli_probe/secrets-api-result.json || true
+            echo "capability=DENIED" | tee -a ops/agent-control/reports/cli_probe/secrets-api-status.txt
+          fi
+
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: openclaw-cli-github-capability-${{ github.run_id }}
+          path: ops/agent-control/reports/cli_probe/
+          retention-days: 7

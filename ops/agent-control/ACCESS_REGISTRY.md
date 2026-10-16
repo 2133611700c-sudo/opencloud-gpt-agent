@@ -7,10 +7,10 @@ Purpose: canonical inventory of credential references and important runtime envi
 
 | Variable | Purpose | Native storage / source | Consumers | Verified state |
 |---|---|---|---|---|
-| `DEEPSEEK_API_KEY` | Authenticate DeepSeek provider used by OpenClaw Research | GitHub Actions Secrets when CI/live jobs use it; runtime secret environment for direct live execution | OpenClaw DeepSeek provider, Research runtime, live smoke/gates | Live provider path verified; continuous GitHub Actions availability remained not proven at final 48h checkpoint |
+| `DEEPSEEK_API_KEY` | Authenticate DeepSeek provider used by OpenClaw Research | GitHub Actions Secrets when CI/live jobs use it; runtime secret environment for direct live execution | OpenClaw DeepSeek provider, Research runtime, live smoke/gates | **GitHub Actions: MISSING on run `38823054525` (2026-10-15)** — `Require DeepSeek credential` failed because `DEEPSEEK_API_KEY` was empty. Direct hosted/runtime DeepSeek path had been proven earlier, so this does not prove the provider key is absent everywhere; it proves the current Actions secret was not available to that run. |
 | `DATABASE_URL` | Connect V2 runtime to hosted PostgreSQL/Neon | GitHub Actions Secrets for hosted/live CI; production runtime secret environment for hosted function/workers | Kernel, Research/Data, Evidence, Phone, hosted checks | Hosted/runtime database path verified; continuous GitHub Actions availability remained not proven at final 48h checkpoint |
 | `OPENCLAW_USER_INTAKE_SECRET` | Bearer credential for `POST /v1/research/tasks` | Hosted Neon Function/runtime secret environment | USER HTTP intake handler | Live authenticated external USER HTTP path verified |
-| `GH_TOKEN` / `${{ github.token }}` | GitHub Actions machine identity/status API | Ephemeral token issued automatically per GitHub Actions run | V2 CI GitHub API step | Platform-managed; no static user value required |
+| `GH_TOKEN` / `${{ github.token }}` | GitHub Actions machine identity/status and checkout auth | Ephemeral token issued automatically per GitHub Actions run | Checkout, GitHub API/status steps, Actions-native repository operations | **VERIFIED PRESENT on run `38823054525` (2026-10-15)**. Runner log shows masked checkout token `***`; effective permissions in that run were `Contents: read`, `Metadata: read`. No static user token value is stored in project documents. |
 
 ## Important non-secret runtime variables
 
@@ -23,13 +23,14 @@ Purpose: canonical inventory of credential references and important runtime envi
 | `OPENCLAW_WEB_FETCH_TRUSTED_ENV_PROXY` | Explicit trusted proxy opt-in | Optional boolean; only `true`/`false`; absent means direct networking |
 | `OPENCLAW_STATE_DIR` | Isolated OpenClaw state directory | CI creates an ephemeral private runner directory |
 | `OPENCLAW_V2_STATE_DIR` | V2 alias for isolated state directory | Same ephemeral CI directory as `OPENCLAW_STATE_DIR` |
-| `OPENCLAW_CONFIG_PATH` | Generated OpenClaw config path | CI uses `/tmp/openclaw-v2-research.json` during validation |
-| `OPENCLAW_CONFIG_READONLY` | Prevent runtime mutation during config validation | CI uses `1` |
+| `OPENCLAW_CONFIG_PATH` | Generated OpenClaw config path | CI uses an isolated runtime config path |
+| `OPENCLAW_CONFIG_READONLY` | Prevent runtime mutation during config validation | CI uses `1` where configured |
 
 ## Verified source map
 
 - `.github/workflows/v2-ci.yml`: `DATABASE_URL`, `DEEPSEEK_API_KEY`, model/pricing settings, isolated state/config variables.
 - `.github/workflows/v2-live-prerequisites.yml`: presence checks for `DATABASE_URL` and `DEEPSEEK_API_KEY` without exposing values.
+- `.github/workflows/v2-openclaw-2026-10-3-functional-acceptance.yml` + Actions run `38823054525`: `GH_TOKEN`/`${{ github.token }}` was present and masked; `DEEPSEEK_API_KEY` was empty in the A7 credential gate.
 - `src/providers/openclaw-deepseek-infer.mjs`: `DEEPSEEK_API_KEY` is a required provider environment variable.
 - `functions/phone/index.mjs`: `DATABASE_URL`, `OPENCLAW_USER_INTAKE_SECRET`, `OPENCLAW_USER_INTAKE_PRINCIPAL`, `OPENCLAW_PUBLIC_BASE_URL`.
 - `scripts/live-research-kernel-vertical.mjs`: `DATABASE_URL`, `DEEPSEEK_API_KEY`, model/pricing and optional trusted-proxy configuration.

@@ -90,6 +90,23 @@ Do not waste time repeatedly asking the owner to locate a credential whose canon
 
 When a credential is added, moved, rotated, revoked, replaced, or begins serving a new consumer, update the registry in the same work cycle.
 
+## Rule 10 — Non-negotiable Truth Gate
+No summary, archive, journal, state file, previous assistant statement, agent report, or inferred narrative may replace primary evidence.
+
+Before any material conclusion, status update, architectural decision, correction, or implementation:
+1. Identify the exact claim being made.
+2. Identify its primary source or direct evidence.
+3. Classify the claim as VERIFIED, HYPOTHESIS, UNKNOWN, PASS, FAIL, or BLOCKED.
+4. Check for conflicting evidence across chat instructions, repository state, git history, CI/logs, runtime/hosted state, and primary documentation when relevant.
+5. If a conflict exists, stop conclusion/implementation and reconcile the conflict first.
+6. If evidence is missing, say UNKNOWN; never substitute a plausible story.
+7. If a canonical file conflicts with primary evidence, primary evidence wins and the canonical file must be corrected in the same work cycle.
+8. Absence of a fact from an archive or journal is never evidence that the fact did not exist.
+9. A summary/archive is not trusted merely because it was previously labeled canonical; it is trusted only to the extent its claims remain traceable to current or preserved primary evidence.
+10. No implementation change may begin until the Truth Gate for the problem statement and current-state map passes.
+
+The assistant has no discretion to weaken, bypass, reinterpret, or silently override this gate for convenience, speed, continuity, or to preserve a previous conclusion.
+
 ## Canonical verification discipline
 - VERIFIED: supported by repository state, logs, CI, primary documentation, live test, or equivalent direct evidence.
 - HYPOTHESIS: plausible but not yet proven.

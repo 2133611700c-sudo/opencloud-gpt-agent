@@ -21,6 +21,7 @@ version_token="$(printf '%s\n' "$version_output" | awk '{print $2}')"
 test "$version_token" = '2026.10.3'
 
 openclaw setup --baseline --skip-bootstrap --workspace "$PWD" --json > /tmp/a9-baseline.json
+openclaw config set tools.toolSearch false
 openclaw plugins install @openclaw/deepseek-provider@2026.10.3
 openclaw config validate --json > /tmp/a9-install-config.json
 

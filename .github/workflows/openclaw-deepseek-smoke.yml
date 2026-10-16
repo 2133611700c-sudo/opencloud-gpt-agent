@@ -18,6 +18,7 @@ jobs:
   deepseek-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    environment: openclaw-v2-live
     env:
       OPENCLAW_VERSION: "2026.10.3"
       OPENCLAW_ADVISOR_VERSION: "2026.10.3"
@@ -226,6 +227,7 @@ jobs:
           - openclaw_version: ${OPENCLAW_VERSION}
           - plugin: @openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}
           - auth_agent: main
+          - auth_scope: GitHub environment openclaw-v2-live
           - auth_transport: GitHub Actions Secret -> stdin -> OpenClaw stored auth
           - verification_env_contains_secret: false
           - primary_model: deepseek/deepseek-flash

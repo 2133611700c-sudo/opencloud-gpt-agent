@@ -82,6 +82,7 @@ const config = {
     ...(baseConfig.tools ?? {}),
     profile: 'coding',
     allow: ['sessions_spawn', 'sessions_yield', 'subagents'],
+    toolSearch: false,
     codeMode: {
       ...(baseConfig.tools?.codeMode ?? {}),
       enabled: false,
@@ -439,6 +440,7 @@ try {
     executionPath: 'gateway',
     provider: agentMeta.provider,
     model: agentMeta.model,
+    toolSearchDisabled: true,
     initialYieldTurnVisibleFinalEmpty: true,
     pushResumeParentFinalVerified: true,
     childAssistantResultVerifiedFromDeletedTranscript: true,

@@ -5,6 +5,7 @@ import { createDataWorker } from '../src/data/data-worker.mjs';
 import { finalizeLiveRuntimeEvidence } from '../src/evidence/live-runtime-evidence-gate.mjs';
 import { createPostgresTerminalEvidenceFinalizer } from '../src/evidence/postgres-terminal-evidence-finalizer.mjs';
 import { createPsqlQuery } from '../src/kernel/psql-query.mjs';
+import { refreshDeepSeekModelCatalog } from '../src/providers/deepseek-model-catalog.mjs';
 import {
   createProductionResearchWorker,
   DEFAULT_PRODUCTION_RESEARCH_MODEL,
@@ -16,6 +17,11 @@ const pricingVersion = process.env.OPENCLAW_DEEPSEEK_PRICING_VERSION || 'deepsee
 const id = randomUUID();
 
 try {
+  // Refresh the provider's dynamic model catalog in the exact state scope that
+  // the Research worker will use. OpenClaw 2026.10.3 installs the DeepSeek
+  // provider successfully, but a fresh runner needs discovery before agent exec.
+  const catalog = refreshDeepSeekModelCatalog({ model, env: process.env });
+
   // Set to true only for an operator-controlled outbound proxy. Presence of
   // HTTP(S)_PROXY alone does not enable trust; direct networking remains default.
   const proxyFlag = process.env.OPENCLAW_WEB_FETCH_TRUSTED_ENV_PROXY;
@@ -69,6 +75,7 @@ try {
     provider: 'deepseek',
     requested_model: model,
     pricing_version: pricingVersion,
+    catalog_refreshed: catalog.refreshed,
     evidence_artifact_id: durableEvidence.artifactId,
     evidence_uri: durableEvidence.uri,
     evidence_sha256: durableEvidence.sha256,

@@ -1,0 +1,70 @@
+name: OpenClaw 2026.10.3 Upstream E2E
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-2026-10-3-upstream-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  kitchen_sink_rpc:
+    name: Upstream kitchen-sink RPC E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: openclaw/openclaw
+          ref: v2026.10.3
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - name: Run exact upstream kitchen-sink RPC lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/e2e/kitchen-sink-rpc-docker.sh
+
+  cron_cli:
+    name: Upstream automation cron CLI E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: openclaw/openclaw
+          ref: v2026.10.3
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - name: Run exact upstream cron CLI lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/e2e/cron-cli-docker.sh
+
+  release_media_memory:
+    name: Upstream release media and memory E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: openclaw/openclaw
+          ref: v2026.10.3
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - name: Run exact upstream release media/memory lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/e2e/release-media-memory-docker.sh

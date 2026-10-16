@@ -1,0 +1,57 @@
+name: OpenClaw F03 Agents Acceptance
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-f03-agents.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agents:
+    name: F03 agents management acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+
+      - name: Install published OpenClaw 2026.10.3
+        run: npm install -g openclaw@2026.10.3
+
+      - name: Prepare isolated OpenClaw state
+        run: |
+          mkdir -p "$RUNNER_TEMP/openclaw-f03-state"
+          echo "OPENCLAW_STATE_DIR=$RUNNER_TEMP/openclaw-f03-state" >> "$GITHUB_ENV"
+
+      - name: List initial agent roster
+        run: openclaw agents list --json
+
+      - name: Add researcher role agent
+        run: openclaw agents add research --role researcher --non-interactive --json
+
+      - name: Verify researcher appears
+        run: openclaw agents list --json
+
+      - name: Set researcher identity
+        run: openclaw agents set-identity --agent research --name "F03 Research" --theme "acceptance" --emoji "R" --json
+
+      - name: Create four-agent team preset
+        run: openclaw agents team create --prefix f03 --workspace-root "$RUNNER_TEMP/f03-team" --non-interactive --json
+
+      - name: Verify final roster and bindings
+        run: |
+          openclaw agents list --json --bindings
+          openclaw agents bindings --json
+
+      - name: Delete standalone researcher agent
+        run: openclaw agents delete research --force --json
+
+      - name: Verify researcher deletion
+        run: openclaw agents list --json

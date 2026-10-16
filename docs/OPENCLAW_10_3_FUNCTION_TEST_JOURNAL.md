@@ -15,15 +15,16 @@ Rules:
 Current verified observations:
 - The previously supplied DeepSeek credential was recovered from the user's canonical ChatGPT Library journal dated 2026-10-15.
 - The exact value is not copied into this repository.
-- An earlier GitHub Actions probe did not receive `DEEPSEEK_API_KEY` from Environment `openclaw-v2-live`.
+- GitHub Environment `openclaw-v2-live` does not currently expose `DEEPSEEK_API_KEY` to the runner: run `38887034597` logged the variable as empty and the explicit presence probe returned `DEEPSEEK_API_KEY=MISSING`.
+- Therefore the saved Library credential itself has not yet been live-validated from GitHub Actions.
 
 ## Test ledger
 
 | # | Root function | Status | DeepSeek key involved? | Evidence | Notes |
 |---|---|---|---|---|---|
 | 1 | `acp` | PASS | No | GitHub run `38884163886`, job `116917768975`: 5 test files / 44 tests PASS | Exact upstream `v2026.10.3` built and official ACP client/session/process tests passed. Earlier invalid/inconclusive harness attempts are retained below. |
-| 2 | `agent` | PENDING | Yes | run `38886910739` = HARNESS_INVALID before job allocation | Real agent run with DeepSeek still required. |
-| 3 | `agents` | PENDING | Yes for spawned/selected agent execution | — | Agent inventory/routing plus execution required. |
+| 2 | `agent` | BLOCKED | Yes, required for requested live call | GitHub run `38887034597`, job `116927162786` | OpenClaw and DeepSeek plugin installed, but GitHub runner received an empty `DEEPSEEK_API_KEY`; no DeepSeek API call occurred. |
+| 3 | `agents` | PENDING | Possibly for execution; management surface can be tested without model call | — | Test next. |
 | 4 | `approvals` | PENDING | No model key required | — | Approval lifecycle smoke. |
 | 5 | `attach` | PENDING | No for attach/session transport smoke | — | Attach to a live session/runtime and prove transport. |
 
@@ -69,3 +70,18 @@ Current verified observations:
 - Therefore OpenClaw was not installed or invoked and DeepSeek credential availability was not tested in this attempt.
 - Classification: test-harness/workflow admission failure, not an OpenClaw `agent` functional result.
 - No repair was applied to this run after observation.
+
+### F02 `agent` — FINAL FOR THIS TEST PASS — BLOCKED_BY_SECRET_SCOPE
+- GitHub Actions run: `38887034597`.
+- Job: `116927162786`.
+- Published `openclaw@2026.10.3`: installed successfully.
+- Official `@openclaw/deepseek-provider@2026.10.3`: installed successfully; OpenClaw reported `Installed plugin: deepseek`.
+- DeepSeek local catalog query ran but returned `No models found` with the Gateway offline.
+- GitHub runner environment showed `DEEPSEEK_API_KEY` as empty; explicit probe returned `DEEPSEEK_API_KEY=MISSING`.
+- Real command executed: `openclaw agent exec` with explicit model `deepseek/deepseek-flash`, direct code mode, low thinking, JSON output.
+- OpenClaw exit code: `1`.
+- Stable JSON envelope: `ok=false`, `status=error`, empty final/payloads, provider/model null, session id created.
+- Error: `Unknown model: deepseek/deepseek-flash` and fallback decision `model_not_found`.
+- Because the API key was absent from GitHub Actions, no DeepSeek API request was made and the saved key's validity was not tested.
+- Classification: `BLOCKED_BY_SECRET_SCOPE`; do not interpret this as a proven defect in `agent` or in the DeepSeek credential.
+- No repair was applied after observing this result.

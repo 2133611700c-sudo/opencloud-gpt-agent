@@ -14,6 +14,6 @@
   "artifact_name": "openclaw-38937295673-0",
   "dedupe_key": "heartbeat:pass",
   "error": null,
-  "evidence_commit_sha": "",
+  "evidence_commit_sha": "7f2b9ae154f5afcbdc98611354f81c2e2ffd0df1",
   "dispatch_file": ""
 }

@@ -1,0 +1,70 @@
+name: OpenClaw 2026.10.3 Upstream Unit Fast
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-2026-10-3-upstream-unit-fast.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openclaw-2026-10-3-upstream-unit-fast-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  upstream_unit_fast:
+    name: Upstream v2026.10.3 test:unit:fast
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact upstream release tag
+        uses: actions/checkout@v4
+        with:
+          repository: openclaw/openclaw
+          ref: v2026.10.3
+          path: upstream-openclaw
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - name: Enable exact pnpm
+        shell: bash
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare pnpm@12.5.1 --activate
+          node --version
+          pnpm --version
+      - name: Install exact upstream dependencies
+        working-directory: upstream-openclaw
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile
+      - name: Run upstream fast unit suite
+        working-directory: upstream-openclaw
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../artifacts/upstream-unit-fast
+          pnpm test:unit:fast 2>&1 | tee ../artifacts/upstream-unit-fast/test.log
+      - name: Record release identity
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/upstream-unit-fast
+          git -C upstream-openclaw rev-parse HEAD > artifacts/upstream-unit-fast/commit.txt
+          node -e "const p=require('./upstream-openclaw/package.json'); console.log(JSON.stringify({name:p.name,version:p.version,packageManager:p.packageManager},null,2))" > artifacts/upstream-unit-fast/release.json
+      - name: Upload upstream test evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-2026-10-3-upstream-unit-fast
+          path: artifacts/upstream-unit-fast/
+          if-no-files-found: warn
+          retention-days: 14

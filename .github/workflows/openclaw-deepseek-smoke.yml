@@ -2,6 +2,9 @@ name: OpenClaw DeepSeek Smoke
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "ops/agent-control/deepseek-smoke/*.request.json"
 
 permissions:
   contents: read
@@ -16,8 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      OPENCLAW_VERSION: "2026.10.1"
-      DEEPSEEK_PLUGIN_VERSION: "2026.10.1"
+      OPENCLAW_VERSION: "2026.10.3"
+      OPENCLAW_ADVISOR_VERSION: "2026.10.3"
+      DEEPSEEK_PLUGIN_VERSION: "2026.10.3"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -34,9 +38,11 @@ jobs:
         run: |
           set -euo pipefail
           STATE="${RUNNER_TEMP}/openclaw-deepseek-state"
-          mkdir -p "$STATE"
+          rm -rf "$STATE"
+          mkdir -m 700 -p "$STATE"
           echo "OPENCLAW_STATE_DIR=$STATE" >> "$GITHUB_ENV"
           echo "OPENCLAW_CONFIG_PATH=$STATE/openclaw.json" >> "$GITHUB_ENV"
+          echo "OPENCLAW_DEEPSEEK_AUTH_EVIDENCE=ops/agent-control/reports/deepseek_health/stored-auth-live.json" >> "$GITHUB_ENV"
 
       - name: Require DeepSeek secret
         env:
@@ -45,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${DEEPSEEK_API_KEY:-}" ]; then
-            echo "DEEPSEEK_API_KEY is not configured in GitHub Actions secrets."
+            echo "DEEPSEEK_API_KEY is not configured in GitHub Actions Secrets."
             exit 2
           fi
 
@@ -55,20 +61,25 @@ jobs:
       - name: Install official DeepSeek provider
         run: openclaw plugins install "@openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}"
 
-      - name: Verify versions and provider catalog
+      - name: Store credential and prove stored-auth live path
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: node scripts/openclaw-deepseek-auth-bootstrap.mjs --verify-live
+
+      - name: Verify versions and provider catalog without secret env
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p ops/agent-control/reports/deepseek_health
           openclaw --version | tee ops/agent-control/reports/deepseek_health/openclaw-version.txt
-          grep -q "2026.10.1" ops/agent-control/reports/deepseek_health/openclaw-version.txt
-          openclaw models list --all --provider deepseek | tee ops/agent-control/reports/deepseek_health/catalog.txt
+          grep -q "2026.10.3" ops/agent-control/reports/deepseek_health/openclaw-version.txt
+          openclaw models list --agent main --provider deepseek | tee ops/agent-control/reports/deepseek_health/catalog.txt
           grep -q "deepseek-flash" ops/agent-control/reports/deepseek_health/catalog.txt
           grep -q "deepseek-v4-pro" ops/agent-control/reports/deepseek_health/catalog.txt
+          openclaw models auth list --provider deepseek --agent main --json > ops/agent-control/reports/deepseek_health/auth-list.json
+          grep -q "deepseek" ops/agent-control/reports/deepseek_health/auth-list.json
 
-      - name: Verify V4.1 Flash Think Max
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      - name: Verify V4.1 Flash Think Max from stored auth
         shell: bash
         run: |
           set -euo pipefail
@@ -82,9 +93,7 @@ jobs:
           jq -e '.ok == true and .provider == "deepseek"' "$OUT" >/dev/null
           grep -q "THINK_OK" "$OUT"
 
-      - name: Verify V4.1 Flash tool call
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      - name: Verify V4.1 Flash tool call from stored auth
         shell: bash
         run: |
           set -euo pipefail
@@ -93,8 +102,6 @@ jobs:
           openclaw agent exec \
             "Use the shell command pwd exactly once. Do not create, edit, or delete files. Then reply with TOOL_OK followed by the pwd output." \
             --cwd "$TMP" \
-            --isolated \
-            --auth-env-only \
             --model deepseek/deepseek-flash \
             --fallback deepseek/deepseek-v4-pro \
             --thinking max \
@@ -119,9 +126,7 @@ jobs:
           open('/tmp/deepseek-red-square.png', 'wb').write(png)
           PY
 
-      - name: Verify V4.1 Flash vision
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      - name: Verify V4.1 Flash vision from stored auth
         shell: bash
         run: |
           set -euo pipefail
@@ -165,7 +170,7 @@ jobs:
           set -euo pipefail
           BASE="$OPENCLAW_CONFIG_PATH"
           SKILL_CONFIG="${OPENCLAW_STATE_DIR}/skill-smoke.json"
-          if [ -f "$BASE" ]; then cp "$BASE" "$SKILL_CONFIG"; else echo '{}' > "$SKILL_CONFIG"; fi
+          cp "$BASE" "$SKILL_CONFIG"
           jq \
             --arg dir "$ECC_NATIVE_SKILLS_DIR" \
             '.skills.load.extraDirs = [$dir]
@@ -176,9 +181,7 @@ jobs:
           mv "$SKILL_CONFIG.tmp" "$SKILL_CONFIG"
           echo "OPENCLAW_SKILL_SMOKE_CONFIG=$SKILL_CONFIG" >> "$GITHUB_ENV"
 
-      - name: Verify native skills_search and skills_read
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      - name: Verify native skills_search and skills_read from stored auth
         shell: bash
         run: |
           set -euo pipefail
@@ -188,8 +191,6 @@ jobs:
           openclaw agent exec \
             "Use skills_search to find the installed verification-loop skill, then use skills_read to read that exact skill. Do not use any other tool. After both calls succeed, reply exactly SKILL_DISCOVERY_OK." \
             --cwd "$TMP" \
-            --isolated \
-            --auth-env-only \
             --model deepseek/deepseek-flash \
             --fallback deepseek/deepseek-v4-pro \
             --thinking high \
@@ -200,20 +201,35 @@ jobs:
           grep -q "SKILL_DISCOVERY_OK" "$OUT"
           rm -rf "$TMP"
 
+      - name: Scan evidence for secret leakage
+        if: always()
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${DEEPSEEK_API_KEY:-}" ] && grep -R -F -- "$DEEPSEEK_API_KEY" ops/agent-control/reports/deepseek_health; then
+            echo "DeepSeek secret leaked into smoke evidence."
+            exit 4
+          fi
+
       - name: Write smoke report
         if: always()
         shell: bash
         run: |
           mkdir -p ops/agent-control/reports/deepseek_health
           cat > ops/agent-control/reports/deepseek_health/latest.md <<EOF
-          # OpenClaw DeepSeek Smoke
+          # OpenClaw DeepSeek Stored-Auth Smoke
 
           - timestamp_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)
           - openclaw_version: ${OPENCLAW_VERSION}
           - plugin: @openclaw/deepseek-provider@${DEEPSEEK_PLUGIN_VERSION}
+          - auth_agent: main
+          - auth_transport: GitHub Actions Secret -> stdin -> OpenClaw stored auth
+          - verification_env_contains_secret: false
           - primary_model: deepseek/deepseek-flash
           - fallback_model: deepseek/deepseek-v4-pro
-          - verified_surfaces_requested: catalog, thinking=max, exec tool-call, vision, native skills_search, native skills_read
+          - verified_surfaces_requested: stored auth, live provider probe, agent exec, catalog, thinking=max, exec tool-call, vision, native skills_search, native skills_read
           - ecc_source: pinned audited commit from ECC_SOURCE_PIN.v1.json
           - native_skill_allowlist: verification-loop, agent-security-hardening, plan-orchestrate
           - native_skill_tool_policy: read-only skills_search + skills_read; exec/write/edit/process/browser/gateway denied

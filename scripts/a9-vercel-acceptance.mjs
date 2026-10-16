@@ -18,8 +18,32 @@ try {
   if (error?.code !== 'ENOENT') throw error;
 }
 
+const deepseekModel = {
+  id: 'deepseek-flash',
+  name: 'DeepSeek V4.1 Flash',
+  reasoning: true,
+  input: ['text', 'image'],
+  cost: { input: 0.3, output: 1.2, cacheRead: 0.006, cacheWrite: 0 },
+  contextWindow: 1000000,
+  maxTokens: 384000,
+};
+
 const config = {
   ...baseConfig,
+  models: {
+    ...(baseConfig.models ?? {}),
+    mode: 'merge',
+    providers: {
+      ...(baseConfig.models?.providers ?? {}),
+      deepseek: {
+        ...(baseConfig.models?.providers?.deepseek ?? {}),
+        baseUrl: 'https://api.deepseek.com',
+        api: 'openai-completions',
+        apiKey: { source: 'env', provider: 'default', id: 'DEEPSEEK_API_KEY' },
+        models: [deepseekModel],
+      },
+    },
+  },
   agents: {
     ...(baseConfig.agents ?? {}),
     defaults: {
@@ -56,6 +80,11 @@ const env = {
 
 execFileSync('openclaw', ['config', 'validate', '--json'], { env, stdio: ['ignore', 'pipe', 'inherit'] });
 if (process.env.A9_PREFLIGHT_ONLY === '1') {
+  const modelsRaw = execFileSync('openclaw', ['models', 'list', '--provider', 'deepseek', '--json'], { env, encoding: 'utf8' });
+  const models = JSON.parse(modelsRaw);
+  const rows = Array.isArray(models?.models) ? models.models : [];
+  const flash = rows.find((row) => row?.key === 'deepseek/deepseek-flash');
+  if (!flash) throw new Error('A9 preflight cannot resolve deepseek/deepseek-flash from isolated config');
   console.log('A9_CONFIG_PREFLIGHT_PASS');
   process.exit(0);
 }

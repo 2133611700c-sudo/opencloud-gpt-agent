@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: openclaw-v2-shared-hosted-state
+  group: openclaw-v2-pr55-live-kernel
   cancel-in-progress: false
 
 jobs:
@@ -113,4 +113,5 @@ jobs:
 # - this is a bounded one-shot acceptance gate for PR #55 only;
 # - it uses the existing repository secrets contract and never prints secret values;
 # - it preserves the V2 rule that Research state contains no stored DeepSeek auth profile;
+# - its separate concurrency group is safe because the normal push-triggered V2 CI uses local Postgres and skips all hosted/live jobs;
 # - remove this temporary workflow before merging PR #55.

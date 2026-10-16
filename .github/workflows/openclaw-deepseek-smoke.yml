@@ -39,7 +39,8 @@ jobs:
           set -euo pipefail
           STATE="${RUNNER_TEMP}/openclaw-deepseek-state"
           rm -rf "$STATE"
-          mkdir -m 700 -p "$STATE"
+          mkdir -p "$STATE"
+          chmod 700 "$STATE"
           echo "OPENCLAW_STATE_DIR=$STATE" >> "$GITHUB_ENV"
           echo "OPENCLAW_CONFIG_PATH=$STATE/openclaw.json" >> "$GITHUB_ENV"
           echo "OPENCLAW_DEEPSEEK_AUTH_EVIDENCE=ops/agent-control/reports/deepseek_health/stored-auth-live.json" >> "$GITHUB_ENV"

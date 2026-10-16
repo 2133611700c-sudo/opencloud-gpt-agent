@@ -122,6 +122,106 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function walk(dir) {
+  const out = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...await walk(full));
+    else out.push(full);
+  }
+  return out;
+}
+
+function textFromContent(content) {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  return content
+    .map((part) => {
+      if (typeof part === 'string') return part;
+      if (part && typeof part === 'object' && typeof part.text === 'string') return part.text;
+      return '';
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+function collectRoleTexts(value, role, out = []) {
+  if (!value || typeof value !== 'object') return out;
+  if (value.role === role) {
+    const text = textFromContent(value.content ?? value.text);
+    if (text.trim()) out.push(text.trim());
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectRoleTexts(item, role, out);
+    return out;
+  }
+  for (const nested of Object.values(value)) {
+    if (nested && typeof nested === 'object') collectRoleTexts(nested, role, out);
+  }
+  return out;
+}
+
+async function readJsonlRoleTexts(file, role) {
+  let body;
+  try {
+    body = await readFile(file, 'utf8');
+  } catch {
+    return [];
+  }
+  const out = [];
+  for (const line of body.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    try {
+      collectRoleTexts(JSON.parse(line), role, out);
+    } catch {
+      // Transcript evidence must come from parseable JSONL records only.
+    }
+  }
+  return out;
+}
+
+async function locatePushResumeEvidence() {
+  const deadline = Date.now() + 120000;
+  let parentTranscript;
+  let childArchive;
+  while (Date.now() < deadline) {
+    if (gateway?.exitCode != null || gateway?.signalCode != null) {
+      throw new Error(`A9 Gateway exited while waiting for push-resume: exit=${gateway.exitCode} signal=${gateway.signalCode}`);
+    }
+    const files = await walk(stateDir);
+    const liveJsonl = files.filter((file) => file.endsWith('.jsonl') && !file.includes('.jsonl.deleted.'));
+    const deletedJsonl = files.filter((file) => file.includes('.jsonl.deleted.'));
+
+    for (const file of liveJsonl) {
+      const userTexts = await readJsonlRoleTexts(file, 'user');
+      if (!userTexts.some((text) => text.includes('This is acceptance test A9 for native OpenClaw sub-agents.'))) {
+        continue;
+      }
+      const assistantTexts = await readJsonlRoleTexts(file, 'assistant');
+      if (assistantTexts.some((text) => text === 'PARENT_OK:CHILD_OK')) {
+        parentTranscript = file;
+        break;
+      }
+    }
+
+    for (const file of deletedJsonl) {
+      const assistantTexts = await readJsonlRoleTexts(file, 'assistant');
+      if (assistantTexts.some((text) => text === 'CHILD_OK')) {
+        childArchive = file;
+        break;
+      }
+    }
+
+    if (parentTranscript && childArchive) {
+      return { parentTranscript, childArchive };
+    }
+    await sleep(250);
+  }
+  throw new Error(
+    `A9 push-resume evidence timeout: parentFinal=${Boolean(parentTranscript)} childArchive=${Boolean(childArchive)}`,
+  );
+}
+
 async function stopGateway() {
   if (!gateway || gatewayStopped) return;
   gatewayStopped = true;
@@ -262,17 +362,17 @@ try {
   const agentMeta = meta?.agentMeta ?? {};
   const toolSummary = meta?.toolSummary ?? {};
   const payloads = Array.isArray(result?.payloads) ? result.payloads : [];
-  const payloadText = payloads
-    .map((payload) => (typeof payload?.text === 'string' ? payload.text.trim() : ''))
-    .filter(Boolean)
-    .join('\n')
-    .trim();
-  const finalText = typeof meta?.finalAssistantVisibleText === 'string' && meta.finalAssistantVisibleText.trim()
-    ? meta.finalAssistantVisibleText.trim()
-    : payloadText;
-
-  if (finalText !== 'PARENT_OK:CHILD_OK') {
-    throw new Error(`A9 parent final mismatch: ${JSON.stringify(finalText)}`);
+  const initialVisibleText = (
+    typeof meta?.finalAssistantVisibleText === 'string' && meta.finalAssistantVisibleText.trim()
+      ? meta.finalAssistantVisibleText.trim()
+      : payloads
+          .map((payload) => (typeof payload?.text === 'string' ? payload.text.trim() : ''))
+          .filter(Boolean)
+          .join('\n')
+          .trim()
+  );
+  if (initialVisibleText !== '') {
+    throw new Error(`A9 sessions_yield initial turn unexpectedly produced visible final: ${JSON.stringify(initialVisibleText)}`);
   }
   if (agentMeta?.provider !== 'deepseek' || agentMeta?.model !== 'deepseek-flash') {
     throw new Error(`A9 parent provider/model mismatch: ${agentMeta?.provider}/${agentMeta?.model}`);
@@ -285,6 +385,8 @@ try {
   }
   if ((toolSummary?.failures ?? 0) !== 0) throw new Error('A9 parent tool failure observed');
   if (toolSummary?.unresolvedError != null) throw new Error('A9 unresolved parent tool error observed');
+
+  const { parentTranscript, childArchive } = await locatePushResumeEvidence();
 
   const postHealth = spawnSync(
     'openclaw',
@@ -310,36 +412,10 @@ try {
     throw new Error(`A9 cleanup=delete left active child sessions: ${activeChildRows.map((row) => row.key).join(',')}`);
   }
 
-  async function walk(dir) {
-    const out = [];
-    for (const entry of await readdir(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) out.push(...await walk(full));
-      else out.push(full);
-    }
-    return out;
-  }
-
-  const files = await walk(stateDir);
-  const deletedTranscripts = files.filter((file) => /\.jsonl\.deleted\./.test(file));
-  if (deletedTranscripts.length < 1) {
-    throw new Error('A9 cleanup=delete produced no deleted child transcript archive');
-  }
-  let childTranscript = null;
-  let childArchive = null;
-  for (const file of deletedTranscripts) {
-    const content = await readFile(file, 'utf8');
-    if (content.includes('CHILD_OK')) {
-      childTranscript = content;
-      childArchive = file;
-      break;
-    }
-  }
-  if (!childTranscript || !childArchive) {
-    throw new Error('A9 deleted child transcript does not contain CHILD_OK');
-  }
   const archiveStat = await stat(childArchive);
   if (archiveStat.size <= 0) throw new Error('A9 child transcript archive is empty');
+  const parentStat = await stat(parentTranscript);
+  if (parentStat.size <= 0) throw new Error('A9 parent transcript is empty');
 
   const secret = process.env.DEEPSEEK_API_KEY ?? '';
   const logBodies = await Promise.all(
@@ -358,25 +434,26 @@ try {
   const evidence = {
     status: 'PASS_LIVE',
     stage: 'A9',
-    capability: 'native_subagent_spawn_yield_completion_cleanup',
+    capability: 'native_subagent_spawn_yield_push_resume_cleanup',
     openclawVersion: '2026.10.3',
     executionPath: 'gateway',
     provider: agentMeta.provider,
     model: agentMeta.model,
-    parentFinalVerified: true,
-    childResultVerifiedFromDeletedTranscript: true,
-    parentTools: tools,
-    parentToolCalls: toolSummary?.calls ?? null,
-    parentToolFailures: toolSummary?.failures ?? 0,
-    assistantTurns: agentMeta?.assistantTurns ?? null,
-    usage: agentMeta?.usage ?? null,
-    costUsd: agentMeta?.costUsd ?? null,
+    initialYieldTurnVisibleFinalEmpty: true,
+    pushResumeParentFinalVerified: true,
+    childAssistantResultVerifiedFromDeletedTranscript: true,
+    parentInitialTurnTools: tools,
+    parentInitialTurnToolCalls: toolSummary?.calls ?? null,
+    parentInitialTurnToolFailures: toolSummary?.failures ?? 0,
+    parentInitialTurnAssistantTurns: agentMeta?.assistantTurns ?? null,
+    parentInitialTurnUsage: agentMeta?.usage ?? null,
+    parentInitialTurnCostUsd: agentMeta?.costUsd ?? null,
     cleanupMode: 'delete',
     activeChildSessionsAfterCompletion: 0,
-    deletedChildTranscriptArchives: deletedTranscripts.length,
+    parentTranscriptBytes: parentStat.size,
     deletedChildTranscriptBytes: archiveStat.size,
     gatewayHealthyBeforeRun: true,
-    gatewayHealthyAfterRun: true,
+    gatewayHealthyAfterPushResume: true,
     processExitCode: run.status,
     secretLogged: false,
     hostedDatabaseMutations: 0,

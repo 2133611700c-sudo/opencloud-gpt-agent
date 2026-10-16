@@ -159,11 +159,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: Require canonical V2 branch for live execution
+      - name: Require approved V2 branch for live execution
         shell: bash
         run: |
           set -euo pipefail
-          test "$GITHUB_REF" = 'refs/heads/v2/openclaw-clean-20261011'
+          case "$GITHUB_REF" in
+            refs/heads/v2/openclaw-clean-20261011|refs/heads/v2/openclaw-10-3-cutover) ;;
+            *) echo "Live gate blocked on unapproved ref: $GITHUB_REF" >&2; exit 1 ;;
+          esac
           case '${{ github.event.inputs.live_gate }}' in
             hosted|kernel|smoke) ;;
             *) echo 'Unsupported live gate requested' >&2; exit 1 ;;
@@ -176,6 +179,7 @@ jobs:
       - live_request_guard
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    environment: openclaw-v2-live
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
@@ -202,6 +206,7 @@ jobs:
       - live_request_guard
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    environment: openclaw-v2-live
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
@@ -288,6 +293,7 @@ jobs:
       - live_request_guard
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    environment: openclaw-v2-live
     env:
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash

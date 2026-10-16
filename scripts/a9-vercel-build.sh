@@ -24,4 +24,19 @@ openclaw setup --baseline --skip-bootstrap --workspace "$PWD" --json > /tmp/a9-b
 openclaw plugins install @openclaw/deepseek-provider@2026.10.3
 openclaw config validate --json > /tmp/a9-install-config.json
 
-node scripts/a9-vercel-acceptance.mjs
+if ! node scripts/a9-vercel-acceptance.mjs; then
+  echo '=== A9 SAFE FAILURE DIAGNOSTICS ===' >&2
+  node --input-type=module -e '
+    import { readFileSync } from "node:fs";
+    const secret = process.env.DEEPSEEK_API_KEY ?? "";
+    for (const file of ["/tmp/a9-agent-stdout.json", "/tmp/a9-agent-stderr.txt"]) {
+      try {
+        let body = readFileSync(file, "utf8");
+        if (secret) body = body.split(secret).join("[REDACTED]");
+        if (body.length > 16000) body = `${body.slice(0, 16000)}\n...[truncated]`;
+        console.error(`--- ${file} ---\n${body}`);
+      } catch {}
+    }
+  '
+  exit 1
+fi

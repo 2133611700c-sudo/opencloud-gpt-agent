@@ -65,6 +65,7 @@ const base = {
   mode,
   task_id: task.id,
   model: deepseekAdvisoryModel,
+  auth_source: "openclaw_stored_auth",
   reasoning_effort: plan.model_route.reasoning_effort,
   orchestration_plan: plan,
   selected_skill_names: selectAdvisorSkillNames(plan, 8),
@@ -79,6 +80,7 @@ function finish(payload) {
     const current = JSON.parse(fs.readFileSync(path.resolve(repoRoot, latestReportFile), "utf8"));
     current.deepseek_advisory = {
       model: deepseekAdvisoryModel,
+      auth_source: base.auth_source,
       plan_file: path.posix.join(reportsRoot, "deepseek_advisory", safeId, "plan.json"),
       judge_file: relativeOutFile,
       judge_status: payload.status,
@@ -96,12 +98,10 @@ if (!shouldRunDeepSeekAdvisory(task, plan)) {
   process.exit(0);
 }
 
-if (!String(process.env.DEEPSEEK_API_KEY || "").trim()) {
-  finish({ status: "NOT_CONFIGURED", reason: "DEEPSEEK_API_KEY is not configured" });
-  process.exit(0);
-}
-
 const prompt = buildDeepSeekAdvisoryPrompt({ mode, task, plan, latest, reportExcerpt, skillExcerpts });
+const modelEnv = { ...process.env };
+delete modelEnv.DEEPSEEK_API_KEY;
+
 let envelope;
 try {
   const stdout = execFileSync(
@@ -117,7 +117,7 @@ try {
     {
       cwd: repoRoot,
       encoding: "utf8",
-      env: { ...process.env },
+      env: modelEnv,
       stdio: ["ignore", "pipe", "pipe"],
       maxBuffer: 8 * 1024 * 1024,
     },

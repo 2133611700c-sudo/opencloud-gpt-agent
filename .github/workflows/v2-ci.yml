@@ -136,7 +136,7 @@ jobs:
           set -euo pipefail
           openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
           openclaw plugins list | grep -i duckduckgo
-      - name: Verify Research credential scope has no stored DeepSeek profiles
+      - name: Verify fresh foundation scope starts without credentials
         shell: bash
         run: |
           set -euo pipefail
@@ -205,11 +205,10 @@ jobs:
       - foundation
       - live_request_guard
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     environment: openclaw-v2-live
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       OPENCLAW_DEEPSEEK_MODEL: deepseek/deepseek-flash
       OPENCLAW_DEEPSEEK_PRICING_VERSION: deepseek-v4.1-flash-2026-09-10
     steps:
@@ -218,6 +217,8 @@ jobs:
         with:
           node-version: '24'
       - name: Require Kernel live secrets
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
@@ -254,12 +255,10 @@ jobs:
           set -euo pipefail
           openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
           openclaw plugins list | grep -i duckduckgo
-      - name: Verify Research credential scope has no stored DeepSeek profiles
-        shell: bash
-        run: |
-          set -euo pipefail
-          auth_json="$(openclaw models auth list --provider deepseek --json)"
-          AUTH_JSON="$auth_json" node --input-type=module -e "const value=JSON.parse(process.env.AUTH_JSON); if (!Array.isArray(value.profiles) || value.profiles.length !== 0) throw new Error('stored DeepSeek auth profiles are present in the Research scope');"
+      - name: Bootstrap stored DeepSeek credential for the real Research agent
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: node scripts/bootstrap-research-auth.mjs
       - name: Validate generated Research OpenClaw config
         env:
           OPENCLAW_CONFIG_PATH: /tmp/openclaw-v2-research.json
@@ -270,6 +269,15 @@ jobs:
           test "$(stat -c '%a' "$OPENCLAW_CONFIG_PATH")" = "600"
           test "$(stat -c '%a' "$OPENCLAW_STATE_DIR")" = "700"
           openclaw config validate --json
+      - name: Prove Research agent stored auth without direct key injection
+        id: auth_acceptance
+        env:
+          OPENCLAW_AUTH_ACCEPTANCE_MODEL: deepseek/deepseek-v4-pro
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          node scripts/verify-research-agent-live.mjs > artifacts/research-agent-auth-live.json
       - name: Run one live Kernel Research vertical
         id: kernel
         shell: bash
@@ -277,14 +285,50 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts
           node scripts/live-research-kernel-vertical.mjs 2>&1 | tee artifacts/research-kernel-live.json
+      - name: Check evidence does not contain the bootstrap credential
+        id: leak_scan
+        if: ${{ always() }}
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          node --input-type=module - <<'JS'
+          import { existsSync, readdirSync, readFileSync } from 'node:fs';
+          const key = process.env.DEEPSEEK_API_KEY;
+          if (key && existsSync('artifacts')) {
+            for (const name of readdirSync('artifacts')) {
+              if (readFileSync(`artifacts/${name}`, 'utf8').includes(key)) {
+                throw new Error('Credential found in evidence; publication is forbidden');
+              }
+            }
+          }
+          console.log('CREDENTIAL_LEAK_SCAN_PASS');
+          JS
+      - name: Upload safe stored-auth acceptance evidence
+        if: ${{ always() && steps.leak_scan.outcome == 'success' && steps.auth_acceptance.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-v2-research-agent-stored-auth
+          path: artifacts/research-agent-auth-live.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload safe Kernel Research vertical evidence
-        if: ${{ always() && steps.kernel.outcome != 'skipped' }}
+        if: ${{ always() && steps.leak_scan.outcome == 'success' && steps.kernel.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: openclaw-v2-research-kernel-live
           path: artifacts/research-kernel-live.json
           if-no-files-found: error
           retention-days: 7
+      - name: Remove ephemeral Research auth state
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${OPENCLAW_STATE_DIR:-}" = "$RUNNER_TEMP/openclaw-v2-state" ]; then
+            rm -rf -- "$OPENCLAW_STATE_DIR"
+            test ! -e "$OPENCLAW_STATE_DIR"
+          fi
+
 
   live_smoke:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live_gate == 'smoke' }}

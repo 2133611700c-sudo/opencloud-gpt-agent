@@ -1,10 +1,9 @@
 import { createPostgresKernelAdapter } from '../kernel/postgres-kernel-adapter.mjs';
 import {
-  MissingResearchCredentialError,
   ResearchTrustRootError,
   runResearchAgent,
 } from './research-agent-runner.mjs';
-import { verifyNoStoredDeepSeekAuth } from './research-auth-scope.mjs';
+import { verifyStoredDeepSeekAuth } from './research-auth-scope.mjs';
 import { createResearchKernelExecutor } from './research-kernel-bindings.mjs';
 import { isSecureResearchStateDir } from './research-trust-root.mjs';
 import { createResearchWorker } from './research-worker.mjs';
@@ -30,9 +29,6 @@ const requireInteger = (value, name, min, max) => {
 
 const preflightNativeResearchRuntime = ({ runResearchImpl, env }) => {
   if (runResearchImpl !== runResearchAgent) return false;
-  if (typeof env?.DEEPSEEK_API_KEY !== 'string' || env.DEEPSEEK_API_KEY.trim() === '') {
-    throw new MissingResearchCredentialError();
-  }
   if (!isSecureResearchStateDir(env?.OPENCLAW_STATE_DIR)) {
     throw new ResearchTrustRootError();
   }
@@ -57,7 +53,7 @@ export function createProductionResearchWorker({
   researchEnv = process.env,
   researchConfigOptions = {},
   runResearchImpl = runResearchAgent,
-  verifyAuthScopeImpl = verifyNoStoredDeepSeekAuth,
+  verifyAuthScopeImpl = verifyStoredDeepSeekAuth,
 } = {}) {
   requireFn(query, 'query');
   requireFn(estimateReservation, 'estimateReservation');
@@ -80,7 +76,7 @@ export function createProductionResearchWorker({
   }
 
   // Do not claim/fail a durable node merely because the live runtime is misconfigured.
-  // Static credential/trust-root prerequisites are validated before worker construction;
+  // The trust root is validated before worker construction;
   // stored-auth state is rechecked immediately before every durable claim.
   const usesNativeResearch = preflightNativeResearchRuntime({ runResearchImpl, env: researchEnv });
 
@@ -97,6 +93,7 @@ export function createProductionResearchWorker({
       env: researchEnv,
       configOptions: researchConfigOptions,
       timeoutMs: researchTimeoutMs,
+      verifyAuthScopeImpl,
     }),
   });
 

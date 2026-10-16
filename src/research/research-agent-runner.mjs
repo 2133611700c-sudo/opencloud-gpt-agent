@@ -15,11 +15,12 @@ import {
   parseResearchAgentEnvelope,
 } from './research-agent-envelope.mjs';
 import { isSecureResearchStateDir } from './research-trust-root.mjs';
+import { verifyStoredDeepSeekAuth } from './research-auth-scope.mjs';
 
 const SAFE_ENV_KEYS = Object.freeze([
   'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ',
   'SSL_CERT_FILE', 'SSL_CERT_DIR', 'NODE_EXTRA_CA_CERTS',
-  'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'NO_PROXY',
+  'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'NO_PROXY', 'NODE_USE_ENV_PROXY',
 ]);
 
 const rejectedResearchBilling = new WeakMap();
@@ -38,14 +39,6 @@ export function getRejectedResearchBilling(error) {
   return error !== null && (typeof error === 'object' || typeof error === 'function')
     ? rejectedResearchBilling.get(error) ?? null
     : null;
-}
-
-export class MissingResearchCredentialError extends Error {
-  constructor() {
-    super('DEEPSEEK_API_KEY is required for the Research agent');
-    this.name = 'MissingResearchCredentialError';
-    this.code = 'MISSING_DEEPSEEK_API_KEY';
-  }
 }
 
 export class ResearchTrustRootError extends Error {
@@ -112,7 +105,6 @@ export function buildResearchChildEnv(env = process.env) {
   for (const key of SAFE_ENV_KEYS) {
     if (typeof env?.[key] === 'string' && env[key] !== '') childEnv[key] = env[key];
   }
-  childEnv.DEEPSEEK_API_KEY = env?.DEEPSEEK_API_KEY;
   childEnv.OPENCLAW_STATE_DIR = stateDir;
   childEnv.OPENCLAW_CONFIG_READONLY = '1';
   childEnv.OPENCLAW_EXEC_SHELL_SNAPSHOT = '0';
@@ -129,21 +121,26 @@ export async function runResearchAgent({
   maxStderrBytes = 200_000,
   signal,
   spawnImpl = nodeSpawn,
+  verifyAuthScopeImpl = verifyStoredDeepSeekAuth,
   nowMs = () => performance.now(),
   tempRoot = tmpdir(),
 } = {}) {
   const apiKey = env?.DEEPSEEK_API_KEY;
-  if (typeof apiKey !== 'string' || apiKey.trim() === '') throw new MissingResearchCredentialError();
   if (!isSecureResearchStateDir(env?.OPENCLAW_STATE_DIR)) throw new ResearchTrustRootError();
 
   positiveInteger(timeoutMs, 'timeoutMs', 300_000);
   positiveInteger(maxStdoutBytes, 'maxStdoutBytes', 10_000_000);
   positiveInteger(maxStderrBytes, 'maxStderrBytes', 2_000_000);
   if (typeof nowMs !== 'function') throw invalidLatency();
+  if (typeof verifyAuthScopeImpl !== 'function') throw new TypeError('verifyAuthScopeImpl must be a function');
   if (signal != null && !(signal instanceof AbortSignal)) throw new TypeError('signal must be an AbortSignal');
   if (signal?.aborted) throw new ResearchAgentProcessError('Research agent aborted before start', { code: 'ABORTED' });
 
   const childEnv = buildResearchChildEnv(env);
+  // Direct callers must satisfy the same stored-profile contract as production.
+  // This runs before temporary config creation or any paid agent execution.
+  await verifyAuthScopeImpl({ env: childEnv });
+  if (signal?.aborted) throw new ResearchAgentProcessError('Research agent aborted during auth verification', { code: 'ABORTED' });
   const config = buildResearchOpenClawConfig(configOptions);
   const tempDir = await mkdtemp(join(tempRoot, 'openclaw-v2-research-'));
   const configPath = join(tempDir, 'openclaw.json');
@@ -192,7 +189,7 @@ export async function runResearchAgent({
         killChild();
         finishReject(new ResearchAgentProcessError(
           `${message}: ${redactSensitiveText(error?.message, [apiKey])}`,
-          { code, cause: error },
+          { code },
         ));
       };
       const onAbort = () => {
@@ -223,7 +220,7 @@ export async function runResearchAgent({
       } catch (error) {
         finishReject(new ResearchAgentProcessError(
           `Failed to start OpenClaw Research agent: ${redactSensitiveText(error?.message, [apiKey])}`,
-          { code: 'SPAWN_FAILED', cause: error },
+          { code: 'SPAWN_FAILED' },
         ));
         return;
       }

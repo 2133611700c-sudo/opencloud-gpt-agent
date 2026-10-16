@@ -1,5 +1,6 @@
 import { isAbsolute } from 'node:path';
 import { normalizeResearchRequest } from './research-contract.mjs';
+import { RESEARCH_OPENCLAW_AGENT_ID } from './research-auth-scope.mjs';
 
 const DEFAULT_MODEL = 'deepseek/deepseek-flash';
 const MODEL_RE = /^deepseek\/[A-Za-z0-9._:-]+$/;
@@ -38,7 +39,9 @@ export function buildResearchOpenClawConfig({
 
   return Object.freeze({
     agents: Object.freeze({
+      entries: Object.freeze({ [RESEARCH_OPENCLAW_AGENT_ID]: Object.freeze({}) }),
       defaults: Object.freeze({
+        systemAgent: Object.freeze({ agentId: RESEARCH_OPENCLAW_AGENT_ID }),
         model: Object.freeze({
           primary: DEFAULT_MODEL,
           fallbacks: Object.freeze([]),

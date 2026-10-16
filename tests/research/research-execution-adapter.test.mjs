@@ -9,6 +9,8 @@ import { PassThrough } from 'node:stream';
 import { executeClaimedResearchNode } from '../../src/research/research-execution-adapter.mjs';
 import { getRejectedResearchBilling, runResearchAgent } from '../../src/research/research-agent-runner.mjs';
 
+const verifyAuthScopeImpl = async () => ({ agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 });
+
 const claim = Object.freeze({
   taskId: 'task-1', nodeId: 'node-research', workerId: 'worker-1', leaseToken: '11111111-1111-4111-8111-111111111111', agentId: 'researcher',
 });
@@ -144,7 +146,7 @@ const nativeRejection = async (overrides = {}) => {
     toolSummary: { calls: 2, tools: ['web_search', 'web_fetch'], failures: 1, unresolvedError: { toolName: 'web_fetch' } }, ...overrides };
   let samples = 0;
   try {
-    await runResearchAgent({ request: { goal: 'Synthetic rejected Research' },
+    await runResearchAgent({ verifyAuthScopeImpl, request: { goal: 'Synthetic rejected Research' },
       env: { DEEPSEEK_API_KEY: 'test-only-key', OPENCLAW_STATE_DIR: rejectedStateRoot }, tempRoot: rejectedStateRoot,
       nowMs: () => ++samples === 1 ? 0 : 37.25,
       spawnImpl: () => { queueMicrotask(() => { child.stdout.end(JSON.stringify(envelope)); child.emit('close', 0, null); }); return child; },

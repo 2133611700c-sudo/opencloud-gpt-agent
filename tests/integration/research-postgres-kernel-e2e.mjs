@@ -11,6 +11,8 @@ import { runResearchAgent } from '../../src/research/research-agent-runner.mjs';
 import { createPostgresKernelAdapter } from '../../src/kernel/postgres-kernel-adapter.mjs';
 import { createResearchKernelExecutor } from '../../src/research/research-kernel-bindings.mjs';
 
+const verifyAuthScopeImpl = async () => ({ agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 });
+
 const connection = ['-h','127.0.0.1','-U','openclaw','-d','openclaw_v2_test','-v','ON_ERROR_STOP=1','-At','-F','\t'];
 const query = async (text, values=[]) => {
   let sql=text;
@@ -86,7 +88,7 @@ try {
       runResearch: async () => {
         runtimeCalls += 1; let sample = 0; let nativeFailure;
         try {
-          await runResearchAgent({ request: { goal: 'Rejected fixture' },
+          await runResearchAgent({ verifyAuthScopeImpl, request: { goal: 'Rejected fixture' },
             env: { DEEPSEEK_API_KEY: 'test-only-key', OPENCLAW_STATE_DIR: stateRoot }, tempRoot: stateRoot,
             nowMs: () => sample++ === 0 ? 0 : 37.25,
             spawnImpl: () => {

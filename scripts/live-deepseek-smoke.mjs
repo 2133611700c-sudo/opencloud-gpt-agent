@@ -8,7 +8,9 @@ const model = process.env.OPENCLAW_DEEPSEEK_MODEL || 'deepseek/deepseek-flash';
 const expected = 'smoke-ok';
 
 try {
-  const catalog = refreshDeepSeekModelCatalog({ model, env: process.env });
+  // This separate provider smoke intentionally tests environment auth, rather
+  // than the Research agent's stored-auth contract.
+  const catalog = refreshDeepSeekModelCatalog({ model, env: process.env, credentialMode: 'environment' });
   const started = performance.now();
   const result = await runDeepSeekInferSmoke({
     model,

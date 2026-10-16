@@ -9,34 +9,61 @@ import {
   buildResearchAuthProbeEnv,
   parseStoredDeepSeekAuth,
   runOpenClawAuthProbe,
-  verifyNoStoredDeepSeekAuth,
+  verifyStoredDeepSeekAuth,
 } from '../../src/research/research-auth-scope.mjs';
 
-test('parses an empty stored DeepSeek profile set', () => {
+const storedAuth = () => ({
+  agentId: 'main',
+  provider: 'deepseek',
+  profiles: [{ id: 'deepseek:manual', type: 'api_key', provider: 'deepseek' }],
+});
+
+test('parses the native stored DeepSeek API key profile for agent main', () => {
+  const input = storedAuth();
+  input.profiles[0].credentialHint = 'private profile hint';
+  input.authPath = '/private/auth-store';
+  const result = parseStoredDeepSeekAuth(JSON.stringify(input));
   assert.deepEqual(
-    parseStoredDeepSeekAuth(JSON.stringify({ provider: 'deepseek', profiles: [] })),
-    { provider: 'deepseek', profileCount: 0 },
+    result,
+    { agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 },
   );
+  assert.equal(Object.isFrozen(result), true);
+  assert.equal(JSON.stringify(result).includes('private'), false);
 });
 
-test('rejects any stored DeepSeek profile', () => {
+test('rejects missing stored DeepSeek credentials', () => {
   assert.throws(
-    () => parseStoredDeepSeekAuth(JSON.stringify({
-      provider: 'deepseek',
-      profiles: [{ id: 'deepseek:default', provider: 'deepseek', type: 'api_key' }],
-    })),
-    (error) => error instanceof ResearchAuthScopeError && error.code === 'STORED_DEEPSEEK_AUTH_PRESENT',
+    () => parseStoredDeepSeekAuth(JSON.stringify({ ...storedAuth(), profiles: [] })),
+    (error) => error instanceof ResearchAuthScopeError && error.code === 'STORED_DEEPSEEK_AUTH_MISSING',
   );
 });
 
-test('rejects malformed or ambiguous auth-list output', () => {
-  for (const stdout of ['', '{bad', JSON.stringify({ provider: 'deepseek' }), JSON.stringify({ provider: 'openai', profiles: [] })]) {
+test('rejects malformed auth-list output', () => {
+  for (const stdout of ['', '{bad', 'null', '[]', JSON.stringify({ agentId: 'main', provider: 'deepseek' }),
+    JSON.stringify({ ...storedAuth(), profiles: {} })]) {
     assert.throws(
       () => parseStoredDeepSeekAuth(stdout),
-      (error) => error instanceof ResearchAuthScopeError && [
-        'AUTH_SCOPE_INVALID_OUTPUT',
-        'AUTH_SCOPE_PROVIDER_MISMATCH',
-      ].includes(error.code),
+      (error) => error instanceof ResearchAuthScopeError && error.code === 'AUTH_SCOPE_INVALID_OUTPUT',
+    );
+  }
+});
+
+test('rejects wrong agent, provider, profile identity or ambiguous stored profiles', () => {
+  const cases = [
+    [{ ...storedAuth(), agentId: 'researcher' }, 'AUTH_SCOPE_AGENT_MISMATCH'],
+    [{ ...storedAuth(), agentId: undefined }, 'AUTH_SCOPE_AGENT_MISMATCH'],
+    [{ ...storedAuth(), provider: 'openai' }, 'AUTH_SCOPE_PROVIDER_MISMATCH'],
+    [{ ...storedAuth(), profiles: [{ id: 'deepseek:manual', type: 'api_key', provider: 'openai' }] }, 'AUTH_SCOPE_PROVIDER_MISMATCH'],
+    [{ ...storedAuth(), profiles: [null] }, 'AUTH_SCOPE_PROFILE_MISMATCH'],
+    [{ ...storedAuth(), profiles: [{}] }, 'AUTH_SCOPE_PROFILE_MISMATCH'],
+    [{ ...storedAuth(), profiles: [{ id: 'deepseek:default', type: 'api_key', provider: 'deepseek' }] }, 'AUTH_SCOPE_PROFILE_MISMATCH'],
+    [{ ...storedAuth(), profiles: [{ id: 'deepseek:manual', type: 'oauth', provider: 'deepseek' }] }, 'AUTH_SCOPE_PROFILE_MISMATCH'],
+    [{ ...storedAuth(), profiles: [...storedAuth().profiles, ...storedAuth().profiles] }, 'AUTH_SCOPE_AMBIGUOUS_PROFILES'],
+  ];
+  for (const [input, code] of cases) {
+    assert.throws(
+      () => parseStoredDeepSeekAuth(JSON.stringify(input)),
+      (error) => error instanceof ResearchAuthScopeError && error.code === code,
     );
   }
 });
@@ -45,6 +72,7 @@ test('auth probe child env is an allowlist and excludes every ambient credential
   const childEnv = buildResearchAuthProbeEnv({
     PATH: '/usr/bin',
     HOME: '/tmp/home',
+    NODE_USE_ENV_PROXY: '1',
     OPENCLAW_STATE_DIR: '/tmp/state',
     DEEPSEEK_API_KEY: 'must-not-propagate',
     OPENAI_API_KEY: 'must-not-propagate',
@@ -55,6 +83,7 @@ test('auth probe child env is an allowlist and excludes every ambient credential
   assert.deepEqual(childEnv, {
     PATH: '/usr/bin',
     HOME: '/tmp/home',
+    NODE_USE_ENV_PROXY: '1',
     OPENCLAW_STATE_DIR: '/tmp/state',
   });
 });
@@ -90,7 +119,7 @@ test('runs the exact official OpenClaw stored-auth query without exposing ambien
   const spawnImpl = (executable, args, options) => {
     invocation = { executable, args: [...args], options };
     queueMicrotask(() => {
-      child.stdout.write(JSON.stringify({ provider: 'deepseek', profiles: [] }));
+      child.stdout.write(JSON.stringify(storedAuth()));
       child.stdout.end();
       child.stderr.end();
       child.emit('close', 0, null);
@@ -101,25 +130,29 @@ test('runs the exact official OpenClaw stored-auth query without exposing ambien
   const result = await runOpenClawAuthProbe({
     env: {
       PATH: '/usr/bin',
+      NODE_USE_ENV_PROXY: '1',
       OPENCLAW_STATE_DIR: '/tmp/state',
       DEEPSEEK_API_KEY: 'must-not-propagate',
       OPENAI_API_KEY: 'must-not-propagate',
     },
     spawnImpl,
   });
-  assert.match(result.stdout, /"profiles":\[\]/);
+  assert.deepEqual(JSON.parse(result.stdout), storedAuth());
   assert.equal(invocation.executable, 'openclaw');
-  assert.deepEqual(invocation.args, [...RESEARCH_AUTH_PROBE_ARGS]);
+  const expectedArgs = ['models', 'auth', 'list', '--provider', 'deepseek', '--agent', 'main', '--json'];
+  assert.deepEqual([...RESEARCH_AUTH_PROBE_ARGS], expectedArgs);
+  assert.deepEqual(invocation.args, expectedArgs);
   assert.deepEqual(invocation.options.env, {
     PATH: '/usr/bin',
+    NODE_USE_ENV_PROXY: '1',
     OPENCLAW_STATE_DIR: '/tmp/state',
   });
   assert.equal(invocation.options.stdio[0], 'ignore');
 });
 
-test('verifyNoStoredDeepSeekAuth fails closed when the command layer fails', async () => {
+test('verifyStoredDeepSeekAuth fails closed when the command layer fails', async () => {
   await assert.rejects(
-    () => verifyNoStoredDeepSeekAuth({
+    () => verifyStoredDeepSeekAuth({
       env: { OPENCLAW_STATE_DIR: '/tmp/state' },
       runCommand: async () => { throw new Error('transport failed'); },
     }),

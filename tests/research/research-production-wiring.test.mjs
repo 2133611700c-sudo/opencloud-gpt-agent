@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { chmodSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 
 import { createProductionResearchWorker } from '../../src/research/research-production-wiring.mjs';
@@ -110,16 +113,31 @@ test('production wiring rejects heartbeat intervals that cannot renew the lease 
   assert.equal(queried, false);
 });
 
-test('native production wiring refuses missing DeepSeek credential before any claim', () => {
-  let queried = false;
-  assert.throws(() => createProductionResearchWorker({
-    query: async () => { queried = true; return { rows: [] }; },
-    workerId: 'research-production-1',
-    pricingVersion: 'pricing-v1',
-    estimateReservation: async () => ({ costUsd: 0.1, tokens: 100 }),
-    researchEnv: { OPENCLAW_STATE_DIR: '/tmp/openclaw-v2' },
-  }), (error) => error?.code === 'MISSING_DEEPSEEK_API_KEY');
-  assert.equal(queried, false);
+test('native production wiring accepts stored DeepSeek auth without an environment API key and verifies before claim', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'openclaw-v2-production-stored-auth-'));
+  chmodSync(root, 0o700);
+  const events = [];
+  try {
+    const worker = createProductionResearchWorker({
+      query: async () => { events.push('query'); return { rows: [] }; },
+      workerId: 'research-production-1',
+      pricingVersion: 'pricing-v1',
+      estimateReservation: async () => ({ costUsd: 0.1, tokens: 100 }),
+      researchEnv: { OPENCLAW_STATE_DIR: root },
+      verifyAuthScopeImpl: async ({ env }) => {
+        assert.equal(env.OPENCLAW_STATE_DIR, root);
+        assert.equal('DEEPSEEK_API_KEY' in env, false);
+        events.push('verify');
+        return { agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 };
+      },
+    });
+    assert.deepEqual(events, []);
+    const result = await worker.runOnce();
+    assert.equal(result.status, 'IDLE');
+    assert.deepEqual(events, ['verify', 'query']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('native production wiring refuses invalid OpenClaw trust root before any claim', () => {

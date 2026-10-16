@@ -9,6 +9,8 @@ import { PassThrough } from 'node:stream';
 import { createResearchKernelExecutor } from '../../src/research/research-kernel-bindings.mjs';
 import { getRejectedResearchBilling, runResearchAgent } from '../../src/research/research-agent-runner.mjs';
 
+const verifyAuthScopeImpl = async () => ({ agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 });
+
 const claim = Object.freeze({
   taskId: 'task-safe-error',
   nodeId: 'node-safe-error',
@@ -55,7 +57,7 @@ const nativeRejection = async (overrides = {}) => {
 
   let samples = 0;
   try {
-    await runResearchAgent({
+    await runResearchAgent({ verifyAuthScopeImpl,
       request: { goal: 'Synthetic rejected Research' },
       env: { DEEPSEEK_API_KEY: 'test-only-key', OPENCLAW_STATE_DIR: stateRoot },
       tempRoot: stateRoot,

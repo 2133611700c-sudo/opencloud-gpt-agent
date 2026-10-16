@@ -1,13 +1,16 @@
 import { spawn } from 'node:child_process';
 import { isAbsolute } from 'node:path';
 
-const AUTH_ARGS = Object.freeze(['models', 'auth', 'list', '--provider', 'deepseek', '--json']);
+// OpenClaw's configured agent identity is distinct from the Kernel role `researcher`.
+export const RESEARCH_OPENCLAW_AGENT_ID = 'main';
+export const RESEARCH_DEEPSEEK_AUTH_PROFILE_ID = 'deepseek:manual';
+const AUTH_ARGS = Object.freeze(['models', 'auth', 'list', '--provider', 'deepseek', '--agent', RESEARCH_OPENCLAW_AGENT_ID, '--json']);
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_MAX_OUTPUT_BYTES = 1_048_576;
 const SAFE_AUTH_ENV_KEYS = Object.freeze([
   'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ',
   'SSL_CERT_FILE', 'SSL_CERT_DIR', 'NODE_EXTRA_CA_CERTS',
-  'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'NO_PROXY',
+  'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'NO_PROXY', 'NODE_USE_ENV_PROXY',
 ]);
 
 export class ResearchAuthScopeError extends Error {
@@ -52,10 +55,25 @@ export function parseStoredDeepSeekAuth(stdout) {
   if (parsed.provider !== 'deepseek') {
     fail('OpenClaw DeepSeek auth profile check returned unexpected provider', 'AUTH_SCOPE_PROVIDER_MISMATCH');
   }
-  if (parsed.profiles.length !== 0) {
-    fail('stored DeepSeek auth profiles are present in the Research scope', 'STORED_DEEPSEEK_AUTH_PRESENT');
+  if (parsed.agentId !== RESEARCH_OPENCLAW_AGENT_ID) {
+    fail('OpenClaw DeepSeek auth profile check returned unexpected agent', 'AUTH_SCOPE_AGENT_MISMATCH');
   }
-  return Object.freeze({ provider: 'deepseek', profileCount: 0 });
+  if (parsed.profiles.length === 0) {
+    fail('stored DeepSeek API key is missing for the Research OpenClaw agent', 'STORED_DEEPSEEK_AUTH_MISSING');
+  }
+  if (parsed.profiles.length !== 1) {
+    fail('OpenClaw DeepSeek auth profile check returned ambiguous profiles', 'AUTH_SCOPE_AMBIGUOUS_PROFILES');
+  }
+  const profile = parsed.profiles[0];
+  if (!profile || profile.id !== RESEARCH_DEEPSEEK_AUTH_PROFILE_ID || profile.type !== 'api_key') {
+    fail('OpenClaw DeepSeek auth profile check returned unexpected API key profile', 'AUTH_SCOPE_PROFILE_MISMATCH');
+  }
+  if (profile.provider !== 'deepseek') {
+    fail('OpenClaw DeepSeek auth profile belongs to an unexpected provider', 'AUTH_SCOPE_PROVIDER_MISMATCH');
+  }
+  // Do not return CLI credential hints, auth paths, or other raw profile fields.
+  return Object.freeze({ agentId: RESEARCH_OPENCLAW_AGENT_ID, provider: 'deepseek',
+    profileId: RESEARCH_DEEPSEEK_AUTH_PROFILE_ID, type: 'api_key', profileCount: 1 });
 }
 
 export function runOpenClawAuthProbe({
@@ -160,7 +178,7 @@ export function runOpenClawAuthProbe({
   });
 }
 
-export async function verifyNoStoredDeepSeekAuth({
+export async function verifyStoredDeepSeekAuth({
   env = process.env,
   runCommand = runOpenClawAuthProbe,
 } = {}) {

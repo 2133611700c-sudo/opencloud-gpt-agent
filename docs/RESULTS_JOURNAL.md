@@ -1338,3 +1338,29 @@ Same task: Research SUCCESS -> production Data SUCCESS -> task SUCCESS / ALL_NOD
 Evidence `b5707132-529c-4d03-8661-3cca73af79e9` SHA256 `7894d39686b8e1d02ede9a0f3461b61e674ae859e21f720412e0cfd1e63eeb42` contains the same terminal task/Data/sources/accounting/receipt. Independent browser verification opened `https://br-odd-forest-a4leyaqj-openclawv2mobile.compute.c-1.us-east-1.aws.neon.tech/tasks/f48c0505-ac37-47be-a8bc-8ccdf879dc85/phone` over HTTPS with `[SUCCESS]`, same task and `$0.002885`, then its `/deep-log` over HTTPS with the same task, artifact and SHA. Post-final Neon inventory: tasks22, active0, RUNNING0, RESERVED0, accounting9, artifacts15, receipts5.
 
 Conclusion: all 15 mandatory 48h items and all 9 acceptance tests have sufficient code/hosted/live proof. `walking_skeleton_gate=PASS_LIVE`; `remaining_48h_gaps={}`. `main` untouched. GitHub-specific webhook/admin ingress is not claimed and is not required for the proved allowed USER ingress. Function logs show a pg SSL-mode future-compatibility warning; current behavior is verify-full and this is post-48h dependency hardening.
+
+
+## JRNL-2026-10-16-001 — 10.3 stored Research auth local proof; GitHub and PR #55 pending
+
+### Route and credential contract
+
+New authorized priority is the V2 Research stored DeepSeek credential, GitHub execution and PR #55 cutover. Baseline `fd3eec621fd6f301b00b10e2db7fe33a68f5ad0b`; candidate runtime/workflow implementation and tests are in progress. This entry preserves all historical 2026.9.8/Flash 48H records and does not reinterpret them as a fresh 10.3 acceptance.
+
+`docs/RESEARCH_CREDENTIAL_ARCHITECTURE.md` defines GitHub Environment `openclaw-v2-live` -> isolated ephemeral `$RUNNER_TEMP/openclaw-v2-state` -> official stdin `openclaw models auth paste-api-key --provider deepseek --agent main` -> `deepseek:manual`. After bootstrap, Research/preflight/catalog/probe/exec use the stored profile with direct DeepSeek credential env absent. Kernel logical researcher is not OpenClaw auth agent main. PostgreSQL remains durable; no always-on local dependency. The candidate's old reject-all-stored-profile invariant is deliberately replaced; deterministic no-secret foundation scopes remain separate.
+
+### Direct positive evidence and proof boundary
+
+Root's installed-package acceptance used `/workspace/audit/v2-research-state`, not a deployed GitHub runner. Auth list proved providerdeepseek/agentmain/profiledeepseek:manual/typeapi_key, exit0. Provider probe explicitly selected that profile and `deepseek/deepseek-v4-pro`, returned sourceprofile/statusok/providerlatency8857ms, exit0. Deterministic native exec without a direct API-key environment returned exit0/oktrue/providerdeepseek/modeldeepseek-v4-pro/final `OPENCLAW_V2_STORED_AUTH_OK`, requested direct Code Mode and thinkingmax; 2571tokens, USD0.00113796, process15106ms, session `3e676b0d-079f-4f83-a97c-db8e3ac283ff`.
+
+Stored auth, profile-specific provider connectivity and deterministic model execution are PASS for this isolated acceptance scope. No research-tool effect, PostgreSQL task/accounting/Evidence, fresh GitHub execution or operator delivery is claimed. Workspace evidence prefixes are `/workspace/audit/evidence/v2-research-agent-auth-stored`, `v2-research-stored-pro-probe`, `v2-research-stored-pro-exec`; command/exit/stdout/stderr/latency/hash records exist. Exec stdout SHA256 `cd2f3cbe8f80ebb0adf79a415edffc084b5b6b4a61c653a60cbe6c03de896e16`; probe stdout SHA256 `9d1b2dd1693cc75b38e72fc95988ea90a7e23e3bbe8d480c4437af20a55a749a`. They are not yet retained GitHub run artifacts.
+
+### Negative evidence and unresolved gates
+
+- Catalog refresh exit0 fell back to the published model list after DeepSeek `/models` fetch timeout; dynamic refresh remains NOT_PROVEN (`v2-research-pro-catalog.*`).
+- Provider probe stderr reported auth cleanup failure due to closed agent database execution admission; provider connectivity PASS is separate from cleanup/state ownership NOT_PROVEN. Exec memory watcher/vector recall and SQLite maintenance warnings do not erase the successful deterministic response or certify native-state health.
+- Root's explicit supplied-PAT secret write through `gh` returned HTTP403. Current GitHub secret presence is UNKNOWN. Both required credentials were missing in the last observed live job, which is historical job evidence rather than proof of present secret absence or key invalidity.
+- Candidate exact CI is PENDING. New GitHub stored-profile Research, Kernel live acceptance, full application E2E and PR #55 cutover readiness are NOT_PROVEN. An optional independent environment-auth provider smoke cannot substitute for the Research credential path.
+
+### Next route
+
+Finish coherent candidate stored-auth code/workflow changes and regression checks -> exact GitHub CI -> usable verified GitHub credential plumbing -> fresh-job stored-profile acceptance -> required bounded Kernel composition with linked evidence. Record exact commit/run/task/artifact identities after execution. No cutover-ready or complete claim, automatic paid retry, historical48H rerun, main change or recorder DB/model/network operation.

@@ -3,16 +3,31 @@ import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const root = process.cwd();
-const stateDir = path.join(root, '.a9-openclaw-state');
-const configPath = path.join(stateDir, 'openclaw.json');
+const stateDir = process.env.OPENCLAW_STATE_DIR
+  ? path.resolve(process.env.OPENCLAW_STATE_DIR)
+  : path.join(root, '.a9-openclaw-state');
+const configPath = process.env.OPENCLAW_CONFIG_PATH
+  ? path.resolve(process.env.OPENCLAW_CONFIG_PATH)
+  : path.join(stateDir, 'openclaw.json');
 await mkdir(stateDir, { recursive: true, mode: 0o700 });
 
+let baseConfig = {};
+try {
+  baseConfig = JSON.parse(await readFile(configPath, 'utf8'));
+} catch (error) {
+  if (error?.code !== 'ENOENT') throw error;
+}
+
 const config = {
+  ...baseConfig,
   agents: {
+    ...(baseConfig.agents ?? {}),
     defaults: {
+      ...(baseConfig.agents?.defaults ?? {}),
       workspace: root,
       model: { primary: 'deepseek/deepseek-flash' },
       subagents: {
+        ...(baseConfig.agents?.defaults?.subagents ?? {}),
         maxConcurrent: 1,
         maxChildrenPerAgent: 1,
         maxSpawnDepth: 1,
@@ -21,9 +36,13 @@ const config = {
     },
   },
   tools: {
+    ...(baseConfig.tools ?? {}),
     profile: 'coding',
     allow: ['sessions_spawn', 'sessions_yield', 'subagents'],
-    codeMode: { enabled: false },
+    codeMode: {
+      ...(baseConfig.tools?.codeMode ?? {}),
+      enabled: false,
+    },
   },
 };
 await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
@@ -36,6 +55,10 @@ const env = {
 };
 
 execFileSync('openclaw', ['config', 'validate', '--json'], { env, stdio: ['ignore', 'pipe', 'inherit'] });
+if (process.env.A9_PREFLIGHT_ONLY === '1') {
+  console.log('A9_CONFIG_PREFLIGHT_PASS');
+  process.exit(0);
+}
 
 const prompt = [
   'This is acceptance test A9 for native OpenClaw sub-agents.',

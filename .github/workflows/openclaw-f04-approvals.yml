@@ -1,0 +1,62 @@
+name: OpenClaw F04 Approvals Acceptance
+
+on:
+  push:
+    branches:
+      - 'work/openclaw-2026.10.3-github-full-acceptance'
+    paths:
+      - '.github/workflows/openclaw-f04-approvals.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  approvals:
+    name: F04 approvals local policy lifecycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+
+      - name: Install published OpenClaw 2026.10.3
+        run: npm install -g openclaw@2026.10.3
+
+      - name: Prepare isolated OpenClaw state
+        run: |
+          mkdir -p "$RUNNER_TEMP/openclaw-f04-state"
+          echo "OPENCLAW_STATE_DIR=$RUNNER_TEMP/openclaw-f04-state" >> "$GITHUB_ENV"
+
+      - name: Read initial approvals document
+        run: openclaw approvals get --json
+
+      - name: Replace local approvals policy
+        run: |
+          cat <<'EOF' | openclaw approvals set --stdin --json
+          {
+            version: 1,
+            defaults: {
+              security: "allowlist",
+              ask: "on-miss",
+              askFallback: "deny"
+            }
+          }
+          EOF
+
+      - name: Verify replaced policy
+        run: openclaw approvals get --json
+
+      - name: Add allowlist entry
+        run: openclaw approvals allowlist add --agent main "/usr/bin/uptime" --json
+
+      - name: Verify allowlist entry
+        run: openclaw approvals get --json
+
+      - name: Remove allowlist entry
+        run: openclaw approvals allowlist remove --agent main "/usr/bin/uptime" --json
+
+      - name: Verify final approvals state
+        run: openclaw approvals get --json

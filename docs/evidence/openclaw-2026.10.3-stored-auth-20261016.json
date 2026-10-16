@@ -500,11 +500,11 @@
   },
   "local_code_validation": {
     "status": "PASS",
-    "node_tests": 480,
-    "passed": 480,
+    "node_tests": 482,
+    "passed": 482,
     "failed": 0,
     "skipped": 0,
-    "elapsed_ms": 12846.019984,
+    "elapsed_ms": 12265.054893,
     "foundation": "PASS",
     "route_map": "PASS",
     "health": "PASS",
@@ -514,7 +514,7 @@
     "bootstrap_helper_exit": 0,
     "evidence": "docs/evidence/openclaw-2026.10.3-stored-auth-20261016.json"
   },
-  "local_test_log_sha256": "9504d7119dd3a3924be53d89c0856174485077115653812fb5aa1c20c6d5c0fd",
+  "local_test_log_sha256": "77b918e400e9eae64242d89c7e42f0fc85602b03ac2e330ba8bc17be5325f76f",
   "candidate_config_sha256": "946a161c234e6c447a37d977038b6337317492b755f7d9115e849c40ee4d431b",
   "candidate_config_validate": {
     "valid": true,

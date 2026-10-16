@@ -29,15 +29,12 @@ const redact = (value, secret) => {
 
 const catalogContainsModel = (catalog, model) => {
   const shortModel = model.slice('deepseek/'.length);
-  const visit = (value) => {
-    if (typeof value === 'string') return value === model || value === shortModel;
-    if (Array.isArray(value)) return value.some(visit);
-    if (value && typeof value === 'object') {
-      return Object.entries(value).some(([key, child]) => key === model || key === shortModel || visit(child));
-    }
-    return false;
-  };
-  return visit(catalog);
+  if (!catalog || typeof catalog !== 'object' || Array.isArray(catalog) || !Array.isArray(catalog.models)) return false;
+  return catalog.models.some((record) => {
+    if (!record || typeof record !== 'object' || Array.isArray(record) || record.available === false) return false;
+    if (Object.hasOwn(record, 'provider') && record.provider !== 'deepseek') return false;
+    return ['key', 'id', 'model'].some((field) => record[field] === model || record[field] === shortModel);
+  });
 };
 
 export function refreshDeepSeekModelCatalog({

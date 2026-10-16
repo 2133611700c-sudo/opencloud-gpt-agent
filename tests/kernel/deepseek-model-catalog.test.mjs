@@ -57,6 +57,34 @@ test('fails closed when requested DeepSeek model is absent after refresh', () =>
   }), (error) => error instanceof DeepSeekCatalogRefreshError && error.code === 'DEEPSEEK_MODEL_NOT_DISCOVERED');
 });
 
+test('accepts only an available DeepSeek model record in the CLI models array', () => {
+  for (const record of [
+    { key: 'deepseek/deepseek-flash', provider: 'deepseek', available: true },
+    { id: 'deepseek-flash' },
+    { model: 'deepseek/deepseek-flash', available: true },
+  ]) {
+    const result = refreshDeepSeekModelCatalog({ env: stateEnv,
+      spawnSyncImpl: () => ({ ...published, stdout: JSON.stringify({ models: [record] }) }),
+    });
+    assert.equal(result.refreshed, true);
+  }
+});
+
+test('model names in metadata, wrong-provider records and unavailable records do not prove discovery', () => {
+  for (const catalog of [
+    { error: 'deepseek-flash' },
+    { models: [], metadata: { model: 'deepseek/deepseek-flash' } },
+    { models: [{ name: 'deepseek-flash' }] },
+    { models: [{ metadata: { id: 'deepseek-flash' } }] },
+    { models: { 'deepseek/deepseek-flash': { available: true } } },
+    { models: [{ key: 'deepseek/deepseek-flash', provider: 'openai' }] },
+    { models: [{ id: 'deepseek-flash', provider: null }] },
+    { models: [{ model: 'deepseek-flash', provider: 'deepseek', available: false }] },
+  ]) assert.throws(() => refreshDeepSeekModelCatalog({ env: stateEnv,
+    spawnSyncImpl: () => ({ ...published, stdout: JSON.stringify(catalog) }),
+  }), (error) => error instanceof DeepSeekCatalogRefreshError && error.code === 'DEEPSEEK_MODEL_NOT_DISCOVERED');
+});
+
 test('redacts API key material from catalog refresh process failures', () => {
   const secret = 'nonstandard-provider-fixture-value';
   assert.throws(() => refreshDeepSeekModelCatalog({ credentialMode: 'environment', env: { DEEPSEEK_API_KEY: secret },

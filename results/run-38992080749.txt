@@ -1,0 +1,160 @@
+### install
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts   koffi@3.3.1 (install: node ./cnoke.cjs -P . -D src/koffi --prebuild --release)
+npm warn install-scripts   protobufjs@7.6.6 (postinstall: node scripts/postinstall)
+npm warn install-scripts
+npm warn install-scripts Run `npm install -g --allow-scripts=@google/genai,esbuild,koffi,protobufjs` to allow these scripts once, or `npm config set allow-scripts=@google/genai,esbuild,koffi,protobufjs --location=user` to allow them for all global installs.
+OpenClaw 2026.10.3 (59cb447)
+Installing @openclaw/deepseek-provider@2026.10.3 into /home/runner/work/_temp/openclaw-state/npm/projects/.openclaw-install-stage-GXauQY…
+Linked peerDependency "openclaw" -> /opt/hostedtoolcache/node/24.21.0/x64/lib/node_modules/openclaw
+Plugin manifest id "deepseek" differs from npm package name "@openclaw/deepseek-provider"; using manifest id as the config key.
+Installed plugin: deepseek
+Saved for the next Gateway start.
+Installing @openclaw/duckduckgo-plugin@2026.10.3 into /home/runner/work/_temp/openclaw-state/npm/projects/.openclaw-install-stage-7w6MFI…
+Linked peerDependency "openclaw" -> /opt/hostedtoolcache/node/24.21.0/x64/lib/node_modules/openclaw
+Plugin manifest id "duckduckgo" differs from npm package name "@openclaw/duckduckgo-plugin"; using manifest id as the config key.
+Installed plugin: duckduckgo
+Saved for the next Gateway start.
+### onboard
+Workspace OK: ~/work/_temp/openclaw-state/workspace
+Sessions OK: ~/work/_temp/openclaw-state/agents/main/sessions
+Updated config: ~/work/_temp/openclaw-state/openclaw.json
+  Backup: ~/work/_temp/openclaw-state/openclaw.json.bak
+Tip: run `openclaw configure --section web` to store your Brave API key for web_search. Docs: https://docs.openclaw.ai/tools/web
+onboard_exit=0
+### models
+Gateway is not running. Showing the local cached model catalog. Use --refresh to discover provider models.
+No models found.
+### agent help
+
+OpenClaw 2026.10.3 (59cb447) — All your chats, one OpenClaw.
+
+Usage: openclaw agent [options] [command]
+
+Run an agent turn via the Gateway (use --local for embedded)
+
+Options:
+  --agent <id>               Agent id (overrides routing bindings)
+  --channel <channel>        Delivery channel:
+                             last|telegram|whatsapp|discord|irc|googlechat|slack|signal|imessage|feishu|nostr|buzz|msteams|mattermost|nextcloud-talk|matrix|raft|a2a|line|zalo|clickclack|zalouser|sms|synology-chat|tlon|qa-channel|reef|twitch
+                             (omit to use the main session channel)
+  --deliver                  Send the agent's reply back to the selected channel
+                             (default: false)
+  -h, --help                 Display help for command
+  --json                     Output result as JSON (default: false)
+  --local                    Run the embedded agent locally using configured
+                             provider credentials or local CLI logins (default:
+                             false)
+  -m, --message <text>       Message body for the agent
+  --message-file <path>      Read the agent message body from a UTF-8 file (max
+                             4 MiB)
+  --model <id>               Model override for this run (provider/model or
+                             model id)
+  --reply-account <id>       Delivery account id override
+  --reply-channel <channel>  Delivery channel override (separate from routing)
+  --reply-to <target>        Delivery target override (separate from session
+                             routing)
+  --session-id <id>          Use an explicit session id
+  --session-key <key>        Explicit session key (agent:<id>:<key>, or scoped
+                             to --agent)
+  -t, --to <number>          Recipient number in E.164 used to derive the
+                             session key
+  --thinking <level>         Thinking level: off | minimal | low | medium | high
+                             | xhigh | adaptive | max | ultra where supported
+  --timeout <seconds>        Override agent command timeout (seconds, default
+                             600 or config value)
+  --verbose <on|off>         Persist agent verbose level for the session
+
+Commands:
+
+OpenClaw 2026.10.3 (59cb447) — All your chats, one OpenClaw.
+
+Usage: openclaw agent exec [options] [message]
+
+Run one isolated headless embedded agent turn
+
+Options:
+  --auth-env-only              Use provider credentials from environment
+                               variables only (default: false)
+  --code-mode <mode>           Tool mode: direct | auto | code
+  --config <path>              Run against this config file instead of the
+                               ambient config (pins a reproducible run)
+  --cwd <dir>                  Set both the agent workspace and tool working
+                               directory
+  --fallback <provider/model>  Add an ordered fallback model (repeatable;
+                               requires --model) (default: [])
+  -h, --help                   Display help for command
+  --isolated                   Ignore the ambient config and run against exec
+                               defaults only (default: false)
+  --json                       Emit the stable agent-exec JSON envelope
+                               (default: false)
+  --local-model-lean           Use the reduced local-model tool surface
+  --message-file <path>        Read the UTF-8 prompt from a file; use - for
+                               stdin
+  --model <provider/model>     Use an explicit primary model for this run
+  --no-auth-env-only           Allow stored and external CLI credential
+                               discovery
+  --state-dir <dir>            Use an existing state directory without deleting
+                               it
+  --thinking <level>           Thinking level: off | minimal | low | medium |
+                               high | xhigh | adaptive | max | ultra where
+                               supported
+  --timeout <seconds>          Agent deadline in seconds (default: "600")
+
+Examples:
+  openclaw agent exec "Fix the failing test"
+    Run in the current directory.
+  openclaw agent exec --message-file task.md --cwd ./repo
+    Read a prompt file and set the workspace.
+### task
+Find the current weather in Los Angeles using web search and answer in one sentence with the source.
+### run
+[agent/embedded] code-mode: cataloged 55 tools behind exec/wait
+[memory] memory_index_chunks_vec not updated — semantic vector embeddings unavailable — no vector dimensions resolved. Vector recall degraded. Further duplicate warnings suppressed.
+[agents/agent-command] [agent] run 2c605203-3c43-49b9-b591-1bcd5efbce6a ended with stopReason=stop
+[state/agent-db] agent database clean-close receipt: active-leases
+[state/agent-db] agent database clean-close receipt: written
+[state/agent-db] agent database clean-close receipt: written
+{
+  "ok": true,
+  "status": "ok",
+  "final": "Los Angeles is currently sunny at 94°F (34°C) with 14% humidity and ESE winds at 9 mph, according to [wttr.in](https://wttr.in/Los+Angeles).",
+  "payloads": [
+    {
+      "text": "Los Angeles is currently sunny at 94°F (34°C) with 14% humidity and ESE winds at 9 mph, according to [wttr.in](https://wttr.in/Los+Angeles).",
+      "mediaUrl": null
+    }
+  ],
+  "usage": {
+    "input": 1831,
+    "output": 707,
+    "cacheRead": 27776,
+    "cacheWrite": 0,
+    "reasoningTokens": 422,
+    "total": 30314,
+    "cost": {
+      "total": 0.0005320728
+    }
+  },
+  "costUsd": 0.0005320728,
+  "codeModeEngaged": true,
+  "assistantTurns": 3,
+  "bridgeCalls": {
+    "search": 0,
+    "describe": 0,
+    "call": 2
+  },
+  "toolSummary": {
+    "calls": 4,
+    "tools": [
+      "web_search",
+      "exec",
+      "web_fetch"
+    ],
+    "failures": 2
+  },
+  "model": "deepseek-v4-flash",
+  "provider": "deepseek",
+  "sessionId": "2c605203-3c43-49b9-b591-1bcd5efbce6a"
+}
+run_exit=0

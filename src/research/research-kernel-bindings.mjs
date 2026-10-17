@@ -55,7 +55,7 @@ const latencyMsFor = (research) => {
   return value;
 };
 
-const RESEARCH_RUNTIME_VERSION = '2026.9.8';
+const RESEARCH_RUNTIME_VERSION = '2026.10.3';
 const RESEARCH_THINKING_LEVEL = 'max';
 const RECEIPT_TOOLS = new Set(['web_search', 'web_fetch']);
 const SAFE_REJECTION_CODE = /^[A-Z][A-Z0-9_]{0,127}$/;

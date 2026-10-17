@@ -17,6 +17,8 @@ const request = {
 test('research config exposes only web_search and web_fetch and disables private-network fetch', () => {
   const config = buildResearchOpenClawConfig();
 
+  assert.deepEqual(config.agents.entries, { main: {} });
+  assert.deepEqual(config.agents.defaults.systemAgent, { agentId: 'main' });
   assert.equal(config.agents.defaults.model.primary, 'deepseek/deepseek-flash');
   assert.deepEqual(config.agents.defaults.model.fallbacks, []);
   assert.equal(config.agents.defaults.utilityModel, '');

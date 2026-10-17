@@ -42,7 +42,7 @@ export function assertLiveRuntimeEvidenceProof({ receipt, taskId, model } = {}) 
 
   const proven = runtimeReceipts.find((row) => row?.observed?.provider === 'deepseek'
     && row.observed.model === expectedModel
-    && row?.configured?.runtimeVersion === '2026.9.8'
+    && row?.configured?.runtimeVersion === '2026.10.3'
     && row.configured.requestedModel === model
     && row.configured.thinkingLevel === 'max'
     && row.error === null

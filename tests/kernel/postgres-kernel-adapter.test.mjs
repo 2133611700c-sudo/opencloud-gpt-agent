@@ -69,7 +69,7 @@ test('reservation and accounting preserve exact identifiers', async () => {
 test('atomic observed accounting writes one linked runtime receipt', async () => {
   const db = scripted([{ accounting_id:'a', accounting_created:true, runtime_receipt_id:'rr', runtime_receipt_created:true }]);
   const kernel = createPostgresKernelAdapter({ query: db.query });
-  const runtimeReceipt = { observed:{ provider:'deepseek', model:'m', sessionId:'request-1' }, configured:{ runtimeVersion:'2026.9.8' }, trace:[], error:null };
+  const runtimeReceipt = { observed:{ provider:'deepseek', model:'m', sessionId:'request-1' }, configured:{ runtimeVersion:'2026.10.3' }, trace:[], error:null };
   const result = await kernel.recordLlmCallWithRuntimeReceipt({ reservationId:'r', callKey:'call', nodeId:'n', workerId:'w', leaseToken:'l', provider:'deepseek', model:'m', pricingVersion:'v', providerRequestId:'request-1', promptCacheHitTokens:2, promptCacheMissTokens:8, completionTokens:5, totalTokens:15, actualCostUsd:'0.01', latencyMs:50, runtimeReceipt });
   assert.deepEqual(result, { accountingId:'a', created:true, runtimeReceiptId:'rr', runtimeReceiptCreated:true });
   assert.match(db.calls[0].text, /record_llm_call_with_runtime_receipt_v1/);
@@ -92,7 +92,7 @@ test('reservation fallback accounting uses canonical SQL function and identifier
 test('atomic fallback accounting writes one linked runtime receipt', async () => {
   const db = scripted([{ accounting_id:'af', accounting_created:false, runtime_receipt_id:'rrf', runtime_receipt_created:false }]);
   const kernel = createPostgresKernelAdapter({ query: db.query });
-  const runtimeReceipt = { observed:null, configured:{ runtimeVersion:'2026.9.8' }, trace:[], error:null };
+  const runtimeReceipt = { observed:null, configured:{ runtimeVersion:'2026.10.3' }, trace:[], error:null };
   const result = await kernel.recordLlmCallReservationFallbackWithRuntimeReceipt({ reservationId:'r', callKey:'call', nodeId:'n', workerId:'w', leaseToken:'l', provider:'deepseek', model:'m', pricingVersion:'v', providerRequestId:null, latencyMs:50, reason:'MISSING_USAGE_TELEMETRY', runtimeReceipt });
   assert.deepEqual(result, { accountingId:'af', created:false, runtimeReceiptId:'rrf', runtimeReceiptCreated:false });
   assert.match(db.calls[0].text, /record_llm_call_reservation_fallback_with_runtime_receipt_v1/);

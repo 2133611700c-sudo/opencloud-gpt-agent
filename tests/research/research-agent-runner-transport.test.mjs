@@ -8,6 +8,8 @@ import { PassThrough } from 'node:stream';
 
 import { runResearchAgent } from '../../src/research/research-agent-runner.mjs';
 
+const verifyAuthScopeImpl = async () => ({ agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 });
+
 const request = { goal: 'transport error test' };
 const makeRoot = (prefix) => mkdtempSync(join(tmpdir(), prefix));
 
@@ -31,7 +33,7 @@ test('runner kills started child when stdin emits a transport error', async () =
   const stateRoot = makeRoot('openclaw-v2-transport-state-');
   const child = makeChild();
   try {
-    const promise = runResearchAgent({
+    const promise = runResearchAgent({ verifyAuthScopeImpl,
       request,
       env: { DEEPSEEK_API_KEY: 'test-secret', OPENCLAW_STATE_DIR: stateRoot },
       tempRoot,
@@ -55,7 +57,7 @@ test('runner kills started child when sending stdin throws synchronously', async
   const child = makeChild();
   child.stdin.end = () => { throw new Error('write failed'); };
   try {
-    await assert.rejects(runResearchAgent({
+    await assert.rejects(runResearchAgent({ verifyAuthScopeImpl,
       request,
       env: { DEEPSEEK_API_KEY: 'test-secret', OPENCLAW_STATE_DIR: stateRoot },
       tempRoot,

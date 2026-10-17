@@ -260,7 +260,7 @@ if (childRole === 'producer') {
       assert.equal(retrieved.toolMetadataPresent, true);
       assert.equal(retrieved.provider, 'deepseek');
       assert.equal(retrieved.model, 'deepseek-flash');
-      assert.equal(retrieved.runtimeVersion, '2026.9.8');
+      assert.equal(retrieved.runtimeVersion, '2026.10.3');
       assert.ok(retrieved.tools.includes('web_search'));
       assert.ok(retrieved.tools.includes('web_fetch'));
       assert.ok(retrieved.traceEvents.includes('ACCOUNTING_RECONCILED'));

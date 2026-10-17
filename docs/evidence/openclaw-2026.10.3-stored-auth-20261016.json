@@ -1,0 +1,524 @@
+{
+  "observed_date": "2026-10-16",
+  "source_head_before_change": "fd3eec621fd6f301b00b10e2db7fe33a68f5ad0b",
+  "execution_scope": "separate V2 Research acceptance scope, not a GitHub-hosted production run",
+  "generated_research_config_sha256": "d395a8fb387b35c41760e2863f8c837177d419e2d8655517d641dc49f78a8cfb",
+  "tests": [
+    {
+      "function": "v2-production-config-agents",
+      "observed_utc": "2026-10-16T23:25:08.363491+00:00",
+      "command": [
+        "openclaw",
+        "agents",
+        "list",
+        "--json"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "per-agent profile or absent; no DeepSeek env",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 3.611,
+      "stdout_sha256": "485212abf188a4493486b96528d5c3ac5e362de3ff5b6f1be03574a64cdb31f0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "PASS",
+      "classification": null,
+      "stdout": [
+        {
+          "id": "main",
+          "workspace": "/workspace/audit/v2-research-state/workspace",
+          "agentDir": "/workspace/audit/v2-research-state/agents/main/agent",
+          "model": "deepseek/deepseek-flash",
+          "bindings": 0,
+          "isDefault": true
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "function": "v2-production-auth-before",
+      "observed_utc": "2026-10-16T23:25:25.333897+00:00",
+      "command": [
+        "openclaw",
+        "models",
+        "auth",
+        "list",
+        "--provider",
+        "deepseek",
+        "--agent",
+        "main",
+        "--json"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "per-agent profile or absent; no DeepSeek env",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 3.689,
+      "stdout_sha256": "4042cb4bf04d350e2920c4ebd793273bfd9fecc20dbab75e5110d31079100596",
+      "stderr_sha256": "41efa4e1a0b13cf72b30b142da30ac2ce3717c83cd59d9a4199e602dc46d65a4",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "PASS",
+      "classification": null,
+      "stdout": {
+        "agentId": "main",
+        "agentDir": "/workspace/audit/v2-research-state/agents/main/agent",
+        "authStatePath": "/workspace/audit/v2-research-state/agents/main/agent/openclaw-agent.sqlite",
+        "provider": "deepseek",
+        "profiles": []
+      },
+      "stderr": "Installed Gateway service state and config paths could not be verified. Inspect the service environment with `openclaw gateway status --deep` before repairing plugin state.\n"
+    },
+    {
+      "function": "v2-research-agent-key-install",
+      "observed_utc": "2026-10-16T23:28:04.295186+00:00",
+      "command": [
+        "openclaw",
+        "models",
+        "auth",
+        "paste-api-key",
+        "--provider",
+        "deepseek",
+        "--agent",
+        "main"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "user key via stdin",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 4.312,
+      "stdout_sha256": "bc07ffd19b49d9f2ff3876ebb7436cbbf5c3f7f8a95597d8238134ea972c9906",
+      "stderr_sha256": "aeeb83c449252aee0ffe5b34b303bb0582c26b8223833f06ff526037ae690fa8",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "PASS",
+      "classification": null,
+      "stdout": "Installed Gateway service state and config paths could not be verified. Inspect the service environment with `openclaw gateway status --deep` before repairing plugin state.\nUpdated config: /workspace/audit/v2-research-state/openclaw.json\n  Backup: /workspace/audit/v2-research-state/openclaw.json.bak\nAuth profile: deepseek:manual (deepseek/api_key)\n",
+      "stderr": "Warning: Model auth changes were saved, but the local Gateway could not refresh them. Run `openclaw gateway restart` to apply the saved changes.\nAPI key saved, but the Gateway has not confirmed applying the provider settings. Run `openclaw gateway restart` to apply them.\n"
+    },
+    {
+      "function": "v2-research-agent-auth-stored",
+      "observed_utc": "2026-10-16T23:28:22.490097+00:00",
+      "command": [
+        "openclaw",
+        "models",
+        "auth",
+        "list",
+        "--provider",
+        "deepseek",
+        "--agent",
+        "main",
+        "--json"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "per-agent profile or absent; no DeepSeek env",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 3.515,
+      "stdout_sha256": "82957f4dbbf53c30086d8938d540a2bbe63b98edaa802bdf5c0653b7d7fa2259",
+      "stderr_sha256": "41efa4e1a0b13cf72b30b142da30ac2ce3717c83cd59d9a4199e602dc46d65a4",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "PASS",
+      "classification": null,
+      "stdout": {
+        "agentId": "main",
+        "agentDir": "/workspace/audit/v2-research-state/agents/main/agent",
+        "authStatePath": "/workspace/audit/v2-research-state/state/openclaw.sqlite",
+        "provider": "deepseek",
+        "profiles": [
+          {
+            "id": "deepseek:manual",
+            "provider": "deepseek",
+            "type": "api_key",
+            "label": "deepseek:manual"
+          }
+        ]
+      },
+      "stderr": "Installed Gateway service state and config paths could not be verified. Inspect the service environment with `openclaw gateway status --deep` before repairing plugin state.\n"
+    },
+    {
+      "function": "v2-research-pro-catalog",
+      "observed_utc": "2026-10-16T23:28:44.991102+00:00",
+      "command": [
+        "openclaw",
+        "models",
+        "list",
+        "--agent",
+        "main",
+        "--provider",
+        "deepseek",
+        "--refresh",
+        "--json"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "per-agent profile or absent; no DeepSeek env",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 10.949,
+      "stdout_sha256": "40d80f523fb0416cc0b208eb28e1689c22fc2b997affa7df960ea5b977909ef5",
+      "stderr_sha256": "fac56283119d9c651df0a7724ccda7e047f0c29b919c9e3adc4a304e33b83a37",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "NOT_PROVEN",
+      "classification": "CATALOG_DISCOVERY",
+      "stdout": {
+        "count": 1,
+        "models": [
+          {
+            "key": "deepseek/deepseek-v4-pro",
+            "name": "DeepSeek V4 Pro",
+            "input": "text",
+            "contextWindow": 1000000,
+            "local": false,
+            "available": true,
+            "tags": [
+              "default",
+              "configured"
+            ]
+          }
+        ]
+      },
+      "stderr": "Gateway is not running. Refreshing the local model catalog.\n[fetch-timeout] fetch timeout after 4999ms (elapsed 5006ms) operation=fetchWithSsrFGuard url=https://api.deepseek.com/models\nModel discovery could not refresh all providers. Showing the available published model list.\n"
+    },
+    {
+      "function": "v2-research-pro-catalog-proxy",
+      "observed_utc": "2026-10-16T23:31:03.178247+00:00",
+      "command": [
+        "openclaw",
+        "models",
+        "list",
+        "--agent",
+        "main",
+        "--provider",
+        "deepseek",
+        "--refresh",
+        "--json"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "per-agent profile or absent; no DeepSeek env",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 12.007,
+      "stdout_sha256": "40d80f523fb0416cc0b208eb28e1689c22fc2b997affa7df960ea5b977909ef5",
+      "stderr_sha256": "76d96c634d815ef3a0b7ff5f2de6ca917aaf41049813b1315c48efcea44495ab",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "NOT_PROVEN",
+      "classification": "CATALOG_DISCOVERY",
+      "stdout": {
+        "count": 1,
+        "models": [
+          {
+            "key": "deepseek/deepseek-v4-pro",
+            "name": "DeepSeek V4 Pro",
+            "input": "text",
+            "contextWindow": 1000000,
+            "local": false,
+            "available": true,
+            "tags": [
+              "default",
+              "configured"
+            ]
+          }
+        ]
+      },
+      "stderr": "Gateway is not running. Refreshing the local model catalog.\n[fetch-timeout] fetch timeout after 4999ms (elapsed 5007ms) operation=fetchWithSsrFGuard url=https://api.deepseek.com/models\nModel discovery could not refresh all providers. Showing the available published model list.\n"
+    },
+    {
+      "function": "v2-research-stored-pro-probe",
+      "observed_utc": "2026-10-16T23:29:19.872786+00:00",
+      "command": [
+        "openclaw",
+        "models",
+        "status",
+        "--agent",
+        "main",
+        "--probe",
+        "--probe-provider",
+        "deepseek",
+        "--probe-profile",
+        "deepseek:manual",
+        "--probe-timeout",
+        "30000",
+        "--json"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "per-agent profile or absent; no DeepSeek env",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 12.46,
+      "stdout_sha256": "9d1b2dd1693cc75b38e72fc95988ea90a7e23e3bbe8d480c4437af20a55a749a",
+      "stderr_sha256": "ce9b17e21299025663c3940b1ed661e3b6fe89748816a6d8e8accd10f3c2d49c",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "PASS",
+      "classification": null,
+      "stdout": {
+        "configPath": "/workspace/audit/v2-research-state/openclaw.json",
+        "agentId": "main",
+        "agentDir": "/workspace/audit/v2-research-state/agents/main/agent",
+        "defaultModel": "deepseek/deepseek-v4-pro",
+        "resolvedDefault": "deepseek/deepseek-v4-pro",
+        "fallbacks": [],
+        "imageModel": null,
+        "imageFallbacks": [],
+        "utilityModel": {
+          "ref": null,
+          "source": "none"
+        },
+        "modelConfig": {
+          "defaultSource": "defaults",
+          "fallbacksSource": "defaults"
+        },
+        "aliases": {},
+        "allowed": [],
+        "auth": {
+          "storePath": "/workspace/audit/v2-research-state/state/openclaw.sqlite",
+          "shellEnvFallback": {
+            "enabled": false,
+            "appliedKeys": []
+          },
+          "providersWithOAuth": [],
+          "missingProvidersInUse": [],
+          "modelRouteIssues": [],
+          "runtimeAuthRoutes": [],
+          "providers": [
+            {
+              "provider": "deepseek",
+              "effective": {
+                "kind": "profiles",
+                "detail": "/workspace/audit/v2-research-state/state/openclaw.sqlite"
+              },
+              "profiles": {
+                "count": 1,
+                "oauth": 0,
+                "token": 0,
+                "apiKey": 1,
+                "labels": [
+                  "deepseek:manual=[REDACTED_KEY]"
+                ]
+              }
+            }
+          ],
+          "unusableProfiles": [],
+          "oauth": {
+            "warnAfterMs": 86400000,
+            "profiles": [
+              {
+                "profileId": "deepseek:manual",
+                "provider": "deepseek",
+                "type": "api_key",
+                "source": "store",
+                "label": "deepseek:manual",
+                "status": "static"
+              }
+            ],
+            "providers": [
+              {
+                "provider": "deepseek",
+                "status": "static",
+                "profiles": [
+                  {
+                    "profileId": "deepseek:manual",
+                    "provider": "deepseek",
+                    "type": "api_key",
+                    "source": "store",
+                    "label": "deepseek:manual",
+                    "status": "static"
+                  }
+                ],
+                "effectiveProfiles": [
+                  {
+                    "profileId": "deepseek:manual",
+                    "provider": "deepseek",
+                    "type": "api_key",
+                    "source": "store",
+                    "label": "deepseek:manual",
+                    "status": "static"
+                  }
+                ]
+              }
+            ]
+          },
+          "probes": {
+            "startedAt": 1792193350812,
+            "finishedAt": 1792193359714,
+            "durationMs": 8902,
+            "totalTargets": 1,
+            "options": {
+              "provider": "deepseek",
+              "profileIds": [
+                "deepseek:manual"
+              ],
+              "timeoutMs": 30000,
+              "concurrency": 2,
+              "maxTokens": 8
+            },
+            "results": [
+              {
+                "provider": "deepseek",
+                "model": "deepseek/deepseek-v4-pro",
+                "profileId": "deepseek:manual",
+                "label": "deepseek:manual",
+                "source": "profile",
+                "mode": "api_key",
+                "status": "ok",
+                "latencyMs": 8857
+              }
+            ]
+          }
+        }
+      },
+      "stderr": "[models/probe] Auth probe cleanup failed: Agent database execution admission is closed\n[state/agent-db] agent database clean-close receipt: active-leases\n[state/agent-db] agent database clean-close receipt: written\n",
+      "provider_connection": "PASS",
+      "cleanup": "NOT_PROVEN",
+      "cleanup_classification": "CLEANUP_STATE"
+    },
+    {
+      "function": "v2-research-stored-pro-exec",
+      "observed_utc": "2026-10-16T23:29:48.653451+00:00",
+      "command": [
+        "openclaw",
+        "agent",
+        "exec",
+        "--config",
+        "/workspace/audit/v2-research-config.json",
+        "--model",
+        "deepseek/deepseek-v4-pro",
+        "--code-mode",
+        "direct",
+        "--thinking",
+        "max",
+        "--timeout",
+        "60",
+        "--json",
+        "Reply exactly OPENCLAW_V2_STORED_AUTH_OK"
+      ],
+      "executable": "/workspace/openclaw-2026.10.3/node_modules/.bin/openclaw",
+      "execution_mode": "installed published package / isolated audit scope",
+      "state_dir": "/workspace/audit/v2-research-state",
+      "credential_source_type": "per-agent profile or absent; no DeepSeek env",
+      "process_exit": 0,
+      "harness_timeout": false,
+      "latency_s": 15.106,
+      "stdout_sha256": "cd2f3cbe8f80ebb0adf79a415edffc084b5b6b4a61c653a60cbe6c03de896e16",
+      "stderr_sha256": "c3dba41b4f6abc8647b237c7f1046b1942eee282d12c37431bddd55b4906af10",
+      "openclaw_version": "2026.10.3",
+      "agent_id": "main",
+      "provider": "deepseek",
+      "status": "PASS",
+      "classification": null,
+      "stdout": {
+        "ok": true,
+        "status": "ok",
+        "final": "OPENCLAW_V2_STORED_AUTH_OK",
+        "payloads": [
+          {
+            "text": "OPENCLAW_V2_STORED_AUTH_OK",
+            "mediaUrl": null
+          }
+        ],
+        "usage": {
+          "input": 2526,
+          "output": 45,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoningTokens": 33,
+          "total": 2571,
+          "cost": {
+            "total": 0.00113796
+          }
+        },
+        "costUsd": 0.00113796,
+        "codeModeEngaged": false,
+        "assistantTurns": 1,
+        "model": "deepseek-v4-pro",
+        "provider": "deepseek",
+        "sessionId": "3e676b0d-079f-4f83-a97c-db8e3ac283ff"
+      },
+      "stderr": "[memory] watcher unavailable; memory will refresh on search: FsSafeError: native watch registration failed\n[memory] watcher unavailable; memory will refresh on search: FsSafeError: native watch registration failed\n[memory] watcher unavailable; memory will refresh on search: FsSafeError: native watch registration failed\n[memory] memory_index_chunks_vec not updated — semantic vector embeddings unavailable — no vector dimensions resolved. Vector recall degraded. Further duplicate warnings suppressed.\n[agents/agent-command] [agent] run 3e676b0d-079f-4f83-a97c-db8e3ac283ff ended with stopReason=stop\n[state/agent-db] agent database clean-close receipt: active-leases\n[session-sqlite] SQLite reclamation Worker failed pid=53671 threadId=0 isMainThread=true reclamationKind=maintenance-age elapsedMs=38 outcome=rejected error=\"Agent database execution admission is closed\" errorFrame=\"at assertCurrent (file:///workspace/openclaw-2026.10.3/node_modules/openclaw/dist/openclaw-agent-execution-BXbKhkJf.mjs:1282:118)\"\n[state/agent-db] agent database clean-close receipt: written\n[state/agent-db] agent database clean-close receipt: written\n",
+      "model": "deepseek-v4-pro",
+      "thinking": "max",
+      "usage": {
+        "input": 2526,
+        "output": 45,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "reasoningTokens": 33,
+        "total": 2571,
+        "cost": {
+          "total": 0.00113796
+        }
+      },
+      "cost_usd": 0.00113796,
+      "tool_evidence": "NOT_EXPOSED_BY_ENVELOPE",
+      "effect": "exact final OPENCLAW_V2_STORED_AUTH_OK",
+      "cleanup": "NOT_PROVEN"
+    }
+  ],
+  "github_secret_write": {
+    "action": "Set environment secret DEEPSEEK_API_KEY",
+    "scope": "openclaw-v2-live",
+    "process_exit": 1,
+    "safe_result": "failed to fetch public key: HTTP 403: Resource not accessible by integration (https://api.github.com/repos/2133611700c-sudo/opencloud-gpt-agent/environments/openclaw-v2-live/secrets/public-key)\n"
+  },
+  "github_kernel_live": "BLOCKED",
+  "verdict": "PARTIALLY_WORKING",
+  "real_bootstrap_helper": {
+    "command": [
+      "node",
+      "scripts/bootstrap-research-auth.mjs"
+    ],
+    "exit": 0,
+    "latency_ms": 6671,
+    "stdout": "{\"status\":\"PASS\",\"agentId\":\"main\",\"provider\":\"deepseek\",\"credentialSource\":\"stored-agent-profile\",\"profileCount\":1,\"directCredentialInChildEnvironment\":false}\n",
+    "stderr": "",
+    "scope": "/workspace/audit/v2-research-state"
+  },
+  "local_code_validation": {
+    "status": "PASS",
+    "node_tests": 482,
+    "passed": 482,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_ms": 12265.054893,
+    "foundation": "PASS",
+    "route_map": "PASS",
+    "health": "PASS",
+    "installed_config_validate": "PASS",
+    "installed_config_warnings": [],
+    "real_bootstrap_helper": "PASS",
+    "bootstrap_helper_exit": 0,
+    "evidence": "docs/evidence/openclaw-2026.10.3-stored-auth-20261016.json"
+  },
+  "local_test_log_sha256": "77b918e400e9eae64242d89c7e42f0fc85602b03ac2e330ba8bc17be5325f76f",
+  "candidate_config_sha256": "946a161c234e6c447a37d977038b6337317492b755f7d9115e849c40ee4d431b",
+  "candidate_config_validate": {
+    "valid": true,
+    "path": "/workspace/audit/v2-research-config-candidate.json",
+    "warnings": []
+  }
+}

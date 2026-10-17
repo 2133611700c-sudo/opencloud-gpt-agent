@@ -66,7 +66,7 @@ const evidence = (status = 'SUCCESS') => ({
   }],
   runtimeReceipts: [{
     configured: {
-      runtimeVersion: '2026.9.8',
+      runtimeVersion: '2026.10.3',
       requestedModel: 'deepseek/deepseek-flash',
       thinkingLevel: 'max',
     },

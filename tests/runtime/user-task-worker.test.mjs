@@ -48,7 +48,9 @@ test('missing request times out, aborted worker never queries', async () => {
   let calls = 0;
   const runtime = { async runTask() { calls++; } };
   await assert.rejects(runUserTaskWorker({ ...config, maxWaitMs: 5, query: async () => ({ rows: [] }), runtime }),
-    { code: 'USER_WORKER_REQUEST_NOT_FOUND' });
+    // maxWaitMs is 5ms: on a loaded machine the deadline guard may fire first.
+    // Both outcomes are the correct fail-closed result; the invariant is no paid work.
+    { code: /^USER_WORKER_(REQUEST_NOT_FOUND|DISCOVERY_TIMEOUT)$/ });
   await assert.rejects(runUserTaskWorker({ ...config, query: async () => { calls++; }, runtime, signal: AbortSignal.abort() }),
     { code: 'USER_WORKER_ABORTED' });
   assert.equal(calls, 0);

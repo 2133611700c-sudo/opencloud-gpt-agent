@@ -16,7 +16,7 @@ DECLARE
       'provider','deepseek','model','deepseek-flash','sessionId','trace-session',
       'toolSummary',jsonb_build_object('calls',2,'failures',0,'tools',jsonb_build_array('web_search','web_fetch'),'totalToolTimeMs',7)
     ),
-    'configured',jsonb_build_object('runtimeVersion','2026.9.8','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),
+    'configured',jsonb_build_object('runtimeVersion','2026.10.3','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),
     'trace','[]'::jsonb,
     'error',NULL
   );

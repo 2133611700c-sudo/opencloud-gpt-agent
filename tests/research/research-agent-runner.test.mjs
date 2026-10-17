@@ -7,13 +7,14 @@ import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
 
 import {
-  MissingResearchCredentialError,
   ResearchAgentProcessError,
   ResearchTrustRootError,
   buildResearchChildEnv,
   getRejectedResearchBilling,
   runResearchAgent,
 } from '../../src/research/research-agent-runner.mjs';
+
+const verifyAuthScopeImpl = async () => ({ agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 });
 
 const request = { goal: 'Find five current listings', maxResults: 5, requiredFields: ['price', 'dealer'] };
 const finalResult = {
@@ -53,16 +54,18 @@ function successfulSpawn(capture, root, envelope = agentEnvelope()) {
   };
 }
 const baseEnv = () => ({
-  DEEPSEEK_API_KEY: 'test-only-key', PATH: '/usr/bin', HOME: '/home/test',
+  PATH: '/usr/bin', HOME: '/home/test',
   OPENCLAW_STATE_DIR: runnerStateRoot,
 });
 
-test('fails before temp config and spawn when DEEPSEEK_API_KEY is missing', async () => {
-  const root = isolatedRoot(); let spawned = false;
+test('missing stored authentication fails before temp config and agent spawn even with an ambient key', async () => {
+  const root = isolatedRoot(); let spawned = false; let verified = false;
+  const failure = Object.assign(new Error('stored profile missing'), { code: 'STORED_DEEPSEEK_AUTH_MISSING' });
   try {
-    await assert.rejects(runResearchAgent({ request, env: {}, tempRoot: root, spawnImpl: () => { spawned = true; return makeFakeChild(); } }),
-      (error) => error instanceof MissingResearchCredentialError && error.code === 'MISSING_DEEPSEEK_API_KEY');
-    assert.equal(spawned, false); assert.deepEqual(readdirSync(root), []);
+    await assert.rejects(runResearchAgent({ request, env: { ...baseEnv(), DEEPSEEK_API_KEY: 'ambient-key-must-not-fallback' }, tempRoot: root,
+      verifyAuthScopeImpl: async ({ env }) => { verified = true; assert.equal('DEEPSEEK_API_KEY' in env, false); throw failure; },
+      spawnImpl: () => { spawned = true; return makeFakeChild(); } }), failure);
+    assert.equal(verified, true); assert.equal(spawned, false); assert.deepEqual(readdirSync(root), []);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
@@ -73,7 +76,7 @@ test('fails before temp config and spawn when isolated OPENCLAW_STATE_DIR is mis
       const env = { DEEPSEEK_API_KEY: 'test-only-key' };
       if (stateDir !== undefined) env.OPENCLAW_STATE_DIR = stateDir;
       await assert.rejects(
-        runResearchAgent({
+        runResearchAgent({ verifyAuthScopeImpl,
           request,
           env,
           tempRoot: root,
@@ -94,7 +97,7 @@ test('direct runner rejects group/world-accessible trust root before temp config
   try {
     chmodSync(insecureStateRoot, 0o755);
     await assert.rejects(
-      runResearchAgent({
+      runResearchAgent({ verifyAuthScopeImpl,
         request,
         env: { ...baseEnv(), OPENCLAW_STATE_DIR: insecureStateRoot },
         tempRoot: root,
@@ -112,27 +115,27 @@ test('direct runner rejects group/world-accessible trust root before temp config
 
 test('child env preserves operator plugin root and excludes unrelated credentials', () => {
   const env = buildResearchChildEnv({
-    ...baseEnv(), DATABASE_URL: 'postgres://must-not-leak', GITHUB_TOKEN: 'must-not-leak', AWS_SECRET_ACCESS_KEY: 'must-not-leak',
+    ...baseEnv(), DEEPSEEK_API_KEY: 'must-not-leak', OPENAI_API_KEY: 'must-not-leak', NODE_USE_ENV_PROXY: '1', DATABASE_URL: 'postgres://must-not-leak', GITHUB_TOKEN: 'must-not-leak', AWS_SECRET_ACCESS_KEY: 'must-not-leak',
   });
   assert.equal(env.PATH, '/usr/bin'); assert.equal(env.HOME, '/home/test');
-  assert.equal(env.DEEPSEEK_API_KEY, 'test-only-key');
+  assert.equal('DEEPSEEK_API_KEY' in env, false); assert.equal('OPENAI_API_KEY' in env, false); assert.equal(env.NODE_USE_ENV_PROXY, '1');
   assert.equal(env.OPENCLAW_STATE_DIR, runnerStateRoot);
   assert.equal(env.OPENCLAW_CONFIG_READONLY, '1'); assert.equal(env.OPENCLAW_EXEC_SHELL_SNAPSHOT, '0');
   assert.equal('OPENCLAW_CONFIG_PATH' in env, false);
   assert.equal('DATABASE_URL' in env, false); assert.equal('GITHUB_TOKEN' in env, false); assert.equal('AWS_SECRET_ACCESS_KEY' in env, false);
 });
 
-test('runs shell-free with pinned 0600 config and native ephemeral OpenClaw run state', async () => {
+test('runs with stored auth and no environment key, shell-free with pinned 0600 config and native ephemeral state', async () => {
   const root = isolatedRoot(); const capture = {};
   try {
-    const result = await runResearchAgent({
+    const result = await runResearchAgent({ verifyAuthScopeImpl,
       request, env: { ...baseEnv(), DATABASE_URL: 'must-not-leak' }, tempRoot: root,
       spawnImpl: successfulSpawn(capture, root),
     });
     assert.equal(capture.executable, 'openclaw'); assert.equal(capture.options.shell, false);
     assert.deepEqual(capture.options.stdio, ['pipe', 'pipe', 'pipe']);
     assert.equal(capture.options.env.OPENCLAW_STATE_DIR, runnerStateRoot);
-    assert.equal('DATABASE_URL' in capture.options.env, false);
+    assert.equal('DATABASE_URL' in capture.options.env, false); assert.equal('DEEPSEEK_API_KEY' in capture.options.env, false);
     assert.equal(capture.args.includes('--state-dir'), false); assert.equal(capture.args.includes('--auth-env-only'), false);
     assert.equal(capture.args[capture.args.indexOf('--code-mode') + 1], 'direct');
     assert.equal(capture.args[capture.args.indexOf('--timeout') + 1], '115');
@@ -146,7 +149,7 @@ test('runs shell-free with pinned 0600 config and native ephemeral OpenClaw run 
 test('redacts key material from nonzero process error and removes temp config', async () => {
   const root = isolatedRoot(); const secret = 'test-secret-value'; let configPath; const child = makeFakeChild();
   try {
-    const promise = runResearchAgent({ request, env: { ...baseEnv(), DEEPSEEK_API_KEY: secret }, tempRoot: root,
+    const promise = runResearchAgent({ verifyAuthScopeImpl, request, env: { ...baseEnv(), DEEPSEEK_API_KEY: secret }, tempRoot: root,
       spawnImpl: (_exe, args) => { configPath = args[args.indexOf('--config') + 1]; queueMicrotask(() => { child.stderr.end(`auth failed ${secret} and sk-abcdefghijk12345`); child.emit('close', 1, null); }); return child; } });
     await assert.rejects(promise, (error) => {
       assert.ok(error instanceof ResearchAgentProcessError); assert.equal(error.code, 'NONZERO_EXIT');
@@ -160,7 +163,7 @@ test('redacts key material from nonzero process error and removes temp config', 
 test('maps OpenClaw exit code 2 to AGENT_TIMEOUT', async () => {
   const root = isolatedRoot(); const child = makeFakeChild();
   try {
-    const promise = runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+    const promise = runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root,
       spawnImpl: () => { queueMicrotask(() => child.emit('close', 2, null)); return child; } });
     await assert.rejects(promise, (error) => error.code === 'AGENT_TIMEOUT'); assert.deepEqual(readdirSync(root), []);
   } finally { rmSync(root, { recursive: true, force: true }); }
@@ -170,7 +173,7 @@ test('kills child on local timeout, AbortSignal and stdout overflow', async (t) 
   await t.test('timeout', async () => {
     const root = isolatedRoot(); const child = makeFakeChild();
     try {
-      await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root, timeoutMs: 10, spawnImpl: () => child }), (e) => e.code === 'TIMEOUT');
+      await assert.rejects(runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root, timeoutMs: 10, spawnImpl: () => child }), (e) => e.code === 'TIMEOUT');
       assert.deepEqual(child.killSignals, ['SIGKILL']); assert.deepEqual(readdirSync(root), []);
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
@@ -178,7 +181,7 @@ test('kills child on local timeout, AbortSignal and stdout overflow', async (t) 
     const root = isolatedRoot(); const child = makeFakeChild(); const controller = new AbortController(); let markSpawned;
     const spawned = new Promise((resolve) => { markSpawned = resolve; });
     try {
-      const promise = runResearchAgent({ request, env: baseEnv(), tempRoot: root, signal: controller.signal,
+      const promise = runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root, signal: controller.signal,
         spawnImpl: () => { markSpawned(); return child; } });
       await spawned; controller.abort(); await assert.rejects(promise, (e) => e.code === 'ABORTED');
       assert.deepEqual(child.killSignals, ['SIGKILL']); assert.deepEqual(readdirSync(root), []);
@@ -187,7 +190,7 @@ test('kills child on local timeout, AbortSignal and stdout overflow', async (t) 
   await t.test('stdout overflow', async () => {
     const root = isolatedRoot(); const child = makeFakeChild();
     try {
-      const promise = runResearchAgent({ request, env: baseEnv(), tempRoot: root, maxStdoutBytes: 10,
+      const promise = runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root, maxStdoutBytes: 10,
         spawnImpl: () => { queueMicrotask(() => child.stdout.write('01234567890')); return child; } });
       await assert.rejects(promise, (e) => e.code === 'STDOUT_LIMIT_EXCEEDED');
       assert.deepEqual(child.killSignals, ['SIGKILL']); assert.deepEqual(readdirSync(root), []);
@@ -198,7 +201,7 @@ test('kills child on local timeout, AbortSignal and stdout overflow', async (t) 
 test('zero exit still fails closed on invalid Research envelope', async () => {
   const root = isolatedRoot(); const capture = {};
   try {
-    await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+    await assert.rejects(runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root,
       spawnImpl: successfulSpawn(capture, root, agentEnvelope({ toolSummary: { calls: 1, tools: ['web_search'], totalToolTimeMs: 1 } })) }),
       (error) => error instanceof ResearchAgentProcessError && error.code === 'INVALID_SUCCESS_ENVELOPE');
     assert.deepEqual(readdirSync(root), []);
@@ -215,7 +218,7 @@ test('records measured native process duration with rounding and SQL INTEGER bou
   ]) await t.test(name, async () => {
     const root = isolatedRoot(); const capture = {}; let samples = 0;
     try {
-      const result = await runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+      const result = await runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root,
         spawnImpl: successfulSpawn(capture, root), nowMs: () => {
           samples += 1;
           if (samples === 1) { assert.equal(capture.child, undefined, 'first sample precedes native spawn'); return start; }
@@ -248,7 +251,7 @@ test('invalid clock configuration or start sample blocks spawn and cleans config
   for (const [name, nowMs] of cases) await t.test(name, async () => {
     const root = isolatedRoot(); let spawned = false;
     try {
-      await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root, nowMs,
+      await assert.rejects(runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root, nowMs,
         spawnImpl: () => { spawned = true; return makeFakeChild(); },
       }), assertInvalidLatency);
       assert.equal(spawned, false); assert.deepEqual(readdirSync(root), []);
@@ -265,7 +268,7 @@ test('invalid end samples fail after runtime without leaking clock errors or ret
   ]) await t.test(name, async () => {
     const root = isolatedRoot(); const capture = {}; let samples = 0;
     try {
-      await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+      await assert.rejects(runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root,
         spawnImpl: successfulSpawn(capture, root), nowMs: () => {
           samples += 1; return samples === 1 ? 0 : typeof end === 'function' ? end() : end;
         },
@@ -280,7 +283,7 @@ test('invalid end samples fail after runtime without leaking clock errors or ret
 test('duplicate close events do not resample or change settled process latency', async () => {
   const root = isolatedRoot(); const capture = {}; let samples = 0;
   try {
-    const result = await runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+    const result = await runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root,
       spawnImpl: successfulSpawn(capture, root), nowMs: () => {
         samples += 1; if (samples > 2) throw new Error('unexpected third clock sample'); return samples === 1 ? 0 : 37.25;
       },
@@ -297,7 +300,7 @@ test('native rejected envelope exposes only branded immutable billing and measur
     toolSummary: { calls: 2, tools: ['web_search', 'web_fetch'], failures: 1,
       unresolvedError: { toolName: 'web_fetch', message: 'private tool sentinel' } }, reasoning: 'private reasoning sentinel' });
   try {
-    await assert.rejects(runResearchAgent({ request, env: baseEnv(), tempRoot: root,
+    await assert.rejects(runResearchAgent({ verifyAuthScopeImpl, request, env: baseEnv(), tempRoot: root,
       spawnImpl: successfulSpawn(capture, root, rejected), nowMs: () => ++samples === 1 ? 0 : 37.25,
     }), (error) => {
       assert.equal(error.code, 'INVALID_SUCCESS_ENVELOPE'); assert.equal(error.cause, undefined);
@@ -328,4 +331,16 @@ test('native billing lookup does not read forged error properties or getters', (
   assert.equal(getRejectedResearchBilling(new Proxy(fake, { get() { reads += 1; throw new Error('private proxy detail'); } })), null);
   assert.equal(getRejectedResearchBilling(new ResearchAgentProcessError('fake', { code: 'INVALID_SUCCESS_ENVELOPE' })), null);
   assert.equal(reads, 0);
+});
+
+test('abort while stored-auth verification waits prevents native execution and temporary config', async () => {
+  const root = isolatedRoot(); const controller = new AbortController(); let release; let spawned = false;
+  const pending = new Promise((resolve) => { release = resolve; });
+  try {
+    const run = runResearchAgent({ request, env: baseEnv(), tempRoot: root, signal: controller.signal,
+      verifyAuthScopeImpl: () => pending, spawnImpl: () => { spawned = true; return makeFakeChild(); } });
+    controller.abort(); release({ agentId: 'main' });
+    await assert.rejects(run, (error) => error.code === 'ABORTED');
+    assert.equal(spawned, false); assert.deepEqual(readdirSync(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

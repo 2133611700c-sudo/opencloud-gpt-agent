@@ -14,7 +14,7 @@ DECLARE
       'provider','deepseek','model','deepseek-flash','sessionId','session-e3b2',
       'toolSummary',jsonb_build_object('calls',2,'failures',0,'tools',jsonb_build_array('web_search','web_fetch'),'totalToolTimeMs',7)
     ),
-    'configured',jsonb_build_object('runtimeVersion','2026.9.8','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),
+    'configured',jsonb_build_object('runtimeVersion','2026.10.3','requestedModel','deepseek/deepseek-flash','thinkingLevel','max'),
     'trace','[]'::jsonb,
     'error',NULL
   );
@@ -45,7 +45,7 @@ BEGIN
   SELECT * INTO v_v1 FROM load_terminal_evidence_input_v1(v_task);
   SELECT * INTO v_v2 FROM load_terminal_evidence_input_v2(v_task);
   IF NOT FOUND OR jsonb_array_length(v_v2.snapshot->'runtimeReceipts')<>1
-     OR v_v2.snapshot #>> '{runtimeReceipts,0,configured,runtimeVersion}' <> '2026.9.8'
+     OR v_v2.snapshot #>> '{runtimeReceipts,0,configured,runtimeVersion}' <> '2026.10.3'
      OR v_v2.snapshot_sha256 IS NOT DISTINCT FROM v_v1.snapshot_sha256 THEN
     RAISE EXCEPTION 'E3b2 v2 snapshot did not bind the durable receipt';
   END IF;

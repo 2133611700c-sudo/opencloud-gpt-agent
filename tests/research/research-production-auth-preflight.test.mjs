@@ -20,7 +20,6 @@ const createNativeWorker = ({ root, query, verifyAuthScopeImpl }) => createProdu
   estimateReservation: async () => ({ costUsd: 0.1, tokens: 100 }),
   researchEnv: {
     PATH: process.env.PATH,
-    DEEPSEEK_API_KEY: 'test-secret',
     OPENCLAW_STATE_DIR: root,
   },
   verifyAuthScopeImpl,
@@ -28,7 +27,7 @@ const createNativeWorker = ({ root, query, verifyAuthScopeImpl }) => createProdu
 
 test('native runOnce rejects semantic stored-auth failure before any durable claim', async () => withStateRoot(async (root) => {
   const events = [];
-  const failure = Object.assign(new Error('stored auth present'), { code: 'STORED_DEEPSEEK_AUTH_PRESENT' });
+  const failure = Object.assign(new Error('stored auth missing'), { code: 'STORED_DEEPSEEK_AUTH_MISSING' });
   const worker = createNativeWorker({
     root,
     query: async () => { events.push('query'); return { rows: [] }; },
@@ -49,7 +48,8 @@ test('native task-scoped Research verifies auth before task-scoped claim', async
     },
     verifyAuthScopeImpl: async ({ env }) => {
       events.push(['verify', env.OPENCLAW_STATE_DIR]);
-      return { provider: 'deepseek', profileCount: 0 };
+      assert.equal('DEEPSEEK_API_KEY' in env, false);
+      return { agentId: 'main', provider: 'deepseek', profileId: 'deepseek:manual', type: 'api_key', profileCount: 1 };
     },
   });
 

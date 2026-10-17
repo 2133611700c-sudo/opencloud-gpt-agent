@@ -1,13 +1,17 @@
 import { createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 
+import { refreshDeepSeekModelCatalog } from '../src/providers/deepseek-model-catalog.mjs';
 import { runDeepSeekInferSmoke } from '../src/providers/deepseek-smoke-runner.mjs';
 
 const model = process.env.OPENCLAW_DEEPSEEK_MODEL || 'deepseek/deepseek-flash';
 const expected = 'smoke-ok';
-const started = performance.now();
 
 try {
+  // This separate provider smoke intentionally tests environment auth, rather
+  // than the Research agent's stored-auth contract.
+  const catalog = refreshDeepSeekModelCatalog({ model, env: process.env, credentialMode: 'environment' });
+  const started = performance.now();
   const result = await runDeepSeekInferSmoke({
     model,
     prompt: `Reply with exactly: ${expected}`,
@@ -29,6 +33,7 @@ try {
     provider: result.provider,
     model: result.model,
     transport: result.transport,
+    catalog_refreshed: catalog.refreshed,
     wall_latency_ms: wallLatencyMs,
     output_sha256: outputSha256,
     telemetry: {

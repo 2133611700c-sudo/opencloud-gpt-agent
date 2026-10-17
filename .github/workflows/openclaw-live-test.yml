@@ -1,0 +1,47 @@
+name: OpenClaw Live Test
+on:
+  push:
+    branches: ['work/openclaw-live-test']
+  workflow_dispatch:
+    inputs:
+      message:
+        description: Task for the agent
+        required: false
+        default: 'Find the current weather in Los Angeles using web search and answer in one sentence with the source.'
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-state
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      MSG: ${{ inputs.message || 'Find the current weather in Los Angeles using web search and answer in one sentence with the source.' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install OpenClaw 2026.10.3 and plugins
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$OPENCLAW_STATE_DIR"
+          npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
+          openclaw --version
+          openclaw plugins install @openclaw/deepseek-provider@2026.10.3
+          openclaw plugins install @openclaw/duckduckgo-plugin@2026.10.3
+          openclaw plugins list
+      - name: Add DeepSeek key (official non-interactive onboard)
+        run: |
+          set -euo pipefail
+          openclaw onboard --non-interactive --mode local --auth-choice deepseek-api-key --deepseek-api-key "$DEEPSEEK_API_KEY" --skip-health --accept-risk
+          openclaw models list --provider deepseek
+      - name: Run agent task
+        run: |
+          set +e
+          printf '%s' "$MSG" > "$RUNNER_TEMP/msg.txt"
+          openclaw agent exec --help | head -40
+          echo "=== RUN ==="
+          openclaw agent exec --message-file "$RUNNER_TEMP/msg.txt" --model deepseek/deepseek-v4-flash --json --timeout 300
+          echo "exit=$?"

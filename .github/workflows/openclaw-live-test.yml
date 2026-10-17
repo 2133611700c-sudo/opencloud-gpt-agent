@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-state
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       MSG: ${{ inputs.message || 'Find the current weather in Los Angeles using web search and answer in one sentence with the source.' }}
     steps:
@@ -26,6 +25,8 @@ jobs:
       - name: Install OpenClaw 2026.10.3 and plugins
         run: |
           set -euo pipefail
+          export OPENCLAW_STATE_DIR="$RUNNER_TEMP/openclaw-state"
+          echo "OPENCLAW_STATE_DIR=$OPENCLAW_STATE_DIR" >> "$GITHUB_ENV"
           install -d -m 700 "$OPENCLAW_STATE_DIR"
           npm install -g openclaw@2026.10.3 --allow-scripts=openclaw
           openclaw --version

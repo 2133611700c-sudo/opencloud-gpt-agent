@@ -1,0 +1,92 @@
+--- a/toyota/hub/hub.mjs
++++ b/toyota/hub/hub.mjs
+@@ -18,6 +18,7 @@
+ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+ import { z } from "zod";
+ import { isolatedByDefault, privateProfileFor, assertOwnedTab } from "./client-isolation.mjs";
++import { needsOwnerApproval, requestActionApproval, consumeActionApproval } from "./action-approval.mjs";
+ 
+ const OC = process.env.OC_BROWSER_URL || "http://127.0.0.1:18791";   // OpenClaw browser control (loopback only)
+ const OC_TOKEN = process.env.OC_GATEWAY_TOKEN;                          // OpenClaw gateway token (local secret)
+@@ -52,12 +53,14 @@
+ // Always refused (both modes): this system's own control ports on this machine + cloud metadata. Everything else is reachable.
+ const PROTECTED_PORTS = parsePorts(process.env.HUB_PROTECTED_PORTS || DEFAULT_PROTECTED_PORTS);
+ function assertReachable(raw) {
+-  let u; try { u = new URL(raw); } catch { return; }
++  let u; try { u = new URL(raw); } catch { throw Object.assign(new Error("invalid URL"), { reason: "policy" }); }
++  if (!["http:", "https:"].includes(u.protocol)) throw Object.assign(new Error("only http/https browser navigation is allowed"), { reason: "policy" });
+   const host = u.hostname.replace(/^\[|\]$/g, "").toLowerCase(), port = Number(u.port || (u.protocol === "https:" ? 443 : 80));
+   if (["169.254.169.254", "169.254.170.2", "169.254.170.23", "100.100.100.200", "metadata.google.internal", "fd00:ec2::254"].includes(host)) throw Object.assign(new Error("cloud metadata endpoint blocked"), { reason: "policy" });
+   if ((host === "localhost" || host.endsWith(".localhost") || isLoopback(host)) && PROTECTED_PORTS.has(port)) throw Object.assign(new Error(`this system's own control port ${port} is not reachable from the browser`), { reason: "policy" });
+ }
+-const SMS_APPROVAL = process.env.SMS_APPROVAL === "none" ? "none" : "owner";
++// G10: no SMS owner-approval bypass, even if legacy SMS_APPROVAL=none is set.
++const SMS_APPROVAL = "owner";
+ // rc2 (audit P0-5): every client gets its OWN browser profile (cookies, logins, storage). OpenClaw profiles must be declared in its config.
+ const OC_PROFILES = new Map((process.env.OC_PROFILES || "").split(",").filter(Boolean).map((p) => p.split(":")));
+ // Files the tools may read/upload: everything under data/ (downloads, media, work, reports...) + extra roots — except data/secrets.
+@@ -155,7 +158,7 @@
+   apReq: db.prepare("INSERT INTO approvals (id, ts, requester, kind, hash, payload, expires) VALUES (?,?,?,?,?,?,?)"),
+   apUse: db.prepare("UPDATE approvals SET state='used', used_ts=? WHERE id=? AND requester=? AND hash=? AND state='granted' AND expires > ?"),
+   apPending: db.prepare("SELECT id, ts, requester, kind, payload, expires FROM approvals WHERE state='requested' AND expires > ? ORDER BY ts"),
+-  apDecide: db.prepare("UPDATE approvals SET state=?, decided_by=?, decided_ts=? WHERE id=? AND state='requested' AND expires > ?"),
++  apDecide: db.prepare("UPDATE approvals SET state=?, decided_by=?, decided_ts=? WHERE id=? AND state='requested' AND expires > ? AND requester<>?"),
+ };
+ const now = () => new Date().toISOString();
+ // ---- Per-owner isolation + engine pinning (audit P0) ----
+@@ -229,15 +232,26 @@
+   const s = new McpServer({ name: "toyota-hub", version: VERSION });
+   // Wrap every tool: evidence for success, UNKNOWN on failure after a mutating call starts.
+   const tool = (name, desc, shape, mutating, fn, readOnly = !mutating) =>
+-    s.registerTool(name, { description: desc, inputSchema: shape, annotations: { readOnlyHint: readOnly } }, (args) => als.run({ owner }, async () => {
++    s.registerTool(name, { description: desc, inputSchema: mutating && name !== "sms_send" ? { ...shape, approvalId: z.string().max(64).optional() } : shape, annotations: { readOnlyHint: readOnly } }, (args) => als.run({ owner }, async () => {
+       let opId = 0;
+       try {
+         if (ISOLATION && args?.tabId) {                         // isolation mode only: a tab belongs to the client that opened it
+           const eng = await engineName();
+           assertOwnedTab({ owner, engine: eng, tabId: args.tabId, lookup: tabOwnerOf, isolation: ISOLATION });
+         }
+-        if (mutating) opId = Number(Q.opStart.run(now(), owner, name, JSON.stringify(redact(args)), als.getStore().engine ?? null, args?.tabId ?? null).lastInsertRowid);
+-        const res = await fn(args);
++        // G10 gate before durable operation intent and before any remote browser/tool call.
++        // approvalId MUST NOT be forwarded into the engine or included in the action hash.
++        const { approvalId, ...actionArgs } = args;
++        if (needsOwnerApproval(name, mutating, actionArgs)) {
++          if (!approvalId) {
++            const pending = requestActionApproval(Q, owner, name, actionArgs, now);
++            await evidence(owner, name, actionArgs, "NEEDS_APPROVAL", { approvalId: pending.approvalId });
++            return text(pending);
++          }
++          consumeActionApproval(Q, owner, name, actionArgs, approvalId, now);
++        }
++        if (mutating) opId = Number(Q.opStart.run(now(), owner, name, JSON.stringify(redact(actionArgs)), als.getStore().engine ?? null, actionArgs?.tabId ?? null).lastInsertRowid);
++        const res = await fn(actionArgs);
+         if (opId) Q.opEnd.run("done", null, als.getStore().engine ?? null, opId);
+         await evidence(owner, name, args, "EXECUTED", res._evidence || {});
+         delete res._evidence;
+@@ -378,14 +392,14 @@
+       const live = process.env.SMS_ENABLED === "1" && process.env.CALL2ME_API_KEY && process.env.CALL2ME_FROM;
+       const segments = Math.ceil(body.length / (body.length > 160 ? 153 : 160)), est = +(segments * 0.02).toFixed(2), h = smsHash(to, body);
+       if (!live) return text({ status: "DRY_RUN", reason: "SMS disabled on this server", would_send: { to, segments, est_cost_usd: est } });
+-      if (SMS_APPROVAL === "none") approvalId = "__auto__";   // owner chose full autonomy for SMS (SMS_APPROVAL=none)
++      // Legacy automatic SMS grants are forbidden in the G10 review candidate.
+       if (!approvalId) {
+         const id = randomBytes(9).toString("base64url");
+         Q.apReq.run(id, now(), owner, "sms", h, JSON.stringify({ to, text: body, segments, est_cost_usd: est }), new Date(Date.now() + 30 * 60000).toISOString());
+         return text({ status: "NEEDS_APPROVAL", approvalId: id, expiresInMin: 30, message: "Owner must approve this exact recipient+text; then call sms_send again with approvalId." });
+       }
+       // atomically consume: granted + same requester + same payload + not expired -> used (single use)
+-      const used = approvalId === "__auto__" ? { changes: 1 } : Q.apUse.run(now(), approvalId, owner, h, now());
++      const used = Q.apUse.run(now(), approvalId, owner, h, now());
+       if (!used.changes) throw Object.assign(new Error("approval missing, not granted, expired, already used, or text/recipient changed"), { reason: "policy" });
+       const r = await fetch(process.env.CALL2ME_API_URL || "https://api.call2me.app/v1/sms", { method: "POST",
+         headers: { Authorization: `Bearer ${process.env.CALL2ME_API_KEY}`, "Content-Type": "application/json" },
+@@ -398,7 +412,7 @@
+     tool("approvals_pending", "OWNER: approvals waiting for a decision.", {}, false,
+       async () => text({ pending: Q.apPending.all(now()).map((r) => ({ ...r, payload: JSON.parse(r.payload) })) }));
+     tool("approval_grant", "OWNER: approve or reject one request by id.", { approvalId: z.string().max(64), approve: z.boolean() }, false,
+-      async ({ approvalId, approve }) => { const r = Q.apDecide.run(approve ? "granted" : "rejected", owner, now(), approvalId, now());
++      async ({ approvalId, approve }) => { const r = Q.apDecide.run(approve ? "granted" : "rejected", owner, now(), approvalId, now(), owner);
+         if (!r.changes) throw Object.assign(new Error("no such pending approval"), { reason: "policy" }); return text({ ok: true, approvalId, state: approve ? "granted" : "rejected" }); });
+   }
+   return s;
